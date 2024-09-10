@@ -1,12 +1,15 @@
-import { useState } from 'react'
+import React from 'react'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import Header from './components/DefautComponent/Header'
 
 function App() {
-  const [count, setCount] = useState(0)
 
   return (
-    <>
-      
-    </>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Header />} />
+      </Routes>
+    </Router>
   )
 }
 
