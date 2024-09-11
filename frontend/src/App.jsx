@@ -1,13 +1,15 @@
 import React from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import Header from './components/DefautComponent/Header'
+import Home from './pages/Home'
+import About from './pages/About'
 
 function App() {
 
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Header />} />
+        <Route path="/" exact element={<Home />} />
+        <Route path="/about" exact element={<About />} />
       </Routes>
     </Router>
   )
