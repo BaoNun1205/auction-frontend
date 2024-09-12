@@ -1,7 +1,9 @@
 import React from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Home from './pages/Home'
-import About from './pages/About'
+import Product from './pages/Product'
+import Requirement from './pages/Requirement'
+import Session from './pages/Session'
 
 function App() {
 
@@ -9,7 +11,9 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" exact element={<Home />} />
-        <Route path="/about" exact element={<About />} />
+        <Route path="/requirement" exact element={<Requirement />} />
+        <Route path="/product" element={<Product />} />
+        <Route path="/session" element={<Session />} />
       </Routes>
     </Router>
   )

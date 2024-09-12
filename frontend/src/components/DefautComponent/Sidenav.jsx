@@ -16,7 +16,6 @@ import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
 import InboxIcon from '@mui/icons-material/MoveToInbox'
 import { useNavigate } from 'react-router-dom'
-import { useEffect } from 'react'
 import { useAppStore } from '../../store/appStore'
 
 const drawerWidth = 240
@@ -49,29 +48,6 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   padding: theme.spacing(0, 1),
   // necessary for content to be below app bar
   ...theme.mixins.toolbar
-}))
-
-const AppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== 'open'
-})(({ theme }) => ({
-  zIndex: theme.zIndex.drawer + 1,
-  transition: theme.transitions.create(['width', 'margin'], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen
-  }),
-  variants: [
-    {
-      props: ({ open }) => open,
-      style: {
-        marginLeft: drawerWidth,
-        width: `calc(100% - ${drawerWidth}px)`,
-        transition: theme.transitions.create(['width', 'margin'], {
-          easing: theme.transitions.easing.sharp,
-          duration: theme.transitions.duration.enteringScreen
-        })
-      }
-    }
-  ]
 }))
 
 const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
@@ -163,7 +139,7 @@ const Sidenav = ({ children }) => {
               />
             </ListItemButton>
           </ListItem>
-          <ListItem disablePadding sx={{ display: 'block' }} onClick={() => navigate('/about')}>
+          <ListItem disablePadding sx={{ display: 'block' }} onClick={() => navigate('/requirement')}>
             <ListItemButton
               sx={[
                 {
@@ -197,7 +173,101 @@ const Sidenav = ({ children }) => {
                 <InboxIcon />
               </ListItemIcon>
               <ListItemText
-                primary="About"
+                primary="Requirement"
+                sx={[
+                  open
+                    ? {
+                      opacity: 1
+                    }
+                    : {
+                      opacity: 0
+                    }
+                ]}
+              />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding sx={{ display: 'block' }} onClick={() => navigate('/product')}>
+            <ListItemButton
+              sx={[
+                {
+                  minHeight: 48,
+                  px: 2.5
+                },
+                open
+                  ? {
+                    justifyContent: 'initial'
+                  }
+                  : {
+                    justifyContent: 'center'
+                  }
+              ]}
+            >
+              <ListItemIcon
+                sx={[
+                  {
+                    minWidth: 0,
+                    justifyContent: 'center'
+                  },
+                  open
+                    ? {
+                      mr: 3
+                    }
+                    : {
+                      mr: 'auto'
+                    }
+                ]}
+              >
+                <InboxIcon />
+              </ListItemIcon>
+              <ListItemText
+                primary="Product"
+                sx={[
+                  open
+                    ? {
+                      opacity: 1
+                    }
+                    : {
+                      opacity: 0
+                    }
+                ]}
+              />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding sx={{ display: 'block' }} onClick={() => navigate('/session')}>
+            <ListItemButton
+              sx={[
+                {
+                  minHeight: 48,
+                  px: 2.5
+                },
+                open
+                  ? {
+                    justifyContent: 'initial'
+                  }
+                  : {
+                    justifyContent: 'center'
+                  }
+              ]}
+            >
+              <ListItemIcon
+                sx={[
+                  {
+                    minWidth: 0,
+                    justifyContent: 'center'
+                  },
+                  open
+                    ? {
+                      mr: 3
+                    }
+                    : {
+                      mr: 'auto'
+                    }
+                ]}
+              >
+                <InboxIcon />
+              </ListItemIcon>
+              <ListItemText
+                primary="Auction session"
                 sx={[
                   open
                     ? {
