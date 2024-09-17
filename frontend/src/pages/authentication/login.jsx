@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom' // Import useNavigate
 
 // Material UI Imports
 import {
@@ -19,26 +20,27 @@ import {
 import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import LoginIcon from '@mui/icons-material/Login'
-
-// Email Validation
-const isEmail = (email) =>
-  /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(email)
+import { token } from '../../api/auth'
+import { getUser } from '../../api/user'
+import { jwtDecode } from 'jwt-decode'
 
 export default function Login() {
   const [showPassword, setShowPassword] = React.useState(false)
 
   //Inputs
-  const [emailInput, setEmailInput] = useState()
+  const [usernameInput, setUsernameInput] = useState()
   const [passwordInput, setPasswordInput] = useState()
   const [rememberMe, setRememberMe] = useState()
 
   // Inputs Errors
-  const [emailError, setEmailError] = useState(false)
+  const [usernameError, setUsernameError] = useState(false)
   const [passwordError, setPasswordError] = useState(false)
 
   // Overall Form Validity
   const [formValid, setFormValid] = useState()
   const [success, setSuccess] = useState()
+
+  const navigate = useNavigate()
 
   // Handles Display and Hide Password
   const handleClickShowPassword = () => setShowPassword((show) => !show)
@@ -49,15 +51,14 @@ export default function Login() {
   // Label for Checkbox
   const label = { inputProps: { 'aria-label': 'Checkbox demo' } }
 
-  // Validation for onBlur Email
-  const handleEmail = () => {
-    console.log(isEmail(emailInput))
-    if (!isEmail(emailInput)) {
-      setEmailError(true)
+  // Validation for onBlur username
+  const handleUsername = () => {
+    if (!usernameInput) {
+      setUsernameError(true)
       return
     }
 
-    setEmailError(false)
+    setUsernameError(false)
   }
 
   // Validation for onBlur Password
@@ -75,15 +76,15 @@ export default function Login() {
   }
 
   //handle Submittion
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setSuccess(null)
     //First of all Check for Errors
 
-    // If Email error is true
-    if (emailError || !emailInput) {
-      setFormValid('Email is Invalid. Please Re-Enter')
-      return
-    }
+    // If username error is true
+    // if (usernameError || !usernameInput) {
+    //   setFormValid('username is Invalid. Please Re-Enter')
+    //   return
+    // }
 
     // If Password error is true
     if (passwordError || !passwordInput) {
@@ -95,30 +96,60 @@ export default function Login() {
     setFormValid(null)
 
     // Proceed to use the information passed
-    console.log('Email : ' + emailInput)
+    console.log('username : ' + usernameInput)
     console.log('Password : ' + passwordInput)
     console.log('Remember : ' + rememberMe)
 
-    //Show Successfull Submittion
-    setSuccess('Form Submitted Successfully')
+    token(usernameInput, passwordInput)
+      .then((response) => {
+        const code = response.code
+        if (code === 1005) {
+          setFormValid('Wrong username or password. Please try again.')
+          return
+        }
+        if (code === 1022) {
+          setFormValid('Account unverified. Please verify your account first.')
+          return
+        }
+
+        const token = response.result.token
+
+        // Giải mã token để kiểm tra quyền
+        const decodedToken = jwtDecode(token)
+        const userRoles = decodedToken.scope
+
+        // Kiểm tra quyền trong scope
+        if (!userRoles.includes('ROLE_ADMIN')) {
+          setFormValid('You do not have the required permissions to log in.')
+          return
+        }
+
+        localStorage.setItem('token', token) // Lưu token vào localStorage nếu cần
+        setSuccess('Form Submitted Successfully')
+        navigate('/') // Chuyển hướng đến trang chủ sau khi đăng nhập thành công
+      })
+      .catch((error) => {
+        console.error('Error:', error)
+        setFormValid('An error occurred. Please try again.')
+      })
   }
 
   return (
     <Box sx={{ width: '500px', margin: '0 auto' }}>
       <Box sx={{ marginTop: '10px' }}>
         <TextField
-          label="Email Address"
+          label="Username"
           fullWidth
-          error={emailError}
+          error={usernameError}
           id="standard-basic"
           variant="standard"
           sx={{ width: '100%' }}
-          value={emailInput}
+          value={usernameInput}
           InputProps={{}}
           size="medium"
-          onBlur={handleEmail}
+          onBlur={handleUsername}
           onChange={(event) => {
-            setEmailInput(event.target.value)
+            setUsernameInput(event.target.value)
           }}
         />
       </Box>

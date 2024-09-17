@@ -5,6 +5,8 @@ import Product from './pages/Product'
 import Requirement from './pages/Requirement'
 import Session from './pages/Session'
 import Authentication from './pages/authentication'
+import User from './pages/User'
+import ConfirmAccount from './pages/authentication/comfirm'
 
 function App() {
 
@@ -16,6 +18,8 @@ function App() {
         <Route path="/product" element={<Product />} />
         <Route path="/session" element={<Session />} />
         <Route path='/authentication' element={<Authentication />} />
+        <Route path="/users" element={<User />} />
+        <Route path="/confirm-account" element={<ConfirmAccount />} />
       </Routes>
     </Router>
   )

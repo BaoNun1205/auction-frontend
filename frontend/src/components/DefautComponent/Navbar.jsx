@@ -16,6 +16,8 @@ import NotificationsIcon from '@mui/icons-material/Notifications'
 import MoreIcon from '@mui/icons-material/MoreVert'
 import MuiAppBar from '@mui/material/AppBar'
 import { useAppStore } from '../../store/appStore'
+import { logout } from '../../api/auth'
+import { useNavigate } from 'react-router-dom'
 
 const AppBar = styled(MuiAppBar, {
 })(({ theme }) => ({
@@ -88,6 +90,17 @@ export default function Navbar() {
     setMobileMoreAnchorEl(event.currentTarget)
   }
 
+  const navigate = useNavigate()
+  const handleLogout = async () => {
+    try {
+      await logout()
+      handleMenuClose()
+      navigate('/authentication')
+    } catch (error) {
+      console.error('Error logging out:', error)
+    }
+  }
+
   const menuId = 'primary-search-account-menu'
   const renderMenu = (
     <Menu
@@ -106,7 +119,7 @@ export default function Navbar() {
       onClose={handleMenuClose}
     >
       <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-      <MenuItem onClick={handleMenuClose}>My account</MenuItem>
+      <MenuItem onClick={handleLogout}>Log Out</MenuItem>
     </Menu>
   )
 

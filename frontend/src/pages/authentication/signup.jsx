@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { register } from '../../api/auth'
 
 // Material UI Imports
 import {
@@ -84,7 +85,7 @@ export default function Signup() {
   }
 
   //handle Submittion
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setSuccess(null)
     //First of all Check for Errors
 
@@ -116,8 +117,17 @@ export default function Signup() {
     console.log('Email : ' + emailInput)
     console.log('Password : ' + passwordInput)
 
-    //Show Successfull Submittion
-    setSuccess('Form Submitted Successfully')
+    try {
+      const response = await register(usernameInput, passwordInput, emailInput)
+      console.log(response)
+      if (response.code === 1002) {
+        setFormValid('Username has been used to register another account')
+        return
+      }
+      setSuccess('Check your email to confirm your account.')
+    } catch (error) {
+      setFormValid('Email has been used to register another account.')
+    }
   }
 
   return (
