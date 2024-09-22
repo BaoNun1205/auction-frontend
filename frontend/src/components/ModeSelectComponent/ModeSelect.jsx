@@ -24,6 +24,7 @@ function ModeSelect() {
           label="mode"
           size="small"
           onChange={handleChange}
+          sx={{ bgcolor: 'primary.main', color: 'primary.textMain' }}
         >
           <MenuItem value="light">Light</MenuItem>
           <MenuItem value="dark">Dark</MenuItem>

@@ -1,7 +1,7 @@
 import React from 'react'
 import Button from '@mui/material/Button'
 
-const Button = ({ children, bgcolor, color, hoverBgcolor }) => {
+const ButtonComponent = ({ children, bgcolor, color, hoverBgcolor }) => {
   return (
     <Button
       variant="contained"
@@ -17,4 +17,4 @@ const Button = ({ children, bgcolor, color, hoverBgcolor }) => {
   )
 }
 
-export default Button
+export default ButtonComponent

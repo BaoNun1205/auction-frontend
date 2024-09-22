@@ -27,9 +27,16 @@ const theme = extendTheme({
     dark: {
       palette: {
         primary: {
-          main: '#ffffff',
-          secondary: '#ffffff',
-          textMain: '#000000'
+          main: 'rgb(20, 26, 33)',
+          secondary: '#1c252e',
+          extra: '#4ade80',
+          textMain: '#000000',
+          textSecondary: '#637381',
+          border: '#637381',
+          borderHover: '#ffffff',
+          borderFocus: '#ffffff',
+          buttonHover: '#28323d',
+          disable: grey[700]
         },
         secondary: orange
       }
