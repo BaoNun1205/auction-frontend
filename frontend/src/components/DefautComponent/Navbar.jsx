@@ -18,6 +18,7 @@ import MuiAppBar from '@mui/material/AppBar'
 import { useAppStore } from '../../store/appStore'
 import { logout } from '../../api/auth'
 import { useNavigate } from 'react-router-dom'
+import ModeSelect from '../ModeSelectComponent/ModeSelect'
 
 const AppBar = styled(MuiAppBar, {
 })(({ theme }) => ({
@@ -197,15 +198,6 @@ export default function Navbar() {
           >
             AUCTION
           </Typography>
-          <Search>
-            <SearchIconWrapper>
-              <SearchIcon />
-            </SearchIconWrapper>
-            <StyledInputBase
-              placeholder="Search…"
-              inputProps={{ 'aria-label': 'search' }}
-            />
-          </Search>
           <Box sx={{ flexGrow: 1 }} />
           <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
             <IconButton size="large" aria-label="show 4 new mails" color="inherit">

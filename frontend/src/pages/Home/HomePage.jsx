@@ -1,9 +1,9 @@
 import React from 'react'
 import Box from '@mui/material/Box'
-import Sidenav from '../components/DefautComponent/Sidenav'
-import Navbar from '../components/DefautComponent/Navbar'
+import Sidenav from '../../components/DefautComponent/Sidenav'
+import Navbar from '../../components/DefautComponent/Navbar'
 
-function Home() {
+function HomePage() {
   return (
     <>
       <Navbar />
@@ -17,4 +17,4 @@ function Home() {
   )
 }
 
-export default Home
+export default HomePage

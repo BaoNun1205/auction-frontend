@@ -7,47 +7,33 @@ import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TablePagination from '@mui/material/TablePagination'
 import TableRow from '@mui/material/TableRow'
+import { getUsers } from '../../api/user'
 
 const columns = [
-  { id: 'name', label: 'Name', minWidth: 170 },
-  { id: 'description', label: 'Description', minWidth: 170 },
-  {
-    id: 'price',
-    label: 'Price Expected',
-    minWidth: 170,
-    align: 'center'
-  },
-  {
-    id: 'vendorId',
-    label: 'Vendor ID',
-    minWidth: 70,
-    align: 'center'
-  },
-  {
-    id: 'inspectorId',
-    label: 'Inspector ID',
-    minWidth: 70,
-    align: 'center'
-  }
+  { id: 'name', label: 'Name', minWidth: 170 }
 ]
 
-function createData(name, description, price, vendorId, inspectorId) {
-  return { name, description, price, vendorId, inspectorId }
+function createData(name) {
+  return { name }
 }
 
-const rows = [
-  createData('Iphone 6 nói anh nghe chuyện gì vừa', 'Bị bể màn hình thật rồi mọi người ơi, sao nó bể vậy', 500000, 1, 1),
-  createData('Iphone 6', 'Bị bể màn hình', 500000, 1, 1),
-  createData('Iphone 6', 'Bị bể màn hình', 500000, 1, 1),
-  createData('Iphone 6', 'Bị bể màn hình', 500000, 1, 1),
-  createData('Iphone 6', 'Bị bể màn hình', 500000, 1, 1),
-  createData('Iphone 6', 'Bị bể màn hình', 500000, 1, 1),
-  createData('Iphone 6', 'Bị bể màn hình', 500000, 1, 1)
-]
-
-export default function SessionList() {
+export default function UserList() {
   const [page, setPage] = React.useState(0)
   const [rowsPerPage, setRowsPerPage] = React.useState(10)
+  const [rows, setRows] = React.useState([])
+
+  React.useEffect(() => {
+    async function loadData() {
+      try {
+        const response = await getUsers()
+        const users = response.result
+        setRows(users.map((user) => createData(user.username)))
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    loadData()
+  }, [])
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage)

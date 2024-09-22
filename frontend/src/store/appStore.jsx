@@ -3,7 +3,11 @@ import { persist } from 'zustand/middleware'
 
 let appStore = (set) => ({
   dopen: true,
-  updateOpen: (dopen) => set((state) => ({ dopen }))
+  updateOpen: (dopen) => set((state) => ({ dopen })),
+  productOpen: false,
+  setProductOpen: (productOpen) => set((state) => ({ productOpen })),
+  sessionOpen: false,
+  setSessionOpen: (sessionOpen) => set((state) => ({ sessionOpen }))
 })
 
 appStore = persist(appStore, { name: 'appStore' })
