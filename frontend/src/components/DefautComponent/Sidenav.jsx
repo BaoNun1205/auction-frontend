@@ -10,8 +10,9 @@ import { useAppStore } from '../../store/appStore'
 import HomeIcon from '@mui/icons-material/Home'
 import ShoppingBasketIcon from '@mui/icons-material/ShoppingBasket'
 import EventIcon from '@mui/icons-material/Event'
-import MenuItem from './SidenavComponent/MenuItem'
-import Item from './SidenavComponent/Item'
+import MenuItemExpand from './SidenavComponent/MenuItemExpandComponent/MenuItemExpand'
+import ItemExpand from './SidenavComponent/ItemExpandComponent/ItemExpand'
+import MenuItem from './SidenavComponent/MenuItemComponent/MenuItem'
 
 const drawerWidth = 240
 
@@ -21,8 +22,7 @@ const openedMixin = (theme) => ({
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.enteringScreen
   }),
-  overflowX: 'hidden',
-  borderRight: '0.5px solid #ffffff'
+  overflowX: 'hidden'
 })
 
 const closedMixin = (theme) => ({
@@ -33,9 +33,8 @@ const closedMixin = (theme) => ({
   overflowX: 'hidden',
   width: `calc(${theme.spacing(7)} + 1px)`,
   [theme.breakpoints.up('sm')]: {
-    width: `calc(${theme.spacing(9)} + 1px)`
-  },
-  borderRight: '0.5px solid #ffffff'
+    width: `calc(${theme.spacing(12)} + 1px)`
+  }
 })
 
 const DrawerHeader = styled('div')(({ theme }) => ({
@@ -127,17 +126,29 @@ const Sidenav = ({ children }) => {
         </DrawerHeader>
         <Box sx={{ bgcolor: 'primary.main', height: '100vh' }}>
           <List sx={{ bgcolor: 'primary.main' }}>
-            <Item item={HomeItem} open={open} />
-            <MenuItem
-              open={open}
-              itemOpen={productOpen}
-              item={productItem}
-              handleClick={handleProductClick} />
-            <MenuItem
-              open={open}
-              itemOpen={sessionOpen}
-              item={sessionItem}
-              handleClick={handleSessionClick} />
+            {open ? (
+              <>
+                <ItemExpand item={HomeItem} open={open} />
+                <MenuItemExpand
+                  open={open}
+                  itemOpen={productOpen}
+                  item={productItem}
+                  handleClick={handleProductClick}
+                />
+                <MenuItemExpand
+                  open={open}
+                  itemOpen={sessionOpen}
+                  item={sessionItem}
+                  handleClick={handleSessionClick}
+                />
+              </>
+            ) : (
+              <>
+                <MenuItem item={HomeItem} />
+                <MenuItem item={productItem} />
+                <MenuItem item={sessionItem} />
+              </>
+            )}
           </List>
         </Box>
       </Drawer>

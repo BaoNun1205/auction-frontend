@@ -119,7 +119,7 @@ const products = [
   }
 ]
 
-export default function ProductListView() {
+export default function secondarystView() {
   const [selectedProducts, setSelectedProducts] = useState([])
   const [showDeleteButton, setShowDeleteButton] = useState(false)
 

@@ -6,7 +6,7 @@ import ListItemText from '@mui/material/ListItemText'
 import Box from '@mui/material/Box'
 import { useNavigate } from 'react-router-dom'
 
-const Item = ({ item, open }) => {
+const ItemExpand = ({ item }) => {
   const navigate = useNavigate()
 
   return (
@@ -14,7 +14,7 @@ const Item = ({ item, open }) => {
       <ListItemButton
         sx={{
           minHeight: 48,
-          justifyContent: open ? 'initial' : 'center',
+          justifyContent: 'initial',
           m: 2,
           px: 1,
           borderRadius: 2,
@@ -26,7 +26,7 @@ const Item = ({ item, open }) => {
         <ListItemIcon
           sx={{
             minWidth: 0,
-            mr: open ? 3 : 'auto',
+            mr: 2,
             justifyContent: 'center',
             color: 'primary.textMain'
           }}
@@ -52,4 +52,4 @@ const Item = ({ item, open }) => {
   )
 }
 
-export default Item
+export default ItemExpand

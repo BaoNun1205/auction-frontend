@@ -9,7 +9,7 @@ import ExpandLess from '@mui/icons-material/ExpandLess'
 import ExpandMore from '@mui/icons-material/ExpandMore'
 import { useNavigate } from 'react-router-dom'
 
-const MenuItem = ({ open, itemOpen, item, handleClick }) => {
+const MenuItemExpand = ({ itemOpen, item, handleClick }) => {
   const navigate = useNavigate()
 
   return (
@@ -19,7 +19,7 @@ const MenuItem = ({ open, itemOpen, item, handleClick }) => {
           onClick={handleClick}
           sx={{
             minHeight: 48,
-            justifyContent: open ? 'initial' : 'center',
+            justifyContent: 'initial',
             m: 2,
             mb: 0.5,
             px: 1,
@@ -32,7 +32,7 @@ const MenuItem = ({ open, itemOpen, item, handleClick }) => {
           <ListItemIcon
             sx={{
               minWidth: 0,
-              mr: open ? 3 : 'auto',
+              mr: 2,
               justifyContent: 'center',
               color: 'primary.textMain'
             }}
@@ -68,4 +68,4 @@ const MenuItem = ({ open, itemOpen, item, handleClick }) => {
   )
 }
 
-export default MenuItem
+export default MenuItemExpand
