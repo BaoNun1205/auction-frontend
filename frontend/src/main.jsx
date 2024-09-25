@@ -6,6 +6,15 @@ import { Experimental_CssVarsProvider as CssVarsProvider } from '@mui/material/s
 import theme from './theme'
 import App from './App.jsx'
 
+// const RootComponent = () => {
+//   return (
+//     <CssVarsProvider theme={theme}>
+//       <CssBaseline />
+//       <App />
+//     </CssVarsProvider>
+//   )
+// }
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <CssVarsProvider theme={theme}>

@@ -1,13 +1,13 @@
 import React from 'react'
-import Navbar from '../components/DefautComponent/Navbar'
+import Navbar from '~/components/DefautComponent/NavbarComponent/Navbar'
 import { Box } from '@mui/material'
-import Sidenav from '../components/DefautComponent/Sidenav'
+import Sidenav from '~/components/DefautComponent/SidenavComponent/Sidenav'
 
 function Dashboard({ children }) {
   return (
     <div className='bgcolor'>
       <Navbar />
-      <Box sx={{ display:'flex', bgcolor: 'primary.main' }}>
+      <Box sx={(theme) => ({ display:'flex', bgcolor: theme.palette.primary.main })}>
         <Sidenav />
         <Box component="main" sx={{ flexGrow: 1, pt: 12, height: '100vh' }}>
           {children}

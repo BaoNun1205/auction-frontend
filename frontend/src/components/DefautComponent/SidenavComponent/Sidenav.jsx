@@ -6,13 +6,13 @@ import List from '@mui/material/List'
 import IconButton from '@mui/material/IconButton'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
-import { useAppStore } from '../../store/appStore'
+import { useAppStore } from '~/store/appStore'
 import HomeIcon from '@mui/icons-material/Home'
 import ShoppingBasketIcon from '@mui/icons-material/ShoppingBasket'
 import EventIcon from '@mui/icons-material/Event'
-import MenuItemExpand from './SidenavComponent/MenuItemExpandComponent/MenuItemExpand'
-import ItemExpand from './SidenavComponent/ItemExpandComponent/ItemExpand'
-import MenuItem from './SidenavComponent/MenuItemComponent/MenuItem'
+import MenuItemExpand from './MenuItemExpandComponent/MenuItemExpand'
+import ItemExpand from './ItemExpandComponent/ItemExpand'
+import MenuItem from './MenuItemComponent/MenuItem'
 
 const drawerWidth = 240
 
@@ -124,8 +124,8 @@ const Sidenav = ({ children }) => {
             {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
           </IconButton>
         </DrawerHeader>
-        <Box sx={{ bgcolor: 'primary.main', height: '100vh' }}>
-          <List sx={{ bgcolor: 'primary.main' }}>
+        <Box sx={(theme) => ({ bgcolor: theme.palette.primary.main, height: '100vh' })}>
+          <List sx={(theme) => ({ bgcolor: theme.palette.primary.main })}>
             {open ? (
               <>
                 <ItemExpand item={HomeItem} open={open} />

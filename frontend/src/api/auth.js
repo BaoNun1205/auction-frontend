@@ -7,7 +7,7 @@ const apiClient = axios.create({
   }
 })
 
-export const token = async (username, password) => {
+export const getToken = async (username, password) => {
   try {
     const response = (await apiClient.post('/auth/token', { username, password })).data
     return response

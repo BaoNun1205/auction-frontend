@@ -1,40 +1,20 @@
 import React from 'react'
-import ListItem from '@mui/material/ListItem'
-import ListItemButton from '@mui/material/ListItemButton'
-import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
 import Box from '@mui/material/Box'
 import { useNavigate } from 'react-router-dom'
+import { StyledListItem, StyledListItemButton, StyledListItemIcon } from './style'
 
 const ItemExpand = ({ item }) => {
   const navigate = useNavigate()
 
   return (
-    <ListItem key={item.name} disablePadding sx={{ display: 'block', color: 'primary.textMain' }} onClick={() => navigate(`${item.path}`)}>
-      <ListItemButton
-        sx={{
-          minHeight: 48,
-          justifyContent: 'initial',
-          m: 2,
-          px: 1,
-          borderRadius: 2,
-          '&:hover': {
-            bgcolor: 'primary.secondary'
-          }
-        }}
-      >
-        <ListItemIcon
-          sx={{
-            minWidth: 0,
-            mr: 2,
-            justifyContent: 'center',
-            color: 'primary.textMain'
-          }}
-        >
-          <Box sx={{ color: 'primary.textMain' }}>
+    <StyledListItem key={item.name} disablePadding onClick={() => navigate(`${item.path}`)}>
+      <StyledListItemButton>
+        <StyledListItemIcon>
+          <Box sx={(theme) => ({ color: theme.palette.primary.textmain })}>
             {item.icon}
           </Box>
-        </ListItemIcon>
+        </StyledListItemIcon>
         <ListItemText
           primary={item.name}
           sx={[
@@ -47,8 +27,8 @@ const ItemExpand = ({ item }) => {
               }
           ]}
         />
-      </ListItemButton>
-    </ListItem>
+      </StyledListItemButton>
+    </StyledListItem>
   )
 }
 
