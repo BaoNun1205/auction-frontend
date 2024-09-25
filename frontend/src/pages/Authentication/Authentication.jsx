@@ -6,8 +6,8 @@ import Switch from '@mui/material/Switch'
 import LockIcon from '@mui/icons-material/Lock'
 import FaceIcon from '@mui/icons-material/Face'
 import Box from '@mui/material/Box'
-import Login from '../../features/authentication/login'
-import Signup from '../../features/authentication/signup'
+import Login from '~/features/authentication/login'
+import Signup from '~/features/authentication/signup'
 
 function Authentication() {
   const [checked, setChecked] = useState(true)

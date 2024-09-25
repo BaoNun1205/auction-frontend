@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { confirmAccount } from '../../api/auth' // Cập nhật đường dẫn đúng đến file confirm.js
+import { confirmAccount } from '~/api/auth' // Cập nhật đường dẫn đúng đến file confirm.js
 
 const ConfirmAccount = () => {
   const [message, setMessage] = useState('')

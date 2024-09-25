@@ -1,8 +1,8 @@
-import ProductListPage from '../pages/Product/ProductListPage'
-import HomePage from '../pages/Home/HomePage'
-import Authentication from '../pages/Authentication/Authentication'
-import User from '../pages/Customer/User'
-import ConfirmAccount from '../features/authentication/comfirm'
+import ProductListPage from '~/pages/Product/ProductListPage'
+import HomePage from '~/pages/Home/HomePage'
+import Authentication from '~/pages/Authentication/Authentication'
+import User from '~/pages/Customer/User'
+import ConfirmAccount from '~/features/authentication/comfirm'
 
 const BASE_PATHS = {
   PRODUCT: '/product',

@@ -5,7 +5,7 @@ const IconButtonComponent = ({ startIcon, children }) => {
   return (
     <Button
       startIcon={startIcon}
-      sx={{ color: 'inherit', textTransform: 'none' }}
+      sx={(theme) => ({ color: theme.palette.primary.textMain, textTransform: 'none' })}
     >
       {children}
     </Button>

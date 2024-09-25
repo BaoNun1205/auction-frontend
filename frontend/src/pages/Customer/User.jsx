@@ -1,7 +1,7 @@
 import React from 'react'
-import Navbar from '../../components/DefautComponent/Navbar'
+import Navbar from '../../components/DefautComponent/NavbarComponent/Navbar'
 import { Box } from '@mui/material'
-import Sidenav from '../../components/DefautComponent/Sidenav'
+import Sidenav from '../../components/DefautComponent/SidenavComponent/Sidenav'
 import UserList from '../../features/user/UserList'
 
 function User() {

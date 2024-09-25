@@ -7,7 +7,9 @@ let appStore = (set) => ({
   productOpen: false,
   setProductOpen: (productOpen) => set((state) => ({ productOpen })),
   sessionOpen: false,
-  setSessionOpen: (sessionOpen) => set((state) => ({ sessionOpen }))
+  setSessionOpen: (sessionOpen) => set((state) => ({ sessionOpen })),
+  token: '',
+  setToken: (token) => set((state) => ({ token }))
 })
 
 appStore = persist(appStore, { name: 'appStore' })

@@ -1,12 +1,13 @@
 import React, { useState } from 'react'
 import { Box, Button, Checkbox, Table, TableBody, TableCell, TableHead, TableRow, IconButton } from '@mui/material'
 import { Eye, SlidersHorizontal, Download, MoreVertical, Trash2 } from 'lucide-react'
-import TableContainer from '@mui/material/TableContainer'
-import SelectComponent from '../../components/SelectComponent/SelectComponent'
-import SearchTextField from '../../components/SearchTextFieldComponent/SearchTextField'
-import ButtonComponent from '../../components/ButtonComponent/ButtonComponent'
-import IconButtonComponent from '../../components/IconButtonComponent/IconButtonComponent'
-import PaginationControl from '../../components/PanigationControlComponent/PaginationControl'
+import SelectComponent from '~/components/SelectComponent/SelectComponent'
+import SearchTextField from '~/components/SearchTextFieldComponent/SearchTextField'
+import ButtonComponent from '~/components/ButtonComponent/ButtonComponent'
+import IconButtonComponent from '~/components/IconButtonComponent/IconButtonComponent'
+import PaginationControl from '~/components/PanigationControlComponent/PaginationControl'
+import { StyledBox, StyledCheckbox, StyledControlBox, StyledHeaderBox, StyledInnerBox, StyledSecondaryBox, StyledSpan, StyledStatusBox, StyledSubtitleBox, StyledTableCell, StyledTableContainer, StyledTableHead, StyledTableRow, StyledTitleBox } from './style'
+import theme from '~/theme'
 
 const products = [
   {
@@ -119,7 +120,7 @@ const products = [
   }
 ]
 
-export default function secondarystView() {
+const ProductList = () => {
   const [selectedProducts, setSelectedProducts] = useState([])
   const [showDeleteButton, setShowDeleteButton] = useState(false)
 
@@ -161,26 +162,26 @@ export default function secondarystView() {
   const columnNames = ['Product', 'Create At', 'Price', 'Status', 'Vendor', 'Inspector']
 
   return (
-    <Box sx={{ bgcolor: 'primary.main', color: 'primary.textMain' }}>
-      <Box sx={{ maxWidth: '1200px', mx: 'auto' }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+    <StyledBox>
+      <StyledInnerBox>
+        <StyledHeaderBox>
           <Box>
-            <Box sx={{ fontSize: '2rem', fontWeight: 'bold', mb: 1 }}>List</Box>
-            <Box sx={{ color: 'primary.textMain' }}>
-              Dashboard • Product • <Box component="span" sx={{ color: 'grey.500' }}>List</Box>
-            </Box>
+            <StyledTitleBox>List</StyledTitleBox>
+            <StyledSubtitleBox>
+              Dashboard • Product • <Box component="span" sx={{ color: 'primary.disable' }}>List</Box>
+            </StyledSubtitleBox>
           </Box>
           <ButtonComponent
-            bgcolor="common.white"
-            color="common.black"
-            hoverBgcolor="grey.100"
+            bgcolor={(theme) => (theme.palette.primary.textMain)}
+            color={(theme) => (theme.palette.primary.textExtra)}
+            hoverBgcolor={(theme) => (theme.palette.primary.light)}
           >
             + NEW PRODUCT
           </ButtonComponent>
-        </Box>
+        </StyledHeaderBox>
 
-        <Box sx={{ bgcolor: 'primary.secondary', borderRadius: 2 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 3, px: 3, pt: 3 }}>
+        <StyledSecondaryBox bgcolor={(theme) => (theme.palette.primary.secondary)}>
+          <StyledControlBox>
             <Box sx={{ display: 'flex', gap: 2 }}>
               <SelectComponent
                 defaultValue=""
@@ -210,57 +211,31 @@ export default function secondarystView() {
               <IconButtonComponent startIcon={<SlidersHorizontal size={20} />}>Filters</IconButtonComponent>
               <IconButtonComponent startIcon={<Download size={20} />}>Export</IconButtonComponent>
             </Box>
-          </Box>
+          </StyledControlBox>
 
-          <TableContainer
-            sx={{
-              maxHeight: 440,
-              borderColor: 'primary.border',
-              '&::-webkit-scrollbar': {
-                width: '8px'
-              },
-              '&::-webkit-scrollbar-thumb': {
-                backgroundColor: 'darkgrey',
-                borderRadius: '4px'
-              },
-              '&::-webkit-scrollbar-track': {
-                backgroundColor: 'primary.buttonHover'
-              }
-            }}
-          >
+          <StyledTableContainer>
             <Table>
-              <TableHead sx={{ bgcolor: 'primary.buttonHover', position: 'sticky', top: 0, zIndex: 1000 }}>
+              <StyledTableHead sx={(theme) => ({ bgcolor: theme.palette.primary.buttonHover })}>
                 <TableRow>
                   <TableCell padding="checkbox">
-                    <Checkbox
-                      sx={{ color: 'primary.textMain', '&.Mui-checked': { color: 'primary.main' } }}
+                    <StyledCheckbox
                       checked={selectedProducts.length === products.length}
                       onChange={handleSelectAll}
                     />
                   </TableCell>
-                  {columnNames.map((columnName, index) => {
-                    return (
-                      <TableCell key={index} sx={{ color: 'primary.textMain', fontWeight: 'normal' }}>
-                        {columnName}
-                      </TableCell>
-                    )
-                  })}
+                  {columnNames.map((columnName, index) => (
+                    <StyledTableCell key={index}>
+                      {columnName}
+                    </StyledTableCell>
+                  ))}
                   <TableCell />
                 </TableRow>
-              </TableHead>
+              </StyledTableHead>
               <TableBody>
                 {products.map((product) => (
-                  <TableRow
-                    key={product.id}
-                    sx={{
-                      '&:last-child td, &:last-child th': { border: 0 },
-                      cursor: 'pointer',
-                      '& td, & th': { borderColor: 'primary.border' } // Màu border của các cell
-                    }}
-                  >
+                  <StyledTableRow key={product.id}>
                     <TableCell padding="checkbox">
-                      <Checkbox
-                        sx={{ color: 'primary.textMain', '&.Mui-checked': { color: 'primary.main' } }}
+                      <StyledCheckbox
                         checked={selectedProducts.includes(product.id)}
                         onChange={(event) => handleSelectProduct(event, product.id)}
                         onClick={(event) => event.stopPropagation()}
@@ -274,52 +249,49 @@ export default function secondarystView() {
                           sx={{ width: 48, height: 48, borderRadius: 1, mr: 2 }}
                         />
                         <Box>
-                          <Box sx={{ color: 'primary.textMain' }}>{product.name}</Box>
+                          <StyledSpan>{product.name}</StyledSpan>
                           <Box sx={{ color: 'primary.textSecondary' }}>{product.category}</Box>
                         </Box>
                       </Box>
                     </TableCell>
                     <TableCell>
-                      <Box sx={{ color: 'primary.textMain' }}>{product.createAt}</Box>
-                      <Box sx={{ color: 'primary.textSecondary' }}>{product.createTime}</Box>
+                      <StyledSpan>{product.createAt}</StyledSpan>
+                      <StyledSpan>{product.createTime}</StyledSpan>
                     </TableCell>
                     <TableCell>
-                      <Box sx={{ color: 'primary.textMain' }}>${product.price.toFixed(2)}</Box>
+                      <StyledSpan>${product.price.toFixed(2)}</StyledSpan>
                     </TableCell>
                     <TableCell>
-                      <Box
-                        sx={{
-                          px: 1,
-                          py: 0.5,
-                          borderRadius: '9999px',
-                          fontSize: '0.75rem',
-                          display: 'inline-block',
-                          bgcolor: product.status === 'Published' ? 'success.main' : 'warning.main',
-                          color: product.status === 'Published' ? 'success.contrastText' : 'warning.contrastText'
-                        }}
+                      <StyledStatusBox
+                        sx={(theme) => ({
+                          bgcolor: product.status === 'Published' ? theme.palette.success.main : theme.palette.warning.main,
+                          color: product.status === 'Published' ? theme.palette.success.contrastText : theme.palette.warning.contrastText
+                        })}
                       >
                         {product.status}
-                      </Box>
+                      </StyledStatusBox>
                     </TableCell>
                     <TableCell>
-                      <Box sx={{ color: 'primary.textMain' }}>{product.vendor}</Box>
+                      <StyledSpan>{product.vendor}</StyledSpan>
                     </TableCell>
                     <TableCell>
-                      <Box sx={{ color: 'primary.textMain' }}>{product.inspector}</Box>
+                      <StyledSpan>{product.inspector}</StyledSpan>
                     </TableCell>
                     <TableCell>
                       <IconButton sx={{ color: 'primary.textMain' }}>
                         <MoreVertical size={20} />
                       </IconButton>
                     </TableCell>
-                  </TableRow>
+                  </StyledTableRow>
                 ))}
               </TableBody>
             </Table>
-          </TableContainer>
+          </StyledTableContainer>
           <PaginationControl />
-        </Box>
-      </Box>
-    </Box>
+        </StyledSecondaryBox>
+      </StyledInnerBox>
+    </StyledBox>
   )
 }
+
+export default ProductList

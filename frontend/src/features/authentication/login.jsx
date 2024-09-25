@@ -1,7 +1,5 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom' // Import useNavigate
-
-// Material UI Imports
+import { useNavigate } from 'react-router-dom'
 import {
   TextField,
   InputAdornment,
@@ -15,17 +13,17 @@ import {
   Stack,
   Box
 } from '@mui/material'
-
-// Material UI Icon Imports
 import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import LoginIcon from '@mui/icons-material/Login'
-import { token } from '../../api/auth'
-import { getUser } from '../../api/user'
+import { getToken } from '~/api/auth'
+import { getUser } from '~/api/user'
 import { jwtDecode } from 'jwt-decode'
+import { useAppStore } from '~/store/appStore'
 
 export default function Login() {
   const [showPassword, setShowPassword] = React.useState(false)
+  const setToken = useAppStore((state) => state.setToken)
 
   //Inputs
   const [usernameInput, setUsernameInput] = useState()
@@ -100,7 +98,7 @@ export default function Login() {
     console.log('Password : ' + passwordInput)
     console.log('Remember : ' + rememberMe)
 
-    token(usernameInput, passwordInput)
+    getToken(usernameInput, passwordInput)
       .then((response) => {
         const code = response.code
         if (code === 1005) {
@@ -124,7 +122,7 @@ export default function Login() {
           return
         }
 
-        localStorage.setItem('token', token) // Lưu token vào localStorage nếu cần
+        setToken(token) // Lưu token vào localStorage
         setSuccess('Form Submitted Successfully')
         navigate('/') // Chuyển hướng đến trang chủ sau khi đăng nhập thành công
       })

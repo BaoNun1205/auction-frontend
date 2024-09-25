@@ -1,8 +1,7 @@
 import React, { useState, useRef } from 'react'
 import {
   Popper,
-  MenuList,
-  Box
+  MenuList
 } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 import { ChevronRight } from '@mui/icons-material'
