@@ -1,7 +1,5 @@
 import React, { useState } from 'react'
 import { register } from '~/api/auth'
-
-// Material UI Imports
 import {
   TextField,
   InputAdornment,
@@ -14,6 +12,7 @@ import {
   Stack,
   Box
 } from '@mui/material'
+import { useRegister } from '~/hooks/auth'
 
 // Material UI Icon Imports
 import Visibility from '@mui/icons-material/Visibility'
@@ -28,6 +27,7 @@ const isEmail = (email) =>
 
 export default function Signup() {
   const [showPassword, setShowPassword] = React.useState(false)
+  const { mutate: register, isLoading: isRegistering } = useRegister();
 
   //Inputs
   const [usernameInput, setUsernameInput] = useState()
@@ -117,17 +117,19 @@ export default function Signup() {
     console.log('Email : ' + emailInput)
     console.log('Password : ' + passwordInput)
 
-    try {
-      const response = await register(usernameInput, passwordInput, emailInput)
-      console.log(response)
-      if (response.code === 1002) {
-        setFormValid('Username has been used to register another account')
-        return
+    register({ username: usernameInput, password: passwordInput, email: emailInput }, {
+      onSuccess: (response) => {
+        console.log(response);
+        if (response.code === 1002) {
+          setFormValid('Username has been used to register another account');
+          return;
+        }
+        setSuccess('Check your email to confirm your account.');
+      },
+      onError: (error) => {
+        setFormValid('Email has been used to register another account.');
       }
-      setSuccess('Check your email to confirm your account.')
-    } catch (error) {
-      setFormValid('Email has been used to register another account.')
-    }
+    });
   }
 
   return (

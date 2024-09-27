@@ -16,14 +16,15 @@ import {
 import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import LoginIcon from '@mui/icons-material/Login'
-import { getToken } from '~/api/auth'
-import { getUser } from '~/api/user'
+// import { getToken } from '~/api/auth'
+import { useGetToken } from '~/hooks/auth'
 import { jwtDecode } from 'jwt-decode'
 import { useAppStore } from '~/store/appStore'
 
 export default function Login() {
   const [showPassword, setShowPassword] = React.useState(false)
-  const setToken = useAppStore((state) => state.setToken)
+  const setToken = useAppStore((state) => state.setToken) // Lấy hàm setToken từ store
+  const { mutate: getToken, isLoading: isGettingToken } = useGetToken()
 
   //Inputs
   const [usernameInput, setUsernameInput] = useState()
@@ -76,13 +77,6 @@ export default function Login() {
   //handle Submittion
   const handleSubmit = async () => {
     setSuccess(null)
-    //First of all Check for Errors
-
-    // If username error is true
-    // if (usernameError || !usernameInput) {
-    //   setFormValid('username is Invalid. Please Re-Enter')
-    //   return
-    // }
 
     // If Password error is true
     if (passwordError || !passwordInput) {
@@ -98,8 +92,8 @@ export default function Login() {
     console.log('Password : ' + passwordInput)
     console.log('Remember : ' + rememberMe)
 
-    getToken(usernameInput, passwordInput)
-      .then((response) => {
+    getToken({ username: usernameInput, password: passwordInput }, {
+      onSuccess: (response) => {
         const code = response.code
         if (code === 1005) {
           setFormValid('Wrong username or password. Please try again.')
@@ -122,14 +116,15 @@ export default function Login() {
           return
         }
 
-        setToken(token) // Lưu token vào localStorage
+        setToken(token) // Lưu token vào zustand store
         setSuccess('Form Submitted Successfully')
         navigate('/') // Chuyển hướng đến trang chủ sau khi đăng nhập thành công
-      })
-      .catch((error) => {
+      },
+      onError: (error) => {
         console.error('Error:', error)
         setFormValid('An error occurred. Please try again.')
-      })
+      }
+    })
   }
 
   return (

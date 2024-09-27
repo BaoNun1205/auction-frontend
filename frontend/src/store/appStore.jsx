@@ -4,8 +4,10 @@ import { persist } from 'zustand/middleware'
 let appStore = (set) => ({
   dopen: true,
   updateOpen: (dopen) => set((state) => ({ dopen })),
-  productOpen: false,
-  setProductOpen: (productOpen) => set((state) => ({ productOpen })),
+  categoryOpen: false,
+  setCategoryOpen: (categoryOpen) => set((state) => ({ categoryOpen })),
+  assetOpen: false,
+  setAssetOpen: (assetOpen) => set((state) => ({ assetOpen })),
   sessionOpen: false,
   setSessionOpen: (sessionOpen) => set((state) => ({ sessionOpen })),
   token: '',
