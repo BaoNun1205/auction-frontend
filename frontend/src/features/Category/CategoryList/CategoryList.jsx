@@ -1,11 +1,11 @@
-import React, { useState } from 'react'
-import { Box, Button, Table, TableBody, TableCell, TableRow, IconButton } from '@mui/material'
-import { Eye, SlidersHorizontal, Download, MoreVertical, Trash2 } from 'lucide-react'
-import SelectComponent from '~/components/SelectComponent/SelectComponent'
-import SearchTextField from '~/components/SearchTextFieldComponent/SearchTextField'
-import ButtonComponent from '~/components/ButtonComponent/ButtonComponent'
-import IconButtonComponent from '~/components/IconButtonComponent/IconButtonComponent'
-import PaginationControl from '~/components/PanigationControlComponent/PaginationControl'
+import React, { useState } from 'react';
+import { Box, Button, Table, TableBody, TableCell, TableRow, IconButton } from '@mui/material';
+import { Eye, SlidersHorizontal, Download, MoreVertical, Trash2 } from 'lucide-react';
+import SelectComponent from '~/components/SelectComponent/SelectComponent';
+import SearchTextField from '~/components/SearchTextFieldComponent/SearchTextField';
+import ButtonComponent from '~/components/ButtonComponent/ButtonComponent';
+import IconButtonComponent from '~/components/IconButtonComponent/IconButtonComponent';
+import PaginationControl from '~/components/PanigationControlComponent/PaginationControl';
 import {
   StyledBox,
   StyledCheckbox,
@@ -20,159 +20,92 @@ import {
   StyledTableContainer,
   StyledTableHead,
   StyledTableRow,
-  StyledTitleBox } from '~/features/style'
+  StyledTitleBox
+} from '~/features/style';
 
-const products = [
+const assets = [
   {
     id: 1,
     name: 'Classic Leather Loafers',
-    category: 'Shoes',
     createAt: '19 Aug 2024',
     createTime: '12:54 am',
-    price: 97.14,
     status: 'Published',
-    vendor: 'ShoeMax',
-    inspector: 'John Doe',
     image: '/placeholder.svg?height=80&width=80'
   },
   {
     id: 2,
     name: 'Mountain Trekking Boots',
-    category: 'Apparel',
     createAt: '17 Aug 2024',
     createTime: '11:54 pm',
-    price: 68.71,
     status: 'Published',
-    vendor: 'OutdoorGear',
-    inspector: 'Jane Smith',
     image: '/placeholder.svg?height=80&width=80'
   },
   {
     id: 3,
     name: 'Elegance Stiletto Heels',
-    category: 'Shoes',
     createAt: '16 Aug 2024',
     createTime: '10:54 pm',
-    price: 85.21,
     status: 'Draft',
-    vendor: 'LuxuryFootwear',
-    inspector: 'Alice Johnson',
     image: '/placeholder.svg?height=80&width=80'
   },
   {
     id: 4,
     name: 'Comfy Running Shoes',
-    category: 'Apparel',
     createAt: '15 Aug 2024',
     createTime: '9:54 pm',
-    price: 52.17,
     status: 'Published',
-    vendor: 'SportySteps',
-    inspector: 'Bob Williams',
     image: '/placeholder.svg?height=80&width=80'
   },
   {
     id: 5,
     name: 'Chic Ballet Flats',
-    category: 'Shoes',
     createAt: '14 Aug 2024',
     createTime: '8:54 pm',
-    price: 45.99,
     status: 'Published',
-    vendor: 'DancersDream',
-    inspector: 'Carol Brown',
-    image: '/placeholder.svg?height=80&width=80'
-  },
-  {
-    id: 5,
-    name: 'Chic Ballet Flats',
-    category: 'Shoes',
-    createAt: '14 Aug 2024',
-    createTime: '8:54 pm',
-    price: 45.99,
-    status: 'Published',
-    vendor: 'DancersDream',
-    inspector: 'Carol Brown',
-    image: '/placeholder.svg?height=80&width=80'
-  },
-  {
-    id: 5,
-    name: 'Chic Ballet Flats',
-    category: 'Shoes',
-    createAt: '14 Aug 2024',
-    createTime: '8:54 pm',
-    price: 45.99,
-    status: 'Published',
-    vendor: 'DancersDream',
-    inspector: 'Carol Brown',
-    image: '/placeholder.svg?height=80&width=80'
-  },
-  {
-    id: 5,
-    name: 'Chic Ballet Flats',
-    category: 'Shoes',
-    createAt: '14 Aug 2024',
-    createTime: '8:54 pm',
-    price: 45.99,
-    status: 'Published',
-    vendor: 'DancersDream',
-    inspector: 'Carol Brown',
-    image: '/placeholder.svg?height=80&width=80'
-  },
-  {
-    id: 5,
-    name: 'Chic Ballet Flats',
-    category: 'Shoes',
-    createAt: '14 Aug 2024',
-    createTime: '8:54 pm',
-    price: 45.99,
-    status: 'Published',
-    vendor: 'DancersDream',
-    inspector: 'Carol Brown',
     image: '/placeholder.svg?height=80&width=80'
   }
-]
+];
 
 const ProductList = () => {
-  const [selectedProducts, setSelectedProducts] = useState([])
-  const [showDeleteButton, setShowDeleteButton] = useState(false)
+  const [selectedAssets, setSelectedAssets] = useState([]);
+  const [showDeleteButton, setShowDeleteButton] = useState(false);
 
   const handleSelectAll = (event) => {
     if (event.target.checked) {
-      setSelectedProducts(products.map(product => product.id))
-      setShowDeleteButton(true)
+      setSelectedAssets(assets.map(asset => asset.id));
+      setShowDeleteButton(true);
     } else {
-      setSelectedProducts([])
-      setShowDeleteButton(false)
+      setSelectedAssets([]);
+      setShowDeleteButton(false);
     }
-  }
+  };
 
-  const handleSelectProduct = (event, productId) => {
-    const newSelectedProducts = event.target.checked
-      ? [...selectedProducts, productId]
-      : selectedProducts.filter(id => id !== productId)
+  const handleSelectAsset = (event, assetId) => {
+    const newSelectedAssets = event.target.checked
+      ? [...selectedAssets, assetId]
+      : selectedAssets.filter(id => id !== assetId);
 
-    setSelectedProducts(newSelectedProducts)
-    setShowDeleteButton(newSelectedProducts.length > 0)
-  }
+    setSelectedAssets(newSelectedAssets);
+    setShowDeleteButton(newSelectedAssets.length > 0);
+  };
 
   const handleDelete = () => {
-    console.log('Deleting selected products:', selectedProducts)
+    console.log('Deleting selected assets:', selectedAssets);
     // Implement delete logic here
-  }
+  };
 
   const stockMenuItems = [
     { value: 'in_stock', label: 'In Stock' },
     { value: 'out_of_stock', label: 'Out of Stock' },
     { value: 'low_stock', label: 'Low Stock' }
-  ]
+  ];
 
   const publishMenuItems = [
     { value: 'published', label: 'Published' },
     { value: 'draft', label: 'Draft' }
-  ]
+  ];
 
-  const columnNames = ['Product', 'Create At', 'Price', 'Status', 'Vendor', 'Inspector']
+  const columnNames = ['Name', 'Create At', 'Status'];
 
   return (
     <StyledBox>
@@ -189,7 +122,7 @@ const ProductList = () => {
             color={(theme) => (theme.palette.primary.textExtra)}
             hoverBgcolor={(theme) => (theme.palette.primary.light)}
           >
-            + NEW PRODUCT
+            + NEW CATEGORY
           </ButtonComponent>
         </StyledHeaderBox>
 
@@ -217,7 +150,7 @@ const ProductList = () => {
                   sx={{ color: 'error.main' }}
                   onClick={handleDelete}
                 >
-                  Delete ({selectedProducts.length})
+                  Delete ({selectedAssets.length})
                 </Button>
               )}
               <IconButtonComponent startIcon={<Eye size={20} />}>Colums</IconButtonComponent>
@@ -232,7 +165,7 @@ const ProductList = () => {
                 <TableRow>
                   <TableCell padding="checkbox">
                     <StyledCheckbox
-                      checked={selectedProducts.length === products.length}
+                      checked={selectedAssets.length === assets.length}
                       onChange={handleSelectAll}
                     />
                   </TableCell>
@@ -245,12 +178,12 @@ const ProductList = () => {
                 </TableRow>
               </StyledTableHead>
               <TableBody>
-                {products.map((product) => (
-                  <StyledTableRow key={product.id}>
+                {assets.map((asset) => (
+                  <StyledTableRow key={asset.id}>
                     <TableCell padding="checkbox">
                       <StyledCheckbox
-                        checked={selectedProducts.includes(product.id)}
-                        onChange={(event) => handleSelectProduct(event, product.id)}
+                        checked={selectedAssets.includes(asset.id)}
+                        onChange={(event) => handleSelectAsset(event, asset.id)}
                         onClick={(event) => event.stopPropagation()}
                       />
                     </TableCell>
@@ -258,40 +191,30 @@ const ProductList = () => {
                       <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         <Box
                           component="img"
-                          src={product.image}
+                          src={asset.image}
                           sx={{ width: 48, height: 48, borderRadius: 1, mr: 2 }}
                         />
                         <Box>
-                          <StyledSpan>{product.name}</StyledSpan>
-                          <Box sx={{ color: 'primary.textSecondary' }}>{product.category}</Box>
+                          <StyledSpan>{asset.name}</StyledSpan>
                         </Box>
                       </Box>
                     </TableCell>
                     <TableCell>
-                      <StyledSpan>{product.createAt}</StyledSpan>
-                      <StyledSpan>{product.createTime}</StyledSpan>
-                    </TableCell>
-                    <TableCell>
-                      <StyledSpan>${product.price.toFixed(2)}</StyledSpan>
+                      <StyledSpan>{asset.createAt}</StyledSpan>
+                      <StyledSpan>{asset.createTime}</StyledSpan>
                     </TableCell>
                     <TableCell>
                       <StyledStatusBox
                         sx={(theme) => ({
-                          bgcolor: product.status === 'Published' ? theme.palette.success.main : theme.palette.warning.main,
-                          color: product.status === 'Published' ? theme.palette.success.contrastText : theme.palette.warning.contrastText
+                          bgcolor: asset.status === 'Published' ? theme.palette.success.main : theme.palette.warning.main,
+                          color: asset.status === 'Published' ? theme.palette.success.contrastText : theme.palette.warning.contrastText
                         })}
                       >
-                        {product.status}
+                        {asset.status}
                       </StyledStatusBox>
                     </TableCell>
                     <TableCell>
-                      <StyledSpan>{product.vendor}</StyledSpan>
-                    </TableCell>
-                    <TableCell>
-                      <StyledSpan>{product.inspector}</StyledSpan>
-                    </TableCell>
-                    <TableCell>
-                      <IconButton sx={{ color: 'primary.textMain' }}>
+                      <IconButton sx={(theme) => ({ color: theme.palette.primary.textMain })}>
                         <MoreVertical size={20} />
                       </IconButton>
                     </TableCell>
@@ -304,7 +227,7 @@ const ProductList = () => {
         </StyledSecondaryBox>
       </StyledInnerBox>
     </StyledBox>
-  )
-}
+  );
+};
 
-export default ProductList
+export default ProductList;
