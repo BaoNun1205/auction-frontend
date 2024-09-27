@@ -1,15 +1,28 @@
 import React, { useState } from 'react'
-import { Box, Button, Checkbox, Table, TableBody, TableCell, TableHead, TableRow, IconButton } from '@mui/material'
+import { Box, Button, Table, TableBody, TableCell, TableRow, IconButton } from '@mui/material'
 import { Eye, SlidersHorizontal, Download, MoreVertical, Trash2 } from 'lucide-react'
 import SelectComponent from '~/components/SelectComponent/SelectComponent'
 import SearchTextField from '~/components/SearchTextFieldComponent/SearchTextField'
 import ButtonComponent from '~/components/ButtonComponent/ButtonComponent'
 import IconButtonComponent from '~/components/IconButtonComponent/IconButtonComponent'
 import PaginationControl from '~/components/PanigationControlComponent/PaginationControl'
-import { StyledBox, StyledCheckbox, StyledControlBox, StyledHeaderBox, StyledInnerBox, StyledSecondaryBox, StyledSpan, StyledStatusBox, StyledSubtitleBox, StyledTableCell, StyledTableContainer, StyledTableHead, StyledTableRow, StyledTitleBox } from './style'
-import theme from '~/theme'
+import {
+  StyledBox,
+  StyledCheckbox,
+  StyledControlBox,
+  StyledHeaderBox,
+  StyledInnerBox,
+  StyledSecondaryBox,
+  StyledSpan,
+  StyledStatusBox,
+  StyledSubtitleBox,
+  StyledTableCell,
+  StyledTableContainer,
+  StyledTableHead,
+  StyledTableRow,
+  StyledTitleBox } from '~/features/style'
 
-const products = [
+const assets = [
   {
     id: 1,
     name: 'Classic Leather Loafers',
@@ -120,31 +133,31 @@ const products = [
   }
 ]
 
-const ProductList = () => {
-  const [selectedProducts, setSelectedProducts] = useState([])
+const AssetList = () => {
+  const [selectedAssets, setSelectedAssets] = useState([])
   const [showDeleteButton, setShowDeleteButton] = useState(false)
 
   const handleSelectAll = (event) => {
     if (event.target.checked) {
-      setSelectedProducts(products.map(product => product.id))
+      setSelectedAssets(assets.map(asset => asset.id))
       setShowDeleteButton(true)
     } else {
-      setSelectedProducts([])
+      setSelectedAssets([])
       setShowDeleteButton(false)
     }
   }
 
-  const handleSelectProduct = (event, productId) => {
-    const newSelectedProducts = event.target.checked
-      ? [...selectedProducts, productId]
-      : selectedProducts.filter(id => id !== productId)
+  const handleSelectAsset = (event, assetId) => {
+    const newSelectedAssets = event.target.checked
+      ? [...selectedAssets, assetId]
+      : selectedAssets.filter(id => id !== assetId)
 
-    setSelectedProducts(newSelectedProducts)
-    setShowDeleteButton(newSelectedProducts.length > 0)
+    setSelectedAssets(newSelectedAssets)
+    setShowDeleteButton(newSelectedAssets.length > 0)
   }
 
   const handleDelete = () => {
-    console.log('Deleting selected products:', selectedProducts)
+    console.log('Deleting selected assets:', selectedAssets)
     // Implement delete logic here
   }
 
@@ -159,7 +172,7 @@ const ProductList = () => {
     { value: 'draft', label: 'Draft' }
   ]
 
-  const columnNames = ['Product', 'Create At', 'Price', 'Status', 'Vendor', 'Inspector']
+  const columnNames = ['asset', 'Create At', 'Price', 'Status', 'Vendor', 'Inspector']
 
   return (
     <StyledBox>
@@ -168,7 +181,7 @@ const ProductList = () => {
           <Box>
             <StyledTitleBox>List</StyledTitleBox>
             <StyledSubtitleBox>
-              Dashboard • Product • <Box component="span" sx={{ color: 'primary.disable' }}>List</Box>
+              Dashboard • asset • <Box component="span" sx={{ color: 'primary.disable' }}>List</Box>
             </StyledSubtitleBox>
           </Box>
           <ButtonComponent
@@ -176,7 +189,7 @@ const ProductList = () => {
             color={(theme) => (theme.palette.primary.textExtra)}
             hoverBgcolor={(theme) => (theme.palette.primary.light)}
           >
-            + NEW PRODUCT
+            + NEW asset
           </ButtonComponent>
         </StyledHeaderBox>
 
@@ -204,7 +217,7 @@ const ProductList = () => {
                   sx={{ color: 'error.main' }}
                   onClick={handleDelete}
                 >
-                  Delete ({selectedProducts.length})
+                  Delete ({selectedAssets.length})
                 </Button>
               )}
               <IconButtonComponent startIcon={<Eye size={20} />}>Colums</IconButtonComponent>
@@ -219,7 +232,7 @@ const ProductList = () => {
                 <TableRow>
                   <TableCell padding="checkbox">
                     <StyledCheckbox
-                      checked={selectedProducts.length === products.length}
+                      checked={selectedAssets.length === assets.length}
                       onChange={handleSelectAll}
                     />
                   </TableCell>
@@ -232,12 +245,12 @@ const ProductList = () => {
                 </TableRow>
               </StyledTableHead>
               <TableBody>
-                {products.map((product) => (
-                  <StyledTableRow key={product.id}>
+                {assets.map((asset) => (
+                  <StyledTableRow key={asset.id}>
                     <TableCell padding="checkbox">
                       <StyledCheckbox
-                        checked={selectedProducts.includes(product.id)}
-                        onChange={(event) => handleSelectProduct(event, product.id)}
+                        checked={selectedAssets.includes(asset.id)}
+                        onChange={(event) => handleSelectAsset(event, asset.id)}
                         onClick={(event) => event.stopPropagation()}
                       />
                     </TableCell>
@@ -245,37 +258,37 @@ const ProductList = () => {
                       <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         <Box
                           component="img"
-                          src={product.image}
+                          src={asset.image}
                           sx={{ width: 48, height: 48, borderRadius: 1, mr: 2 }}
                         />
                         <Box>
-                          <StyledSpan>{product.name}</StyledSpan>
-                          <Box sx={{ color: 'primary.textSecondary' }}>{product.category}</Box>
+                          <StyledSpan>{asset.name}</StyledSpan>
+                          <Box sx={{ color: 'primary.textSecondary' }}>{asset.category}</Box>
                         </Box>
                       </Box>
                     </TableCell>
                     <TableCell>
-                      <StyledSpan>{product.createAt}</StyledSpan>
-                      <StyledSpan>{product.createTime}</StyledSpan>
+                      <StyledSpan>{asset.createAt}</StyledSpan>
+                      <StyledSpan>{asset.createTime}</StyledSpan>
                     </TableCell>
                     <TableCell>
-                      <StyledSpan>${product.price.toFixed(2)}</StyledSpan>
+                      <StyledSpan>${asset.price.toFixed(2)}</StyledSpan>
                     </TableCell>
                     <TableCell>
                       <StyledStatusBox
                         sx={(theme) => ({
-                          bgcolor: product.status === 'Published' ? theme.palette.success.main : theme.palette.warning.main,
-                          color: product.status === 'Published' ? theme.palette.success.contrastText : theme.palette.warning.contrastText
+                          bgcolor: asset.status === 'Published' ? theme.palette.success.main : theme.palette.warning.main,
+                          color: asset.status === 'Published' ? theme.palette.success.contrastText : theme.palette.warning.contrastText
                         })}
                       >
-                        {product.status}
+                        {asset.status}
                       </StyledStatusBox>
                     </TableCell>
                     <TableCell>
-                      <StyledSpan>{product.vendor}</StyledSpan>
+                      <StyledSpan>{asset.vendor}</StyledSpan>
                     </TableCell>
                     <TableCell>
-                      <StyledSpan>{product.inspector}</StyledSpan>
+                      <StyledSpan>{asset.inspector}</StyledSpan>
                     </TableCell>
                     <TableCell>
                       <IconButton sx={{ color: 'primary.textMain' }}>
@@ -294,4 +307,4 @@ const ProductList = () => {
   )
 }
 
-export default ProductList
+export default AssetList
