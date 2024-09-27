@@ -1,12 +1,13 @@
-import ProductListPage from '~/pages/Product/ProductListPage'
+import AssetListPage from '~/pages/Asset/AssetListPage'
 import HomePage from '~/pages/Home/HomePage'
 import Authentication from '~/pages/Authentication/Authentication'
 import User from '~/pages/Customer/User'
-import ConfirmAccount from '~/features/authentication/comfirm'
+import ConfirmAccount from '~/features/Authentication/comfirm'
 
 const BASE_PATHS = {
-  PRODUCT: '/product',
   HOME: '/',
+  CATEGORY: '/category',
+  ASSET: '/asset',
   AUTHENTICATION: '/authentication',
   CONFIRM_ACCOUNT: '/confirm-account',
   USERS: '/users'
@@ -14,8 +15,12 @@ const BASE_PATHS = {
 
 export const routes = [
   {
-    path: `${BASE_PATHS.PRODUCT}/list`,
-    page: ProductListPage
+    path: `${BASE_PATHS.CATEGORY}/list`,
+    page: AssetListPage
+  },
+  {
+    path: `${BASE_PATHS.ASSET}/list`,
+    page: AssetListPage
   },
   {
     path: BASE_PATHS.HOME,

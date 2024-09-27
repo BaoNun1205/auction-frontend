@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { useAppStore } from '~/store/appStore'
 
 const apiClient = axios.create({
   baseURL: 'http://localhost:8080',
@@ -24,18 +25,19 @@ export const getToken = async (username, password) => {
 
 export const logout = async () => {
   try {
-    const token = localStorage.getItem('token')
+    const token = useAppStore.getState().token
     if (!token) {
-      throw new Error('No token found in localStorage')
+      throw new Error('No token found in store')
     }
 
-    const response = (await apiClient.post('auth/logout', { token })).data
+    const response = (await apiClient.post('/auth/logout', { token })).data
     if (response.code === 1000) {
-      localStorage.removeItem('token')
+      useAppStore.getState().setToken('')
       console.log('Logged out successfully')
     } else {
       throw new Error('Failed to log out')
     }
+    return response
   } catch (error) {
     console.error('Error logging out:', error.response ? error.response.data : error.message)
     throw error

@@ -1,6 +1,6 @@
 import React from 'react'
 import MenuItem from '@mui/material/MenuItem'
-import { StyledSelectComponent } from './styled'
+import { StyledSelectComponent } from './style'
 
 const SelectComponent = ({ defaultValue, displayEmpty, menuItems, placeholder }) => {
   return (

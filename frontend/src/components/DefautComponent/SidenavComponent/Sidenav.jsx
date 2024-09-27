@@ -7,6 +7,7 @@ import IconButton from '@mui/material/IconButton'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { useAppStore } from '~/store/appStore'
+import CategoryIcon from '@mui/icons-material/Category'
 import HomeIcon from '@mui/icons-material/Home'
 import ShoppingBasketIcon from '@mui/icons-material/ShoppingBasket'
 import EventIcon from '@mui/icons-material/Event'
@@ -78,38 +79,55 @@ const HomeItem = {
   path: '/'
 }
 
-const productItem = {
-  icon: <ShoppingBasketIcon />,
-  name: 'Product',
+const CategoryItem = {
+  icon: <CategoryIcon />,
+  name: 'Category',
   subItems: [
-    { name: 'List', path: '/product/list' },
-    { name: 'Details', path: '/product/details' },
-    { name: 'Create', path: '/product/create' },
-    { name: 'Edit', path: '/product/edit' }
+    { name: 'List', path: '/category/list' },
+    { name: 'Details', path: '/category/details' },
+    { name: 'Create', path: '/category/create' },
+    { name: 'Edit', path: '/category/edit' }
   ]
 }
 
-const sessionItem = {
+const AssetItem = {
+  icon: <ShoppingBasketIcon />,
+  name: 'Asset',
+  subItems: [
+    { name: 'List', path: '/asset/list' },
+    { name: 'Details', path: '/asset/details' },
+    { name: 'Create', path: '/asset/create' },
+    { name: 'Edit', path: '/asset/edit' }
+  ]
+}
+
+const SessionItem = {
   icon: <EventIcon />,
   name: 'Session',
   subItems: [
     { name: 'List', path: '/session/list' },
-    { name: 'Details', path: '/product/details' },
-    { name: 'Create', path: '/product/create' },
-    { name: 'Edit', path: '/product/edit' }
+    { name: 'Details', path: '/asset/details' },
+    { name: 'Create', path: '/asset/create' },
+    { name: 'Edit', path: '/asset/edit' }
   ]
 }
 
 const Sidenav = ({ children }) => {
   const theme = useTheme()
   const open = useAppStore((state) => state.dopen) // open side nav
-  const productOpen = useAppStore((state) => state.productOpen) // open product menu
-  const setProductOpen = useAppStore((state) => state.setProductOpen) // set product menu
+  const categoryOpen = useAppStore((state) => state.categoryOpen) // open category menu
+  const setCategoryOpen = useAppStore((state) => state.setCategoryOpen) // set category menu
+  const assetOpen = useAppStore((state) => state.assetOpen) // open asset menu
+  const setAssetOpen = useAppStore((state) => state.setAssetOpen) // set asset menu
   const sessionOpen = useAppStore((state) => state.sessionOpen) // open session menu
   const setSessionOpen = useAppStore((state) => state.setSessionOpen) // set session
 
-  const handleProductClick = () => {
-    setProductOpen(!productOpen)
+  const handleCategoryClick = () => {
+    setCategoryOpen(!categoryOpen)
+  }
+
+  const handleAssetClick = () => {
+    setAssetOpen(!assetOpen)
   }
 
   const handleSessionClick = () => {
@@ -131,22 +149,29 @@ const Sidenav = ({ children }) => {
                 <ItemExpand item={HomeItem} open={open} />
                 <MenuItemExpand
                   open={open}
-                  itemOpen={productOpen}
-                  item={productItem}
-                  handleClick={handleProductClick}
+                  itemOpen={categoryOpen}
+                  item={CategoryItem}
+                  handleClick={handleCategoryClick}
+                />
+                <MenuItemExpand
+                  open={open}
+                  itemOpen={assetOpen}
+                  item={AssetItem}
+                  handleClick={handleAssetClick}
                 />
                 <MenuItemExpand
                   open={open}
                   itemOpen={sessionOpen}
-                  item={sessionItem}
+                  item={SessionItem}
                   handleClick={handleSessionClick}
                 />
               </>
             ) : (
               <>
                 <MenuItem item={HomeItem} />
-                <MenuItem item={productItem} />
-                <MenuItem item={sessionItem} />
+                <MenuItem item={CategoryItem} />
+                <MenuItem item={AssetItem} />
+                <MenuItem item={SessionItem} />
               </>
             )}
           </List>
