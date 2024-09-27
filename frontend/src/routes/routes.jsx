@@ -1,4 +1,5 @@
 import AssetListPage from '~/pages/Asset/AssetListPage'
+import CategoryListPage from '~/pages/Category.jsx/CategoryListPage'
 import HomePage from '~/pages/Home/HomePage'
 import Authentication from '~/pages/Authentication/Authentication'
 import User from '~/pages/Customer/User'
@@ -17,7 +18,7 @@ const BASE_PATHS = {
 export const routes = [
   {
     path: `${BASE_PATHS.CATEGORY}/list`,
-    page: AssetListPage
+    page: CategoryListPage
   },
   {
     path: `${BASE_PATHS.ASSET}/list`,

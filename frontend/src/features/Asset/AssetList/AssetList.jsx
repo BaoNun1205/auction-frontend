@@ -172,7 +172,7 @@ const AssetList = () => {
     { value: 'draft', label: 'Draft' }
   ]
 
-  const columnNames = ['asset', 'Create At', 'Price', 'Status', 'Vendor', 'Inspector']
+  const columnNames = ['Asset', 'Create At', 'Price', 'Status', 'Vendor', 'Inspector']
 
   return (
     <StyledBox>
@@ -291,7 +291,7 @@ const AssetList = () => {
                       <StyledSpan>{asset.inspector}</StyledSpan>
                     </TableCell>
                     <TableCell>
-                      <IconButton sx={{ color: 'primary.textMain' }}>
+                      <IconButton sx={(theme) => ({ color: theme.palette.primary.textMain })}>
                         <MoreVertical size={20} />
                       </IconButton>
                     </TableCell>
