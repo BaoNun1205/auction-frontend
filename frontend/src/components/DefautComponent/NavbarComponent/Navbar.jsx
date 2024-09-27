@@ -15,11 +15,10 @@ import MailIcon from '@mui/icons-material/Mail'
 import NotificationsIcon from '@mui/icons-material/Notifications'
 import MoreIcon from '@mui/icons-material/MoreVert'
 import MuiAppBar from '@mui/material/AppBar'
+import { useLogout } from '~/hooks/auth'
 import { useAppStore } from '~/store/appStore'
-import { logout } from '~/api/auth'
 import { useNavigate } from 'react-router-dom'
 import ModeSelect from '~/components/ModeSelectComponent/ModeSelect'
-import theme from '~/theme'
 import { StyledIconButton } from './style'
 
 const AppBar = styled(MuiAppBar, {
@@ -54,14 +53,18 @@ export default function Navbar() {
   }
 
   const navigate = useNavigate()
-  const handleLogout = async () => {
-    try {
-      await logout()
-      handleMenuClose()
-      navigate('/authentication')
-    } catch (error) {
-      console.error('Error logging out:', error)
-    }
+  const { mutate: logout, isLoading: isLoggingOut } = useLogout()
+
+  const handleLogout = () => {
+    logout(null, {
+      onSuccess: () => {
+        handleMenuClose()
+        navigate('/authentication')
+      },
+      onError: (error) => {
+        console.error('Error logging out:', error)
+      }
+    })
   }
 
   const menuId = 'primary-search-account-menu'
