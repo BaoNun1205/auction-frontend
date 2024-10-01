@@ -2,7 +2,7 @@ import { styled } from '@mui/material/styles'
 import { Box, TableCell, TableHead, TableRow, Checkbox } from '@mui/material'
 import TableContainer from '@mui/material/TableContainer'
 
-export const StyledBox = styled(Box)(({ theme }) => ({
+export const StyledContainer = styled(Box)(({ theme }) => ({
   bgcolor: theme.palette.primary.main,
   color: theme.palette.primary.textMain
 }))

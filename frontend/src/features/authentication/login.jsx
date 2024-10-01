@@ -16,8 +16,7 @@ import {
 import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import LoginIcon from '@mui/icons-material/Login'
-// import { getToken } from '~/api/auth'
-import { useGetToken } from '~/hooks/auth'
+import { useGetToken } from '~/hooks/authHook'
 import { jwtDecode } from 'jwt-decode'
 import { useAppStore } from '~/store/appStore'
 

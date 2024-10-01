@@ -1,5 +1,6 @@
 import AssetListPage from '~/pages/Asset/AssetListPage'
-import CategoryListPage from '~/pages/Category.jsx/CategoryListPage'
+import CategoryListPage from '~/pages/Category/CategoryListPage'
+import AddCategoryPage from '~/pages/Category/AddCategoryPage'
 import HomePage from '~/pages/Home/HomePage'
 import Authentication from '~/pages/Authentication/Authentication'
 import User from '~/pages/Customer/User'
@@ -17,11 +18,15 @@ const BASE_PATHS = {
 
 export const routes = [
   {
-    path: `${BASE_PATHS.CATEGORY}/list`,
+    path: `${BASE_PATHS.CATEGORY}`,
     page: CategoryListPage
   },
   {
-    path: `${BASE_PATHS.ASSET}/list`,
+    path: `${BASE_PATHS.CATEGORY}/create`,
+    page: AddCategoryPage
+  },
+  {
+    path: `${BASE_PATHS.ASSET}`,
     page: AssetListPage
   },
   {

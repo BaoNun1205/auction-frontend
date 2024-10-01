@@ -3,9 +3,11 @@ import InputAdornment from '@mui/material/InputAdornment'
 import SearchIcon from '@mui/icons-material/Search'
 import { StyledSearchTextField } from './style'
 
-const SearchTextField = () => {
+const SearchTextField = ({ value, onChange }) => {
   return (
     <StyledSearchTextField
+      value={value}
+      onChange={onChange}
       placeholder="Search..."
       variant="outlined"
       InputProps={{
