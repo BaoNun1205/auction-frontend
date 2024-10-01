@@ -83,7 +83,7 @@ const CategoryItem = {
   icon: <CategoryIcon />,
   name: 'Category',
   subItems: [
-    { name: 'List', path: '/category/list' },
+    { name: 'List', path: '/category' },
     { name: 'Details', path: '/category/details' },
     { name: 'Create', path: '/category/create' },
     { name: 'Edit', path: '/category/edit' }
@@ -94,7 +94,7 @@ const AssetItem = {
   icon: <ShoppingBasketIcon />,
   name: 'Asset',
   subItems: [
-    { name: 'List', path: '/asset/list' },
+    { name: 'List', path: '/asset' },
     { name: 'Details', path: '/asset/details' },
     { name: 'Create', path: '/asset/create' },
     { name: 'Edit', path: '/asset/edit' }

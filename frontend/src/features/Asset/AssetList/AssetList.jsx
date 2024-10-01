@@ -7,7 +7,7 @@ import ButtonComponent from '~/components/ButtonComponent/ButtonComponent'
 import IconButtonComponent from '~/components/IconButtonComponent/IconButtonComponent'
 import PaginationControl from '~/components/PanigationControlComponent/PaginationControl'
 import {
-  StyledBox,
+  StyledContainer,
   StyledCheckbox,
   StyledControlBox,
   StyledHeaderBox,
@@ -175,7 +175,7 @@ const AssetList = () => {
   const columnNames = ['Asset', 'Create At', 'Price', 'Status', 'Vendor', 'Inspector']
 
   return (
-    <StyledBox>
+    <StyledContainer>
       <StyledInnerBox>
         <StyledHeaderBox>
           <Box>
@@ -303,7 +303,7 @@ const AssetList = () => {
           <PaginationControl />
         </StyledSecondaryBox>
       </StyledInnerBox>
-    </StyledBox>
+    </StyledContainer>
   )
 }
 

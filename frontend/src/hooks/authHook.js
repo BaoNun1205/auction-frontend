@@ -1,6 +1,6 @@
 // hooks/useAuth.js
 import { useMutation, useQueryClient } from 'react-query'
-import { getToken, logout, register, confirmAccount } from '~/api/auth'
+import { getToken, logout, register, confirmAccount } from '~/api/authApi'
 import { useAppStore } from '~/store/appStore'
 
 // Hook để lấy token

@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
-import { Box, Button, Table, TableBody, TableCell, TableRow, IconButton } from '@mui/material';
-import { Eye, SlidersHorizontal, Download, MoreVertical, Trash2 } from 'lucide-react';
-import SelectComponent from '~/components/SelectComponent/SelectComponent';
-import SearchTextField from '~/components/SearchTextFieldComponent/SearchTextField';
-import ButtonComponent from '~/components/ButtonComponent/ButtonComponent';
-import IconButtonComponent from '~/components/IconButtonComponent/IconButtonComponent';
-import PaginationControl from '~/components/PanigationControlComponent/PaginationControl';
+import React, { useState } from 'react'
+import { Box, Button, Table, TableBody, TableCell, TableRow, MenuItem as MuiMenuItem, CircularProgress, Typography } from '@mui/material'
+import { Eye, SlidersHorizontal, Download, Trash2 } from 'lucide-react'
+import SelectComponent from '~/components/SelectComponent/SelectComponent'
+import SearchTextField from '~/components/SearchTextFieldComponent/SearchTextField'
+import ButtonComponent from '~/components/ButtonComponent/ButtonComponent'
+import IconButtonComponent from '~/components/IconButtonComponent/IconButtonComponent'
+import PaginationControl from '~/components/PanigationControlComponent/PaginationControl'
 import {
-  StyledBox,
+  StyledContainer,
   StyledCheckbox,
   StyledControlBox,
   StyledHeaderBox,
@@ -21,100 +21,71 @@ import {
   StyledTableHead,
   StyledTableRow,
   StyledTitleBox
-} from '~/features/style';
+} from '~/features/style'
+import { useFilterCategories, useDeleteCategory, useRestoreCategory } from '~/hooks/categoryHook'
+import splitDateTime from '~/utils/SplitDateTime'
+import ActionMenu from '~/components/IconMenuComponent/IconMenuComponent'
 
-const assets = [
-  {
-    id: 1,
-    name: 'Classic Leather Loafers',
-    createAt: '19 Aug 2024',
-    createTime: '12:54 am',
-    status: 'Published',
-    image: '/placeholder.svg?height=80&width=80'
-  },
-  {
-    id: 2,
-    name: 'Mountain Trekking Boots',
-    createAt: '17 Aug 2024',
-    createTime: '11:54 pm',
-    status: 'Published',
-    image: '/placeholder.svg?height=80&width=80'
-  },
-  {
-    id: 3,
-    name: 'Elegance Stiletto Heels',
-    createAt: '16 Aug 2024',
-    createTime: '10:54 pm',
-    status: 'Draft',
-    image: '/placeholder.svg?height=80&width=80'
-  },
-  {
-    id: 4,
-    name: 'Comfy Running Shoes',
-    createAt: '15 Aug 2024',
-    createTime: '9:54 pm',
-    status: 'Published',
-    image: '/placeholder.svg?height=80&width=80'
-  },
-  {
-    id: 5,
-    name: 'Chic Ballet Flats',
-    createAt: '14 Aug 2024',
-    createTime: '8:54 pm',
-    status: 'Published',
-    image: '/placeholder.svg?height=80&width=80'
+const CategoryList = () => {
+  const [selectedItems, setSelectedItems] = useState([])
+  const [showDeleteButton, setShowDeleteButton] = useState(false)
+  const [status, setStatus] = useState(false)
+  const [keyword, setKeyword] = useState('')
+
+  const { data, error, isLoading } = useFilterCategories(status, keyword)
+  const items = Array.isArray(data) ? data : []
+
+  const { mutate: deleteCategory } = useDeleteCategory()
+
+  const { mutate: restoreCategory } = useRestoreCategory()
+
+  const handleDeleteClick = (item) => {
+    deleteCategory(item.categoryId)
   }
-];
 
-const ProductList = () => {
-  const [selectedAssets, setSelectedAssets] = useState([]);
-  const [showDeleteButton, setShowDeleteButton] = useState(false);
+  const handleRestoreClick = (item) => {
+    restoreCategory(item.categoryId)
+  }
 
   const handleSelectAll = (event) => {
     if (event.target.checked) {
-      setSelectedAssets(assets.map(asset => asset.id));
-      setShowDeleteButton(true);
+      setSelectedItems(items.map(asset => asset.categoryId))
+      setShowDeleteButton(true)
     } else {
-      setSelectedAssets([]);
-      setShowDeleteButton(false);
+      setSelectedItems([])
+      setShowDeleteButton(false)
     }
-  };
+  }
 
-  const handleSelectAsset = (event, assetId) => {
-    const newSelectedAssets = event.target.checked
-      ? [...selectedAssets, assetId]
-      : selectedAssets.filter(id => id !== assetId);
+  const handleSelectItem = (event, assetId) => {
+    const newSelectedItems = event.target.checked
+      ? [...selectedItems, assetId]
+      : selectedItems.filter(id => id !== assetId)
 
-    setSelectedAssets(newSelectedAssets);
-    setShowDeleteButton(newSelectedAssets.length > 0);
-  };
+    setSelectedItems(newSelectedItems)
+    setShowDeleteButton(newSelectedItems.length > 0)
+  }
 
   const handleDelete = () => {
-    console.log('Deleting selected assets:', selectedAssets);
+    console.log('Deleting selected assets:', selectedItems)
     // Implement delete logic here
-  };
-
-  const stockMenuItems = [
-    { value: 'in_stock', label: 'In Stock' },
-    { value: 'out_of_stock', label: 'Out of Stock' },
-    { value: 'low_stock', label: 'Low Stock' }
-  ];
+  }
 
   const publishMenuItems = [
-    { value: 'published', label: 'Published' },
-    { value: 'draft', label: 'Draft' }
-  ];
+    { value: false, label: 'Active' },
+    { value: true, label: 'Inactive' }
+  ]
 
-  const columnNames = ['Name', 'Create At', 'Status'];
+  const columnNames = ['Name', 'Create At', 'Status']
 
   return (
-    <StyledBox>
+    <StyledContainer>
       <StyledInnerBox>
         <StyledHeaderBox>
           <Box>
             <StyledTitleBox>List</StyledTitleBox>
             <StyledSubtitleBox>
-              Dashboard • Product • <Box component="span" sx={{ color: 'primary.disable' }}>List</Box>
+              Dashboard • Category • <Box component="span" sx={{ color: 'primary.disable' }}>List</Box>
             </StyledSubtitleBox>
           </Box>
           <ButtonComponent
@@ -130,18 +101,17 @@ const ProductList = () => {
           <StyledControlBox>
             <Box sx={{ display: 'flex', gap: 2 }}>
               <SelectComponent
-                defaultValue=""
-                displayEmpty
-                menuItems={stockMenuItems}
-                placeholder="Stock"
-              />
-              <SelectComponent
+                value={status}
+                onChange={(event) => setStatus(event.target.value)}
                 defaultValue=""
                 displayEmpty
                 menuItems={publishMenuItems}
-                placeholder="Publish"
+                placeholder="Status"
               />
-              <SearchTextField />
+              <SearchTextField
+                value={keyword}
+                onChange={(event) => setKeyword(event.target.value)}
+              />
             </Box>
             <Box sx={{ display: 'flex', gap: 2, color: 'primary.textMain' }}>
               {showDeleteButton && (
@@ -150,7 +120,7 @@ const ProductList = () => {
                   sx={{ color: 'error.main' }}
                   onClick={handleDelete}
                 >
-                  Delete ({selectedAssets.length})
+                  Delete ({selectedItems.length})
                 </Button>
               )}
               <IconButtonComponent startIcon={<Eye size={20} />}>Colums</IconButtonComponent>
@@ -158,14 +128,16 @@ const ProductList = () => {
               <IconButtonComponent startIcon={<Download size={20} />}>Export</IconButtonComponent>
             </Box>
           </StyledControlBox>
+        </StyledSecondaryBox>
 
+        <StyledSecondaryBox bgcolor={(theme) => (theme.palette.primary.secondary)}>
           <StyledTableContainer>
             <Table>
               <StyledTableHead sx={(theme) => ({ bgcolor: theme.palette.primary.buttonHover })}>
                 <TableRow>
                   <TableCell padding="checkbox">
                     <StyledCheckbox
-                      checked={selectedAssets.length === assets.length}
+                      checked={selectedItems.length === items.length}
                       onChange={handleSelectAll}
                     />
                   </TableCell>
@@ -178,56 +150,77 @@ const ProductList = () => {
                 </TableRow>
               </StyledTableHead>
               <TableBody>
-                {assets.map((asset) => (
-                  <StyledTableRow key={asset.id}>
-                    <TableCell padding="checkbox">
-                      <StyledCheckbox
-                        checked={selectedAssets.includes(asset.id)}
-                        onChange={(event) => handleSelectAsset(event, asset.id)}
-                        onClick={(event) => event.stopPropagation()}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <Box
-                          component="img"
-                          src={asset.image}
-                          sx={{ width: 48, height: 48, borderRadius: 1, mr: 2 }}
-                        />
-                        <Box>
-                          <StyledSpan>{asset.name}</StyledSpan>
-                        </Box>
+                {isLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={columnNames.length + 2}>
+                      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                        <CircularProgress />
                       </Box>
                     </TableCell>
-                    <TableCell>
-                      <StyledSpan>{asset.createAt}</StyledSpan>
-                      <StyledSpan>{asset.createTime}</StyledSpan>
+                  </TableRow>
+                ) : error ? (
+                  <TableRow>
+                    <TableCell colSpan={columnNames.length + 2}>
+                      <Typography color="error">Error fetching categories</Typography>
                     </TableCell>
-                    <TableCell>
-                      <StyledStatusBox
-                        sx={(theme) => ({
-                          bgcolor: asset.status === 'Published' ? theme.palette.success.main : theme.palette.warning.main,
-                          color: asset.status === 'Published' ? theme.palette.success.contrastText : theme.palette.warning.contrastText
-                        })}
-                      >
-                        {asset.status}
-                      </StyledStatusBox>
-                    </TableCell>
-                    <TableCell>
-                      <IconButton sx={(theme) => ({ color: theme.palette.primary.textMain })}>
-                        <MoreVertical size={20} />
-                      </IconButton>
-                    </TableCell>
-                  </StyledTableRow>
-                ))}
+                  </TableRow>
+                ) : (
+                  items.map((item) => {
+                    const { date, time } = splitDateTime(item.createdAt)
+                    return (
+                      <StyledTableRow key={item.categoryId}>
+                        <TableCell padding="checkbox">
+                          <StyledCheckbox
+                            checked={selectedItems.includes(item.categoryId)}
+                            onChange={(event) => handleSelectItem(event, item.categoryId)}
+                            onClick={(event) => event.stopPropagation()}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            <Box
+                              component="img"
+                              src={item.image}
+                              sx={{ width: 48, height: 48, borderRadius: 1, mr: 2 }}
+                            />
+                            <Box>
+                              <StyledSpan>{item.categoryName}</StyledSpan>
+                            </Box>
+                          </Box>
+                        </TableCell>
+                        <TableCell>
+                          <StyledSpan>{date} </StyledSpan>
+                          <StyledSpan>{time}</StyledSpan>
+                        </TableCell>
+                        <TableCell>
+                          <StyledStatusBox
+                            sx={(theme) => ({
+                              bgcolor: item.delFlag === false ? theme.palette.success.main : theme.palette.warning.main,
+                              color: item.delFlag === false ? theme.palette.success.contrastText : theme.palette.warning.contrastText
+                            })}
+                          >
+                            {item.delFlag === false ? 'Active' : 'Inactive'}
+                          </StyledStatusBox>
+                        </TableCell>
+                        <TableCell>
+                          <ActionMenu>
+                            {item.delFlag === false ?
+                              (<MuiMenuItem onClick={() => handleDeleteClick(item)}>Delete</MuiMenuItem>)
+                              : (<MuiMenuItem onClick={() => handleRestoreClick(item)}>Restore</MuiMenuItem>)}
+                          </ActionMenu>
+                        </TableCell>
+                      </StyledTableRow>
+                    )
+                  })
+                )}
               </TableBody>
             </Table>
           </StyledTableContainer>
           <PaginationControl />
         </StyledSecondaryBox>
       </StyledInnerBox>
-    </StyledBox>
-  );
-};
+    </StyledContainer>
+  )
+}
 
-export default ProductList;
+export default CategoryList

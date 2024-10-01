@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useConfirmAccount } from '~/hooks/auth'; // Cập nhật đường dẫn đúng đến file auth.js
+import { useConfirmAccount } from '~/hooks/authHook'
 
 const ConfirmAccount = () => {
   const [message, setMessage] = useState('')

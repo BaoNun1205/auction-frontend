@@ -3,6 +3,7 @@ import Navbar from '../../components/DefautComponent/NavbarComponent/Navbar'
 import { Box } from '@mui/material'
 import Sidenav from '../../components/DefautComponent/SidenavComponent/Sidenav'
 import EditorPage from '~/features/Home/Editor'
+import { useAppStore } from '~/store/appStore'
 
 export default function HomePage() {
   return (

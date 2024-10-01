@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import { register } from '~/api/auth'
 import {
   TextField,
   InputAdornment,
@@ -12,7 +11,7 @@ import {
   Stack,
   Box
 } from '@mui/material'
-import { useRegister } from '~/hooks/auth'
+import { useRegister } from '~/hooks/authHook'
 
 // Material UI Icon Imports
 import Visibility from '@mui/icons-material/Visibility'
