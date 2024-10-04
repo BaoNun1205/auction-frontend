@@ -5,12 +5,18 @@ import {
   TextField,
   Typography,
   IconButton,
-  styled
+  styled,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem
 } from '@mui/material'
 import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 import CloseIcon from '@mui/icons-material/Close'
 import ReactQuill from 'react-quill'
-import { useCreateCategory } from '~/hooks/categoryHook'
+import { useCreateType } from '~/hooks/typeHook'
+import { useFilterCategories, useGetCategory } from '~/hooks/categoryHook'
+import SelectComponent from '~/components/SelectComponent/SelectComponent'
 
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
@@ -24,15 +30,24 @@ const VisuallyHiddenInput = styled('input')({
   width: 1
 })
 
-const CreateCategory = ({ onClose, onCreateSuccess }) => {
+const CreateType = ({ onClose, onCreateSuccess }) => {
   const [name, setName] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState('')
   const [image, setImage] = useState(null)
   const [imagePreview, setImagePreview] = useState(null)
-  const { mutate: createCategory, isLoading, error } = useCreateCategory()
+  const { mutate: CreateType, isLoading, error } = useCreateType()
+
+  const { data } = useFilterCategories(false, '')
+  const categories = Array.isArray(data) ? data : []
 
   const handleNameChange = (event) => {
     setName(event.target.value)
     console.log('Name:', name)
+  }
+
+  const handleCategoryChange = (event) => {
+    setSelectedCategory(event.target.value)
+    console.log(event.target.value)
   }
 
   const handleImageChange = (event) => {
@@ -58,13 +73,14 @@ const CreateCategory = ({ onClose, onCreateSuccess }) => {
 
     // Tạo FormData và thêm file ảnh và tên category
     const formData = new FormData()
-    formData.append('categoryName', name) // Thêm tên category
-    formData.append('image', image) // Thêm file ảnh
+    formData.append('typeName', name)
+    formData.append('category', selectedCategory)
+    formData.append('image', image)
 
     console.log('Submitted:', { name, image })
 
     // Gửi FormData
-    createCategory(
+    CreateType(
       formData,
       {
         onSuccess: (response) => {
@@ -88,10 +104,15 @@ const CreateCategory = ({ onClose, onCreateSuccess }) => {
     }
   })
 
+  const categoryMenuItems = categories.map((category) => ({
+    value: category.categoryId,
+    label: category.categoryName
+  }))
+
   return (
     <Box sx={{ p: 3, bgcolor: 'background.paper', borderRadius: 2, minWidth: 400 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h6">Create New Category</Typography>
+        <Typography variant="h6">Create New Type</Typography>
         <IconButton onClick={onClose}>
           <CloseIcon />
         </IconButton>
@@ -105,6 +126,15 @@ const CreateCategory = ({ onClose, onCreateSuccess }) => {
           onChange={handleNameChange}
           margin="normal"
           required
+        />
+        <SelectComponent
+          value={selectedCategory}
+          onChange={handleCategoryChange}
+          defaultValue=""
+          displayEmpty
+          menuItems={categoryMenuItems}
+          placeholder="Category"
+          sx={{ width: '100%' }}
         />
         <Box sx={{ mt: 2, mb: 2 }}>
           <Button
@@ -159,4 +189,4 @@ const CreateCategory = ({ onClose, onCreateSuccess }) => {
   )
 }
 
-export default CreateCategory
+export default CreateType

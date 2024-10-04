@@ -6,33 +6,14 @@ export const useGetCategory = () => {
   return useQuery('category', getCategory);
 };
 
-// export const useFilterCategories = () => {
-//   const queryClient = useQueryClient();
-
-//   return useMutation(filterCategories, {
-//     onSuccess: () => {
-//       // Làm mới dữ liệu sau khi lọc thành công
-//       queryClient.invalidateQueries('filteredCategories');
-//     },
-//     onError: (error) => {
-//       console.error('Error fetching filtered categories:', error);
-//     }
-//   });
-// };
-
+// Hook để lọc danh mục
 export const useFilterCategories = (status, keyword) => {
-  const queryClient = useQueryClient();
-
   return useQuery(
     ['filteredCategories', { status, keyword }],
     () => filterCategories({ status, keyword }),
     {
       onError: (error) => {
         console.error('Error fetching filtered categories:', error);
-      },
-      onSuccess: () => {
-        // Làm mới dữ liệu sau khi lọc thành công
-        queryClient.invalidateQueries('filteredCategories');
       }
     }
   );

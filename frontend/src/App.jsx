@@ -9,17 +9,17 @@ function App() {
   return (
     <Router>
       <Routes>
-      <Route path="/authentication" element={<Authentication />} />
+        <Route path="/authentication" element={<Authentication />} />
         <Route element={<RequireAuth />}>
           {routes.map((route) => {
-            const Page = route.page;
+            const Page = route.page
             return (
               <Route
                 key={route.path}
                 path={route.path}
                 element={<Page />}
               />
-            );
+            )
           })}
         </Route>
       </Routes>

@@ -22,12 +22,12 @@ import {
   StyledTableRow,
   StyledTitleBox
 } from '~/features/style'
-import { useFilterCategories, useDeleteCategory, useRestoreCategory } from '~/hooks/categoryHook'
+import { useFilterTypes, useDeleteType, useRestoreType } from '~/hooks/typeHook'
 import splitDateTime from '~/utils/SplitDateTime'
 import ActionMenu from '~/components/IconMenuComponent/IconMenuComponent'
-import CreateCategory from '../AddCategory/AddCategory'
+import CreateType from '../AddType/AddType'
 
-const CategoryList = () => {
+const TypeList = () => {
   const [selectedItems, setSelectedItems] = useState([])
   const [showDeleteButton, setShowDeleteButton] = useState(false)
   const [status, setStatus] = useState(false)
@@ -42,14 +42,14 @@ const CategoryList = () => {
     setAnchorEl(null)
   }
 
-  const { data, error, isLoading, refetch } = useFilterCategories(status, keyword)
+  const { data, error, isLoading, refetch } = useFilterTypes(status, keyword)
   const items = Array.isArray(data) ? data : []
 
-  const { mutate: deleteCategory } = useDeleteCategory()
-  const { mutate: restoreCategory } = useRestoreCategory()
+  const { mutate: deleteType } = useDeleteType()
+  const { mutate: restoreType } = useRestoreType()
 
   const handleDeleteClick = (item) => {
-    deleteCategory(item.categoryId, {
+    deleteType(item.typeId, {
       onSuccess: () => {
         refetch()
       }
@@ -57,7 +57,7 @@ const CategoryList = () => {
   }
 
   const handleRestoreClick = (item) => {
-    restoreCategory(item.categoryId, {
+    restoreType(item.typeId, {
       onSuccess: () => {
         refetch()
       }
@@ -101,7 +101,7 @@ const CategoryList = () => {
           <Box>
             <StyledTitleBox>List</StyledTitleBox>
             <StyledSubtitleBox>
-              Dashboard • Category • <Box component="span" sx={{ color: 'primary.disable' }}>List</Box>
+              Dashboard • Type • <Box component="span" sx={{ color: 'primary.disable' }}>List</Box>
             </StyledSubtitleBox>
           </Box>
           <ButtonComponent
@@ -110,7 +110,7 @@ const CategoryList = () => {
             hoverBgcolor={(theme) => (theme.palette.primary.light)}
             onClick={handleOpenPopover}
           >
-            + NEW CATEGORY
+            + NEW TYPE
           </ButtonComponent>
           <Popover
             open={Boolean(anchorEl)}
@@ -128,7 +128,7 @@ const CategoryList = () => {
               mt: 2
             }}
           >
-            <CreateCategory onClose={handleClosePopover} onCreateSuccess={refetch} />
+            <CreateType onClose={handleClosePopover} onCreateSuccess={refetch} />
           </Popover>
         </StyledHeaderBox>
 
@@ -203,11 +203,11 @@ const CategoryList = () => {
                   items.map((item) => {
                     const { date, time } = splitDateTime(item.createdAt)
                     return (
-                      <StyledTableRow key={item.categoryId}>
+                      <StyledTableRow key={item.typeId}>
                         <TableCell padding="checkbox">
                           <StyledCheckbox
-                            checked={selectedItems.includes(item.categoryId)}
-                            onChange={(event) => handleSelectItem(event, item.categoryId)}
+                            checked={selectedItems.includes(item.typeId)}
+                            onChange={(event) => handleSelectItem(event, item.typeId)}
                             onClick={(event) => event.stopPropagation()}
                           />
                         </TableCell>
@@ -219,7 +219,7 @@ const CategoryList = () => {
                               sx={{ width: 48, height: 48, borderRadius: 1, mr: 2 }}
                             />
                             <Box>
-                              <StyledSpan>{item.categoryName}</StyledSpan>
+                              <StyledSpan>{item.typeName}</StyledSpan>
                             </Box>
                           </Box>
                         </TableCell>
@@ -258,4 +258,4 @@ const CategoryList = () => {
   )
 }
 
-export default CategoryList
+export default TypeList
