@@ -7,10 +7,11 @@ import IconButton from '@mui/material/IconButton'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { useAppStore } from '~/store/appStore'
-import CategoryIcon from '@mui/icons-material/Category'
-import HomeIcon from '@mui/icons-material/Home'
-import ShoppingBasketIcon from '@mui/icons-material/ShoppingBasket'
-import EventIcon from '@mui/icons-material/Event'
+// import CategoryIcon from '@mui/icons-material/Category'
+// import HomeIcon from '@mui/icons-material/Home'
+// import ShoppingBasketIcon from '@mui/icons-material/ShoppingBasket'
+// import EventIcon from '@mui/icons-material/Event'
+import { Home, FolderTree, ShoppingBag, Calendar } from 'lucide-react'
 import MenuItemExpand from './MenuItemExpandComponent/MenuItemExpand'
 import ItemExpand from './ItemExpandComponent/ItemExpand'
 import MenuItem from './MenuItemComponent/MenuItem'
@@ -74,24 +75,22 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 )
 
 const HomeItem = {
-  icon: <HomeIcon />,
+  icon: <Home />,
   name: 'Home',
   path: '/'
 }
 
 const CategoryItem = {
-  icon: <CategoryIcon />,
+  icon: <FolderTree />,
   name: 'Category',
   subItems: [
-    { name: 'List', path: '/category' },
-    { name: 'Details', path: '/category/details' },
-    { name: 'Create', path: '/category/create' },
-    { name: 'Edit', path: '/category/edit' }
+    { name: 'Category', path: '/category' },
+    { name: 'Type', path: '/category/type' }
   ]
 }
 
 const AssetItem = {
-  icon: <ShoppingBasketIcon />,
+  icon: <ShoppingBag />,
   name: 'Asset',
   subItems: [
     { name: 'List', path: '/asset' },
@@ -102,7 +101,7 @@ const AssetItem = {
 }
 
 const SessionItem = {
-  icon: <EventIcon />,
+  icon: <Calendar />,
   name: 'Session',
   subItems: [
     { name: 'List', path: '/session/list' },
@@ -147,6 +146,7 @@ const Sidenav = ({ children }) => {
             {open ? (
               <>
                 <ItemExpand item={HomeItem} open={open} />
+                {/* <ItemExpand item={CategoryItem} open={open} /> */}
                 <MenuItemExpand
                   open={open}
                   itemOpen={categoryOpen}
