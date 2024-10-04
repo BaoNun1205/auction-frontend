@@ -8,11 +8,13 @@ import {
   Button,
   FormControl,
   InputLabel,
-  Stack
+  Stack,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+import ReactQuill from 'react-quill'; 
+import Autocomplete from '@mui/material/Autocomplete';
+import ImageUploadAndReview from './ImageUpload';
+import CustomNumberInput from '~/components/InputNumberComponent/InputNumberComponent'
 
 const names = [
   'Oliver Hansen',
@@ -41,28 +43,46 @@ const inspectors = [
 
 const CustomFormControl = styled(FormControl)({
   '& .Mui-focused .MuiOutlinedInput-notchedOutline': {
-    borderColor: 'green',
+    borderColor: 'blue',
   },
   '& .Mui-focused .MuiInputLabel-root': {
-    color: 'green',
+    color: 'blue',
+  },
+});
+
+const CustomTextField = styled(TextField)({
+  '& .Mui-focused .MuiOutlinedInput-notchedOutline': {
+    borderColor: 'blue',
   },
 });
 
 const AddAsset = () => {
   const [assetName, setAssetName] = useState('');
   const [firstName, setFirstName] = useState('');
-  const [vendor, setVendor] = useState('');
-  const [inspector, setInspector] = useState('');
+  const [vendor, setVendor] = useState([]);
+  const [inspector, setInspector] = useState([]);
   const [editorContent, setEditorContent] = useState('');
+  const [value, setValue] = React.useState(null);
 
-  function handleSubmit(event) {
+  const handleSubmit = (event) => {
     event.preventDefault();
-    console.log(assetName, firstName, vendor, inspector, editorContent);
-  }
+    console.log(firstName, vendor, inspector, editorContent);
+  };
 
   return (
     <Box sx={{ m: 'auto', maxWidth: '880px', borderRadius: 2, boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)' }}>
-      <Box sx={{ m: 'auto', maxWidth: '880px', borderRadius: '16px 16px 0 0', backgroundColor: '#0073e6', height: 75, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <Box 
+        sx={(theme) => ({
+          m: 'auto',
+          maxWidth: '880px',
+          borderRadius: '16px 16px 0 0',
+          backgroundColor: theme.palette.primary.lightMain,
+          height: 75,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        })}
+      >
         <Typography variant="h4" component="h3" gutterBottom sx={{ textAlign: 'center', color: 'white', m: 0 }}>
           Create Asset
         </Typography>
@@ -71,79 +91,85 @@ const AddAsset = () => {
         <form onSubmit={handleSubmit}>
           <Stack spacing={2} direction="row" sx={{ marginBottom: 4 }}>
             <TextField
+              type="assetName"
               variant="outlined"
               color="secondary"
               label="Asset Name"
-              onChange={e => setAssetName(e.target.value)}
+              onChange={(e) => setAssetName(e.target.value)}
               value={assetName}
               required
               fullWidth
               sx={{ m: 1, width: '50%' }}
             />
-            <CustomFormControl sx={{ m: 1, width: '50%' }}>
-              <InputLabel id="name-label">Name</InputLabel>
-              <Select
-                labelId="name-label"
-                variant="outlined"
-                color="secondary"
-                onChange={e => setFirstName(e.target.value)}
-                value={firstName}
-                fullWidth
-                required
-                MenuProps={{
-                  PaperProps: {
-                    sx: {
-                      maxHeight: 200,
-                      overflowY: 'auto',
-                    },
+            <Autocomplete
+              disablePortal
+              options={names}
+              sx={{
+                m: 1,
+                width: '50%',
+                '& .MuiOutlinedInput-root': {
+                  '&:hover fieldset': {
+                    borderColor: 'blue',
                   },
-                }}
-              >
-                {names.map((name) => (
-                  <MenuItem key={name} value={name}>
-                    {name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </CustomFormControl>
+                  '&.Mui-focused fieldset': {
+                    borderColor: 'blue',
+                  },
+                },
+                '& label.Mui-focused': {
+                  color: 'blue',
+                },
+              }}
+              renderInput={(params) => <CustomTextField {...params} label="Category" />}
+            />
           </Stack>
           <Stack spacing={2} direction="row" sx={{ marginBottom: 4 }}>
-            <CustomFormControl sx={{ m: 1, width: '50%' }}>
-              <InputLabel id="vendor-label">Vendor</InputLabel>
-              <Select
-                labelId="vendor-label"
-                variant="outlined"
-                color="secondary"
-                onChange={e => setVendor(e.target.value)}
-                value={vendor}
-                fullWidth
-                required
-              >
-                {vendors.map((vendor) => (
-                  <MenuItem key={vendor} value={vendor}>
-                    {vendor}
-                  </MenuItem>
-                ))}
-              </Select>
-            </CustomFormControl>
-            <CustomFormControl sx={{ m: 1, width: '50%' }}>
-              <InputLabel id="inspector-label">Inspector</InputLabel>
-              <Select
-                labelId="inspector-label"
-                variant="outlined"
-                color="secondary"
-                onChange={e => setInspector(e.target.value)}
-                value={inspector}
-                fullWidth
-                required
-              >
-                {inspectors.map((inspector) => (
-                  <MenuItem key={inspector} value={inspector}>
-                    {inspector}
-                  </MenuItem>
-                ))}
-              </Select>
-            </CustomFormControl>
+            <Autocomplete
+              disablePortal
+              options={vendors}
+              sx={{
+                m: 1,
+                width: '50%',
+                '& .MuiOutlinedInput-root': {
+                  '&:hover fieldset': {
+                    borderColor: 'blue',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: 'blue',
+                  },
+                },
+                '& label.Mui-focused': {
+                  color: 'blue',
+                },
+              }}
+              renderInput={(params) => <CustomTextField {...params} label="Vendors" />}
+            />
+              <Autocomplete
+              disablePortal
+              options={names}
+              sx={{
+                m: 1,
+                width: '50%',
+                '& .MuiOutlinedInput-root': {
+                  '&:hover fieldset': {
+                    borderColor: 'blue',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: 'blue',
+                  },
+                },
+                '& label.Mui-focused': {
+                  color: 'blue',
+                },
+              }}
+              renderInput={(params) => <CustomTextField {...params} label="Inspector" />}
+            />
+          </Stack>
+          <Typography variant="h6" gutterBottom>
+              Price
+            </Typography>
+          <Stack spacing={2} direction="row" sx={{ marginBottom: 4 }}>
+        
+          <CustomNumberInput aria-label="Demo number input" placeholder="Type a number…" />
           </Stack>
           <Box sx={{ marginTop: 4 }}>
             <Typography variant="h6" gutterBottom>
@@ -155,12 +181,29 @@ const AddAsset = () => {
               theme="snow"
             />
           </Box>
-          <Button variant="outlined" color="secondary" type="submit">
-            Register
-          </Button>
+          <Box sx={{ marginTop: 4 }}>
+            <Typography variant="h6" gutterBottom>
+              Images
+            </Typography>
+            <ImageUploadAndReview />
+          </Box>
+
+          <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 8 }}>
+            <Button 
+              type="submit" 
+              variant="contained" 
+              color="primary"
+              sx = {{width:'70%'}}
+            >
+              Submit
+            </Button>
+          </Box>
+
         </form>
+        
       </Box>
     </Box>
+    
   );
 };
 

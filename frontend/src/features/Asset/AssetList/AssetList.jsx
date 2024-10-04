@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
-import { Box, Button, Table, TableBody, TableCell, TableRow, IconButton } from '@mui/material'
+import { Box, Button, Table, TableBody, TableCell, TableRow, IconButton, Popover } from '@mui/material'
 import { Eye, SlidersHorizontal, Download, MoreVertical, Trash2 } from 'lucide-react'
 import SelectComponent from '~/components/SelectComponent/SelectComponent'
 import SearchTextField from '~/components/SearchTextFieldComponent/SearchTextField'
 import ButtonComponent from '~/components/ButtonComponent/ButtonComponent'
 import IconButtonComponent from '~/components/IconButtonComponent/IconButtonComponent'
 import PaginationControl from '~/components/PanigationControlComponent/PaginationControl'
+import CreateCategory from '~/features/Category/AddCategory/AddCategory'
 import {
   StyledContainer,
   StyledCheckbox,
@@ -133,9 +134,20 @@ const assets = [
   }
 ]
 
+
+
 const AssetList = () => {
   const [selectedAssets, setSelectedAssets] = useState([])
   const [showDeleteButton, setShowDeleteButton] = useState(false)
+  const [anchorEl, setAnchorEl] = useState(null)
+
+  const handleOpenPopover = (event) => {
+    setAnchorEl(event.currentTarget)
+  }
+
+  const handleClosePopover = () => {
+    setAnchorEl(null)
+  }
 
   const handleSelectAll = (event) => {
     if (event.target.checked) {
@@ -188,9 +200,29 @@ const AssetList = () => {
             bgcolor={(theme) => (theme.palette.primary.textMain)}
             color={(theme) => (theme.palette.primary.textExtra)}
             hoverBgcolor={(theme) => (theme.palette.primary.light)}
+            onClick={handleOpenPopover}
           >
-            + NEW asset
+            + NEW ASSET
           </ButtonComponent>
+          <Popover
+            open={Boolean(anchorEl)}
+            anchorEl={anchorEl}
+            onClose={handleClosePopover}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right'
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right'
+            }}
+            sx={{
+              mt: 2
+            }}
+          >
+            <CreateCategory onClose={handleClosePopover} />
+          </Popover>
+
         </StyledHeaderBox>
 
         <StyledSecondaryBox bgcolor={(theme) => (theme.palette.primary.secondary)}>
