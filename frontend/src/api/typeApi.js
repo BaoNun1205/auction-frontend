@@ -1,29 +1,10 @@
-import axios from 'axios'
-import { useAppStore } from '~/store/appStore'
+import { apiClient } from './apiClient'
 
-const getToken = () => useAppStore.getState().token
-
-const apiClient = axios.create({
-  baseURL: '/api/type',
-  headers: {
-    'Content-Type': 'application/json'
-  }
-})
-
-// Interceptor để thêm token vào header của mỗi yêu cầu
-apiClient.interceptors.request.use((config) => {
-  const token = getToken()
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
-  }
-  return config
-}, (error) => {
-  return Promise.reject(error)
-})
+export const TYPE_PATH = '/type'
 
 export const getType = async () => {
   try {
-    const response = (await apiClient.get()).data
+    const response = (await apiClient.get(TYPE_PATH)).data
     return response.result
   } catch (error) {
     if (error.response) {
@@ -38,7 +19,7 @@ export const getType = async () => {
 
 export const filterTypes = async (payload) => {
   try {
-    const response = (await apiClient.post('/filter', payload)).data
+    const response = (await apiClient.post(`${TYPE_PATH}/filter`, payload)).data
     return response.result
   } catch (error) {
     if (error.response) {
@@ -53,7 +34,7 @@ export const filterTypes = async (payload) => {
 
 export const createType = async (payload) => {
   try {
-    const response = (await apiClient.post('', payload, {
+    const response = (await apiClient.post('/type', payload, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
@@ -72,7 +53,7 @@ export const createType = async (payload) => {
 
 export const deleteType = async (typeId) => {
   try {
-    const response = (await apiClient.delete(`/${typeId}`)).data
+    const response = (await apiClient.delete(`/type/${typeId}`)).data
     return response
   } catch (error) {
     if (error.response) {
@@ -87,7 +68,7 @@ export const deleteType = async (typeId) => {
 
 export const restoreType = async (typeId) => {
   try {
-    const response = (await apiClient.put(`/restore/${typeId}`)).data
+    const response = (await apiClient.put(`/type/restore/${typeId}`)).data
     return response
   } catch (error) {
     if (error.response) {

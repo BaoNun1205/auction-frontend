@@ -1,29 +1,10 @@
-import axios from 'axios'
-import { useAppStore } from '~/store/appStore'
+import { apiClient } from './apiClient'
 
-const getToken = () => useAppStore.getState().token
-
-const apiClient = axios.create({
-  baseURL: '/api/category',
-  headers: {
-    'Content-Type': 'application/json'
-  }
-})
-
-// Interceptor để thêm token vào header của mỗi yêu cầu
-apiClient.interceptors.request.use((config) => {
-  const token = getToken()
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
-  }
-  return config
-}, (error) => {
-  return Promise.reject(error)
-})
+export const CATEGORY_PATH = '/category'
 
 export const getCategory = async () => {
   try {
-    const response = (await apiClient.get()).data
+    const response = (await apiClient.get(CATEGORY_PATH)).data
     return response.result
   } catch (error) {
     if (error.response) {
@@ -38,7 +19,7 @@ export const getCategory = async () => {
 
 export const filterCategories = async (payload) => {
   try {
-    const response = (await apiClient.post('/filter', payload)).data
+    const response = (await apiClient.post(`${CATEGORY_PATH}/filter`, payload)).data
     return response.result
   } catch (error) {
     if (error.response) {
@@ -53,7 +34,7 @@ export const filterCategories = async (payload) => {
 
 export const createCategory = async (payload) => {
   try {
-    const response = (await apiClient.post('', payload, {
+    const response = (await apiClient.post(CATEGORY_PATH, payload, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
@@ -72,7 +53,7 @@ export const createCategory = async (payload) => {
 
 export const deleteCategory = async (categoryId) => {
   try {
-    const response = (await apiClient.delete(`/${categoryId}`)).data
+    const response = (await apiClient.delete(`${CATEGORY_PATH}/${categoryId}`)).data
     return response
   } catch (error) {
     if (error.response) {
@@ -87,7 +68,7 @@ export const deleteCategory = async (categoryId) => {
 
 export const restoreCategory = async (categoryId) => {
   try {
-    const response = (await apiClient.put(`/restore/${categoryId}`)).data
+    const response = (await apiClient.put(`${CATEGORY_PATH}/restore/${categoryId}`)).data
     return response
   } catch (error) {
     if (error.response) {
