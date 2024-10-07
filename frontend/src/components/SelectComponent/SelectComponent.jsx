@@ -2,14 +2,10 @@ import React from 'react'
 import MenuItem from '@mui/material/MenuItem'
 import { StyledSelectComponent } from './style'
 
-const SelectComponent = ({ value, onChange, defaultValue, displayEmpty, menuItems, placeholder, sx }) => {
+const SelectComponent = ({ menuItems, placeholder, ...props }) => {
   return (
     <StyledSelectComponent
-      value={value}
-      onChange={onChange}
-      defaultValue={defaultValue}
-      displayEmpty={displayEmpty}
-      sx={sx}
+      {...props}
     >
       <MenuItem value="" disabled>{placeholder}</MenuItem>
       {menuItems.map((item) => (

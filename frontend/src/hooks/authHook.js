@@ -7,16 +7,16 @@ import { useAppStore } from '~/store/appStore'
 export const useGetToken = () => {
   const setToken = useAppStore((state) => state.setToken)
 
-  return useMutation(({ username, password }) => getToken(username, password), {
+  return useMutation(getToken, {
     onSuccess: (data) => {
-      // Lưu token vào zustand store
       setToken(data.token)
       console.log('Token retrieved successfully:', data)
     },
     onError: (error) => {
       console.error('Error retrieving token:', error)
     }
-  })
+  }
+  )
 }
 
 // Hook để logout
@@ -41,7 +41,7 @@ export const useLogout = () => {
 
 // Hook để đăng ký
 export const useRegister = () => {
-  return useMutation(({ username, password, email }) => register(username, password, email), {
+  return useMutation(register, {
     onSuccess: (data) => {
       console.log('Registration successful:', data)
     },

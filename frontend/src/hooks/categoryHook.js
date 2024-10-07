@@ -13,11 +13,11 @@ export const useFilterCategories = (status, keyword) => {
     () => filterCategories({ status, keyword }),
     {
       onError: (error) => {
-        console.error('Error fetching filtered categories:', error);
+        console.error('Error fetching filtered categories:', error)
       }
     }
-  );
-};
+  )
+}
 
 // Hook để tạo danh mục mới
 export const useCreateCategory = () => {

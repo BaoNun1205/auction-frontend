@@ -17,9 +17,25 @@ export const getCategory = async () => {
   }
 }
 
+// export const filterCategories = async (payload) => {
+//   try {
+//     const response = (await apiClient.post(`${CATEGORY_PATH}/filter`, payload)).data
+//     return response.result
+//   } catch (error) {
+//     if (error.response) {
+//       console.error('API Error Response:', error.response.data)
+//       return error.response.data
+//     } else {
+//       console.error('Error:', error)
+//       throw error
+//     }
+//   }
+// }
+
 export const filterCategories = async (payload) => {
   try {
-    const response = (await apiClient.post(`${CATEGORY_PATH}/filter`, payload)).data
+    const params = new URLSearchParams(payload).toString()
+    const response = (await apiClient.get(`${CATEGORY_PATH}/filter?${params}`)).data
     return response.result
   } catch (error) {
     if (error.response) {

@@ -1,17 +1,19 @@
-import * as React from 'react';
-import Box from '@mui/material/Box';
-import TextField from '@mui/material/TextField';
-import { StyledTextField } from './style';
+import React from 'react'
+import { StyledTextField } from './style'
 
-export default function TextFieldComponent() {
+const TextFieldComponent = ({ label, value, onChange, ...props }) => {
   return (
-    <Box
-      component="form"
-      sx={{ '& > :not(style)': { m: 1, width: '25ch' } }}
-      noValidate
-      autoComplete="off"
-    >
-      <StyledTextField id="outlined-basic" label="Outlined" variant="outlined" />
-    </Box>
-  );
+    <StyledTextField
+      fullWidth
+      label={label}
+      variant="outlined"
+      value={value}
+      onChange={onChange}
+      margin="normal"
+      required
+      {...props}
+    />
+  )
 }
+
+export default TextFieldComponent

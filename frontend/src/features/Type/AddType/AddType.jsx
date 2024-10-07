@@ -9,7 +9,8 @@ import {
   FormControl,
   InputLabel,
   Select,
-  MenuItem
+  MenuItem,
+  Autocomplete
 } from '@mui/material'
 import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 import CloseIcon from '@mui/icons-material/Close'
@@ -17,6 +18,7 @@ import ReactQuill from 'react-quill'
 import { useCreateType } from '~/hooks/typeHook'
 import { useFilterCategories, useGetCategory } from '~/hooks/categoryHook'
 import SelectComponent from '~/components/SelectComponent/SelectComponent'
+import StackSelectComponent from '~/components/StackSelectComponent/StackSelectComponent'
 
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
@@ -45,9 +47,13 @@ const CreateType = ({ onClose, onCreateSuccess }) => {
     console.log('Name:', name)
   }
 
-  const handleCategoryChange = (event) => {
-    setSelectedCategory(event.target.value)
-    console.log(event.target.value)
+  const handleCategoryChange = (event, value) => {
+    if (value) {
+      setSelectedCategory(value.value)
+      console.log('Selected Year:', value.value)
+    } else {
+      selectedCategory(null)
+    }
   }
 
   const handleImageChange = (event) => {
@@ -126,15 +132,55 @@ const CreateType = ({ onClose, onCreateSuccess }) => {
           onChange={handleNameChange}
           margin="normal"
           required
+          sx={{
+            '& .MuiOutlinedInput-root': {
+              '&:hover fieldset': {
+                borderColor: '#1c252e'
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: '#28323d'
+              }
+            },
+            '& label.Mui-focused': {
+              color: '#1c252e'
+            },
+            '& fieldset': {
+              borderColor: '#1c252e'
+            }
+          }}
         />
-        <SelectComponent
-          value={selectedCategory}
+        <StackSelectComponent
+          options={categoryMenuItems}
           onChange={handleCategoryChange}
-          defaultValue=""
-          displayEmpty
-          menuItems={categoryMenuItems}
-          placeholder="Category"
-          sx={{ width: '100%' }}
+          label="Category"
+          sx={{
+            mx: 0,
+            my: 1,
+            width: '100%',
+            '& .MuiOutlinedInput-root': {
+              '&:hover fieldset': {
+                borderColor: '#1c252e'
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: '#28323d'
+              },
+              '& .MuiSvgIcon-root': {
+                color: '#1c252e'
+              },
+              '& .MuiInputBase-input': {
+                color: '#1c252e'
+              }
+            },
+            '& label.Mui-focused': {
+              color: '#1c252e'
+            },
+            '& label': {
+              color: '#637381'
+            },
+            '& fieldset': {
+              borderColor: '#1c252e'
+            }
+          }}
         />
         <Box sx={{ mt: 2, mb: 2 }}>
           <Button
@@ -182,7 +228,7 @@ const CreateType = ({ onClose, onCreateSuccess }) => {
           sx={{ mt: 2 }}
           disabled={isLoading} // Khóa nút khi đang gửi yêu cầu
         >
-          Create Category
+          Create type
         </Button>
       </form>
     </Box>

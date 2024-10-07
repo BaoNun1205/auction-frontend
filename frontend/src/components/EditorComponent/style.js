@@ -4,7 +4,7 @@ import { styled, alpha } from '@mui/material/styles'
 export const StyledEditor = styled(Box)(({ theme }) => ({
   '& .ql-toolbar.ql-snow': {
     border: 'none',
-    backgroundColor: alpha(theme.palette.background.paper, 0.8),
+    backgroundColor: alpha(theme.palette.background.paper, 0.8), // Màu nền sáng
     borderTopLeftRadius: theme.shape.borderRadius,
     borderTopRightRadius: theme.shape.borderRadius,
     transition: theme.transitions.create(['background-color']),
@@ -24,15 +24,15 @@ export const StyledEditor = styled(Box)(({ theme }) => ({
       alignItems: 'center',
       justifyContent: 'center',
       borderRadius: theme.shape.borderRadius,
-      color: theme.palette.text.primary,
-      transition: theme.transitions.create(['background-color', 'color']),
+      color: theme.palette.primary.textMain,
+      // transition: theme.transitions.create(['background-color', 'color']),
       border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
       '&:hover': {
         backgroundColor: alpha(theme.palette.primary.main, 0.08)
       },
       '&.ql-active': {
         backgroundColor: alpha(theme.palette.primary.main, 0.16),
-        color: theme.palette.primary.main
+        color: theme.palette.primary.textMain
       },
       '& svg': {
         width: 18,
@@ -44,7 +44,7 @@ export const StyledEditor = styled(Box)(({ theme }) => ({
     },
     '& .ql-picker-label': {
       ...theme.typography.subtitle2,
-      color: theme.palette.text.primary,
+      color: theme.palette.primary.textMain,
       padding: theme.spacing(0.5, 1),
       borderRadius: theme.shape.borderRadius,
       border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
@@ -75,8 +75,8 @@ export const StyledEditor = styled(Box)(({ theme }) => ({
   '& .ql-editor': {
     minHeight: 200,
     maxHeight: '100%',
-    backgroundColor: theme.palette.background.paper,
-    color: theme.palette.text.primary,
+    backgroundColor: theme.palette.background.default, // Màu nền sáng
+    color: theme.palette.primary.textMain,
     borderBottomLeftRadius: theme.shape.borderRadius,
     borderBottomRightRadius: theme.shape.borderRadius,
     transition: theme.transitions.create(['background-color', 'color']),
@@ -86,7 +86,7 @@ export const StyledEditor = styled(Box)(({ theme }) => ({
       color: theme.palette.text.disabled
     }
   }
-}))
+}));
 
 export const FullscreenWrapper = styled(Box)(({ theme, isFullscreen }) => ({
   position: isFullscreen ? 'fixed' : 'relative',

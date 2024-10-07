@@ -105,6 +105,19 @@ const CreateCategory = ({ onClose, onCreateSuccess }) => {
           onChange={handleNameChange}
           margin="normal"
           required
+          sx={{
+            '& .MuiOutlinedInput-root': {
+              '&:hover fieldset': {
+                borderColor: '#1c252e'
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: '#28323d'
+              }
+            },
+            '& label.Mui-focused': {
+              color: '#1c252e'
+            }
+          }}
         />
         <Box sx={{ mt: 2, mb: 2 }}>
           <Button

@@ -1,6 +1,5 @@
-import { orange, grey } from '@mui/material/colors'
+import { grey } from '@mui/material/colors'
 import { experimental_extendTheme as extendTheme } from '@mui/material/styles'
-import { light } from '@mui/material/styles/createPalette'
 
 // Create a theme instance.
 const theme = extendTheme({
@@ -22,7 +21,13 @@ const theme = extendTheme({
           borderFocus: '#1c252e', // Inverted from light
           buttonHover: '#f4f6f8', // Inverted from light
           light: grey[700], // Inverted from light
-          disable: grey[500], // Inverted from light
+          disable: '#919eab' // Inverted from light
+        },
+        secondary: {
+          main: grey[500],
+          dark: '#f4f6f8',
+          light: '#f4f6f8',
+          text: '#637381'
         }
       }
     },
@@ -40,7 +45,7 @@ const theme = extendTheme({
           borderFocus: '#ffffff',
           buttonHover: '#28323d',
           light: grey[300],
-          disable: grey[700]
+          disable: '#637381'
         }
       }
     }

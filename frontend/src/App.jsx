@@ -2,14 +2,14 @@ import React from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { routes } from './routes/routes'
 import RequireAuth from './routes/RequireAuth'
-import Authentication from './pages/Authentication/Authentication'
+import Login from './pages/Authentication/Login'
 
 function App() {
 
   return (
     <Router>
       <Routes>
-        <Route path="/authentication" element={<Authentication />} />
+        <Route path="/login" element={<Login />} />
         <Route element={<RequireAuth />}>
           {routes.map((route) => {
             const Page = route.page

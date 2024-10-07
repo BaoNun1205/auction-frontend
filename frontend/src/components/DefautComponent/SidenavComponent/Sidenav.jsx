@@ -7,10 +7,6 @@ import IconButton from '@mui/material/IconButton'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { useAppStore } from '~/store/appStore'
-// import CategoryIcon from '@mui/icons-material/Category'
-// import HomeIcon from '@mui/icons-material/Home'
-// import ShoppingBasketIcon from '@mui/icons-material/ShoppingBasket'
-// import EventIcon from '@mui/icons-material/Event'
 import { Home, FolderTree, ShoppingBag, Calendar } from 'lucide-react'
 import MenuItemExpand from './MenuItemExpandComponent/MenuItemExpand'
 import ItemExpand from './ItemExpandComponent/ItemExpand'
@@ -100,6 +96,17 @@ const AssetItem = {
   ]
 }
 
+const RequirementItem = {
+  icon: <ShoppingBag />,
+  name: 'Requirement',
+  subItems: [
+    { name: 'List', path: '/requirement' },
+    { name: 'Details', path: '/requirement/details' },
+    { name: 'Create', path: '/requirement/create' },
+    { name: 'Edit', path: '/requirement/edit' }
+  ]
+}
+
 const SessionItem = {
   icon: <Calendar />,
   name: 'Session',
@@ -118,6 +125,8 @@ const Sidenav = ({ children }) => {
   const setCategoryOpen = useAppStore((state) => state.setCategoryOpen) // set category menu
   const assetOpen = useAppStore((state) => state.assetOpen) // open asset menu
   const setAssetOpen = useAppStore((state) => state.setAssetOpen) // set asset menu
+  const requirementOpen = useAppStore((state) => state.requirementOpen) // open requirement menu
+  const setRequirementOpen = useAppStore((state) => state.setRequirementOpen) // set requirement menu
   const sessionOpen = useAppStore((state) => state.sessionOpen) // open session menu
   const setSessionOpen = useAppStore((state) => state.setSessionOpen) // set session
 
@@ -127,6 +136,10 @@ const Sidenav = ({ children }) => {
 
   const handleAssetClick = () => {
     setAssetOpen(!assetOpen)
+  }
+
+  const handleRequirementClick = () => {
+    setRequirementOpen(!requirementOpen)
   }
 
   const handleSessionClick = () => {
@@ -161,6 +174,12 @@ const Sidenav = ({ children }) => {
                 />
                 <MenuItemExpand
                   open={open}
+                  itemOpen={requirementOpen}
+                  item={RequirementItem}
+                  handleClick={handleRequirementClick}
+                />
+                <MenuItemExpand
+                  open={open}
                   itemOpen={sessionOpen}
                   item={SessionItem}
                   handleClick={handleSessionClick}
@@ -171,6 +190,7 @@ const Sidenav = ({ children }) => {
                 <MenuItem item={HomeItem} />
                 <MenuItem item={CategoryItem} />
                 <MenuItem item={AssetItem} />
+                <MenuItem item={RequirementItem} />
                 <MenuItem item={SessionItem} />
               </>
             )}

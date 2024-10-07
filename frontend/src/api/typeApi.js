@@ -19,7 +19,8 @@ export const getType = async () => {
 
 export const filterTypes = async (payload) => {
   try {
-    const response = (await apiClient.post(`${TYPE_PATH}/filter`, payload)).data
+    const params = new URLSearchParams(payload).toString()
+    const response = (await apiClient.get(`${TYPE_PATH}/filter?${params}`)).data
     return response.result
   } catch (error) {
     if (error.response) {

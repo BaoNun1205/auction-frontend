@@ -13,19 +13,19 @@ const RequireAuth = () => {
 
       if (decodedToken.exp < currentTime) {
         // Token đã hết hạn
-        return <Navigate to="/authentication" />
+        return <Navigate to="/login" />
       }
 
       // Token còn hợp lệ
       return <Outlet />
     } catch (error) {
       console.error('Invalid token:', error)
-      return <Navigate to="/authentication" />
+      return <Navigate to="/login" />
     }
   }
 
   // Không có token
-  return <Navigate to="/authentication" />
+  return <Navigate to="/login" />
 }
 
 export default RequireAuth

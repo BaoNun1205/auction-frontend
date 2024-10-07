@@ -1,20 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'
 import {
   Box,
   Typography,
-  TextField,
-  Select,
-  MenuItem,
   Button,
-  FormControl,
-  InputLabel,
-  Stack,
-} from '@mui/material';
-import { styled } from '@mui/material/styles';
-import ReactQuill from 'react-quill'; 
-import Autocomplete from '@mui/material/Autocomplete';
-import ImageUploadAndReview from './ImageUpload';
+  Stack
+} from '@mui/material'
+import ReactQuill from 'react-quill'
+import ImageUploadAndReview from './ImageUpload'
 import CustomNumberInput from '~/components/InputNumberComponent/InputNumberComponent'
+import StackSelectComponent from '~/components/StackSelectComponent/StackSelectComponent'
+import { StyledContainer, StyledHeaderBox, StyledInnerBox, StyledSubtitleBox, StyledTitleBox } from '~/features/style'
+import TextFieldComponent from '~/components/TextFieldComponent/TextFieldComponent'
+import Editor from '~/components/EditorComponent/Editor'
+// import { useTheme } from '@mui/material/styles'
 
 const names = [
   'Oliver Hansen',
@@ -26,185 +24,109 @@ const names = [
   'Miriam Wagner',
   'Bradley Wilkerson',
   'Virginia Andrews',
-  'Kelly Snyder',
-];
-
-const vendors = [
-  'Vendor 1',
-  'Vendor 2',
-  'Vendor 3',
-];
-
-const inspectors = [
-  'Inspector A',
-  'Inspector B',
-  'Inspector C',
-];
-
-const CustomFormControl = styled(FormControl)({
-  '& .Mui-focused .MuiOutlinedInput-notchedOutline': {
-    borderColor: 'blue',
-  },
-  '& .Mui-focused .MuiInputLabel-root': {
-    color: 'blue',
-  },
-});
-
-const CustomTextField = styled(TextField)({
-  '& .Mui-focused .MuiOutlinedInput-notchedOutline': {
-    borderColor: 'blue',
-  },
-});
+  'Kelly Snyder'
+]
 
 const AddAsset = () => {
-  const [assetName, setAssetName] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [vendor, setVendor] = useState([]);
-  const [inspector, setInspector] = useState([]);
-  const [editorContent, setEditorContent] = useState('');
-  const [value, setValue] = React.useState(null);
+  const [assetName, setAssetName] = useState('')
+  const [vendor, setVendor] = useState([])
+  const [inspector, setInspector] = useState([])
+  const [editorContent, setEditorContent] = useState('')
+  // const { theme } = useTheme()
 
   const handleSubmit = (event) => {
-    event.preventDefault();
-    console.log(firstName, vendor, inspector, editorContent);
-  };
+    event.preventDefault()
+    console.log(vendor, inspector, editorContent)
+  }
 
   return (
-    <Box sx={{ m: 'auto', maxWidth: '880px', borderRadius: 2, boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)' }}>
-      <Box 
-        sx={(theme) => ({
-          m: 'auto',
-          maxWidth: '880px',
-          borderRadius: '16px 16px 0 0',
-          backgroundColor: theme.palette.primary.lightMain,
-          height: 75,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        })}
-      >
-        <Typography variant="h4" component="h3" gutterBottom sx={{ textAlign: 'center', color: 'white', m: 0 }}>
-          Create Asset
-        </Typography>
-      </Box>
-      <Box sx={{ p: 3 }}>
-        <form onSubmit={handleSubmit}>
-          <Stack spacing={2} direction="row" sx={{ marginBottom: 4 }}>
-            <TextField
-              type="assetName"
-              variant="outlined"
-              color="secondary"
-              label="Asset Name"
-              onChange={(e) => setAssetName(e.target.value)}
-              value={assetName}
-              required
-              fullWidth
-              sx={{ m: 1, width: '50%' }}
-            />
-            <Autocomplete
-              disablePortal
-              options={names}
-              sx={{
-                m: 1,
-                width: '50%',
-                '& .MuiOutlinedInput-root': {
-                  '&:hover fieldset': {
-                    borderColor: 'blue',
-                  },
-                  '&.Mui-focused fieldset': {
-                    borderColor: 'blue',
-                  },
-                },
-                '& label.Mui-focused': {
-                  color: 'blue',
-                },
-              }}
-              renderInput={(params) => <CustomTextField {...params} label="Category" />}
-            />
-          </Stack>
-          <Stack spacing={2} direction="row" sx={{ marginBottom: 4 }}>
-            <Autocomplete
-              disablePortal
-              options={vendors}
-              sx={{
-                m: 1,
-                width: '50%',
-                '& .MuiOutlinedInput-root': {
-                  '&:hover fieldset': {
-                    borderColor: 'blue',
-                  },
-                  '&.Mui-focused fieldset': {
-                    borderColor: 'blue',
-                  },
-                },
-                '& label.Mui-focused': {
-                  color: 'blue',
-                },
-              }}
-              renderInput={(params) => <CustomTextField {...params} label="Vendors" />}
-            />
-              <Autocomplete
-              disablePortal
-              options={names}
-              sx={{
-                m: 1,
-                width: '50%',
-                '& .MuiOutlinedInput-root': {
-                  '&:hover fieldset': {
-                    borderColor: 'blue',
-                  },
-                  '&.Mui-focused fieldset': {
-                    borderColor: 'blue',
-                  },
-                },
-                '& label.Mui-focused': {
-                  color: 'blue',
-                },
-              }}
-              renderInput={(params) => <CustomTextField {...params} label="Inspector" />}
-            />
-          </Stack>
-          <Typography variant="h6" gutterBottom>
+    <StyledContainer>
+      <StyledInnerBox>
+        <StyledHeaderBox>
+          <Box>
+            <StyledTitleBox>Create</StyledTitleBox>
+            <StyledSubtitleBox>
+              Dashboard • requirement • <Box component="span" sx={{ color: 'primary.disable' }}>Create</Box>
+            </StyledSubtitleBox>
+          </Box>
+        </StyledHeaderBox>
+        <Box sx={(theme) => ({ m: 'auto', maxWidth: '880px', bgcolor: theme.palette.primary.secondary, borderRadius: 2, boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)' })}>
+          <Box sx={(theme) => ({
+            display: 'flex',
+            flexDirection: 'column',
+            px: 3,
+            py: 3,
+            color: theme.palette.primary.textMain,
+            borderBottom: '1px solid',
+            borderColor: theme.palette.primary.disable
+          })}>
+            <Typography component="h6" variant='h6' sx={(theme) => ({ color: theme.palette.primary.textMain })}>
+                Details
+            </Typography>
+            <Typography sx={(theme) => ({ color: theme.palette.primary.disable })}>
+                Title, short description, image...
+            </Typography>
+          </Box>
+          <Box sx={{ p: 3 }}>
+            <form onSubmit={handleSubmit}>
+              <Stack spacing={2} direction="row" sx={{ marginBottom: 4 }}>
+                <TextFieldComponent label="Asset Name" value={assetName} onChange={(e) => setAssetName(e.target.value)} sx={{ width: '50%' }} />
+                <StackSelectComponent
+                  options={names}
+                  label="Category"
+                  sx={{ m: 1, width: '50%' }}
+                />
+              </Stack>
+              <Stack spacing={2} direction="row" sx={{ marginBottom: 4 }}>
+                <TextFieldComponent label="Vendor Name" value={vendor} onChange={(e) => setVendor(e.target.value)} sx={{ width: '50%' }} />
+                <TextFieldComponent label="Inspector Name" value={inspector} onChange={(e) => setInspector(e.target.value)} sx={{ width: '50%' }} />
+              </Stack>
+              <Typography variant="h6" gutterBottom>
               Price
-            </Typography>
-          <Stack spacing={2} direction="row" sx={{ marginBottom: 4 }}>
-        
-          <CustomNumberInput aria-label="Demo number input" placeholder="Type a number…" />
-          </Stack>
-          <Box sx={{ marginTop: 4 }}>
-            <Typography variant="h6" gutterBottom>
+              </Typography>
+              <Stack spacing={2} direction="row" sx={{ marginBottom: 4 }}>
+                <CustomNumberInput aria-label="Demo number input" placeholder="Type a number…" />
+              </Stack>
+              <Box sx={{ marginTop: 4 }}>
+                <Typography variant="h6" gutterBottom>
               Description
-            </Typography>
-            <ReactQuill
-              value={editorContent}
-              onChange={setEditorContent}
-              theme="snow"
-            />
-          </Box>
-          <Box sx={{ marginTop: 4 }}>
-            <Typography variant="h6" gutterBottom>
+                </Typography>
+                {/* <ReactQuill
+                  value={editorContent}
+                  onChange={setEditorContent}
+                  theme="snow"
+                /> */}
+                <Editor
+                  value={editorContent}
+                  onChange={setEditorContent}
+                  error={false}
+                  helperText=""
+                />
+              </Box>
+              <Box sx={{ marginTop: 4 }}>
+                <Typography variant="h6" gutterBottom>
               Images
-            </Typography>
-            <ImageUploadAndReview />
-          </Box>
+                </Typography>
+                <ImageUploadAndReview />
+              </Box>
 
-          <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 8 }}>
-            <Button 
-              type="submit" 
-              variant="contained" 
-              color="primary"
-              sx = {{width:'70%'}}
-            >
+              <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 8 }}>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  sx = {{ width:'70%' }}
+                >
               Submit
-            </Button>
+                </Button>
+              </Box>
+            </form>
           </Box>
+        </Box>
+      </StyledInnerBox>
+    </StyledContainer>
 
-        </form>
-        
-      </Box>
-    </Box>
-    
-  );
-};
+  )
+}
 
-export default AddAsset;
+export default AddAsset

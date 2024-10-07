@@ -148,7 +148,7 @@ const TypeList = () => {
                 onChange={(event) => setKeyword(event.target.value)}
               />
             </Box>
-            <Box sx={{ display: 'flex', gap: 2, color: 'primary.textMain' }}>
+            <Box sx={{ display: 'flex', gap: 2 }}>
               {showDeleteButton && (
                 <Button
                   startIcon={<Trash2 size={20} />}
@@ -220,6 +220,7 @@ const TypeList = () => {
                             />
                             <Box>
                               <StyledSpan>{item.typeName}</StyledSpan>
+                              <Box sx={{ color: 'primary.textSecondary' }}>{item.categoryName}</Box>
                             </Box>
                           </Box>
                         </TableCell>

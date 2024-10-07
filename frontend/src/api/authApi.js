@@ -8,9 +8,10 @@ const apiClient = axios.create({
   }
 })
 
-export const getToken = async (username, password) => {
+export const getToken = async (payload) => {
+  console.log('Registering:', payload)
   try {
-    const response = (await apiClient.post('/auth/token', { username, password })).data
+    const response = (await apiClient.post('/auth/token', payload)).data
     return response
   } catch (error) {
     if (error.response) {
@@ -44,9 +45,10 @@ export const logout = async () => {
   }
 }
 
-export const register = async (username, password, email) => {
+export const register = async (payload) => {
   try {
-    const response = (await apiClient.post('/users', { username, password, email })).data
+    console.log('Registering:', payload)
+    const response = (await apiClient.post('/users', payload)).data
     return response
   } catch (error) {
     if (error.response) {

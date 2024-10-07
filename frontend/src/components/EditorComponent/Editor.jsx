@@ -4,6 +4,7 @@ import { Box, IconButton, Tooltip, Typography, Fade } from '@mui/material'
 import FullscreenIcon from '@mui/icons-material/Fullscreen'
 import FullscreenExitIcon from '@mui/icons-material/FullscreenExit'
 import { StyledEditor, FullscreenWrapper } from './style'
+import styled from '@emotion/styled'
 import 'react-quill/dist/quill.snow.css'
 
 const formats = [
@@ -36,6 +37,61 @@ const modules = {
     ['clean']
   ]
 }
+
+// const StyledEditor = styled('div')(({ theme }) => ({
+//   position: 'relative',
+//   height: '100%',
+//   '& .ql-toolbar.ql-snow': {
+//     backgroundColor: '#f5f5f5',
+//     border: 'none',
+//     borderBottom: `1px solid ${theme.palette.divider}`,
+//     display: 'flex',
+//     flexWrap: 'wrap',
+//     justifyContent: 'space-between',
+//     padding: theme.spacing(1),
+//     '& .ql-formats': {
+//       marginRight: theme.spacing(1),
+//     },
+//     '& button': {
+//       color: theme.palette.text.primary,
+//       '&:hover': {
+//         color: theme.palette.primary.main,
+//       },
+//       '&.ql-active': {
+//         color: theme.palette.primary.main,
+//       },
+//     },
+//     '& .ql-picker': {
+//       color: theme.palette.text.primary,
+//     },
+//     '& .ql-picker-options': {
+//       backgroundColor: '#ffffff',
+//       border: `1px solid ${theme.palette.divider}`,
+//     },
+//   },
+//   '& .ql-container.ql-snow': {
+//     border: 'none',
+//     backgroundColor: '#ffffff',
+//     color: theme.palette.text.primary,
+//     height: 'calc(100% - 42px)', // Adjust based on your toolbar height
+//   },
+//   '& .ql-editor': {
+//     padding: theme.spacing(2),
+//     '&.ql-blank::before': {
+//       color: theme.palette.text.secondary,
+//     },
+//   },
+// }))
+
+// const StyledReactQuill = styled(ReactQuill)(({ theme }) => ({
+//   '.ql-container': {
+//     backgroundColor: 'black', // Màu nền đen
+//     color: 'white' // Màu chữ trắng
+//   },
+//   '.ql-toolbar': {
+//     backgroundColor: 'black' // Màu nền của toolbar
+//   }
+// }));
 
 const Editor = ({ error, helperText, sx, ...other }) => {
   const [isFullscreen, setIsFullscreen] = useState(false)
