@@ -1,83 +1,55 @@
-import { apiClient } from './apiClient'
+import { GET, POST, PUT, DELETE } from './config/axiosMethods';
+import handleApiError from './config/handldeApiError';
 
-export const TYPE_PATH = '/type'
+export const TYPE_PATH = '/type';
 
 export const getType = async () => {
   try {
-    const response = (await apiClient.get(TYPE_PATH)).data
-    return response.result
+    const response = await GET({ url: TYPE_PATH });
+    return response.data.result;
   } catch (error) {
-    if (error.response) {
-      console.error('API Error Response:', error.response.data)
-      return error.response.data
-    } else {
-      console.error('Error:', error)
-      throw error
-    }
+    handleApiError(error);
   }
-}
+};
 
 export const filterTypes = async (payload) => {
   try {
-    const params = new URLSearchParams(payload).toString()
-    const response = (await apiClient.get(`${TYPE_PATH}/filter?${params}`)).data
-    return response.result
+    const response = await GET({ url: `${TYPE_PATH}/filter`, payload });
+    return response.data.result;
   } catch (error) {
-    if (error.response) {
-      console.error('API Error Response:', error.response.data)
-      return error.response.data
-    } else {
-      console.error('Error:', error)
-      throw error
-    }
+    handleApiError(error);
   }
-}
+};
 
 export const createType = async (payload) => {
   try {
-    const response = (await apiClient.post('/type', payload, {
-      headers: {
+    const response = await POST({
+      url: TYPE_PATH,
+      payload: payload,
+      headers: { 
         'Content-Type': 'multipart/form-data'
       }
-    })).data
-    return response
+    });
+    return response.data;
   } catch (error) {
-    if (error.response) {
-      console.error('API Error Response:', error.response.data)
-      return error.response.data
-    } else {
-      console.error('Error:', error)
-      throw error
-    }
+    handleApiError(error);
   }
-}
+};
 
 export const deleteType = async (typeId) => {
   try {
-    const response = (await apiClient.delete(`/type/${typeId}`)).data
-    return response
+    const response = await DELETE({ url: `${TYPE_PATH}/${typeId}` });
+    return response.data;
   } catch (error) {
-    if (error.response) {
-      console.error('API Error Response:', error.response.data)
-      return error.response.data
-    } else {
-      console.error('Error:', error)
-      throw error
-    }
+    handleApiError(error);
   }
-}
+};
 
 export const restoreType = async (typeId) => {
   try {
-    const response = (await apiClient.put(`/type/restore/${typeId}`)).data
-    return response
+    const response = await PUT({ url: `${TYPE_PATH}/restore/${typeId}` });
+    return response.data;
   } catch (error) {
-    if (error.response) {
-      console.error('API Error Response:', error.response.data)
-      return error.response.data
-    } else {
-      console.error('Error:', error)
-      throw error
-    }
+    handleApiError(error);
   }
-}
+};

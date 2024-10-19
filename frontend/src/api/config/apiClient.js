@@ -4,7 +4,7 @@ import { useAppStore } from '~/store/appStore'
 const getToken = () => useAppStore.getState().token
 
 const apiClient = axios.create({
-  baseURL: '/api',
+  baseURL: 'http://localhost:8080',
   headers: {
     'Content-Type': 'application/json'
   }
@@ -26,4 +26,4 @@ const addAuthInterceptor = (client) => {
 // Thêm interceptor vào apiClient
 addAuthInterceptor(apiClient)
 
-export { apiClient, addAuthInterceptor }
+export default apiClient

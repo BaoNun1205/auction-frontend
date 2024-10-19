@@ -1,77 +1,47 @@
-import axios from 'axios'
 import { useAppStore } from '~/store/appStore'
-
-const apiClient = axios.create({
-  baseURL: 'http://localhost:8080',
-  headers: {
-    'Content-Type': 'application/json'
-  }
-})
+import handleApiError from './config/handldeApiError';
+import { POST } from './config/axiosMethods';
 
 export const getToken = async (payload) => {
-  console.log('Registering:', payload)
+  console.log('Registering:', payload);
   try {
-    const response = (await apiClient.post('/auth/token', payload)).data
-    return response
+    const response = await POST({ url: '/auth/token', payload });
+    return response.data;
   } catch (error) {
-    if (error.response) {
-      console.error('API Error Response:', error.response.data)
-      return error.response.data
-    } else {
-      console.error('Error:', error)
-      throw error
-    }
+    handleApiError(error);
   }
-}
+};
 
 export const logout = async () => {
   try {
-    const token = useAppStore.getState().token
+    const token = useAppStore.getState().token;
     if (!token) {
-      throw new Error('No token found in store')
+      throw new Error('No token found in store');
     }
 
-    const response = (await apiClient.post('/auth/logout', { token })).data
-    if (response.code === 1000) {
-      useAppStore.getState().setToken('')
-      console.log('Logged out successfully')
-    } else {
-      throw new Error('Failed to log out')
-    }
-    return response
+    const response = await POST({ url: '/auth/logout', payload: { token } });
+
+    return response.data;
   } catch (error) {
-    console.error('Error logging out:', error.response ? error.response.data : error.message)
-    throw error
+    handleApiError(error);
   }
-}
+};
 
 export const register = async (payload) => {
   try {
-    console.log('Registering:', payload)
-    const response = (await apiClient.post('/users', payload)).data
-    return response
+    console.log('Registering:', payload);
+    const response = await POST({ url: '/users', payload });
+    return response.data;
   } catch (error) {
-    if (error.response) {
-      console.error('API Error Response:', error.response.data)
-      return error.response.data
-    } else {
-      console.error('Error:', error)
-      throw error
-    }
+    handleApiError(error);
   }
-}
+};
 
 export const confirmAccount = async (token) => {
   try {
-    const response = (await apiClient.post('/verification/account-registration', { token })).data
-    return response
+    const response = await POST({ url: '/verification/account-registration', payload: { token } });
+    return response.data;
   } catch (error) {
-    if (error.response) {
-      console.error('API Error Response:', error.response.data)
-      return error.response.data
-    } else {
-      console.error('Error:', error)
-      throw error
-    }
+    handleApiError(error);
   }
-}
+};

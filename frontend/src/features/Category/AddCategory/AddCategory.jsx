@@ -82,12 +82,6 @@ const CreateCategory = ({ onClose, onCreateSuccess }) => {
     )
   }
 
-  const StyledReactQuill = styled(ReactQuill)({
-    '.ql-container': {
-      borderRadius: 2
-    }
-  })
-
   return (
     <Box sx={{ p: 3, bgcolor: 'background.paper', borderRadius: 2, minWidth: 400 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>

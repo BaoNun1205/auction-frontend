@@ -1,98 +1,55 @@
-import { apiClient } from './apiClient'
+import { GET, POST, PUT, DELETE } from './config/axiosMethods';
+import handleApiError from './config/handldeApiError';
 
 export const CATEGORY_PATH = '/category'
 
 export const getCategory = async () => {
   try {
-    const response = (await apiClient.get(CATEGORY_PATH)).data
-    return response.result
+    const response = await GET({ url: CATEGORY_PATH });
+    return response.data.result;
   } catch (error) {
-    if (error.response) {
-      console.error('API Error Response:', error.response.data)
-      return error.response.data
-    } else {
-      console.error('Error:', error)
-      throw error
-    }
+    handleApiError(error);
   }
-}
-
-// export const filterCategories = async (payload) => {
-//   try {
-//     const response = (await apiClient.post(`${CATEGORY_PATH}/filter`, payload)).data
-//     return response.result
-//   } catch (error) {
-//     if (error.response) {
-//       console.error('API Error Response:', error.response.data)
-//       return error.response.data
-//     } else {
-//       console.error('Error:', error)
-//       throw error
-//     }
-//   }
-// }
+};
 
 export const filterCategories = async (payload) => {
   try {
-    const params = new URLSearchParams(payload).toString()
-    const response = (await apiClient.get(`${CATEGORY_PATH}/filter?${params}`)).data
-    return response.result
+    const response = await GET({ url: `${CATEGORY_PATH}/filter`, payload });
+    return response.data.result;
   } catch (error) {
-    if (error.response) {
-      console.error('API Error Response:', error.response.data)
-      return error.response.data
-    } else {
-      console.error('Error:', error)
-      throw error
-    }
+    handleApiError(error);
   }
-}
+};
 
 export const createCategory = async (payload) => {
   try {
-    const response = (await apiClient.post(CATEGORY_PATH, payload, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
+    const response = await POST({
+      url: CATEGORY_PATH,
+      payload: payload,
+      headers: { 
+        'Content-Type': 'multipart/form-data' 
       }
-    })).data
-    return response
+    });
+    return response.data;
   } catch (error) {
-    if (error.response) {
-      console.error('API Error Response:', error.response.data)
-      return error.response.data
-    } else {
-      console.error('Error:', error)
-      throw error
-    }
+    handleApiError(error);
   }
-}
+};
 
 export const deleteCategory = async (categoryId) => {
   try {
-    const response = (await apiClient.delete(`${CATEGORY_PATH}/${categoryId}`)).data
-    return response
+    const response = await DELETE({ url: `${CATEGORY_PATH}/${categoryId}` });
+    return response.data;
   } catch (error) {
-    if (error.response) {
-      console.error('API Error Response:', error.response.data)
-      return error.response.data
-    } else {
-      console.error('Error:', error)
-      throw error
-    }
+    handleApiError(error);
   }
-}
+};
 
 export const restoreCategory = async (categoryId) => {
   try {
-    const response = (await apiClient.put(`${CATEGORY_PATH}/restore/${categoryId}`)).data
-    return response
+    const response = await PUT({ url: `${CATEGORY_PATH}/restore/${categoryId}` });
+    return response.data;
   } catch (error) {
-    if (error.response) {
-      console.error('API Error Response:', error.response.data)
-      return error.response.data
-    } else {
-      console.error('Error:', error)
-      throw error
-    }
+    handleApiError(error);
   }
-}
+};

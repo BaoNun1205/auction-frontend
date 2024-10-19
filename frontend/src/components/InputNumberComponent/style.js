@@ -1,13 +1,13 @@
 import {
   numberInputClasses
 } from '@mui/base/Unstable_NumberInput'
-import { styled } from '@mui/system'
+import { bgcolor, borderColor, styled } from '@mui/system'
 import Box from '@mui/material/Box'
 
 export const StyledInputRoot = styled(Box)(({ theme }) => ({
   fontFamily: 'IBM Plex Sans, sans-serif',
   fontWeight: 400,
-  borderRadius: '8px',
+  borderRadius: '4px',
   color: theme.palette.primary.textMain,
   background: theme.palette.primary.secondary,
   border: `1px solid ${theme.palette.primary.border}`,
