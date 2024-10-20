@@ -6,7 +6,7 @@ import SearchTextField from '~/components/SearchTextFieldComponent/SearchTextFie
 import ButtonComponent from '~/components/ButtonComponent/ButtonComponent'
 import IconButtonComponent from '~/components/IconButtonComponent/IconButtonComponent'
 import PaginationControl from '~/components/PanigationControlComponent/PaginationControl'
-import { useFilterRequirements } from '~/hooks/requirementHook'
+import { useApprovedRequirement, useFilterRequirements, useRejectedRequirement } from '~/hooks/requirementHook'
 import CreateRequirement from '../AddRequirement/AddRequirement'
 import {
   StyledContainer,
@@ -30,7 +30,7 @@ import ActionMenu from '~/components/IconMenuComponent/IconMenuComponent'
 const RequirementList = () => {
   const [selectedItems, setSelectedItems] = useState([])
   const [showDeleteButton, setShowDeleteButton] = useState(false)
-  const [status, setStatus] = useState(false)
+  const [status, setStatus] = useState(0)
   const [keyword, setKeyword] = useState('')
   const [anchorEl, setAnchorEl] = useState(null)
 
@@ -45,23 +45,26 @@ const RequirementList = () => {
   const { data, error, isLoading, refetch } = useFilterRequirements(status, keyword)
   const items = Array.isArray(data) ? data : []
 
+  const { mutate: approvedRequirement } = useApprovedRequirement();
+  const { mutate: rejectedRequirement } = useRejectedRequirement();
+
   console.log('items:', items)
 
-  // const handleDeleteClick = (item) => {
-  //   deleteRequirement(item.requirementId, {
-  //     onSuccess: () => {
-  //       refetch()
-  //     }
-  //   })
-  // }
+  const handleApprovedRequirement = (asset) => {
+    approvedRequirement(asset.requirementId, {
+      onSuccess: () => {
+        refetch()
+      }
+    })
+  }
 
-  // const handleRestoreClick = (item) => {
-  //   restoreRequirement(item.requirementId, {
-  //     onSuccess: () => {
-  //       refetch()
-  //     }
-  //   })
-  // }
+  const handleRejectedRequirement = (asset) => {
+    rejectedRequirement(asset.requirementId, {
+      onSuccess: () => {
+        refetch()
+      }
+    })
+  }
 
   const handleSelectAll = (event) => {
     if (event.target.checked) {
@@ -87,8 +90,9 @@ const RequirementList = () => {
   }
 
   const publishMenuItems = [
-    { value: false, label: 'Not Appoved' },
-    { value: true, label: 'Approved' }
+    { value: '0', label: 'Not Appoved' },
+    { value: '1', label: 'Approved' },
+    { value: '2', label: 'Rejected' }
   ]
 
   const columnNames = ['Name', 'Create At', 'Expected Price', 'Status', 'Vendor', 'Inspector' ]
@@ -205,12 +209,26 @@ const RequirementList = () => {
                         </TableCell>
                         <TableCell>
                           <StyledStatusBox
-                            sx={(theme) => ({
-                              bgcolor: item.status === false ? theme.palette.success.main : theme.palette.warning.main,
-                              color: item.status === false ? theme.palette.success.contrastText : theme.palette.warning.contrastText
-                            })}
+                            sx={(theme) => {
+                              if (item.status === '1') {
+                                return {
+                                  bgcolor: theme.palette.success.main,
+                                  color: theme.palette.success.contrastText
+                                }
+                              } else if (item.status === '2') {
+                                return {
+                                  bgcolor: theme.palette.error.main, // Màu đỏ cho trạng thái Reject
+                                  color: theme.palette.error.contrastText
+                                }
+                              } else {
+                                return {
+                                  bgcolor: theme.palette.warning.main,
+                                  color: theme.palette.warning.contrastText
+                                }
+                              }
+                            }}
                           >
-                            {item.status === false ? 'Approved' : 'Not Approved'}
+                            {item.status === '1' ? 'Approved' : item.status === '2' ? 'Reject' : 'Not Approved'}
                           </StyledStatusBox>
                         </TableCell>
                         <TableCell>
@@ -221,10 +239,13 @@ const RequirementList = () => {
                         </TableCell>
                         <TableCell>
                           <ActionMenu>
-                            {item.status === false ? (
-                              <MuiMenuItem onClick={() => handleDeleteClick(item)}>Create asset</MuiMenuItem>
+                            {item.status === '0' ? (
+                              <>
+                                <MuiMenuItem onClick={() => handleApprovedRequirement(item)}>Appoved</MuiMenuItem>
+                                <MuiMenuItem onClick={() => handleRejectedRequirement(item)}>Reject</MuiMenuItem>
+                              </>
                             ) : (
-                              <MuiMenuItem onClick={() => handleRestoreClick(item)}>Appoved</MuiMenuItem>
+                              <MuiMenuItem onClick={() => handleRejectedRequirement(item)}>Reject</MuiMenuItem>
                             )}
                           </ActionMenu>
                         </TableCell>
