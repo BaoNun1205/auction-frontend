@@ -1,4 +1,4 @@
-import { POST } from './config/axiosMethods';
+import { POST, GET } from './config/axiosMethods';
 import handleApiError from './config/handldeApiError';
 import { useAppStore } from '~/store/appStore';
 import { jwtDecode } from 'jwt-decode';

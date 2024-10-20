@@ -1,6 +1,6 @@
 // hooks/useAuth.js
 import { useMutation, useQueryClient } from 'react-query'
-import { getToken, logout, register, confirmAccount } from '~/api/authApi'
+import { getToken, logout, register, confirmAccount, refreshToken, introspect } from '~/api/authApi'
 import { useAppStore } from '~/store/appStore'
 
 // Hook để lấy token
@@ -82,3 +82,20 @@ export const useConfirmAccount = () => {
     }
   })
 }
+
+// Hook để introspect token
+// export const useIntrospect = () => {
+//   const token = useAppStore.getState().token
+//   return useMutation(introspect(token), {
+//     onSuccess: (data) => {
+//       if (data.valid === true) {
+//         return token
+//       } else {
+        
+//       }
+//     },
+//     onError: (error) => {
+//       console.error('Error introspecting token:', error)
+//     }
+//   })
+// }

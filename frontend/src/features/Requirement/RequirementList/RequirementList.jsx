@@ -6,7 +6,7 @@ import SearchTextField from '~/components/SearchTextFieldComponent/SearchTextFie
 import ButtonComponent from '~/components/ButtonComponent/ButtonComponent'
 import IconButtonComponent from '~/components/IconButtonComponent/IconButtonComponent'
 import PaginationControl from '~/components/PanigationControlComponent/PaginationControl'
-import { useGetRequirement } from '~/hooks/requirementHook'
+import { useFilterRequirements } from '~/hooks/requirementHook'
 import CreateRequirement from '../AddRequirement/AddRequirement'
 import {
   StyledContainer,
@@ -42,8 +42,10 @@ const RequirementList = () => {
     setAnchorEl(null)
   }
 
-  const { data, error, isLoading, refetch } = useGetRequirement(status, keyword)
+  const { data, error, isLoading, refetch } = useFilterRequirements(status, keyword)
   const items = Array.isArray(data) ? data : []
+
+  console.log('items:', items)
 
   // const handleDeleteClick = (item) => {
   //   deleteRequirement(item.requirementId, {
@@ -85,11 +87,11 @@ const RequirementList = () => {
   }
 
   const publishMenuItems = [
-    { value: false, label: 'Active' },
-    { value: true, label: 'Inactive' }
+    { value: false, label: 'Not Appoved' },
+    { value: true, label: 'Approved' }
   ]
 
-  const columnNames = ['Name', 'Create At', 'Status']
+  const columnNames = ['Name', 'Create At', 'Expected Price', 'Status', 'Vendor', 'Inspector' ]
 
   return (
     <StyledContainer>
@@ -190,7 +192,7 @@ const RequirementList = () => {
                               sx={{ width: 48, height: 48, borderRadius: 1, mr: 2 }}
                             />
                             <Box>
-                              <StyledSpan>{item.name}</StyledSpan>
+                              <StyledSpan>{item.assetName}</StyledSpan>
                             </Box>
                           </Box>
                         </TableCell>
@@ -199,21 +201,30 @@ const RequirementList = () => {
                           <StyledSpan>{time}</StyledSpan>
                         </TableCell>
                         <TableCell>
+                          <StyledSpan>${item.assetPrice.toFixed(2)}</StyledSpan>
+                        </TableCell>
+                        <TableCell>
                           <StyledStatusBox
                             sx={(theme) => ({
                               bgcolor: item.status === false ? theme.palette.success.main : theme.palette.warning.main,
                               color: item.status === false ? theme.palette.success.contrastText : theme.palette.warning.contrastText
                             })}
                           >
-                            {item.status === false ? 'Active' : 'Inactive'}
+                            {item.status === false ? 'Approved' : 'Not Approved'}
                           </StyledStatusBox>
                         </TableCell>
                         <TableCell>
+                          <StyledSpan>{item.vendorId}</StyledSpan>
+                        </TableCell>
+                        <TableCell>
+                          <StyledSpan>{item.inspectorId}</StyledSpan>
+                        </TableCell>
+                        <TableCell>
                           <ActionMenu>
-                            {item.deflag === false ? (
-                              <MuiMenuItem onClick={() => handleDeleteClick(item)}>Delete</MuiMenuItem>
+                            {item.status === false ? (
+                              <MuiMenuItem onClick={() => handleDeleteClick(item)}>Create asset</MuiMenuItem>
                             ) : (
-                              <MuiMenuItem onClick={() => handleRestoreClick(item)}>Restore</MuiMenuItem>
+                              <MuiMenuItem onClick={() => handleRestoreClick(item)}>Appoved</MuiMenuItem>
                             )}
                           </ActionMenu>
                         </TableCell>

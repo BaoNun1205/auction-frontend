@@ -10,11 +10,26 @@ const apiClient = axios.create({
   }
 })
 
+const PUBLIC_ENDPOINTS = [
+  '/users', 
+  '/auth/token', 
+  '/auth/introspect', 
+  '/auth/logout', 
+  '/auth/refresh', 
+  '/verification/account-registration'
+];
+
+// Hàm để kiểm tra xem URL có phải là public endpoint hay không
+const isPublicEndpoint = (url) => {
+  return PUBLIC_ENDPOINTS.some(endpoint => url.includes(endpoint));
+};
+
 // Hàm để thêm interceptor
 const addAuthInterceptor = (client) => {
   client.interceptors.request.use((config) => {
     const token = getToken()
-    if (token && !config.url.includes('/auth/token')) {
+    
+    if (token && !isPublicEndpoint(config.url)) {
       config.headers.Authorization = `Bearer ${token}`
     }
     return config

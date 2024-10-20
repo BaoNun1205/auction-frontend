@@ -17,10 +17,8 @@ export const getToken = async (payload) => {
   }
 };
 
-export const refreshToken = async () => {
+export const refreshToken = async (token) => {
   try {
-    const token = useAppStore.getState().token;
-
     if (!token) {
       throw new Error('No token found in store');
     }
@@ -67,3 +65,13 @@ export const confirmAccount = async (token) => {
     handleApiError(error);
   }
 };
+
+export const introspect = async (token) => {
+  try {
+    const response = await POST({ url: `${AUTH_PATH}/introspect`, payload: { token } });
+    return response.data;
+  } catch (error) {
+    handleApiError(error);
+  }
+};
+
