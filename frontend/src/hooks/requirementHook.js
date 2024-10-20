@@ -1,6 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 
-import { createRequirement } from '~/api/requirementApi'
+import { getRequirement, createRequirement, filteredRequirements } from '~/api/requirementApi'
+
+// Hook để lấy danh sách yêu cầu
+export const useGetRequirement = () => {
+  return useQuery('Requirement', getRequirement)
+}
 
 // Hook để tạo danh mục mới
 export const useCreateRequirement = () => {
@@ -16,4 +21,16 @@ export const useCreateRequirement = () => {
       console.error('Error creating Requirement:', error)
     }
   })
+}
+
+export const useFilterRequirements = (status, keyword) => {
+  return useQuery(
+    ['filteredRequirements', { status, keyword }],
+    () => filteredRequirements({ status, keyword }),
+    {
+      onError: (error) => {
+        console.error('Error fetching filtered categories:', error)
+      }
+    }
+  )
 }

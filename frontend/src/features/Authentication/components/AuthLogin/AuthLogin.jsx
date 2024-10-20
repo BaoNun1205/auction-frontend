@@ -63,11 +63,11 @@ const handleSubmit = (values, { setSubmitting, setErrors, setStatus }, getToken,
         const userRoles = decodedToken.scope;
 
         // Kiểm tra quyền trong scope
-        // if (!userRoles.includes('ROLE_ADMIN')) {
-        //   setErrors({ submit: 'You do not have the required permissions to log in.' });
-        //   setSubmitting(false);
-        //   return;
-        // }
+        if (!userRoles.includes('ROLE_ADMIN')) {
+          setErrors({ submit: 'You do not have the required permissions to log in.' });
+          setSubmitting(false);
+          return;
+        }
 
         setToken(token); // Lưu token vào zustand store
         setStatus({ success: 'Form Submitted Successfully' });

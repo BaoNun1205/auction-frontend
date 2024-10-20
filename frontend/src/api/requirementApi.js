@@ -28,3 +28,21 @@ export const createRequirement = async (formData) => {
     handleApiError(error);
   }
 };
+
+export const getRequirement = async () => {
+  try {
+    const response = await GET({ url: REQUIREMENT_PATH });
+    return response.data.result;
+  } catch (error) {
+    handleApiError(error);
+  }
+};
+
+export const filteredRequirements = async (payload) => {
+  try {
+    const response = await GET({ url: `${REQUIREMENT_PATH}/filter`, payload });
+    return response.data.result;
+  } catch (error) {
+    handleApiError(error);
+  }
+};

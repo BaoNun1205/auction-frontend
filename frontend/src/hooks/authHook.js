@@ -9,7 +9,8 @@ export const useGetToken = () => {
 
   return useMutation(getToken, {
     onSuccess: (data) => {
-      setToken(data.token)
+      setToken(data.result.token)
+
       console.log('Token retrieved successfully:', data)
     },
     onError: (error) => {
@@ -18,6 +19,25 @@ export const useGetToken = () => {
   }
   )
 }
+
+// Hook để refresh token
+export const useRefreshToken = () => {
+  const setToken = useAppStore((state) => state.setToken);
+
+  return useMutation(refreshToken, {
+    onSuccess: (data) => {
+      if (data && data.token) {
+        setToken(data.token);
+        console.log('Token refreshed successfully:', data);
+      } else {
+        console.error('Invalid response structure:', data);
+      }
+    },
+    onError: (error) => {
+      console.error('Error refreshing token:', error);
+    }
+  });
+};
 
 // Hook để logout
 export const useLogout = () => {
