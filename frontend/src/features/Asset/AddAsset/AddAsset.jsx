@@ -91,11 +91,6 @@ const AddAsset = () => {
                 <Typography variant="h6" gutterBottom>
               Description
                 </Typography>
-                {/* <ReactQuill
-                  value={editorContent}
-                  onChange={setEditorContent}
-                  theme="snow"
-                /> */}
                 <Editor
                   value={editorContent}
                   onChange={setEditorContent}

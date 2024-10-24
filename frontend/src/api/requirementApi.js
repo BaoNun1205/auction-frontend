@@ -41,9 +41,10 @@ export const getRequirement = async () => {
 export const filteredRequirements = async (payload) => {
   try {
     const response = await GET({ url: `${REQUIREMENT_PATH}/filter`, payload });
+    console.log('response', response);
     return response.data.result;
   } catch (error) {
-    handleApiError(error);
+    handleApiError(error);  
   }
 };
 

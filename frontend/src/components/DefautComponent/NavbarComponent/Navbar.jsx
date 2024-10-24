@@ -149,7 +149,6 @@ export default function Navbar() {
             size="large"
             edge="start"
             aria-label="open drawer"
-            sx={{ mr: 2 }}
             onClick={() => updateOpen(!dopen)}
           >
             <MenuIcon />
