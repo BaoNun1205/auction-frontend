@@ -217,7 +217,7 @@ const RequirementList = () => {
                                 }
                               } else if (item.status === '2') {
                                 return {
-                                  bgcolor: theme.palette.error.main, // Màu đỏ cho trạng thái Reject
+                                  bgcolor: theme.palette.error.main, 
                                   color: theme.palette.error.contrastText
                                 }
                               } else {
@@ -232,21 +232,23 @@ const RequirementList = () => {
                           </StyledStatusBox>
                         </TableCell>
                         <TableCell>
-                          <StyledSpan>{item.vendorId}</StyledSpan>
+                          <StyledSpan>{item.vendor || 'N/A'}</StyledSpan>
                         </TableCell>
                         <TableCell>
-                          <StyledSpan>{item.inspectorId}</StyledSpan>
+                          <StyledSpan>{item.inspector || 'N/A'}</StyledSpan>
                         </TableCell>
                         <TableCell>
                           <ActionMenu>
-                            {item.status === '0' ? (
-                              <>
-                                <MuiMenuItem onClick={() => handleApprovedRequirement(item)}>Appoved</MuiMenuItem>
-                                <MuiMenuItem onClick={() => handleRejectedRequirement(item)}>Reject</MuiMenuItem>
-                              </>
-                            ) : (
+                          {item.status === '0' ? (
+                            <>
+                              <MuiMenuItem onClick={() => handleApprovedRequirement(item)}>Approved</MuiMenuItem>
                               <MuiMenuItem onClick={() => handleRejectedRequirement(item)}>Reject</MuiMenuItem>
-                            )}
+                            </>
+                          ) : item.status === '1' ? (
+                            <MuiMenuItem onClick={() => handleCreateAsset(item)}>Create Asset</MuiMenuItem>
+                          ) : item.status === '2' ? (
+                            <MuiMenuItem onClick={() => handleDeleteRequirement(item)}>Delete</MuiMenuItem>
+                          ) : null}
                           </ActionMenu>
                         </TableCell>
                       </StyledTableRow>
