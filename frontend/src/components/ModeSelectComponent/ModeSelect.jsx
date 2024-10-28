@@ -1,38 +1,34 @@
-import React from 'react'
-import { useColorScheme } from '@mui/material/styles'
-import Box from '@mui/material/Box'
-import InputLabel from '@mui/material/InputLabel'
-import MenuItem from '@mui/material/MenuItem'
-import Select from '@mui/material/Select'
-import FormControl from '@mui/material/FormControl'
+import React from 'react';
+import { useColorScheme } from '@mui/material/styles';
+import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
 
 function ModeSelect() {
-  const { mode, setMode } = useColorScheme()
+  const select = [
+    { value: 'light', icon: <Brightness7Icon /> },
+    { value: 'dark', icon: <Brightness4Icon /> },
+  ];
+  const { mode, setMode } = useColorScheme();
 
-  const handleChange = (event) => {
-    setMode(event.target.value)
-  }
+  const handleToggle = () => {
+    const newMode = mode === 'light' ? 'dark' : 'light';
+    setMode(newMode);
+  };
+
+  const currentIcon = select.find((item) => item.value === mode)?.icon;
 
   return (
-    <Box sx={{ minWidth: 120 }}>
-      <FormControl fullWidth>
-        <InputLabel id="demo-simple-select-label">Mode</InputLabel>
-        <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
-          value={mode}
-          label="mode"
-          size="small"
-          onChange={handleChange}
-          sx={{ bgcolor: 'primary.main', color: 'primary.textMain' }}
-        >
-          <MenuItem value="light">Light</MenuItem>
-          <MenuItem value="dark">Dark</MenuItem>
-          <MenuItem value="system">System</MenuItem>
-        </Select>
-      </FormControl>
+    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <IconButton
+        onClick={handleToggle}
+        sx={(theme) => ({ bgcolor: theme.palette.primary.main, color: theme.palette.primary.textMain, margin: 1 })}
+      >
+        {currentIcon}
+      </IconButton>
     </Box>
-  )
+  );
 }
 
-export default ModeSelect
+export default ModeSelect;

@@ -9,7 +9,7 @@ function Dashboard({ children }) {
       <Navbar />
       <Box sx={(theme) => ({ display:'flex', bgcolor: theme.palette.primary.main })}>
         <Sidenav />
-        <Box component="main" sx={{ flexGrow: 1, pt: 12, height: '100vh' }}>
+        <Box component="main" sx={{ flexGrow: 1, py: 12, minHeight: '100vh', height: 'auto', overflow: 'auto' }}>
           {children}
         </Box>
       </Box>
