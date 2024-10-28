@@ -8,6 +8,8 @@ import IconButtonComponent from '~/components/IconButtonComponent/IconButtonComp
 import PaginationControl from '~/components/PanigationControlComponent/PaginationControl'
 import { useApprovedRequirement, useFilterRequirements, useRejectedRequirement } from '~/hooks/requirementHook'
 import CreateRequirement from '../AddRequirement/AddRequirement'
+import { useNavigate } from 'react-router-dom'
+import parseToken from '~/utils/parseToken'
 import {
   StyledContainer,
   StyledCheckbox,
@@ -26,6 +28,8 @@ import {
 } from '~/features/style'
 import splitDateTime from '~/utils/SplitDateTime'
 import ActionMenu from '~/components/IconMenuComponent/IconMenuComponent'
+import ListEmpty from '~/components/ListEmpty/ListEmpty'
+import { useAppStore } from '~/store/appStore'
 
 const RequirementList = () => {
   const [selectedItems, setSelectedItems] = useState([])
@@ -33,6 +37,7 @@ const RequirementList = () => {
   const [status, setStatus] = useState(0)
   const [keyword, setKeyword] = useState('')
   const [anchorEl, setAnchorEl] = useState(null)
+  const navigate = useNavigate()
 
   const handleOpenPopover = (event) => {
     setAnchorEl(event.currentTarget)
@@ -50,25 +55,31 @@ const RequirementList = () => {
 
   console.log('items:', items)
 
-  const handleApprovedRequirement = (asset) => {
-    approvedRequirement(asset.requirementId, {
+  const handleApprovedRequirement = (item) => {
+    const decodedToken = parseToken();
+    console.log('inspectorId:', decodedToken.sub)
+    approvedRequirement({ requirementId: item.requirementId, inspectorId: decodedToken.sub }, {
       onSuccess: () => {
         refetch()
       }
     })
   }
 
-  const handleRejectedRequirement = (asset) => {
-    rejectedRequirement(asset.requirementId, {
+  const handleRejectedRequirement = (item) => {
+    rejectedRequirement(item.requirementId, {
       onSuccess: () => {
         refetch()
       }
     })
+  }
+
+  const handleCreateAsset = (item) => {
+    navigate(`/asset/create/${item.requirementId}`)
   }
 
   const handleSelectAll = (event) => {
     if (event.target.checked) {
-      setSelectedItems(items.map(asset => asset.requirementId))
+      setSelectedItems(items.map(item => item.requirementId))
       setShowDeleteButton(true)
     } else {
       setSelectedItems([])
@@ -76,10 +87,10 @@ const RequirementList = () => {
     }
   }
 
-  const handleSelectItem = (event, assetId) => {
+  const handleSelectItem = (event, itemId) => {
     const newSelectedItems = event.target.checked
-      ? [...selectedItems, assetId]
-      : selectedItems.filter(id => id !== assetId)
+      ? [...selectedItems, itemId]
+      : selectedItems.filter(id => id !== itemId)
 
     setSelectedItems(newSelectedItems)
     setShowDeleteButton(newSelectedItems.length > 0)
@@ -135,13 +146,14 @@ const RequirementList = () => {
                   Delete ({selectedItems.length})
                 </Button>
               )}
-              <IconButtonComponent startIcon={<Eye size={20} />}>Columns</IconButtonComponent>
-              <IconButtonComponent startIcon={<SlidersHorizontal size={20} />}>Filters</IconButtonComponent>
-              <IconButtonComponent startIcon={<Download size={20} />}>Export</IconButtonComponent>
+              <IconButtonComponent startIcon={<Eye size={20} />} disabled={items.length === 0}>Colums</IconButtonComponent>
+              <IconButtonComponent startIcon={<SlidersHorizontal size={20} />} disabled={items.length === 0}>Filters</IconButtonComponent>
+              <IconButtonComponent startIcon={<Download size={20} />} disabled={items.length === 0}>Export</IconButtonComponent>
             </Box>
           </StyledControlBox>
         </StyledSecondaryBox>
-
+            
+        {items.length > 0 ? (
         <StyledSecondaryBox bgcolor={(theme) => (theme.palette.primary.secondary)}>
           <StyledTableContainer>
             <Table>
@@ -260,6 +272,9 @@ const RequirementList = () => {
           </StyledTableContainer>
           <PaginationControl />
         </StyledSecondaryBox>
+        ) : (
+          <ListEmpty nameList="requirements" />
+        )}
       </StyledInnerBox>
     </StyledContainer>
   )
