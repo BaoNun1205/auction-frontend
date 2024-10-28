@@ -26,6 +26,7 @@ import { useFilterTypes, useDeleteType, useRestoreType } from '~/hooks/typeHook'
 import splitDateTime from '~/utils/SplitDateTime'
 import ActionMenu from '~/components/IconMenuComponent/IconMenuComponent'
 import CreateType from '../AddType/AddType'
+import ListEmpty from '~/components/ListEmpty/ListEmpty'
 
 const TypeList = () => {
   const [selectedItems, setSelectedItems] = useState([])
@@ -158,13 +159,14 @@ const TypeList = () => {
                   Delete ({selectedItems.length})
                 </Button>
               )}
-              <IconButtonComponent startIcon={<Eye size={20} />}>Colums</IconButtonComponent>
-              <IconButtonComponent startIcon={<SlidersHorizontal size={20} />}>Filters</IconButtonComponent>
-              <IconButtonComponent startIcon={<Download size={20} />}>Export</IconButtonComponent>
+              <IconButtonComponent startIcon={<Eye size={20} />} disabled={items.length === 0}>Colums</IconButtonComponent>
+              <IconButtonComponent startIcon={<SlidersHorizontal size={20} />} disabled={items.length === 0}>Filters</IconButtonComponent>
+              <IconButtonComponent startIcon={<Download size={20} />} disabled={items.length === 0}>Export</IconButtonComponent>
             </Box>
           </StyledControlBox>
         </StyledSecondaryBox>
 
+        {items.length > 0 ? (
         <StyledSecondaryBox bgcolor={(theme) => (theme.palette.primary.secondary)}>
           <StyledTableContainer>
             <Table>
@@ -254,6 +256,7 @@ const TypeList = () => {
           </StyledTableContainer>
           <PaginationControl />
         </StyledSecondaryBox>
+        ) : <ListEmpty nameList="types" />}
       </StyledInnerBox>
     </StyledContainer>
   )

@@ -34,6 +34,8 @@ const AddRequirement = () => {
     selectedFiles.forEach((file) => {
       formData.append('images', file);
     });
+
+    console.log('Form data:', formData);
   
     createRequirement(formData, {
       onSuccess: (response) => {

@@ -1,11 +1,13 @@
 import React from 'react'
 import Button from '@mui/material/Button'
 
-const IconButtonComponent = ({ startIcon, children }) => {
+const IconButtonComponent = ({ startIcon, children, ...props }) => {
   return (
     <Button
       startIcon={startIcon}
-      sx={(theme) => ({ color: theme.palette.primary.textMain, textTransform: 'none' })}
+      {...props}
+      sx={(theme) => ({ color: theme.palette.primary.textMain, textTransform: 'none' })
+    }
     >
       {children}
     </Button>

@@ -31,12 +31,13 @@ const CustomAutocomplete = styled(Autocomplete)(({ theme }) => ({
   }
 }))
 
-const StackSelectComponent = ({ options, label, onChange, sx }) => {
+const StackSelectComponent = ({ options, label, onChange, sx, value }) => {
   return (
     <CustomAutocomplete
       disablePortal
       options={options}
       onChange={onChange}
+      value={value}
       renderInput={(params) => <TextField {...params} label={label} />}
       sx={sx}
     />

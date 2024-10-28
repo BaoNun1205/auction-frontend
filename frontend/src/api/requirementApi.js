@@ -38,9 +38,18 @@ export const getRequirement = async () => {
   }
 };
 
+export const getRequirementById = async (requirementId) => {
+  try {
+    const response = await GET({ url: `${REQUIREMENT_PATH}/${requirementId}` });
+    return response.data.result;
+  } catch (error) {
+    handleApiError(error);
+  }
+}
+
 export const filteredRequirements = async (payload) => {
   try {
-    const response = await GET({ url: `${REQUIREMENT_PATH}/filter`, payload });
+    const response = await GET({ url: `${REQUIREMENT_PATH}?page=0&size=1` });
     console.log('response', response);
     return response.data.result;
   } catch (error) {
@@ -48,9 +57,10 @@ export const filteredRequirements = async (payload) => {
   }
 };
 
-export const approvedRequirement = async (requirementId) => {
+export const approvedRequirement = async ({ requirementId, inspectorId }) => {
   try {
-    const response = await PUT({ url: `${REQUIREMENT_PATH}/approved/${requirementId}` });
+    console.log('payload', requirementId, inspectorId);
+    const response = await PUT({ url: `${REQUIREMENT_PATH}/approved?requirementId=${requirementId}&inspectorId=${inspectorId}` });
     return response.data;
   } catch (error) {
     handleApiError(error);
