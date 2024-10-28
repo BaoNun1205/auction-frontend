@@ -10,7 +10,7 @@ import AddRequirementPage from '~/pages/Requirement/AddRequirementPage'
 import Login from '~/pages/Authentication/Login'
 import Register from '~/pages/Authentication/Register'
 
-const BASE_PATHS = {
+export const BASE_PATHS = {
   HOME: '/',
   CATEGORY: '/category',
   ASSET: '/asset',
@@ -33,7 +33,7 @@ export const routes = [
     page: AssetListPage
   },
   {
-    path: `${BASE_PATHS.ASSET}/create`,
+    path: `${BASE_PATHS.ASSET}/create/:id`,
     page: AddAssetPage
   },
   {

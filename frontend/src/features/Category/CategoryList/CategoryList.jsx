@@ -26,6 +26,7 @@ import { useFilterCategories, useDeleteCategory, useRestoreCategory } from '~/ho
 import splitDateTime from '~/utils/SplitDateTime'
 import ActionMenu from '~/components/IconMenuComponent/IconMenuComponent'
 import CreateCategory from '../AddCategory/AddCategory'
+import ListEmpty from '~/components/ListEmpty/ListEmpty'
 
 const CategoryList = () => {
   const [selectedItems, setSelectedItems] = useState([])
@@ -146,6 +147,7 @@ const CategoryList = () => {
               <SearchTextField
                 value={keyword}
                 onChange={(event) => setKeyword(event.target.value)}
+                disabled={items.length === 0}
               />
             </Box>
             <Box sx={{ display: 'flex', gap: 2, color: 'primary.textMain' }}>
@@ -158,13 +160,13 @@ const CategoryList = () => {
                   Delete ({selectedItems.length})
                 </Button>
               )}
-              <IconButtonComponent startIcon={<Eye size={20} />}>Colums</IconButtonComponent>
-              <IconButtonComponent startIcon={<SlidersHorizontal size={20} />}>Filters</IconButtonComponent>
-              <IconButtonComponent startIcon={<Download size={20} />}>Export</IconButtonComponent>
+              <IconButtonComponent startIcon={<Eye size={20} />} disabled={items.length === 0}>Colums</IconButtonComponent>
+              <IconButtonComponent startIcon={<SlidersHorizontal size={20} />} disabled={items.length === 0}>Filters</IconButtonComponent>
+              <IconButtonComponent startIcon={<Download size={20} />} disabled={items.length === 0}>Export</IconButtonComponent>
             </Box>
           </StyledControlBox>
         </StyledSecondaryBox>
-
+        {items.length > 0 ? (
         <StyledSecondaryBox bgcolor={(theme) => (theme.palette.primary.secondary)}>
           <StyledTableContainer>
             <Table>
@@ -197,6 +199,12 @@ const CategoryList = () => {
                   <TableRow>
                     <TableCell colSpan={columnNames.length + 2}>
                       <Typography color="error">Error fetching categories</Typography>
+                    </TableCell>
+                  </TableRow>
+                ) : items.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={columnNames.length + 2}>
+                      <Typography color="error" align="center">List empty</Typography>
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -251,8 +259,11 @@ const CategoryList = () => {
               </TableBody>
             </Table>
           </StyledTableContainer>
-          <PaginationControl />
+          {items.length > 0 && (
+            <PaginationControl />
+          )}
         </StyledSecondaryBox>
+        ) : <ListEmpty nameList={'categories'}/>}
       </StyledInnerBox>
     </StyledContainer>
   )
