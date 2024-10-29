@@ -39,7 +39,7 @@ const CreateType = ({ onClose, onCreateSuccess }) => {
   const [imagePreview, setImagePreview] = useState(null)
   const { mutate: CreateType, isLoading, error } = useCreateType()
 
-  const { data } = useFilterCategories(false, '')
+  const { data } = useGetCategories()
   const categories = Array.isArray(data) ? data : []
 
   const handleNameChange = (event) => {

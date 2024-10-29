@@ -4,14 +4,14 @@ import { FolderOpen } from 'lucide-react'
 
 export default function ListEmpty({ nameList }) {
   return (
-    <Card sx={{ width: '100%' }}>
-      <CardContent sx={{ 
+    <Box sx={{ width: '100%' }}>
+      <Box sx={{ 
         display: 'flex', 
         flexDirection: 'column', 
         alignItems: 'center', 
         justifyContent: 'center', 
-        height: 300, 
-        p: 6 
+        height: 300,
+        p: 6
       }}>
         <FolderOpen 
           size={64} 
@@ -26,7 +26,7 @@ export default function ListEmpty({ nameList }) {
         <Typography variant="body2" color="text.secondary" align="center" sx={{ maxWidth: 250 }}>
           There are no {nameList} to display. Try creating a new category or adjusting your filters.
         </Typography>
-      </CardContent>
-    </Card>
+      </Box>
+    </Box>
   )
 }
