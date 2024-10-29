@@ -1,9 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from 'react-query'
-import { getCategory, filterCategories, createCategory, deleteCategory, restoreCategory } from '~/api/categoryApi'
+import { getCategories, filterCategories, createCategory, deleteCategory, restoreCategory } from '~/api/categoryApi'
 
 // Hook để lấy danh mục
-export const useGetCategory = () => {
-  return useQuery('category', getCategory)
+export const useGetCategories = () => {
+  return useQuery('categories', getCategories)
 }
 
 // Hook để lọc danh mục

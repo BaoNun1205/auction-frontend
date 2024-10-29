@@ -16,7 +16,7 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 import CloseIcon from '@mui/icons-material/Close'
 import ReactQuill from 'react-quill'
 import { useCreateType } from '~/hooks/typeHook'
-import { useFilterCategories, useGetCategory } from '~/hooks/categoryHook'
+import { useFilterCategories, useGetCategories } from '~/hooks/categoryHook'
 import SelectComponent from '~/components/SelectComponent/SelectComponent'
 import StackSelectComponent from '~/components/StackSelectComponent/StackSelectComponent'
 
