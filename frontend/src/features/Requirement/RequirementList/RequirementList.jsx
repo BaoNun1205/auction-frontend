@@ -36,6 +36,8 @@ const RequirementList = () => {
   const [showDeleteButton, setShowDeleteButton] = useState(false)
   const [status, setStatus] = useState(0)
   const [keyword, setKeyword] = useState('')
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [anchorEl, setAnchorEl] = useState(null)
   const navigate = useNavigate()
 
@@ -47,13 +49,22 @@ const RequirementList = () => {
     setAnchorEl(null)
   }
 
-  const { data, error, isLoading, refetch } = useFilterRequirements(status, keyword)
+  const { data, error, isLoading, refetch } = useFilterRequirements(status, keyword, page, rowsPerPage)
   const items = Array.isArray(data) ? data : []
 
   const { mutate: approvedRequirement } = useApprovedRequirement();
   const { mutate: rejectedRequirement } = useRejectedRequirement();
 
   console.log('items:', items)
+
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+  };
+
+  const handleRowsPerPageChange = (newRowsPerPage) => {
+    setRowsPerPage(newRowsPerPage);
+    setPage(0);
+  };
 
   const handleApprovedRequirement = (item) => {
     const decodedToken = parseToken();
@@ -270,10 +281,25 @@ const RequirementList = () => {
               </TableBody>
             </Table>
           </StyledTableContainer>
-          <PaginationControl />
+          <PaginationControl
+              page={page}
+              rowsPerPage={rowsPerPage}
+              totalItems={10}
+              onPageChange={handlePageChange}
+              onRowsPerPageChange={handleRowsPerPageChange}
+            />
         </StyledSecondaryBox>
         ) : (
-          <ListEmpty nameList="requirements" />
+          <StyledSecondaryBox>
+            <ListEmpty nameList="requirements" />
+            <PaginationControl
+              page={page}
+              rowsPerPage={rowsPerPage}
+              totalItems={0}
+              onPageChange={handlePageChange}
+              onRowsPerPageChange={handleRowsPerPageChange}
+            />
+          </StyledSecondaryBox>
         )}
       </StyledInnerBox>
     </StyledContainer>

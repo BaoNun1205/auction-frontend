@@ -49,7 +49,7 @@ export const getRequirementById = async (requirementId) => {
 
 export const filteredRequirements = async (payload) => {
   try {
-    const response = await GET({ url: `${REQUIREMENT_PATH}?page=0&size=1` });
+    const response = await GET({ url: `${REQUIREMENT_PATH}`, payload });
     console.log('response', response);
     return response.data.result;
   } catch (error) {
