@@ -5,10 +5,10 @@ export const useGetTypes = () => {
   return useQuery('types', getTypes)
 }
 
-export const useFilterTypes = (status, keyword) => {
+export const useFilterTypes = (status, keyword, page, size) => {
   return useQuery(
-    ['filteredTypes', { status, keyword }],
-    () => filterTypes({ status, keyword }),
+    ['filteredTypes', { status, keyword, page, size }],
+    () => filterTypes({ status, keyword, page, size }),
     {
       onError: (error) => {
         console.error('Error fetching filtered types:', error)

@@ -33,6 +33,8 @@ const TypeList = () => {
   const [showDeleteButton, setShowDeleteButton] = useState(false)
   const [status, setStatus] = useState(false)
   const [keyword, setKeyword] = useState('')
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [anchorEl, setAnchorEl] = useState(null)
 
   const handleOpenPopover = (event) => {
@@ -43,8 +45,8 @@ const TypeList = () => {
     setAnchorEl(null)
   }
 
-  const { data, error, isLoading, refetch } = useFilterTypes(status, keyword)
-  const items = Array.isArray(data) ? data : []
+  const { data, error, isLoading, refetch } = useFilterTypes(status, keyword, page, rowsPerPage)
+  const items = Array.isArray(data?.data) ? data.data : []
 
   const { mutate: deleteType } = useDeleteType()
   const { mutate: restoreType } = useRestoreType()
@@ -87,6 +89,15 @@ const TypeList = () => {
   const handleDelete = () => {
     console.log('Deleting selected assets:', selectedItems)
   }
+
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+  };
+
+  const handleRowsPerPageChange = (newRowsPerPage) => {
+    setRowsPerPage(newRowsPerPage);
+    setPage(0);
+  };
 
   const publishMenuItems = [
     { value: false, label: 'Active' },
@@ -254,9 +265,26 @@ const TypeList = () => {
               </TableBody>
             </Table>
           </StyledTableContainer>
-          <PaginationControl />
+          <PaginationControl
+            page={page}
+            rowsPerPage={rowsPerPage}
+            totalItems={data?.total}
+            onPageChange={handlePageChange}
+            onRowsPerPageChange={handleRowsPerPageChange}
+            />
         </StyledSecondaryBox>
-        ) : <ListEmpty nameList="types" />}
+        ) : (
+          <StyledSecondaryBox>
+          <ListEmpty nameList="types" />
+            <PaginationControl
+              page={page}
+              rowsPerPage={rowsPerPage}
+              totalItems={data?.total}
+              onPageChange={handlePageChange}
+              onRowsPerPageChange={handleRowsPerPageChange}
+              />
+          </StyledSecondaryBox>
+        )}
       </StyledInnerBox>
     </StyledContainer>
   )

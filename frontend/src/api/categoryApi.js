@@ -14,7 +14,7 @@ export const getCategories = async () => {
 
 export const filterCategories = async (payload) => {
   try {
-    const response = await GET({ url: `${CATEGORY_PATH}/filter`, payload });
+    const response = await GET({ url: `${CATEGORY_PATH}`, payload });
     return response.data.result;
   } catch (error) {
     handleApiError(error);
