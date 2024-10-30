@@ -50,7 +50,7 @@ const RequirementList = () => {
   }
 
   const { data, error, isLoading, refetch } = useFilterRequirements(status, keyword, page, rowsPerPage)
-  const items = Array.isArray(data) ? data : []
+  const items = Array.isArray(data?.data) ? data.data : []
 
   const { mutate: approvedRequirement } = useApprovedRequirement();
   const { mutate: rejectedRequirement } = useRejectedRequirement();
@@ -284,7 +284,7 @@ const RequirementList = () => {
           <PaginationControl
               page={page}
               rowsPerPage={rowsPerPage}
-              totalItems={10}
+              totalItems={data?.total}
               onPageChange={handlePageChange}
               onRowsPerPageChange={handleRowsPerPageChange}
             />
@@ -295,7 +295,7 @@ const RequirementList = () => {
             <PaginationControl
               page={page}
               rowsPerPage={rowsPerPage}
-              totalItems={0}
+              totalItems={data?.total}
               onPageChange={handlePageChange}
               onRowsPerPageChange={handleRowsPerPageChange}
             />

@@ -19,6 +19,7 @@ import { useCreateAsset } from '~/hooks/assetHook';
 import { useNavigate } from 'react-router-dom';
 import { ASSET_PATH } from '~/api/asset';
 import { BASE_PATHS } from '~/routes/routes';
+import { useGetTypes } from '~/hooks/typeHook';
 
 const validationSchema = Yup.object().shape({
   assetName: Yup.string().required('Asset Name is required'),
@@ -26,25 +27,14 @@ const validationSchema = Yup.object().shape({
   editorContent: Yup.string().required('Description is required')
 });
 
-const names = [
-  'Oliver Hansen',
-  'Van Henry',
-  'April Tucker',
-  'Ralph Hubbard',
-  'Omar Alexander',
-  'Carlos Abbott',
-  'Miriam Wagner',
-  'Bradley Wilkerson',
-  'Virginia Andrews',
-  'Kelly Snyder'
-];
-
 const AddAsset = () => {
   const { id } = useParams();
   const { data: requirement, error, isLoading } = useGetRequirementById(id);
   const { mutate: createAsset } = useCreateAsset();
   const imageUploadRef = useRef();
   const navigate = useNavigate();
+  const { data } = useGetTypes()
+  const types = Array.isArray(data) ? data : []
 
   const [initialValues, setInitialValues] = useState({
     assetName: '',
@@ -168,9 +158,10 @@ const AddAsset = () => {
                       sx={{ width: '50%' }}
                     />
                     <StackSelectComponent
-                      options={names}
+                      options={types.map(type => ({ label: type.typeName, value: type.typeId }))}
                       value={values.type}
                       label="Type"
+                      onChange={(event) => setFieldValue('type', event.target.value)}
                       sx={{ m: 1, width: '50%' }}
                     />
                   </Stack>
