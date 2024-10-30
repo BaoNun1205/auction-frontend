@@ -14,7 +14,7 @@ export const getTypes = async () => {
 
 export const filterTypes = async (payload) => {
   try {
-    const response = await GET({ url: `${TYPE_PATH}/filter`, payload });
+    const response = await GET({ url: `${TYPE_PATH}`, payload });
     return response.data.result;
   } catch (error) {
     handleApiError(error);

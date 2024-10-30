@@ -33,6 +33,8 @@ const CategoryList = () => {
   const [showDeleteButton, setShowDeleteButton] = useState(false)
   const [status, setStatus] = useState(false)
   const [keyword, setKeyword] = useState('')
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [anchorEl, setAnchorEl] = useState(null)
 
   const handleOpenPopover = (event) => {
@@ -43,8 +45,8 @@ const CategoryList = () => {
     setAnchorEl(null)
   }
 
-  const { data, error, isLoading, refetch } = useFilterCategories(status, keyword)
-  const items = Array.isArray(data) ? data : []
+  const { data, error, isLoading, refetch } = useFilterCategories(status, keyword, page, rowsPerPage)
+  const items = Array.isArray(data?.data) ? data.data : []
 
   const { mutate: deleteCategory } = useDeleteCategory()
   const { mutate: restoreCategory } = useRestoreCategory()
@@ -87,6 +89,15 @@ const CategoryList = () => {
   const handleDelete = () => {
     console.log('Deleting selected assets:', selectedItems)
   }
+
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+  };
+
+  const handleRowsPerPageChange = (newRowsPerPage) => {
+    setRowsPerPage(newRowsPerPage);
+    setPage(0);
+  };
 
   const publishMenuItems = [
     { value: false, label: 'Active' },
@@ -259,11 +270,26 @@ const CategoryList = () => {
               </TableBody>
             </Table>
           </StyledTableContainer>
-          {items.length > 0 && (
-            <PaginationControl />
-          )}
+          <PaginationControl
+            page={page}
+            rowsPerPage={rowsPerPage}
+            totalItems={data?.total}
+            onPageChange={handlePageChange}
+            onRowsPerPageChange={handleRowsPerPageChange}
+            />
         </StyledSecondaryBox>
-        ) : <ListEmpty nameList={'categories'}/>}
+        ) : (
+          <StyledSecondaryBox>
+          <ListEmpty nameList="categories" />
+            <PaginationControl
+              page={page}
+              rowsPerPage={rowsPerPage}
+              totalItems={data?.total}
+              onPageChange={handlePageChange}
+              onRowsPerPageChange={handleRowsPerPageChange}
+              />
+          </StyledSecondaryBox>
+        )}
       </StyledInnerBox>
     </StyledContainer>
   )
