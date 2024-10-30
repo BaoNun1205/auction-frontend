@@ -3,9 +3,9 @@ import handleApiError from './config/handldeApiError';
 
 export const TYPE_PATH = '/type';
 
-export const getType = async () => {
+export const getTypes = async () => {
   try {
-    const response = await GET({ url: TYPE_PATH });
+    const response = await GET({ url: `${TYPE_PATH}/get-all` });
     return response.data.result;
   } catch (error) {
     handleApiError(error);
