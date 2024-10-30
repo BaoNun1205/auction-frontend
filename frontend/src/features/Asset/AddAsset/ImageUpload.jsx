@@ -1,33 +1,39 @@
-import React, { useState } from 'react'
-import { Box, Button, IconButton, ImageList, ImageListItem, ImageListItemBar } from '@mui/material'
-import CloseIcon from '@mui/icons-material/Close'
-import CloudUploadIcon from '@mui/icons-material/CloudUpload'
-import UploadIllustration from './uploadsvg'
+import React, { useState, useEffect } from 'react';
+import { Box, Button, IconButton, ImageList, ImageListItem, ImageListItemBar } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import UploadIllustration from './uploadsvg';
 
-const ImageUploadAndReview = () => {
-  const [selectedImages, setSelectedImages] = useState([])
+const ImageUploadAndReview = ({ initialImages = [] }) => {
+  const [selectedImages, setSelectedImages] = useState([]);
+
+  useEffect(() => {
+    if (initialImages.length > 0) {
+      setSelectedImages(initialImages);
+    }
+  }, [initialImages]);
 
   const handleImageChange = (event) => {
-    const files = Array.from(event.target.files)
-    const imageUrls = files.map((file) => URL.createObjectURL(file))
-    setSelectedImages((prevImages) => [...prevImages, ...imageUrls])
-  }
+    const files = Array.from(event.target.files);
+    const imageUrls = files.map((file) => URL.createObjectURL(file));
+    setSelectedImages((prevImages) => [...prevImages, ...imageUrls]);
+  };
 
   const handleRemoveImage = (index) => {
     setSelectedImages((prevImages) => {
-      const newImages = [...prevImages]
-      newImages.splice(index, 1)
-      return newImages
-    })
-  }
+      const newImages = [...prevImages];
+      newImages.splice(index, 1);
+      return newImages;
+    });
+  };
 
   const handleRemoveAll = () => {
-    setSelectedImages([])
-  }
+    setSelectedImages([]);
+  };
 
   const handleUpload = () => {
-    console.log('Uploading images:', selectedImages)
-  }
+    console.log('Uploading images:', selectedImages);
+  };
 
   return (
     <Box>
@@ -56,7 +62,7 @@ const ImageUploadAndReview = () => {
             }
           }}
         >
-          <UploadIllustration/>
+          <UploadIllustration />
           <p>Drop or select file</p>
           <p style={{ fontSize: '0.8rem', color: 'gray' }}>Drop files here or click to browse through your machine.</p>
         </Box>
@@ -76,7 +82,6 @@ const ImageUploadAndReview = () => {
               style={{ width: '100%', height: '100%', borderRadius: '8px' }} // Added borderRadius
             />
             <ImageListItemBar
-
               position="top"
               sx={{ backgroundColor: 'transparent' }}
               actionIcon={
@@ -88,8 +93,6 @@ const ImageUploadAndReview = () => {
                 </IconButton>
               }
             />
-
-
           </ImageListItem>
         ))}
       </ImageList>
@@ -99,7 +102,7 @@ const ImageUploadAndReview = () => {
         <Button variant="contained" startIcon={<CloudUploadIcon />} onClick={handleUpload} disabled={selectedImages.length === 0}>Upload</Button>
       </Box>
     </Box>
-  )
-}
+  );
+};
 
-export default ImageUploadAndReview
+export default ImageUploadAndReview;

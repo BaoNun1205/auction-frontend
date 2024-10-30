@@ -7,7 +7,7 @@ import IconButton from '@mui/material/IconButton'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { useAppStore } from '~/store/appStore'
-import { Home, FolderTree, ShoppingBag, Calendar } from 'lucide-react'
+import { Home, FolderTree, ShoppingBag, Calendar, FileText } from 'lucide-react'
 import MenuItemExpand from './MenuItemExpandComponent/MenuItemExpand'
 import ItemExpand from './ItemExpandComponent/ItemExpand'
 import MenuItem from './MenuItemComponent/MenuItem'
@@ -90,20 +90,16 @@ const AssetItem = {
   name: 'Asset',
   subItems: [
     { name: 'List', path: '/asset' },
-    { name: 'Details', path: '/asset/details' },
     { name: 'Create', path: '/asset/create' },
-    { name: 'Edit', path: '/asset/edit' }
   ]
 }
 
 const RequirementItem = {
-  icon: <ShoppingBag />,
+  icon: <FileText />,
   name: 'Requirement',
   subItems: [
     { name: 'List', path: '/requirement' },
-    { name: 'Details', path: '/requirement/details' },
     { name: 'Create', path: '/requirement/create' },
-    { name: 'Edit', path: '/requirement/edit' }
   ]
 }
 
@@ -112,9 +108,7 @@ const SessionItem = {
   name: 'Session',
   subItems: [
     { name: 'List', path: '/session/list' },
-    { name: 'Details', path: '/asset/details' },
     { name: 'Create', path: '/asset/create' },
-    { name: 'Edit', path: '/asset/edit' }
   ]
 }
 

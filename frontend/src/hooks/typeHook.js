@@ -1,12 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from 'react-query'
-import { getType, filterTypes, createType, deleteType, restoreType } from '~/api/typeApi'
+import { getTypes, filterTypes, createType, deleteType, restoreType } from '~/api/typeApi'
 
-// Hook để lấy danh mục
-export const useGetCategory = () => {
-  return useQuery('type', getType)
+export const useGetTypes = () => {
+  return useQuery('types', getTypes)
 }
 
-// Hook để lọc danh mục
 export const useFilterTypes = (status, keyword) => {
   return useQuery(
     ['filteredTypes', { status, keyword }],
@@ -19,7 +17,6 @@ export const useFilterTypes = (status, keyword) => {
   )
 }
 
-// Hook để tạo danh mục mới
 export const useCreateType = () => {
   const queryClient = useQueryClient()
 
