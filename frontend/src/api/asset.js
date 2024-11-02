@@ -17,3 +17,12 @@ export const createAsset = async (payload) => {
     handleApiError(error);
   }
 };
+
+export const filterAssets = async (payload) => {
+  try {
+    const response = await GET({ url: `${ASSET_PATH}`, payload });
+    return response.data.result;
+  } catch (error) {
+    handleApiError(error);
+  }
+}
