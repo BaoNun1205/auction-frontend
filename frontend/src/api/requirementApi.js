@@ -1,13 +1,11 @@
+import parseToken from '~/utils/parseToken';
 import { POST, GET, PUT } from './config/axiosMethods';
 import handleApiError from './config/handldeApiError';
-import { useAppStore } from '~/store/appStore';
-import { jwtDecode } from 'jwt-decode';
 
 export const REQUIREMENT_PATH = '/requirement';
 
 export const createRequirement = async (formData) => {
-  const token = useAppStore.getState().token;
-  const { sub: vendorId } = jwtDecode(token);
+  const { jti: vendorId } = parseToken();
 
   try {
     // Gắn vendorId vào formData
