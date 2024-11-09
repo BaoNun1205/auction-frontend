@@ -90,7 +90,6 @@ const AssetItem = {
   name: 'Asset',
   subItems: [
     { name: 'List', path: '/asset' },
-    { name: 'Create', path: '/asset/create' },
   ]
 }
 

@@ -42,6 +42,7 @@ const AddAsset = () => {
     editorContent: '',
     vendor: '',
     inspector: '',
+    type: '',
     images: []
   });
 
@@ -161,7 +162,7 @@ const AddAsset = () => {
                       options={types.map(type => ({ label: type.typeName, value: type.typeId }))}
                       value={values.type}
                       label="Type"
-                      onChange={(event) => setFieldValue('type', event.target.value)}
+                      onChange={(event, newValue) => setFieldValue('type', newValue?.value || '')}
                       sx={{ m: 1, width: '50%' }}
                     />
                   </Stack>
