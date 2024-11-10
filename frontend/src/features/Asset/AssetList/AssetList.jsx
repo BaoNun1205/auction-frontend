@@ -27,6 +27,7 @@ import { useFilterAssets } from '~/hooks/assetHook'
 import splitDateTime from '~/utils/SplitDateTime'
 import ListEmpty from '~/components/ListEmpty/ListEmpty'
 import ActionMenu from '~/components/IconMenuComponent/IconMenuComponent'
+import { Navigate } from 'react-router-dom'
 
 const AssetList = () => {
   const [selectedAssets, setSelectedAssets] = useState([])
@@ -63,6 +64,10 @@ const AssetList = () => {
       setSelectedAssets([])
       setShowDeleteButton(false)
     }
+  }
+
+  const handleCreateAuctionSession = (item) => {
+    Navigate(`/auction-Session/create/${item.assetId}`)
   }
 
   const handleSelectAsset = (event, assetId) => {
@@ -279,13 +284,8 @@ const AssetList = () => {
                             <ActionMenu>
                               {asset.status === '0' ? (
                                 <>
-                                  <MuiMenuItem onClick={() => handleApprovedRequirement(asset)}>Approved</MuiMenuItem>
-                                  <MuiMenuItem onClick={() => handleRejectedRequirement(asset)}>Reject</MuiMenuItem>
+                                  <MuiMenuItem onClick={() => handleCreateAuctionSession(asset)}>Create Auction Session</MuiMenuItem>
                                 </>
-                              ) : asset.status === '1' ? (
-                                <MuiMenuItem onClick={() => handleCreateAsset(asset)}>Create Asset</MuiMenuItem>
-                              ) : asset.status === '2' ? (
-                                <MuiMenuItem onClick={() => handleDeleteRequirement(asset)}>Delete</MuiMenuItem>
                               ) : null}
                             </ActionMenu>
                           </TableCell>

@@ -51,15 +51,9 @@ const AddRequirement = () => {
     // Resize từng file trước khi thêm vào FormData
     for (const file of selectedFiles) {
       const resizedFile = await resizeImage(file);
-      console.log('resized file: ' + resizedFile);
-      console.log('File name:', resizedFile.name);
-      console.log('File size:', resizedFile.size);
-      console.log('File type:', resizedFile.type);
       formData.append('images', resizedFile);
     }
-
-    console.log('Form data:', formData)
-
+    
     createRequirement(formData, {
       onSuccess: (response) => {
         console.log('Success:', response)
