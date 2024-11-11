@@ -9,6 +9,7 @@ import RequirementListPage from '~/pages/Requirement/RequirementListPage'
 import AddRequirementPage from '~/pages/Requirement/AddRequirementPage'
 import Login from '~/pages/Authentication/Login'
 import Register from '~/pages/Authentication/Register'
+import AddSessionPage from '~/pages/Session/AddSessionPage'
 
 export const BASE_PATHS = {
   HOME: '/',
@@ -16,7 +17,8 @@ export const BASE_PATHS = {
   ASSET: '/asset',
   REQUIREMENT: '/requirement',
   CONFIRM_ACCOUNT: '/confirm-account',
-  USERS: '/users'
+  USERS: '/users',
+  SESSION: '/session'
 }
 
 export const routes = [
@@ -39,6 +41,14 @@ export const routes = [
   {
     path: `${BASE_PATHS.REQUIREMENT}`,
     page: RequirementListPage
+  },
+  {
+    path: `${BASE_PATHS.REQUIREMENT}/create`,
+    page: AddRequirementPage
+  },
+  {
+    path: `${BASE_PATHS.SESSION}/create`,
+    page: AddSessionPage
   },
   {
     path: `${BASE_PATHS.REQUIREMENT}/create`,
