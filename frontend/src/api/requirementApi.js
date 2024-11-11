@@ -1,13 +1,11 @@
+import parseToken from '~/utils/parseToken';
 import { POST, GET, PUT } from './config/axiosMethods';
 import handleApiError from './config/handldeApiError';
-import { useAppStore } from '~/store/appStore';
-import { jwtDecode } from 'jwt-decode';
 
 export const REQUIREMENT_PATH = '/requirement';
 
 export const createRequirement = async (formData) => {
-  const token = useAppStore.getState().token;
-  const { sub: vendorId } = jwtDecode(token);
+  const { jti: vendorId } = parseToken();
 
   try {
     // Gắn vendorId vào formData
@@ -49,8 +47,7 @@ export const getRequirementById = async (requirementId) => {
 
 export const filteredRequirements = async (payload) => {
   try {
-    const response = await GET({ url: `${REQUIREMENT_PATH}?page=0&size=1` });
-    console.log('response', response);
+    const response = await GET({ url: `${REQUIREMENT_PATH}`, payload });
     return response.data.result;
   } catch (error) {
     handleApiError(error);  

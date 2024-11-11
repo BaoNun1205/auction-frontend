@@ -3,9 +3,9 @@ import handleApiError from './config/handldeApiError';
 
 export const CATEGORY_PATH = '/category'
 
-export const getCategory = async () => {
+export const getCategories = async () => {
   try {
-    const response = await GET({ url: CATEGORY_PATH });
+    const response = await GET({ url: `${CATEGORY_PATH}/get-all` });
     return response.data.result;
   } catch (error) {
     handleApiError(error);
@@ -14,7 +14,7 @@ export const getCategory = async () => {
 
 export const filterCategories = async (payload) => {
   try {
-    const response = await GET({ url: `${CATEGORY_PATH}/filter`, payload });
+    const response = await GET({ url: `${CATEGORY_PATH}`, payload });
     return response.data.result;
   } catch (error) {
     handleApiError(error);

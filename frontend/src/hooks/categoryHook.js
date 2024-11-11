@@ -1,16 +1,16 @@
 import { useQuery, useMutation, useQueryClient } from 'react-query'
-import { getCategory, filterCategories, createCategory, deleteCategory, restoreCategory } from '~/api/categoryApi'
+import { getCategories, filterCategories, createCategory, deleteCategory, restoreCategory } from '~/api/categoryApi'
 
 // Hook để lấy danh mục
-export const useGetCategory = () => {
-  return useQuery('category', getCategory)
+export const useGetCategories = () => {
+  return useQuery('categories', getCategories)
 }
 
 // Hook để lọc danh mục
-export const useFilterCategories = (status, keyword) => {
+export const useFilterCategories = (status, keyword, page, size) => {
   return useQuery(
-    ['filteredCategories', { status, keyword }],
-    () => filterCategories({ status, keyword }),
+    ['filteredCategories', { status, keyword, page, size }],
+    () => filterCategories({ status, keyword, page, size }),
     {
       onError: (error) => {
         console.error('Error fetching filtered categories:', error)

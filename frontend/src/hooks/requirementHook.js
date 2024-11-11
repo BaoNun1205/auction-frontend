@@ -27,10 +27,10 @@ export const useCreateRequirement = () => {
   })
 }
 
-export const useFilterRequirements = (status, keyword) => {
+export const useFilterRequirements = (status, keyword, page, size) => {
   return useQuery(
-    ['filteredRequirements', { status, keyword }],
-    () => filteredRequirements({ status, keyword }),
+    ['filteredRequirements', { status, keyword, page, size }],
+    () => filteredRequirements({ status, keyword, page, size }),
     {
       onError: (error) => {
         console.error('Error fetching filtered categories:', error)

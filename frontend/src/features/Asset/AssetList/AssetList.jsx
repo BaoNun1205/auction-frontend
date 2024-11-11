@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Box, Button, Table, TableBody, TableCell, TableRow, IconButton, Popover } from '@mui/material'
+import { Box, Button, Table, TableBody, TableCell, TableRow, CircularProgress, Typography, Popover, MenuItem as MuiMenuItem } from '@mui/material'
 import { Eye, SlidersHorizontal, Download, MoreVertical, Trash2 } from 'lucide-react'
 import SelectComponent from '~/components/SelectComponent/SelectComponent'
 import SearchTextField from '~/components/SearchTextFieldComponent/SearchTextField'
@@ -21,125 +21,28 @@ import {
   StyledTableContainer,
   StyledTableHead,
   StyledTableRow,
-  StyledTitleBox } from '~/features/style'
-
-const assets = [
-  {
-    id: 1,
-    name: 'Classic Leather Loafers',
-    category: 'Shoes',
-    createAt: '19 Aug 2024',
-    createTime: '12:54 am',
-    price: 97.14,
-    status: 'Published',
-    vendor: 'ShoeMax',
-    inspector: 'John Doe',
-    image: '/placeholder.svg?height=80&width=80'
-  },
-  {
-    id: 2,
-    name: 'Mountain Trekking Boots',
-    category: 'Apparel',
-    createAt: '17 Aug 2024',
-    createTime: '11:54 pm',
-    price: 68.71,
-    status: 'Published',
-    vendor: 'OutdoorGear',
-    inspector: 'Jane Smith',
-    image: '/placeholder.svg?height=80&width=80'
-  },
-  {
-    id: 3,
-    name: 'Elegance Stiletto Heels',
-    category: 'Shoes',
-    createAt: '16 Aug 2024',
-    createTime: '10:54 pm',
-    price: 85.21,
-    status: 'Draft',
-    vendor: 'LuxuryFootwear',
-    inspector: 'Alice Johnson',
-    image: '/placeholder.svg?height=80&width=80'
-  },
-  {
-    id: 4,
-    name: 'Comfy Running Shoes',
-    category: 'Apparel',
-    createAt: '15 Aug 2024',
-    createTime: '9:54 pm',
-    price: 52.17,
-    status: 'Published',
-    vendor: 'SportySteps',
-    inspector: 'Bob Williams',
-    image: '/placeholder.svg?height=80&width=80'
-  },
-  {
-    id: 5,
-    name: 'Chic Ballet Flats',
-    category: 'Shoes',
-    createAt: '14 Aug 2024',
-    createTime: '8:54 pm',
-    price: 45.99,
-    status: 'Published',
-    vendor: 'DancersDream',
-    inspector: 'Carol Brown',
-    image: '/placeholder.svg?height=80&width=80'
-  },
-  {
-    id: 5,
-    name: 'Chic Ballet Flats',
-    category: 'Shoes',
-    createAt: '14 Aug 2024',
-    createTime: '8:54 pm',
-    price: 45.99,
-    status: 'Published',
-    vendor: 'DancersDream',
-    inspector: 'Carol Brown',
-    image: '/placeholder.svg?height=80&width=80'
-  },
-  {
-    id: 5,
-    name: 'Chic Ballet Flats',
-    category: 'Shoes',
-    createAt: '14 Aug 2024',
-    createTime: '8:54 pm',
-    price: 45.99,
-    status: 'Published',
-    vendor: 'DancersDream',
-    inspector: 'Carol Brown',
-    image: '/placeholder.svg?height=80&width=80'
-  },
-  {
-    id: 5,
-    name: 'Chic Ballet Flats',
-    category: 'Shoes',
-    createAt: '14 Aug 2024',
-    createTime: '8:54 pm',
-    price: 45.99,
-    status: 'Published',
-    vendor: 'DancersDream',
-    inspector: 'Carol Brown',
-    image: '/placeholder.svg?height=80&width=80'
-  },
-  {
-    id: 5,
-    name: 'Chic Ballet Flats',
-    category: 'Shoes',
-    createAt: '14 Aug 2024',
-    createTime: '8:54 pm',
-    price: 45.99,
-    status: 'Published',
-    vendor: 'DancersDream',
-    inspector: 'Carol Brown',
-    image: '/placeholder.svg?height=80&width=80'
-  }
-]
-
-
+  StyledTitleBox
+} from '~/features/style'
+import { useFilterAssets } from '~/hooks/assetHook'
+import splitDateTime from '~/utils/SplitDateTime'
+import ListEmpty from '~/components/ListEmpty/ListEmpty'
+import ActionMenu from '~/components/IconMenuComponent/IconMenuComponent'
+import { useNavigate } from 'react-router-dom'
 
 const AssetList = () => {
   const [selectedAssets, setSelectedAssets] = useState([])
   const [showDeleteButton, setShowDeleteButton] = useState(false)
   const [anchorEl, setAnchorEl] = useState(null)
+  const [vendorId, setVendorId] = useState('')
+  const [assetName, setAssetName] = useState('')
+  const [minPrice, setMinPrice] = useState(0)
+  const [maxPrice, setMaxPrice] = useState(9999999999999)
+  const [inspectorId, setInspectorId] = useState('')
+  const [typeId, setTypeId] = useState('')
+  const [status, setStatus] = useState('')
+  const [page, setPage] = useState(0)
+  const [rowsPerPage, setRowsPerPage] = useState(10)
+  const navigate = useNavigate();
 
   const handleOpenPopover = (event) => {
     setAnchorEl(event.currentTarget)
@@ -149,14 +52,23 @@ const AssetList = () => {
     setAnchorEl(null)
   }
 
+  const { data, error, isLoading, refetch } = useFilterAssets(vendorId, assetName, minPrice, maxPrice, inspectorId, typeId, status, page, rowsPerPage)
+  const assets = Array.isArray(data?.data) ? data.data : []
+
+  console.log('data: ', assets[0]?.assetPrice)
+
   const handleSelectAll = (event) => {
     if (event.target.checked) {
-      setSelectedAssets(assets.map(asset => asset.id))
+      setSelectedAssets(assets.map(asset => asset.assetId))
       setShowDeleteButton(true)
     } else {
       setSelectedAssets([])
       setShowDeleteButton(false)
     }
+  }
+
+  const handleCreateAuctionSession = (item) => {
+    navigate(`/session/create/${item.assetId}`)
   }
 
   const handleSelectAsset = (event, assetId) => {
@@ -171,6 +83,15 @@ const AssetList = () => {
   const handleDelete = () => {
     console.log('Deleting selected assets:', selectedAssets)
     // Implement delete logic here
+  }
+
+  const handlePageChange = (newPage) => {
+    setPage(newPage)
+  }
+
+  const handleRowsPerPageChange = (newRowsPerPage) => {
+    setRowsPerPage(newRowsPerPage)
+    setPage(0)
   }
 
   const stockMenuItems = [
@@ -191,7 +112,7 @@ const AssetList = () => {
       <StyledInnerBox>
         <StyledHeaderBox>
           <Box>
-            <StyledTitleBox>List</StyledTitleBox>
+            <StyledTitleBox>Asset List</StyledTitleBox>
             <StyledSubtitleBox>
               Dashboard • asset • <Box component="span" sx={{ color: 'primary.disable' }}>List</Box>
             </StyledSubtitleBox>
@@ -230,6 +151,7 @@ const AssetList = () => {
             <Box sx={{ display: 'flex', gap: 2 }}>
               <SelectComponent
                 defaultValue=""
+                onChange={(event) => setStatus(event.target.value)}
                 displayEmpty
                 menuItems={stockMenuItems}
                 placeholder="Stock"
@@ -240,7 +162,10 @@ const AssetList = () => {
                 menuItems={publishMenuItems}
                 placeholder="Publish"
               />
-              <SearchTextField />
+              <SearchTextField
+                value={assetName}
+                onChange={(event) => setAssetName(event.target.value)}
+              />
             </Box>
             <Box sx={{ display: 'flex', gap: 2, color: 'primary.textMain' }}>
               {showDeleteButton && (
@@ -257,83 +182,137 @@ const AssetList = () => {
               <IconButtonComponent startIcon={<Download size={20} />}>Export</IconButtonComponent>
             </Box>
           </StyledControlBox>
+        </StyledSecondaryBox>
 
-          <StyledTableContainer>
-            <Table>
-              <StyledTableHead sx={(theme) => ({ bgcolor: theme.palette.primary.buttonHover })}>
-                <TableRow>
-                  <TableCell padding="checkbox">
-                    <StyledCheckbox
-                      checked={selectedAssets.length === assets.length}
-                      onChange={handleSelectAll}
-                    />
-                  </TableCell>
-                  {columnNames.map((columnName, index) => (
-                    <StyledTableCell key={index}>
-                      {columnName}
-                    </StyledTableCell>
-                  ))}
-                  <TableCell />
-                </TableRow>
-              </StyledTableHead>
-              <TableBody>
-                {assets.map((asset) => (
-                  <StyledTableRow key={asset.id}>
+        {assets.length > 0 ? (
+          <StyledSecondaryBox bgcolor={(theme) => (theme.palette.primary.secondary)}>
+            <StyledTableContainer>
+              <Table>
+                <StyledTableHead sx={(theme) => ({ bgcolor: theme.palette.primary.buttonHover })}>
+                  <TableRow>
                     <TableCell padding="checkbox">
                       <StyledCheckbox
-                        checked={selectedAssets.includes(asset.id)}
-                        onChange={(event) => handleSelectAsset(event, asset.id)}
-                        onClick={(event) => event.stopPropagation()}
+                        checked={selectedAssets.length === assets.length}
+                        onChange={handleSelectAll}
                       />
                     </TableCell>
-                    <TableCell>
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <Box
-                          component="img"
-                          src={asset.image}
-                          sx={{ width: 48, height: 48, borderRadius: 1, mr: 2 }}
-                        />
-                        <Box>
-                          <StyledSpan>{asset.name}</StyledSpan>
-                          <Box sx={{ color: 'primary.textSecondary' }}>{asset.category}</Box>
+                    {columnNames.map((columnName, index) => (
+                      <StyledTableCell key={index}>
+                        {columnName}
+                      </StyledTableCell>
+                    ))}
+                    <TableCell />
+                  </TableRow>
+                </StyledTableHead>
+                <TableBody>
+                  {isLoading ? (
+                    <TableRow>
+                      <TableCell colSpan={columnNames.length + 2}>
+                        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                          <CircularProgress />
                         </Box>
-                      </Box>
-                    </TableCell>
-                    <TableCell>
-                      <StyledSpan>{asset.createAt}</StyledSpan>
-                      <StyledSpan>{asset.createTime}</StyledSpan>
-                    </TableCell>
-                    <TableCell>
-                      <StyledSpan>${asset.price.toFixed(2)}</StyledSpan>
-                    </TableCell>
-                    <TableCell>
-                      <StyledStatusBox
-                        sx={(theme) => ({
-                          bgcolor: asset.status === 'Published' ? theme.palette.success.main : theme.palette.warning.main,
-                          color: asset.status === 'Published' ? theme.palette.success.contrastText : theme.palette.warning.contrastText
-                        })}
-                      >
-                        {asset.status}
-                      </StyledStatusBox>
-                    </TableCell>
-                    <TableCell>
-                      <StyledSpan>{asset.vendor}</StyledSpan>
-                    </TableCell>
-                    <TableCell>
-                      <StyledSpan>{asset.inspector}</StyledSpan>
-                    </TableCell>
-                    <TableCell>
-                      <IconButton sx={(theme) => ({ color: theme.palette.primary.textMain })}>
-                        <MoreVertical size={20} />
-                      </IconButton>
-                    </TableCell>
-                  </StyledTableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </StyledTableContainer>
-          <PaginationControl />
-        </StyledSecondaryBox>
+                      </TableCell>
+                    </TableRow>
+                  ) : error ? (
+                    <TableRow>
+                      <TableCell colSpan={columnNames.length + 2}>
+                        <Typography color="error">Error fetching assets</Typography>
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    assets.map((asset) => {
+                      const { date, time } = splitDateTime(asset.createdAt)
+                      return (
+                        <StyledTableRow key={asset.assetId}>
+                          <TableCell padding="checkbox">
+                            <StyledCheckbox
+                              checked={selectedAssets.includes(asset.assetId)}
+                              onChange={(event) => handleSelectAsset(event, asset.assetId)}
+                              onClick={(event) => event.stopPropagation()}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                              <Box
+                                component="img"
+                                src={asset.mainImage}
+                                sx={{ width: 48, height: 48, borderRadius: 1, mr: 2 }}
+                              />
+                              <Box>
+                                <StyledSpan>{asset.name}</StyledSpan>
+                                <Box sx={{ color: 'primary.textSecondary' }}>{asset.typeId || 'N/A'}</Box>
+                              </Box>
+                            </Box>
+                          </TableCell>
+                          <TableCell>
+                            <StyledSpan>{date}</StyledSpan>
+                            <StyledSpan>{time}</StyledSpan>
+                          </TableCell>
+                          <TableCell>
+                            <StyledSpan>${asset.assetPrice.toFixed(2)}</StyledSpan>
+                          </TableCell>
+                          <TableCell>
+                            <StyledStatusBox
+                              sx={(theme) => {
+                                if (asset.status === '1') {
+                                  return {
+                                    bgcolor: theme.palette.success.main,
+                                    color: theme.palette.success.contrastText
+                                  }
+                                } else if (asset.status === '2') {
+                                  return {
+                                    bgcolor: theme.palette.error.main,
+                                    color: theme.palette.error.contrastText
+                                  }
+                                } else {
+                                  return {
+                                    bgcolor: theme.palette.warning.main,
+                                    color: theme.palette.warning.contrastText
+                                  }
+                                }
+                              }}
+                            >
+                              {asset.status === '1' ? 'Approved' : asset.status === '2' ? 'Reject' : 'Not Approved'}
+                            </StyledStatusBox>
+                          </TableCell>
+                          <TableCell>
+                            <StyledSpan>{asset.vendorId || 'N/A'}</StyledSpan>
+                          </TableCell>
+                          <TableCell>
+                            <StyledSpan>{asset.inspectorId || 'N/A'}</StyledSpan>
+                          </TableCell>
+                          <TableCell>
+                            <ActionMenu>
+                              {<MuiMenuItem onClick={() => handleCreateAuctionSession(asset)}>Create Auction Session</MuiMenuItem>}
+                            </ActionMenu>
+                          </TableCell>
+                        </StyledTableRow>
+                      )
+                    })
+                  )}
+                </TableBody>
+              </Table>
+            </StyledTableContainer>
+            <PaginationControl
+              page={page}
+              rowsPerPage={rowsPerPage}
+              totalItems={data?.total}
+              onPageChange={handlePageChange}
+              onRowsPerPageChange={handleRowsPerPageChange}
+            />
+          </StyledSecondaryBox>
+        ) : (
+          <StyledSecondaryBox>
+            <ListEmpty nameList="assets" />
+            <PaginationControl
+              page={page}
+              rowsPerPage={rowsPerPage}
+              totalItems={data?.total}
+              onPageChange={handlePageChange}
+              onRowsPerPageChange={handleRowsPerPageChange}
+            />
+          </StyledSecondaryBox>
+        )}
       </StyledInnerBox>
     </StyledContainer>
   )

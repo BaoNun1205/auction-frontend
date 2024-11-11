@@ -23,7 +23,6 @@ export const PaginationContainer = styled(Box)(({ theme }) => ({
   padding: theme.spacing(2),
   backgroundColor: theme.palette.primary.secondary,
   color: theme.palette.primary.textMain,
-  borderTop: '1px solid',
   borderColor: theme.palette.primary.border
 }))
 

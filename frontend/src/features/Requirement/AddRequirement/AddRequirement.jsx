@@ -1,56 +1,73 @@
-import React, { useRef } from 'react';
+import React, { useRef } from 'react'
 import {
   Box,
   Typography,
   Button,
   Stack
-} from '@mui/material';
-import { Formik, Form, Field } from 'formik';
-import * as Yup from 'yup';
-import ImageUploadAndReview from './ImageUpload';
-import { StyledContainer, StyledHeaderBox, StyledInnerBox, StyledSubtitleBox, StyledTitleBox } from '~/features/style';
-import TextFieldComponent from '~/components/TextFieldComponent/TextFieldComponent';
-import Editor from '~/components/EditorComponent/Editor';
-import { useCreateRequirement } from '~/hooks/requirementHook';
+} from '@mui/material'
+import { Formik, Form, Field } from 'formik'
+import * as Yup from 'yup'
+import ImageUploadAndReview from './ImageUpload'
+import { StyledContainer, StyledHeaderBox, StyledInnerBox, StyledSubtitleBox, StyledTitleBox } from '~/features/style'
+import TextFieldComponent from '~/components/TextFieldComponent/TextFieldComponent'
+import Editor from '~/components/EditorComponent/Editor'
+import { useCreateRequirement } from '~/hooks/requirementHook'
+import Resizer from 'react-image-file-resizer'
 
 const validationSchema = Yup.object().shape({
   assetName: Yup.string().required('Asset Name is required'),
   price: Yup.number().required('Price is required').positive('Price must be positive'),
   editorContent: Yup.string().required('Description is required')
-});
+})
+
+const resizeImage = (file) => {
+  return new Promise((resolve) => {
+    Resizer.imageFileResizer(
+      file,
+      800, // width
+      800, // height
+      'JPEG', // format
+      80, // quality
+      0, // rotation
+      (uri) => resolve(uri),
+      'file'
+    )
+  })
+}
 
 const AddRequirement = () => {
-  const { mutate: createRequirement } = useCreateRequirement();
-  const imageUploadRef = useRef();
+  const { mutate: createRequirement } = useCreateRequirement()
+  const imageUploadRef = useRef()
 
-  const handleSubmit = (values, { setSubmitting, resetForm }) => {
-    const formData = new FormData();
-    formData.append('assetName', values.assetName);
-    formData.append('assetPrice', values.price);
-    formData.append('assetDescription', values.editorContent);
-  
+  const handleSubmit = async (values, { setSubmitting, resetForm }) => {
+    const formData = new FormData()
+    formData.append('assetName', values.assetName)
+    formData.append('assetPrice', values.price)
+    formData.append('assetDescription', values.editorContent)
+
     // Lấy các file từ ImageUploadAndReview qua imageUploadRef
-    const selectedFiles = imageUploadRef.current.getSelectedFiles();
-    selectedFiles.forEach((file) => {
-      formData.append('images', file);
-    });
+    const selectedFiles = imageUploadRef.current.getSelectedFiles()
 
-    console.log('Form data:', formData);
-  
+    // Resize từng file trước khi thêm vào FormData
+    for (const file of selectedFiles) {
+      const resizedFile = await resizeImage(file);
+      formData.append('images', resizedFile);
+    }
+    
     createRequirement(formData, {
       onSuccess: (response) => {
-        console.log('Success:', response);
-        setSubmitting(false);
+        console.log('Success:', response)
+        setSubmitting(false)
         resetForm()
         imageUploadRef.current.clearSelectedFiles()
       },
       onError: (error) => {
-        console.error('Error:', error);
-        setSubmitting(false);
-      },
-    });
-  };
-  
+        console.error('Error:', error)
+        setSubmitting(false)
+      }
+    })
+  }
+
   return (
     <StyledContainer>
       <StyledInnerBox>
@@ -143,10 +160,10 @@ const AddRequirement = () => {
               )}
             </Formik>
           </Box>
-          </Box>
-       </StyledInnerBox>
-     </StyledContainer>
+        </Box>
+      </StyledInnerBox>
+    </StyledContainer>
   )
 }
 
-export default AddRequirement;
+export default AddRequirement

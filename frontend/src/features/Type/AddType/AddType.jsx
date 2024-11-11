@@ -16,7 +16,7 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 import CloseIcon from '@mui/icons-material/Close'
 import ReactQuill from 'react-quill'
 import { useCreateType } from '~/hooks/typeHook'
-import { useFilterCategories, useGetCategory } from '~/hooks/categoryHook'
+import { useFilterCategories, useGetCategories } from '~/hooks/categoryHook'
 import SelectComponent from '~/components/SelectComponent/SelectComponent'
 import StackSelectComponent from '~/components/StackSelectComponent/StackSelectComponent'
 
@@ -39,8 +39,8 @@ const CreateType = ({ onClose, onCreateSuccess }) => {
   const [imagePreview, setImagePreview] = useState(null)
   const { mutate: CreateType, isLoading, error } = useCreateType()
 
-  const { data } = useFilterCategories(false, '')
-  const categories = Array.isArray(data) ? data : []
+  const { data } = useFilterCategories()
+  const categories = Array.isArray(data?.data) ? data.data : []
 
   const handleNameChange = (event) => {
     setName(event.target.value)
