@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from 'react-query'
-import { createSesion } from '~/api/session'
+import { createSesion, getSessionById } from '~/api/sessionApi'
 
 export const useCreateSession = () => {
   const queryClient = useQueryClient()
@@ -15,3 +15,7 @@ export const useCreateSession = () => {
     }
   })
 }
+
+export const useGetSessionById = (sessionId) => {
+    return useQuery(['session', sessionId], () => getSessionById(sessionId))
+  }

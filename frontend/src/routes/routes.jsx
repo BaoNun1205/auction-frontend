@@ -47,7 +47,7 @@ export const routes = [
     page: AddRequirementPage
   },
   {
-    path: `${BASE_PATHS.SESSION}/create`,
+    path: `${BASE_PATHS.SESSION}/create/:id`,
     page: AddSessionPage
   },
   {

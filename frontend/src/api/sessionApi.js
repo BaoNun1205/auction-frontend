@@ -14,3 +14,12 @@ export const createSesion = async (payload) => {
     handleApiError(error);
   }
 };
+
+export const getSessionById = async (sessionId) => {
+    try {
+      const response = await GET({ url: `${SESSION_PATH}/${sessionId}` });
+      return response.data.result;
+    } catch (error) {
+      handleApiError(error);
+    }
+  }
