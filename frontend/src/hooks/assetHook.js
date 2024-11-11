@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from 'react-query'
-import { createAsset, filterAssets } from '~/api/asset'
+import { createAsset, filterAssets, getAssetById } from '~/api/assetApi'
 
 export const useCreateAsset = () => {
   const queryClient = useQueryClient()
@@ -14,6 +14,10 @@ export const useCreateAsset = () => {
       console.error('Error creating asset:', error)
     }
   })
+}
+
+export const useGetAssetById = (assetId) => {
+  return useQuery(['asset', assetId], () => getAssetById(assetId))
 }
 
 export const useFilterAssets = (vendorId, assetName, minPrice, maxPrice, inspectorId, typeId, status, page, size) => {

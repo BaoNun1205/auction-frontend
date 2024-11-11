@@ -27,7 +27,7 @@ import { useFilterAssets } from '~/hooks/assetHook'
 import splitDateTime from '~/utils/SplitDateTime'
 import ListEmpty from '~/components/ListEmpty/ListEmpty'
 import ActionMenu from '~/components/IconMenuComponent/IconMenuComponent'
-import { Navigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 const AssetList = () => {
   const [selectedAssets, setSelectedAssets] = useState([])
@@ -42,6 +42,7 @@ const AssetList = () => {
   const [status, setStatus] = useState('')
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
+  const navigate = useNavigate();
 
   const handleOpenPopover = (event) => {
     setAnchorEl(event.currentTarget)
@@ -67,7 +68,7 @@ const AssetList = () => {
   }
 
   const handleCreateAuctionSession = (item) => {
-    Navigate(`/auction-Session/create/${item.assetId}`)
+    navigate(`/session/create/${item.assetId}`)
   }
 
   const handleSelectAsset = (event, assetId) => {
@@ -282,11 +283,7 @@ const AssetList = () => {
                           </TableCell>
                           <TableCell>
                             <ActionMenu>
-                              {asset.status === '0' ? (
-                                <>
-                                  <MuiMenuItem onClick={() => handleCreateAuctionSession(asset)}>Create Auction Session</MuiMenuItem>
-                                </>
-                              ) : null}
+                              {<MuiMenuItem onClick={() => handleCreateAuctionSession(asset)}>Create Auction Session</MuiMenuItem>}
                             </ActionMenu>
                           </TableCell>
                         </StyledTableRow>

@@ -17,7 +17,7 @@ import { useCreateRequirement, useGetRequirementById } from '~/hooks/requirement
 import StackSelectComponent from '~/components/StackSelectComponent/StackSelectComponent';
 import { useCreateAsset } from '~/hooks/assetHook';
 import { useNavigate } from 'react-router-dom';
-import { ASSET_PATH } from '~/api/asset';
+import { ASSET_PATH } from '~/api/assetApi';
 import { BASE_PATHS } from '~/routes/routes';
 import { useGetTypes } from '~/hooks/typeHook';
 
@@ -76,7 +76,6 @@ const AddAsset = () => {
       onSuccess: (response) => {
         console.log('Success:', response);
         navigate(`${BASE_PATHS.ASSET}`);
-        
       },
       onError: (error) => {
         console.error('Error:', error);
