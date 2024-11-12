@@ -117,45 +117,11 @@ const AssetList = () => {
               Dashboard • asset • <Box component="span" sx={{ color: 'primary.disable' }}>List</Box>
             </StyledSubtitleBox>
           </Box>
-          <ButtonComponent
-            bgcolor={(theme) => (theme.palette.primary.textMain)}
-            color={(theme) => (theme.palette.primary.textExtra)}
-            hoverBgcolor={(theme) => (theme.palette.primary.light)}
-            onClick={handleOpenPopover}
-          >
-            + NEW ASSET
-          </ButtonComponent>
-          <Popover
-            open={Boolean(anchorEl)}
-            anchorEl={anchorEl}
-            onClose={handleClosePopover}
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'right'
-            }}
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'right'
-            }}
-            sx={{
-              mt: 2
-            }}
-          >
-            <CreateCategory onClose={handleClosePopover} />
-          </Popover>
-
         </StyledHeaderBox>
 
         <StyledSecondaryBox bgcolor={(theme) => (theme.palette.primary.secondary)}>
           <StyledControlBox>
             <Box sx={{ display: 'flex', gap: 2 }}>
-              <SelectComponent
-                defaultValue=""
-                onChange={(event) => setStatus(event.target.value)}
-                displayEmpty
-                menuItems={stockMenuItems}
-                placeholder="Stock"
-              />
               <SelectComponent
                 defaultValue=""
                 displayEmpty
@@ -239,8 +205,8 @@ const AssetList = () => {
                                 sx={{ width: 48, height: 48, borderRadius: 1, mr: 2 }}
                               />
                               <Box>
-                                <StyledSpan>{asset.name}</StyledSpan>
-                                <Box sx={{ color: 'primary.textSecondary' }}>{asset.typeId || 'N/A'}</Box>
+                                <StyledSpan>{asset.assetName}</StyledSpan>
+                                <Box sx={{ color: 'primary.textSecondary' }}>{asset.type.typeName || 'N/A'}</Box>
                               </Box>
                             </Box>
                           </TableCell>
@@ -272,14 +238,14 @@ const AssetList = () => {
                                 }
                               }}
                             >
-                              {asset.status === '1' ? 'Approved' : asset.status === '2' ? 'Reject' : 'Not Approved'}
+                              {asset.status === '0' ? 'Not yet auctioned' : asset.status === '1' ? 'Being auctioned' : 'Was auctioned'}
                             </StyledStatusBox>
                           </TableCell>
                           <TableCell>
-                            <StyledSpan>{asset.vendorId || 'N/A'}</StyledSpan>
+                            <StyledSpan>{asset.vendor.username || 'N/A'}</StyledSpan>
                           </TableCell>
                           <TableCell>
-                            <StyledSpan>{asset.inspectorId || 'N/A'}</StyledSpan>
+                            <StyledSpan>{asset.inspector.user.username || 'N/A'}</StyledSpan>
                           </TableCell>
                           <TableCell>
                             <ActionMenu>

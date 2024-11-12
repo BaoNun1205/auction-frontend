@@ -84,18 +84,14 @@ export const useConfirmAccount = () => {
 }
 
 // Hook để introspect token
-// export const useIntrospect = () => {
-//   const token = useAppStore.getState().token
-//   return useMutation(introspect(token), {
-//     onSuccess: (data) => {
-//       if (data.valid === true) {
-//         return token
-//       } else {
-        
-//       }
-//     },
-//     onError: (error) => {
-//       console.error('Error introspecting token:', error)
-//     }
-//   })
-// }
+export const useIntrospect = () => {
+  const token = useAppStore.getState().token
+  return useMutation(introspect(token), {
+    onSuccess: (data) => {
+      return data.result.valid
+    },
+    onError: (error) => {
+      console.error('Error introspecting token:', error)
+    }
+  })
+}

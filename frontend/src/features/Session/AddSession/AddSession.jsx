@@ -50,7 +50,7 @@ const AddSession = () => {
     if (asset) {
       setInitialValues({
         assetId: asset.assetId || '',
-        userId: asset.vendorId || '',
+        userId: asset.vendor.userId || '',
         startingBids: asset.assetPrice || '',
       });
     }
