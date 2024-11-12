@@ -27,6 +27,7 @@ import { useFilterAssets } from '~/hooks/assetHook'
 import splitDateTime from '~/utils/SplitDateTime'
 import ListEmpty from '~/components/ListEmpty/ListEmpty'
 import ActionMenu from '~/components/IconMenuComponent/IconMenuComponent'
+import { useNavigate } from 'react-router-dom'
 
 const AssetList = () => {
   const [selectedAssets, setSelectedAssets] = useState([])
@@ -41,6 +42,7 @@ const AssetList = () => {
   const [status, setStatus] = useState('')
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
+  const navigate = useNavigate();
 
   const handleOpenPopover = (event) => {
     setAnchorEl(event.currentTarget)
@@ -63,6 +65,10 @@ const AssetList = () => {
       setSelectedAssets([])
       setShowDeleteButton(false)
     }
+  }
+
+  const handleCreateAuctionSession = (item) => {
+    navigate(`/session/create/${item.assetId}`)
   }
 
   const handleSelectAsset = (event, assetId) => {
@@ -277,16 +283,7 @@ const AssetList = () => {
                           </TableCell>
                           <TableCell>
                             <ActionMenu>
-                              {asset.status === '0' ? (
-                                <>
-                                  <MuiMenuItem onClick={() => handleApprovedRequirement(asset)}>Approved</MuiMenuItem>
-                                  <MuiMenuItem onClick={() => handleRejectedRequirement(asset)}>Reject</MuiMenuItem>
-                                </>
-                              ) : asset.status === '1' ? (
-                                <MuiMenuItem onClick={() => handleCreateAsset(asset)}>Create Asset</MuiMenuItem>
-                              ) : asset.status === '2' ? (
-                                <MuiMenuItem onClick={() => handleDeleteRequirement(asset)}>Delete</MuiMenuItem>
-                              ) : null}
+                              {<MuiMenuItem onClick={() => handleCreateAuctionSession(asset)}>Create Auction Session</MuiMenuItem>}
                             </ActionMenu>
                           </TableCell>
                         </StyledTableRow>

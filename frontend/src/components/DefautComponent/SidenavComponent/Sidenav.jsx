@@ -90,7 +90,6 @@ const AssetItem = {
   name: 'Asset',
   subItems: [
     { name: 'List', path: '/asset' },
-    { name: 'Create', path: '/asset/create' },
   ]
 }
 
@@ -108,7 +107,7 @@ const SessionItem = {
   name: 'Session',
   subItems: [
     { name: 'List', path: '/session/list' },
-    { name: 'Create', path: '/asset/create' },
+    { name: 'Create', path: '/session/create' },
   ]
 }
 

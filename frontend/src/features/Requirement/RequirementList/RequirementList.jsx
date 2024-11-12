@@ -64,9 +64,8 @@ const RequirementList = () => {
   }
 
   const handleApprovedRequirement = (item) => {
-    const decodedToken = parseToken()
-    console.log('inspectorId:', decodedToken.sub)
-    approvedRequirement({ requirementId: item.requirementId, inspectorId: decodedToken.sub }, {
+    const { jti: inspectorId } = parseToken()
+    approvedRequirement({ requirementId: item.requirementId, inspectorId }, {
       onSuccess: () => {
         refetch()
       }

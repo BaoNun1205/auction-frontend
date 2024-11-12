@@ -17,7 +17,7 @@ import { useCreateRequirement, useGetRequirementById } from '~/hooks/requirement
 import StackSelectComponent from '~/components/StackSelectComponent/StackSelectComponent';
 import { useCreateAsset } from '~/hooks/assetHook';
 import { useNavigate } from 'react-router-dom';
-import { ASSET_PATH } from '~/api/asset';
+import { ASSET_PATH } from '~/api/assetApi';
 import { BASE_PATHS } from '~/routes/routes';
 import { useGetTypes } from '~/hooks/typeHook';
 
@@ -42,6 +42,7 @@ const AddAsset = () => {
     editorContent: '',
     vendor: '',
     inspector: '',
+    type: '',
     images: []
   });
 
@@ -75,7 +76,6 @@ const AddAsset = () => {
       onSuccess: (response) => {
         console.log('Success:', response);
         navigate(`${BASE_PATHS.ASSET}`);
-        
       },
       onError: (error) => {
         console.error('Error:', error);
@@ -161,7 +161,7 @@ const AddAsset = () => {
                       options={types.map(type => ({ label: type.typeName, value: type.typeId }))}
                       value={values.type}
                       label="Type"
-                      onChange={(event) => setFieldValue('type', event.target.value)}
+                      onChange={(event, newValue) => setFieldValue('type', newValue?.value || '')}
                       sx={{ m: 1, width: '50%' }}
                     />
                   </Stack>

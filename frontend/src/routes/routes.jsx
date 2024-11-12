@@ -10,6 +10,8 @@ import AddRequirementPage from '~/pages/Requirement/AddRequirementPage'
 import Login from '~/pages/Authentication/Login'
 import Register from '~/pages/Authentication/Register'
 import CustomerHomePage from '~/pages/Customer/Home'
+import AddSessionPage from '~/pages/Session/AddSessionPage'
+import TimedAuctionDetailPage from '~/pages/Customer/TimedAuctionDetailPage'
 
 export const BASE_PATHS = {
   HOME: '/',
@@ -18,7 +20,8 @@ export const BASE_PATHS = {
   REQUIREMENT: '/requirement',
   CONFIRM_ACCOUNT: '/confirm-account',
   USERS: '/users',
-  CUSTOMER: 'customer'
+  CUSTOMER: 'customer',
+  SESSION: '/session'
 }
 
 export const routes = [
@@ -41,6 +44,14 @@ export const routes = [
   {
     path: `${BASE_PATHS.REQUIREMENT}`,
     page: RequirementListPage
+  },
+  {
+    path: `${BASE_PATHS.REQUIREMENT}/create`,
+    page: AddRequirementPage
+  },
+  {
+    path: `${BASE_PATHS.SESSION}/create/:id`,
+    page: AddSessionPage
   },
   {
     path: `${BASE_PATHS.REQUIREMENT}/create`,
@@ -72,6 +83,6 @@ export const routes = [
   },
   {
     path: `${BASE_PATHS.CUSTOMER}/:id`,
-    page: User
+    page: TimedAuctionDetailPage
   }
 ]

@@ -18,6 +18,15 @@ export const createAsset = async (payload) => {
   }
 };
 
+export const getAssetById = async (assetId) => {
+  try {
+    const response = await GET({ url: `${ASSET_PATH}/${assetId}` });
+    return response.data.result;
+  } catch (error) {
+    handleApiError(error);
+  }
+}
+
 export const filterAssets = async (payload) => {
   try {
     const response = await GET({ url: `${ASSET_PATH}`, payload });
