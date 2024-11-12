@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from 'react-query'
-import { createSesion, getSessionById } from '~/api/sessionApi'
+import { createSesion, getSessionById, filteredSessions } from '~/api/sessionApi'
 
 export const useCreateSession = () => {
   const queryClient = useQueryClient()
@@ -16,6 +16,18 @@ export const useCreateSession = () => {
   })
 }
 
+export const useFilterSessions = (status, fromDate, toDate, keyword, page, size) => {
+  return useQuery(
+    ['filteredRequirements', { status, fromDate, toDate, keyword, page, size }],
+    () => filteredSessions({ status, fromDate, toDate, keyword, page, size }),
+    {
+      onError: (error) => {
+        console.error('Error fetching filtered categories:', error)
+      }
+    }
+  )
+}
+
 export const useGetSessionById = (sessionId) => {
-    return useQuery(['session', sessionId], () => getSessionById(sessionId))
-  }
+  return useQuery(['session', sessionId], () => getSessionById(sessionId))
+}

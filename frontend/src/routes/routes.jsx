@@ -12,6 +12,7 @@ import Register from '~/pages/Authentication/Register'
 import CustomerHomePage from '~/pages/Customer/Home'
 import AddSessionPage from '~/pages/Session/AddSessionPage'
 import TimedAuctionDetailPage from '~/pages/Customer/TimedAuctionDetailPage'
+import SessionListPage from '~/pages/Session/SessionListPage'
 
 export const BASE_PATHS = {
   HOME: '/',
@@ -50,12 +51,12 @@ export const routes = [
     page: AddRequirementPage
   },
   {
-    path: `${BASE_PATHS.SESSION}/create/:id`,
-    page: AddSessionPage
+    path: `${BASE_PATHS.SESSION}`,
+    page: SessionListPage
   },
   {
-    path: `${BASE_PATHS.REQUIREMENT}/create`,
-    page: AddRequirementPage
+    path: `${BASE_PATHS.SESSION}/create/:id`,
+    page: AddSessionPage
   },
   {
     path: BASE_PATHS.HOME,
