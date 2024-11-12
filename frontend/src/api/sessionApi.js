@@ -26,6 +26,15 @@ export const getSessionById = async (sessionId) => {
   }
 };
 
+export const filterSessions = async (payload) => {
+  try {
+    const response = await GET({ url: `${SESSION_PATH}`, payload });
+    return response.data.result;
+  } catch (error) {
+    handleApiError(error);
+  }
+}
+
 export const getAuctionSession = async (page = 1) => {
   try {
     console.log('Starting POST request to /auction-session');
