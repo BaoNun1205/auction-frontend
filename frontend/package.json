@@ -28,6 +28,7 @@
     "react-query": "^3.39.3",
     "react-quill": "^2.0.0",
     "react-router-dom": "^6.26.2",
+    "styled-components": "^6.1.13",
     "vite-plugin-svgr": "^4.2.0",
     "yarn": "^1.22.22",
     "yup": "^1.4.0",

@@ -9,6 +9,7 @@ import RequirementListPage from '~/pages/Requirement/RequirementListPage'
 import AddRequirementPage from '~/pages/Requirement/AddRequirementPage'
 import Login from '~/pages/Authentication/Login'
 import Register from '~/pages/Authentication/Register'
+import CustomerHomePage from '~/pages/Customer/Home'
 
 export const BASE_PATHS = {
   HOME: '/',
@@ -16,7 +17,8 @@ export const BASE_PATHS = {
   ASSET: '/asset',
   REQUIREMENT: '/requirement',
   CONFIRM_ACCOUNT: '/confirm-account',
-  USERS: '/users'
+  USERS: '/users',
+  CUSTOMER: 'customer'
 }
 
 export const routes = [
@@ -63,5 +65,13 @@ export const routes = [
   {
     path: '/register',
     page: Register
+  },
+  {
+    path: BASE_PATHS.CUSTOMER,
+    page: CustomerHomePage
+  },
+  {
+    path: `${BASE_PATHS.CUSTOMER}/:id`,
+    page: User
   }
 ]
