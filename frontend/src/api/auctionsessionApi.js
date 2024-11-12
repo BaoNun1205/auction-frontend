@@ -1,7 +1,7 @@
 import { GET, POST, PUT, DELETE, PATCH } from './config/axiosMethods';
 import handleApiError from './config/handldeApiError';  // Đảm bảo tên file đúng
 
-const AUCTION_SESSION_PATH = '/auction-session';
+const AUCTION_SESSION_PATH = '/session';
 const HEADERS = { 'Content-Type': 'application/json' };
 
 export const getAuctionSession = async (page = 1) => {

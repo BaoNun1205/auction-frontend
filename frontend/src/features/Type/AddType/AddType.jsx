@@ -126,7 +126,7 @@ const CreateType = ({ onClose, onCreateSuccess }) => {
       <form onSubmit={handleSubmit}>
         <TextField
           fullWidth
-          label="Category Name"
+          label="Type Name"
           variant="outlined"
           value={name}
           onChange={handleNameChange}

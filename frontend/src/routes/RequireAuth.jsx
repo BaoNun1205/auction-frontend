@@ -2,6 +2,7 @@ import React from 'react'
 import { Navigate, Outlet } from 'react-router-dom'
 import { useAppStore } from '~/store/appStore'
 import { jwtDecode } from 'jwt-decode'
+import { useIntrospect } from '~/hooks/authHook'
 
 const RequireAuth = () => {
   const token = useAppStore.getState().token
@@ -33,3 +34,38 @@ const RequireAuth = () => {
 }
 
 export default RequireAuth
+
+// import React, { useEffect } from 'react';
+// import { Navigate, Outlet, useLocation } from 'react-router-dom';
+// import { useAppStore } from '~/store/appStore';
+// import { useIntrospect } from '~/hooks/authHook';
+
+// const RequireAuth = () => {
+//   const token = useAppStore.getState().token;
+//   const location = useLocation();
+//   const { mutate: introspectToken, data: introspectData, isLoading, isError } = useIntrospect();
+
+//   useEffect(() => {
+//     if (token) {
+//       introspectToken();
+//     }
+//   }, [token, introspectToken]);
+
+//   // Allow access to /register without authentication
+//   if (location.pathname === '/register') {
+//     return <Outlet />;
+//   }
+
+//   if (isLoading) {
+//     return <div>Loading...</div>;
+//   }
+
+//   if (isError || !introspectData?.result?.valid) {
+//     return <Navigate to="/login" />;
+//   }
+
+//   // Token is valid
+//   return <Outlet />;
+// };
+
+// export default RequireAuth;
