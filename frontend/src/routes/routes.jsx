@@ -10,6 +10,7 @@ import AddRequirementPage from '~/pages/Requirement/AddRequirementPage'
 import Login from '~/pages/Authentication/Login'
 import Register from '~/pages/Authentication/Register'
 import AddSessionPage from '~/pages/Session/AddSessionPage'
+import SessionListPage from '~/pages/Session/SessionListPage'
 
 export const BASE_PATHS = {
   HOME: '/',
@@ -47,12 +48,12 @@ export const routes = [
     page: AddRequirementPage
   },
   {
-    path: `${BASE_PATHS.SESSION}/create/:id`,
-    page: AddSessionPage
+    path: `${BASE_PATHS.SESSION}`,
+    page: SessionListPage
   },
   {
-    path: `${BASE_PATHS.REQUIREMENT}/create`,
-    page: AddRequirementPage
+    path: `${BASE_PATHS.SESSION}/create/:id`,
+    page: AddSessionPage
   },
   {
     path: BASE_PATHS.HOME,
