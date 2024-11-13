@@ -14,9 +14,9 @@ function App() {
     if (role === 'ROLE_ADMIN') {
       setRoutes([...publicRoutes, ...adminRoutes]);
     } else if (role === 'ROLE_USER') {
-      setRoutes(customerRoutes);
+      setRoutes([...publicRoutes, ...customerRoutes]);
     } else {
-      setRoutes(publicRoutes);
+      setRoutes(defaultRoutes);
     }
   }, [role]);
 
