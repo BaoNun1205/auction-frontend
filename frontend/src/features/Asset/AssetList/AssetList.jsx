@@ -41,7 +41,7 @@ const AssetList = () => {
   const [typeId, setTypeId] = useState('')
   const [status, setStatus] = useState('')
   const [page, setPage] = useState(0)
-  const [rowsPerPage, setRowsPerPage] = useState(10)
+  const [size, setSize] = useState(10)
   const navigate = useNavigate();
 
   const handleOpenPopover = (event) => {
@@ -52,7 +52,19 @@ const AssetList = () => {
     setAnchorEl(null)
   }
 
-  const { data, error, isLoading, refetch } = useFilterAssets(vendorId, assetName, minPrice, maxPrice, inspectorId, typeId, status, page, rowsPerPage)
+  const payload = {
+    vendorId,
+    assetName,
+    minPrice,
+    maxPrice,
+    inspectorId,
+    typeId,
+    status,
+    page,
+    size
+  }
+
+  const { data, error, isLoading, refetch } = useFilterAssets(payload)
   const assets = Array.isArray(data?.data) ? data.data : []
 
   console.log('data: ', assets[0]?.assetPrice)
@@ -89,8 +101,8 @@ const AssetList = () => {
     setPage(newPage)
   }
 
-  const handleRowsPerPageChange = (newRowsPerPage) => {
-    setRowsPerPage(newRowsPerPage)
+  const handleSizeChange = (newSize) => {
+    setSize(newSize)
     setPage(0)
   }
 
@@ -261,10 +273,10 @@ const AssetList = () => {
             </StyledTableContainer>
             <PaginationControl
               page={page}
-              rowsPerPage={rowsPerPage}
+              rowsPerPage={size}
               totalItems={data?.total}
               onPageChange={handlePageChange}
-              onRowsPerPageChange={handleRowsPerPageChange}
+              onRowsPerPageChange={handleSizeChange}
             />
           </StyledSecondaryBox>
         ) : (
@@ -272,10 +284,10 @@ const AssetList = () => {
             <ListEmpty nameList="assets" />
             <PaginationControl
               page={page}
-              rowsPerPage={rowsPerPage}
+              rowsPerPage={size}
               totalItems={data?.total}
               onPageChange={handlePageChange}
-              onRowsPerPageChange={handleRowsPerPageChange}
+              onRowsPerPageChange={handleSizeChange}
             />
           </StyledSecondaryBox>
         )}

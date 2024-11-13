@@ -20,10 +20,10 @@ export const useGetAssetById = (assetId) => {
   return useQuery(['asset', assetId], () => getAssetById(assetId))
 }
 
-export const useFilterAssets = (vendorId, assetName, minPrice, maxPrice, inspectorId, typeId, status, page, size) => {
+export const useFilterAssets = (payload) => {
   return useQuery(
-    ['filterAssets', { vendorId, assetName, minPrice, maxPrice, inspectorId, typeId, status, page, size }],
-    () => filterAssets({ vendorId, assetName, minPrice, maxPrice, inspectorId, typeId, status, page, size }),
+    ['filterAssets', payload],
+    () => filterAssets(payload),
     {
       onError: (error) => {
         console.error('Error fetching filtered assets:', error)

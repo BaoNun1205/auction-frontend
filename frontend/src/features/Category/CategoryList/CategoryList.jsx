@@ -45,7 +45,14 @@ const CategoryList = () => {
     setAnchorEl(null)
   }
 
-  const { data, error, isLoading, refetch } = useFilterCategories(status, keyword, page, rowsPerPage)
+  const payload = {
+    status,
+    keyword,
+    page,
+    size: rowsPerPage
+  }
+
+  const { data, error, isLoading, refetch } = useFilterCategories(payload)
   const items = Array.isArray(data?.data) ? data.data : []
 
   const { mutate: deleteCategory } = useDeleteCategory()
@@ -158,7 +165,6 @@ const CategoryList = () => {
               <SearchTextField
                 value={keyword}
                 onChange={(event) => setKeyword(event.target.value)}
-                disabled={items.length === 0}
               />
             </Box>
             <Box sx={{ display: 'flex', gap: 2, color: 'primary.textMain' }}>

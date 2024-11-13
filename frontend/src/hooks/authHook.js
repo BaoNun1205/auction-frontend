@@ -1,17 +1,23 @@
 // hooks/useAuth.js
+import { set } from 'date-fns'
 import { useMutation, useQueryClient } from 'react-query'
 import { getToken, logout, register, confirmAccount, refreshToken, introspect } from '~/api/authApi'
 import { useAppStore } from '~/store/appStore'
+import parseToken from '~/utils/parseToken'
 
 // Hook để lấy token
 export const useGetToken = () => {
   const setToken = useAppStore((state) => state.setToken)
+  const setRole = useAppStore((state) => state.setRole)
 
   return useMutation(getToken, {
     onSuccess: (data) => {
-      setToken(data.result.token)
-
-      console.log('Token retrieved successfully:', data)
+      const token = data.result.token;
+      setToken(token);
+      const decoded = parseToken(token);
+      if (decoded && decoded.scope) {
+        setRole(decoded.scope);   
+      }
     },
     onError: (error) => {
       console.error('Error retrieving token:', error)
@@ -85,13 +91,12 @@ export const useConfirmAccount = () => {
 
 // Hook để introspect token
 export const useIntrospect = () => {
-  const token = useAppStore.getState().token
-  return useMutation(introspect(token), {
+  return useMutation(introspect, {
     onSuccess: (data) => {
-      return data.result.valid
+      return data;
     },
     onError: (error) => {
-      console.error('Error introspecting token:', error)
+      console.error('Error introspecting token:', error);
     }
-  })
+  });
 }
