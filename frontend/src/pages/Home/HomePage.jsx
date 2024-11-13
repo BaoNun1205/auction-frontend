@@ -6,6 +6,7 @@ import EditorPage from '~/features/Home/Editor'
 import { useAppStore } from '~/store/appStore'
 
 export default function HomePage() {
+  const role = useAppStore((state) => state.role)
   return (
     <>
       <div className='bgcolor'>
@@ -23,6 +24,7 @@ export default function HomePage() {
               }}
             >
               <h1>Welcome to the Home Page</h1>
+              {console.log(role)}
             </Box>
           </Box>
         </Box>

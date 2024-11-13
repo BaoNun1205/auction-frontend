@@ -56,20 +56,6 @@ const handleSubmit = (values, { setSubmitting, setErrors, setStatus }, getToken,
           return;
         }
 
-        const token = response.result.token;
-
-        // Giải mã token để kiểm tra quyền
-        const decodedToken = jwtDecode(token);
-        const userRoles = decodedToken.scope;
-
-        // Kiểm tra quyền trong scope
-        if (!userRoles.includes('ROLE_ADMIN')) {
-          setErrors({ submit: 'You do not have the required permissions to log in.' });
-          setSubmitting(false);
-          return;
-        }
-
-        setToken(token); // Lưu token vào zustand store
         setStatus({ success: 'Form Submitted Successfully' });
         navigate('/'); // Chuyển hướng đến trang chủ sau khi đăng nhập thành công
       },

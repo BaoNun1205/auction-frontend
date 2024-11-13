@@ -16,7 +16,8 @@ const PUBLIC_ENDPOINTS = [
   '/auth/introspect', 
   '/auth/logout', 
   '/auth/refresh', 
-  '/verification/account-registration'
+  '/verification/account-registration',
+  '/confirm-account'
 ];
 
 // Hàm để kiểm tra xem URL có phải là public endpoint hay không

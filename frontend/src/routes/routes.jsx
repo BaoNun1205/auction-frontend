@@ -24,7 +24,33 @@ export const BASE_PATHS = {
   SESSION: '/session'
 }
 
-export const routes = [
+export const defaultRoutes = [
+  {
+    path: BASE_PATHS.HOME,
+    page: HomePage
+  }
+]
+
+export const publicRoutes = [
+  {
+    path: '/login',
+    page: Login
+  },
+  {
+    path: '/register',
+    page: Register
+  },
+  {
+    path: BASE_PATHS.CONFIRM_ACCOUNT,
+    page: ConfirmAccount
+  },
+]
+
+export const adminRoutes = [
+  {
+    path: BASE_PATHS.HOME,
+    page: HomePage
+  },
   {
     path: `${BASE_PATHS.CATEGORY}`,
     page: CategoryListPage
@@ -53,36 +79,15 @@ export const routes = [
     path: `${BASE_PATHS.SESSION}/create/:id`,
     page: AddSessionPage
   },
-  {
-    path: `${BASE_PATHS.REQUIREMENT}/create`,
-    page: AddRequirementPage
-  },
+]
+
+export const customerRoutes = [
   {
     path: BASE_PATHS.HOME,
-    page: HomePage
-  },
-  {
-    path: BASE_PATHS.CONFIRM_ACCOUNT,
-    page: ConfirmAccount
-  },
-  {
-    path: BASE_PATHS.USERS,
-    page: User
-  },
-  {
-    path: '/login',
-    page: Login
-  },
-  {
-    path: '/register',
-    page: Register
-  },
-  {
-    path: BASE_PATHS.CUSTOMER,
     page: CustomerHomePage
   },
   {
-    path: `${BASE_PATHS.CUSTOMER}/:id`,
+    path: `${BASE_PATHS.SESSION}/:id`,
     page: TimedAuctionDetailPage
   }
 ]

@@ -18,7 +18,10 @@ let appStore = (set) => ({
   setSessionOpen: (sessionOpen) => set((state) => ({ sessionOpen })),
 
   token: '',
-  setToken: (token) => set((state) => ({ token }))
+  setToken: (token) => set((state) => ({ token })),
+
+  role: '',
+  setRole: (role) => set((state) => ({ role }))
 })
 
 appStore = persist(appStore, { name: 'appStore' })
