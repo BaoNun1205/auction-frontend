@@ -45,7 +45,14 @@ const TypeList = () => {
     setAnchorEl(null)
   }
 
-  const { data, error, isLoading, refetch } = useFilterTypes(status, keyword, page, rowsPerPage)
+  const payload = {
+    status,
+    keyword,
+    page, 
+    size: rowsPerPage
+  }
+
+  const { data, error, isLoading, refetch } = useFilterTypes(payload)
   const items = Array.isArray(data?.data) ? data.data : []
 
   const { mutate: deleteType } = useDeleteType()
