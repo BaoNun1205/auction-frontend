@@ -29,18 +29,13 @@ const RequireAuth = () => {
     validateToken();
   }, [token]);
 
-  // Allow access to /register and /confirm-account without authentication
-  if (location.pathname === '/register' || location.pathname === '/confirm-account') {
-    return <Outlet />;
-  }
-
   if (isLoading) {
     return <div>Loading...</div>;
   }
 
-  if (!isValid) {
-    return <Navigate to="/login" />;
-  }
+  // if (!isValid) {
+  //   return <Navigate to="/login" />;
+  // }
 
   // Token is valid
   return <Outlet />;

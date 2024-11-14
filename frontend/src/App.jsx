@@ -1,22 +1,20 @@
 import React, { useEffect, useState } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import { defaultRoutes, publicRoutes, adminRoutes, customerRoutes } from './routes/routes'
+import { publicRoutes, adminRoutes, customerRoutes } from './routes/routes'
 import RequireAuth from './routes/RequireAuth'
 import Login from './pages/Authentication/Login'
 import { useAppStore } from './store/appStore'
 
 function App() {
-  const [routes, setRoutes] = useState(defaultRoutes);
+  const [routes, setRoutes] = useState(publicRoutes);
   const role = useAppStore((state) => state.role);
   console.log('role: ', role);
 
   useEffect(() => {
     if (role === 'ROLE_ADMIN') {
-      setRoutes([...publicRoutes, ...adminRoutes]);
+      setRoutes(adminRoutes);
     } else if (role === 'ROLE_USER') {
-      setRoutes([...publicRoutes, ...customerRoutes]);
-    } else {
-      setRoutes(defaultRoutes);
+      setRoutes(publicRoutes);
     }
   }, [role]);
 

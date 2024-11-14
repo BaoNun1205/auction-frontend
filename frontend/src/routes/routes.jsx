@@ -25,18 +25,7 @@ export const BASE_PATHS = {
   SESSION: '/session'
 }
 
-export const defaultRoutes = [
-  {
-    path: BASE_PATHS.HOME,
-    page: HomePage
-  }
-]
-
 export const publicRoutes = [
-  {
-    path: BASE_PATHS.HOME,
-    page: HomePage
-  },
   {
     path: '/login',
     page: Login
@@ -49,6 +38,18 @@ export const publicRoutes = [
     path: BASE_PATHS.CONFIRM_ACCOUNT,
     page: ConfirmAccount
   },
+  {
+    path: `${BASE_PATHS.SESSION}/create/:id`,
+    page: AddSessionPage
+  },
+  {
+    path: BASE_PATHS.HOME,
+    page: CustomerHomePage
+  },
+  {
+    path: `${BASE_PATHS.SESSION}/:id`,
+    page: TimedAuctionDetailPage
+  }
 ]
 
 export const adminRoutes = [

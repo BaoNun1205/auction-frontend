@@ -4,6 +4,8 @@ import { Menu as MenuIcon, ShoppingCart as OrdersIcon, Notifications as Notifica
 import { styled } from '@mui/material/styles';
 import { Link } from '@mui/material';
 import Logo from '~/components/LogoComponent/Logo';
+import AppModal from '~/components/Modal/Modal';
+import LoginForm from '~/features/Authentication/components/AuthLogin/Login';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -99,10 +101,12 @@ export default function Header() {
                 <NotificationsIcon />
                 <Typography variant="body2" sx={{ ml: 0.5, color: 'white' }}>Notifications</Typography>
               </Box>
-              <Box sx={{ display: 'flex', alignItems: 'center', ml: 3, color: 'white' }}>
+              <AppModal trigger={<Box sx={{ display: 'flex', alignItems: 'center', ml: 3, color: 'white', cursor: 'pointer' }}>
                 <SignInIcon />
                 <Typography variant="body2" sx={{ ml: 0.5, color: 'white' }}>Sign In</Typography>
-              </Box>
+              </Box>}>
+                <LoginForm />
+              </AppModal>
             </Box>
           </Box>
         </Toolbar>

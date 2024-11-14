@@ -16,10 +16,10 @@ export const useCreateSession = () => {
   })
 }
 
-export const useFilterSessions = (status, fromDate, toDate, keyword, page, size) => {
+export const useFilterSessions = (payload) => {
   return useQuery(
-    ['filteredRequirements', { status, fromDate, toDate, keyword, page, size }],
-    () => filterSessions({ status, fromDate, toDate, keyword, page, size }),
+    ['filteredRequirements', payload],
+    () => filterSessions(payload),
     {
       onError: (error) => {
         console.error('Error fetching filtered categories:', error)

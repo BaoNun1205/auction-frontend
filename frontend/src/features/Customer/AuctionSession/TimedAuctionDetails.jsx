@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Box, Container, Typography, Button, styled, Card, CardMedia, IconButton, Stack, Divider, Paper, Tooltip, Chip } from "@mui/material";
 import { FiClock, FiUser, FiHeart, FiShare2 } from "react-icons/fi";
 import { BsArrowLeftCircle, BsArrowRightCircle } from "react-icons/bs";
+import AppModal from "~/components/Modal/Modal";
+import PlaceBidForm from "~/components/Form/PlaceBidForm/PlaceBidForm";
 
 const StyledCard = styled(Card)(({ theme }) => ({
   maxWidth: "100%",
@@ -205,9 +207,13 @@ const TimedAuctionDetail = () => {
                 </Box>
               </Stack>
 
-              <StyledButton variant="contained" size="large">
-                Place Bid Now
-              </StyledButton>
+              <AppModal trigger={
+                <StyledButton variant="contained" size="large">
+                  Place Bid Now
+                </StyledButton>
+              }>
+                <PlaceBidForm />
+              </AppModal>
             </Stack>
           </Paper>
         </Box>
