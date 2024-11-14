@@ -1,8 +1,10 @@
 import React from 'react';
 import { Button, Card, CardContent, CardMedia, Typography, Box } from '@mui/material';
 import Carousel from 'react-material-ui-carousel';
+import { useNavigate } from 'react-router-dom';
 
 const CurrentAuctionItem = ({ items }) => {
+  const navigate = useNavigate();
   // Hàm chia nhóm các item cho carousel
   const groupItems = (items, itemsPerGroup) => {
     const groups = items.reduce((result, item, index) => {
@@ -15,6 +17,10 @@ const CurrentAuctionItem = ({ items }) => {
     }, []);
 
     return groups;
+  };
+
+  const handleJoinClick = (item) => {
+    navigate(`/session/${item.id}`);
   };
 
   const groupedItems = groupItems(items, 4);
@@ -81,6 +87,7 @@ const CurrentAuctionItem = ({ items }) => {
                     marginRight: 'auto',
                     marginTop: 2,
                   }}
+                  onClick={() => handleJoinClick(item)}
                 >
                   Join the Auction
                 </Button>
