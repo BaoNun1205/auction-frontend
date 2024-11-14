@@ -6,6 +6,7 @@ import CurrentAuctionItem from './components/CurrentAuctionItem';
 const CurrentAuctions = () => {
     const items = [
         {
+            id: 1,
             type: "The auction is currently ongoing",
             date: "10/07/2024",
             time: "10:00 AM",
@@ -14,6 +15,7 @@ const CurrentAuctions = () => {
             startbid: 100,
         },
         {
+            id: 2,
             type: "The auction is currently ongoing",
             date: "11/07/2024",
             time: "11:00 AM",
@@ -22,6 +24,7 @@ const CurrentAuctions = () => {
             startbid: 200,
         },
         {
+            id: 3,
             type: "The auction is currently ongoing",
             date: "12/07/2024",
             time: "1:00 PM",
@@ -30,6 +33,7 @@ const CurrentAuctions = () => {
             startbid: 150,
         },
         {
+            id: 4,
             type: "The auction is currently ongoing",
             date: "13/07/2024",
             time: "2:00 PM",
@@ -38,6 +42,7 @@ const CurrentAuctions = () => {
             startbid: 300,
         },
         {
+            id: 5,
             type: "The auction is currently ongoing",
             date: "14/07/2024",
             time: "3:00 PM",
@@ -46,6 +51,7 @@ const CurrentAuctions = () => {
             startbid: 400,
         },
         {
+            id: 6,
             type: "The auction is currently ongoing",
             date: "15/07/2024",
             time: "4:00 PM",
@@ -54,6 +60,7 @@ const CurrentAuctions = () => {
             startbid: 500,
         },
         {
+            id: 7,
             type: "The auction is currently ongoing",
             date: "16/07/2024",
             time: "5:00 PM",
@@ -62,6 +69,7 @@ const CurrentAuctions = () => {
             startbid: 350,
         },
         {
+            id: 8,
             type: "The auction is currently ongoing",
             date: "17/07/2024",
             time: "6:00 PM",
@@ -70,6 +78,7 @@ const CurrentAuctions = () => {
             startbid: 1000,
         },
         {
+            id: 9,
             type: "The auction is currently ongoing",
             date: "18/07/2024",
             time: "7:00 PM",
@@ -78,6 +87,7 @@ const CurrentAuctions = () => {
             startbid: 600,
         },
         {
+            id: 10,
             type: "The auction is currently ongoing",
             date: "19/07/2024",
             time: "8:00 PM",
@@ -86,6 +96,7 @@ const CurrentAuctions = () => {
             startbid: 250,
         },
         {
+            id: 11,
             type: "The auction is currently ongoing",
             date: "20/07/2024",
             time: "9:00 PM",
@@ -94,6 +105,7 @@ const CurrentAuctions = () => {
             startbid: 750,
         },
         {
+            id: 12,
             type: "The auction is currently ongoing",
             date: "21/07/2024",
             time: "10:00 PM",
@@ -101,11 +113,11 @@ const CurrentAuctions = () => {
             name: "Classic furniture set, antique collection",
             startbid: 1200,
         },
-    ];    
+    ];        
 
   return (
     <Box textAlign="center" my={4} mx={5}>
-      <Typography variant="h4" color="primary" fontWeight="bold">Current Auctioned Products</Typography>
+      <Typography variant="h4" color="#B7201B" fontWeight="bold">Current Auctioned Products</Typography>
       <Box display="flex" justifyContent="center" alignItems="center" my={2}>
         <Divider sx={{ flexGrow: 1, bgcolor: 'gray' }} />
         <ImHammer2 size={32} className="text-mainBgColor" />
