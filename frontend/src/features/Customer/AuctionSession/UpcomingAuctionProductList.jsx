@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { Box, Container, Typography, Pagination } from '@mui/material';
 import UpcomingAuctionCard from '~/components/AuctionProuductComponent/UpcomingAuctionCard';
 import { useGetAuctionSession } from '~/hooks/auctionsessionHook';
+import { useFilterSessions } from '~/hooks/sessionHook';
 
 const UpcomingProductList = () => {
   const [page, setPage] = useState(1);
 
-  const { data, isLoading, isError } = useGetAuctionSession(page);
+  const { data, isLoading, isError } = useFilterSessions({ status: '0' });
+  console.log('Data:', data);
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -16,17 +18,11 @@ const UpcomingProductList = () => {
     return <div>Error loading auction sessions.</div>;
   }
 
-  // Kiểm tra nếu data tồn tại và không phải là undefined
-  if (!data || !Array.isArray(data.items)) {
-    console.log('Data is not an array or is undefined:', data);
-    return <div>No auction sessions available.</div>;
-  }
-
   const handleChange = (event, value) => {
     setPage(value);
   };
 
-  const { items: displayedProducts, totalPages } = data;
+  const { data: displayedProducts, total: totalPages } = data;
 
   return (
     <Container maxWidth="lg">

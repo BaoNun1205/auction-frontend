@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Typography, Box, Pagination, Container } from '@mui/material';
 import AuctionedProductCard from '~/components/Customer/AuctionedProuductCard';
 import UpcomingAuctionCard from '~/components/Customer/UpcomingAuctionCard';
-import { useGetAuctionedSession } from '~/hooks/auctionsessionHook';
+import { useFilterSessions } from '~/hooks/sessionHook';
 
 
 const AuctionedProductList = () => {
@@ -11,7 +11,9 @@ const AuctionedProductList = () => {
   const containerRef = useRef(null);
   const productsPerPage = 4;
 
-  const { data, isLoading, isError } = useGetAuctionedSession();
+  // const { data, isLoading, isError } = useGetAuctionedSession();
+
+  const { data, isLoading, isError } = useFilterSessions({ status: '0' });
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -22,17 +24,19 @@ const AuctionedProductList = () => {
   }
 
   // Kiểm tra nếu data tồn tại và không phải là undefined
-  if (!data || !Array.isArray(data)) {
-    console.log('Data is not an array or is undefined:', data);
-    return <div>No auction sessions available.</div>;
-  }
+  // if (!data || !Array.isArray(data)) {
+  //   console.log('Data is not an array or is undefined:', data);
+  //   return <div>No auction sessions available.</div>;
+  // }
 
   const handleChange = (event, value) => {
     setPage(value);
   };
 
   // Sử dụng data từ hook để phân trang
-  const displayedProducts = data.slice((page - 1) * productsPerPage, page * productsPerPage);
+  const displayedProducts = data?.data.slice((page - 1) * productsPerPage, page * productsPerPage);
+
+  console.log('Displayed products:', displayedProducts);
 
   useEffect(() => {
     const handleResize = () => {

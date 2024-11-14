@@ -223,7 +223,7 @@ const AssetList = () => {
                             </Box>
                           </TableCell>
                           <TableCell>
-                            <StyledSpan>{date}</StyledSpan>
+                            <StyledSpan>{date} </StyledSpan>
                             <StyledSpan>{time}</StyledSpan>
                           </TableCell>
                           <TableCell>

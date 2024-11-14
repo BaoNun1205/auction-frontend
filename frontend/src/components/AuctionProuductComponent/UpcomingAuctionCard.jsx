@@ -1,13 +1,17 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardMedia, Typography, Button, Grid, Box } from '@mui/material';
+import splitDateTime from '~/utils/SplitDateTime';
 
 const UpcomingAuctionCard = ({ product }) => {
   const navigate = useNavigate();
 
   const handleRegisterClick = () => {
-    navigate(`/customer?id=${product.auctionSessionId}`);
+    navigate(`/session/${product.auctionSessionId}`);
   };
+
+  const { date: fromDate, time: fromTime } = splitDateTime(product.startTime)
+  const { date: toDate, time: toTime } = splitDateTime(product.endTime)
 
   return (
     <Card sx={{ maxWidth: 445, margin: 'auto', mt: 5 }}>
@@ -27,11 +31,14 @@ const UpcomingAuctionCard = ({ product }) => {
             {/* <Typography variant="h5" component="div">
               Auction session date {product.}
             </Typography> */}
-            <Typography variant="body2" color="text.secondary">
-              Start time: {product.startTime ? new Date(product.startTime).toLocaleString() : 'N/A'}
+            <Typography variant="subtitle1" color="textPrimary" fontWeight="bold" gutterBottom>
+              {product.auctionName}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              End time: {new Date(product.endTime).toLocaleString()}
+              Start time: {fromDate}, {fromTime}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              End time: {toDate}, {toTime}
             </Typography>
             <Button variant="contained" color="secondary" sx={{ mt: 2 }} onClick={handleRegisterClick}>
               Register
