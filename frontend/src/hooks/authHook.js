@@ -1,17 +1,30 @@
 // hooks/useAuth.js
+import { set } from 'date-fns'
 import { useMutation, useQueryClient } from 'react-query'
 import { getToken, logout, register, confirmAccount, refreshToken, introspect } from '~/api/authApi'
 import { useAppStore } from '~/store/appStore'
+import parseToken from '~/utils/parseToken'
 
 // Hook để lấy token
 export const useGetToken = () => {
-  const setToken = useAppStore((state) => state.setToken)
+  const { setAuth } = useAppStore()
 
   return useMutation(getToken, {
     onSuccess: (data) => {
-      setToken(data.result.token)
-
-      console.log('Token retrieved successfully:', data)
+      const token = data.result.token;
+      const decoded = parseToken(token);
+      if (decoded && decoded.scope) {
+        const auth = {
+          token,
+          role: decoded.scope,
+          isAuth: true,
+          user: {
+            id: decoded.jti,
+            username: decoded.sub,
+          },
+        };
+        setAuth(auth);
+      }
     },
     onError: (error) => {
       console.error('Error retrieving token:', error)
@@ -42,12 +55,12 @@ export const useRefreshToken = () => {
 // Hook để logout
 export const useLogout = () => {
   const queryClient = useQueryClient()
-  const setToken = useAppStore((state) => state.setToken)
+  const { auth, setAuth } = useAppStore();
 
-  return useMutation(() => logout(), {
+  return useMutation(() => logout(auth.token), {
     onSuccess: (data) => {
       if (data.code === 1000) {
-        setToken('')
+        setAuth({ token: '', role: '', isAuth: false, user: { id: '', username: '' } })
         console.log('Logged out successfully')
         // Invalidate queries or perform other actions
         queryClient.invalidateQueries('user')
@@ -84,18 +97,13 @@ export const useConfirmAccount = () => {
 }
 
 // Hook để introspect token
-// export const useIntrospect = () => {
-//   const token = useAppStore.getState().token
-//   return useMutation(introspect(token), {
-//     onSuccess: (data) => {
-//       if (data.valid === true) {
-//         return token
-//       } else {
-        
-//       }
-//     },
-//     onError: (error) => {
-//       console.error('Error introspecting token:', error)
-//     }
-//   })
-// }
+export const useIntrospect = () => {
+  return useMutation(introspect, {
+    onSuccess: (data) => {
+      return data;
+    },
+    onError: (error) => {
+      console.error('Error introspecting token:', error);
+    }
+  });
+}

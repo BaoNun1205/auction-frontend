@@ -35,7 +35,7 @@ import { jwtDecode } from 'jwt-decode';
 
 // ============================|| JWT - LOGIN ||============================ //
 
-const handleSubmit = (values, { setSubmitting, setErrors, setStatus }, getToken, setToken, navigate) => {
+const handleSubmit = (values, { setSubmitting, setErrors, setStatus }, getToken, navigate) => {
   const { email, password } = values;
   console.log('email:', email);
   console.log('password: ', password);
@@ -56,20 +56,6 @@ const handleSubmit = (values, { setSubmitting, setErrors, setStatus }, getToken,
           return;
         }
 
-        const token = response.result.token;
-
-        // Giải mã token để kiểm tra quyền
-        const decodedToken = jwtDecode(token);
-        const userRoles = decodedToken.scope;
-
-        // Kiểm tra quyền trong scope
-        if (!userRoles.includes('ROLE_ADMIN')) {
-          setErrors({ submit: 'You do not have the required permissions to log in.' });
-          setSubmitting(false);
-          return;
-        }
-
-        setToken(token); // Lưu token vào zustand store
         setStatus({ success: 'Form Submitted Successfully' });
         navigate('/'); // Chuyển hướng đến trang chủ sau khi đăng nhập thành công
       },
@@ -84,7 +70,6 @@ const handleSubmit = (values, { setSubmitting, setErrors, setStatus }, getToken,
 
 export default function AuthLogin() {
   const [checked, setChecked] = useState(false);
-  const setToken = useAppStore((state) => state.setToken); // Lấy hàm setToken từ store
   const { mutate: getToken, isLoading: isGettingToken } = useGetToken();
 
   const [showPassword, setShowPassword] = useState(false);
@@ -110,7 +95,7 @@ export default function AuthLogin() {
           email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
           password: Yup.string().max(255).required('Password is required')
         })}
-        onSubmit={(values, actions) => handleSubmit(values, actions, getToken, setToken, navigate)}
+        onSubmit={(values, actions) => handleSubmit(values, actions, getToken, navigate)}
       >
         {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
           <form noValidate onSubmit={handleSubmit}>

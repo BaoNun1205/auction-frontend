@@ -41,7 +41,7 @@ const AssetList = () => {
   const [typeId, setTypeId] = useState('')
   const [status, setStatus] = useState('')
   const [page, setPage] = useState(0)
-  const [rowsPerPage, setRowsPerPage] = useState(10)
+  const [size, setSize] = useState(10)
   const navigate = useNavigate();
 
   const handleOpenPopover = (event) => {
@@ -52,7 +52,19 @@ const AssetList = () => {
     setAnchorEl(null)
   }
 
-  const { data, error, isLoading, refetch } = useFilterAssets(vendorId, assetName, minPrice, maxPrice, inspectorId, typeId, status, page, rowsPerPage)
+  const payload = {
+    vendorId,
+    assetName,
+    minPrice,
+    maxPrice,
+    inspectorId,
+    typeId,
+    status,
+    page,
+    size
+  }
+
+  const { data, error, isLoading, refetch } = useFilterAssets(payload)
   const assets = Array.isArray(data?.data) ? data.data : []
 
   console.log('data: ', assets[0]?.assetPrice)
@@ -89,8 +101,8 @@ const AssetList = () => {
     setPage(newPage)
   }
 
-  const handleRowsPerPageChange = (newRowsPerPage) => {
-    setRowsPerPage(newRowsPerPage)
+  const handleSizeChange = (newSize) => {
+    setSize(newSize)
     setPage(0)
   }
 
@@ -117,45 +129,11 @@ const AssetList = () => {
               Dashboard • asset • <Box component="span" sx={{ color: 'primary.disable' }}>List</Box>
             </StyledSubtitleBox>
           </Box>
-          <ButtonComponent
-            bgcolor={(theme) => (theme.palette.primary.textMain)}
-            color={(theme) => (theme.palette.primary.textExtra)}
-            hoverBgcolor={(theme) => (theme.palette.primary.light)}
-            onClick={handleOpenPopover}
-          >
-            + NEW ASSET
-          </ButtonComponent>
-          <Popover
-            open={Boolean(anchorEl)}
-            anchorEl={anchorEl}
-            onClose={handleClosePopover}
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'right'
-            }}
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'right'
-            }}
-            sx={{
-              mt: 2
-            }}
-          >
-            <CreateCategory onClose={handleClosePopover} />
-          </Popover>
-
         </StyledHeaderBox>
 
         <StyledSecondaryBox bgcolor={(theme) => (theme.palette.primary.secondary)}>
           <StyledControlBox>
             <Box sx={{ display: 'flex', gap: 2 }}>
-              <SelectComponent
-                defaultValue=""
-                onChange={(event) => setStatus(event.target.value)}
-                displayEmpty
-                menuItems={stockMenuItems}
-                placeholder="Stock"
-              />
               <SelectComponent
                 defaultValue=""
                 displayEmpty
@@ -239,13 +217,13 @@ const AssetList = () => {
                                 sx={{ width: 48, height: 48, borderRadius: 1, mr: 2 }}
                               />
                               <Box>
-                                <StyledSpan>{asset.name}</StyledSpan>
-                                <Box sx={{ color: 'primary.textSecondary' }}>{asset.typeId || 'N/A'}</Box>
+                                <StyledSpan>{asset.assetName}</StyledSpan>
+                                <Box sx={{ color: 'primary.textSecondary' }}>{asset.type.typeName || 'N/A'}</Box>
                               </Box>
                             </Box>
                           </TableCell>
                           <TableCell>
-                            <StyledSpan>{date}</StyledSpan>
+                            <StyledSpan>{date} </StyledSpan>
                             <StyledSpan>{time}</StyledSpan>
                           </TableCell>
                           <TableCell>
@@ -272,14 +250,14 @@ const AssetList = () => {
                                 }
                               }}
                             >
-                              {asset.status === '1' ? 'Approved' : asset.status === '2' ? 'Reject' : 'Not Approved'}
+                              {asset.status === '0' ? 'Not yet auctioned' : asset.status === '1' ? 'Being auctioned' : 'Was auctioned'}
                             </StyledStatusBox>
                           </TableCell>
                           <TableCell>
-                            <StyledSpan>{asset.vendorId || 'N/A'}</StyledSpan>
+                            <StyledSpan>{asset.vendor.username || 'N/A'}</StyledSpan>
                           </TableCell>
                           <TableCell>
-                            <StyledSpan>{asset.inspectorId || 'N/A'}</StyledSpan>
+                            <StyledSpan>{asset.inspector.user.username || 'N/A'}</StyledSpan>
                           </TableCell>
                           <TableCell>
                             <ActionMenu>
@@ -295,10 +273,10 @@ const AssetList = () => {
             </StyledTableContainer>
             <PaginationControl
               page={page}
-              rowsPerPage={rowsPerPage}
+              rowsPerPage={size}
               totalItems={data?.total}
               onPageChange={handlePageChange}
-              onRowsPerPageChange={handleRowsPerPageChange}
+              onRowsPerPageChange={handleSizeChange}
             />
           </StyledSecondaryBox>
         ) : (
@@ -306,10 +284,10 @@ const AssetList = () => {
             <ListEmpty nameList="assets" />
             <PaginationControl
               page={page}
-              rowsPerPage={rowsPerPage}
+              rowsPerPage={size}
               totalItems={data?.total}
               onPageChange={handlePageChange}
-              onRowsPerPageChange={handleRowsPerPageChange}
+              onRowsPerPageChange={handleSizeChange}
             />
           </StyledSecondaryBox>
         )}

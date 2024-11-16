@@ -1,160 +1,168 @@
-import React from "react";
-import styled from "styled-components";
+import React, { useState } from "react";
+import { Box, Container, Grid, Typography, TextField, Button, IconButton, styled } from "@mui/material";
+import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from "react-icons/fa";
 
-function Footer() {
+const FooterWrapper = styled(Box)(({ theme }) => ({
+  backgroundColor: "#1a1a1a",
+  color: "#ffffff",
+  paddingTop: theme.spacing(6),
+  paddingBottom: theme.spacing(3),
+  position: "fixed",
+  bottom: 0,
+  width: "100%",
+  zIndex: 1000
+}));
+
+const CallToAction = styled(Box)(({ theme }) => ({
+  backgroundColor: "#2d2d2d",
+  padding: theme.spacing(4),
+  marginBottom: theme.spacing(4),
+  textAlign: "center",
+  borderRadius: theme.shape.borderRadius
+}));
+
+const SocialIcon = styled(IconButton)({
+  color: "#ffffff",
+  margin: "0 8px",
+  "&:hover": {
+    color: "#4a90e2",
+    transform: "translateY(-2px)",
+    transition: "all 0.3s ease"
+  }
+});
+
+const FooterLink = styled(Typography)({
+  cursor: "pointer",
+  "&:hover": {
+    color: "#4a90e2",
+    transition: "color 0.3s ease"
+  }
+});
+
+const StyledButton = styled(Button)({
+  backgroundColor: "#4a90e2",
+  color: "#ffffff",
+  padding: "10px 30px",
+  "&:hover": {
+    backgroundColor: "#357abd"
+  }
+});
+
+const Footer = () => {
+  const [email, setEmail] = useState("");
+  const [emailError, setEmailError] = useState(false);
+
+  const handleSubscribe = () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setEmailError(true);
+      return;
+    }
+    setEmailError(false);
+    console.log("Subscribed:", email);
+    setEmail("");
+  };
+
   return (
-    <FooterWrapper>
-      <FooterContent>
-        <AboutSection>
-          <h3>About Us</h3>
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris aliquet lacinia nulla ut laoreet. Quisque ultricies et tortor nec laoreet.</p>
-          <SocialIcons>
-            <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/2acca7e85be423abec2a1e37ebf34070fde2f4dc1adcfe1f7b44c61a8818c673?placeholderIfAbsent=true&apiKey=b4eeb15480614348979f5cda6d8d97a4" alt="Facebook" />
-            <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/45752c5a4e29f63e72c4a515bab8b0cd343cd8ae7862bfb90193c49485813dcc?placeholderIfAbsent=true&apiKey=b4eeb15480614348979f5cda6d8d97a4" alt="Twitter" />
-            <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/79b7f60ecd9a80ae8a07239af28ee18f92ffd13ff069ab260680c53f9b72ed04?placeholderIfAbsent=true&apiKey=b4eeb15480614348979f5cda6d8d97a4" alt="Instagram" />
-            <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/25aed9539650f1c50b67ec44c052360f497b1036ea1425f424eca62002fd0809?placeholderIfAbsent=true&apiKey=b4eeb15480614348979f5cda6d8d97a4" alt="LinkedIn" />
-            <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/640afe89765abfe11a4ea36dc58c38cb91cd13371a88cc5e4dee776903e0b796?placeholderIfAbsent=true&apiKey=b4eeb15480614348979f5cda6d8d97a4" alt="YouTube" />
-          </SocialIcons>
-        </AboutSection>
-        <FooterLinksSection>
-          <FooterLinkColumn>
-            <h3>Information</h3>
-            <FooterLink>About</FooterLink>
-            <FooterLink>Delivery information</FooterLink>
-            <FooterLink>Privacy Policy</FooterLink>
-            <FooterLink>Sales</FooterLink>
-            <FooterLink>Terms & Conditions</FooterLink>
-            <FooterLink>EMI Payment</FooterLink>
-          </FooterLinkColumn>
-          <FooterLinkColumn>
-            <h3>Account</h3>
-            <FooterLink>My Account</FooterLink>
-            <FooterLink>My Orders</FooterLink>
-            <FooterLink>Returns</FooterLink>
-            <FooterLink>Shipping</FooterLink>
-            <FooterLink>Wishlist</FooterLink>
-            <FooterLink>Account Details</FooterLink>
-          </FooterLinkColumn>
-          <FooterLinkColumn>
-            <h3>Store</h3>
-            <FooterLink>Affiliate</FooterLink>
-            <FooterLink>Discounts</FooterLink>
-            <FooterLink>Sale</FooterLink>
-            <FooterLink>Contact</FooterLink>
-            <FooterLink>All Collections</FooterLink>
-          </FooterLinkColumn>
-        </FooterLinksSection>
-        <ContactSection>
-          <h3>Contact Us</h3>
-          <p>If you have any query, please contact us <br /><strong>needus24@gmail.com</strong></p>
-          <ContactItem>
-            <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/594647a895c53472cb0e6b318aa4667f5fdf92ea7ecc0e9f856eba170f90c236?placeholderIfAbsent=true&apiKey=b4eeb15480614348979f5cda6d8d97a4" alt="Location icon" />
-            <span>California, USA</span>
-          </ContactItem>
-          <ContactItem>
-            <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/dd58d62604c5bd03e83aed55a6ac16fe7191b928b8c50b0c92f39bee509b56d9?placeholderIfAbsent=true&apiKey=b4eeb15480614348979f5cda6d8d97a4" alt="Phone icon" />
-            <span>+12012987481</span>
-          </ContactItem>
-        </ContactSection>
-      </FooterContent>
+    <FooterWrapper component="footer" role="contentinfo">
+      <Container maxWidth="lg">
+        <Grid container spacing={4} mb={6}>
+          <Grid item xs={12} md={4}>
+            <Typography variant="h6" gutterBottom>
+              About Us
+            </Typography>
+            <Typography variant="body2" paragraph>
+              We are dedicated to providing exceptional services and innovative solutions to meet your needs. Our commitment to excellence drives everything we do.
+            </Typography>
+            <Box>
+              <SocialIcon aria-label="Facebook" component="a" href="#">
+                <FaFacebook />
+              </SocialIcon>
+              <SocialIcon aria-label="Twitter" component="a" href="#">
+                <FaTwitter />
+              </SocialIcon>
+              <SocialIcon aria-label="Instagram" component="a" href="#">
+                <FaInstagram />
+              </SocialIcon>
+              <SocialIcon aria-label="LinkedIn" component="a" href="#">
+                <FaLinkedin />
+              </SocialIcon>
+            </Box>
+          </Grid>
+
+          <Grid item xs={12} md={4}>
+            <Typography variant="h6" gutterBottom>
+              Contact Information
+            </Typography>
+            <Typography variant="body2" paragraph>
+              Email: info@example.com
+            </Typography>
+            <Typography variant="body2" paragraph>
+              Phone: +1 (555) 123-4567
+            </Typography>
+            <Typography variant="body2" paragraph>
+              Address: 123 Business Street, Suite 100, City, State 12345
+            </Typography>
+          </Grid>
+
+          <Grid item xs={12} md={4}>
+            <Typography variant="h6" gutterBottom>
+              Subscribe Now
+            </Typography>
+            <Typography variant="body2" paragraph>
+              Stay updated with our latest news and offers!
+            </Typography>
+            <Box component="form" noValidate>
+              <TextField
+                fullWidth
+                variant="outlined"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                error={emailError}
+                helperText={emailError ? "Please enter a valid email" : ""}
+                sx={{ mb: 2, backgroundColor: "rgba(255, 255, 255, 0.1)" }}
+                InputProps={{ style: { color: "#ffffff" } }}
+              />
+              <StyledButton
+                fullWidth
+                variant="contained"
+                onClick={handleSubscribe}
+                aria-label="Subscribe to newsletter"
+              >
+                Subscribe
+              </StyledButton>
+            </Box>
+          </Grid>
+        </Grid>
+
+        <Box
+          sx={{
+            borderTop: "1px solid rgba(255, 255, 255, 0.1)",
+            paddingTop: 3,
+            textAlign: "center"
+          }}
+        >
+          <Typography variant="body2" color="textSecondary">
+            © {new Date().getFullYear()} Your Company Name. All rights reserved.
+          </Typography>
+          <Box mt={1}>
+            <FooterLink
+              variant="body2"
+              component="a"
+              href="#"
+              sx={{ mr: 2 }}
+            >
+              Terms of Service
+            </FooterLink>
+            <FooterLink variant="body2" component="a" href="#">
+              Privacy Policy
+            </FooterLink>
+          </Box>
+        </Box>
+      </Container>
     </FooterWrapper>
   );
-}
-
-const FooterWrapper = styled.footer`
-  background-color: #2f333a;
-  color: #fff;
-  padding: 51px 80px;
-  @media (max-width: 991px) {
-    padding: 51px 20px;
-  }
-`;
-
-const FooterContent = styled.div`
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 20px;
-`;
-
-const AboutSection = styled.div`
-  max-width: 300px;
-`;
-
-const SocialIcons = styled.div`
-  display: flex;
-  gap: 20px;
-  margin-top: 10px;
-  img {
-    width: 30px;
-    height: 30px;
-  }
-`;
-
-const FooterLinksSection = styled.div`
-  display: flex;
-  gap: 40px;
-  @media (max-width: 991px) {
-    flex-direction: column;
-  }
-`;
-
-const FooterLinkColumn = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-const FooterLink = styled.a`
-  color: #fff;
-  text-decoration: none;
-  margin-bottom: 13px;
-  font: 400 18px Inter, sans-serif;
-  &:hover {
-    text-decoration: underline;
-  }
-`;
-
-const ContactSection = styled.div`
-  max-width: 300px;
-`;
-
-const ContactItem = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 15px;
-  img {
-    width: 40px;
-    height: 40px;
-  }
-`;
-
-const FooterDivider = styled.hr`
-  border: none;
-  border-top: 1px solid #fff;
-  margin: 30px 0;
-`;
-
-const PaymentMethods = styled.div`
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  margin-bottom: 20px;
-  img {
-    height: 30px;
-  }
-`;
-
-const Copyright = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  font: 400 15px Inter, sans-serif;
-  img {
-    width: 24px;
-    height: 24px;
-  }
-`;
+};
 
 export default Footer;

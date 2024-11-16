@@ -7,10 +7,10 @@ export const useGetCategories = () => {
 }
 
 // Hook để lọc danh mục
-export const useFilterCategories = (status, keyword, page, size) => {
+export const useFilterCategories = (payload) => {
   return useQuery(
-    ['filteredCategories', { status, keyword, page, size }],
-    () => filterCategories({ status, keyword, page, size }),
+    ['filteredCategories', payload],
+    () => filterCategories(payload),
     {
       onError: (error) => {
         console.error('Error fetching filtered categories:', error)

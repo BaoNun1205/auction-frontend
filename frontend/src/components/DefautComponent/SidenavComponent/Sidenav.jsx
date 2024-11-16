@@ -106,7 +106,7 @@ const SessionItem = {
   icon: <Calendar />,
   name: 'Session',
   subItems: [
-    { name: 'List', path: '/session/list' },
+    { name: 'List', path: '/session' },
     { name: 'Create', path: '/session/create' },
   ]
 }

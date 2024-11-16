@@ -1,10 +1,23 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import { routes } from './routes/routes'
+import { publicRoutes, adminRoutes, customerRoutes } from './routes/routes'
 import RequireAuth from './routes/RequireAuth'
-import Login from './pages/Authentication/Login'
+import Login from './pages/Authentication/LoginPage'
+import { useAppStore } from './store/appStore'
 
 function App() {
+  const [routes, setRoutes] = useState(publicRoutes);
+  const { auth } = useAppStore();
+
+  useEffect(() => {
+    if (auth.role === 'ROLE_ADMIN') {
+      setRoutes(adminRoutes);
+    } else if (auth.role === 'ROLE_USER') {
+      setRoutes(publicRoutes);
+    } else {
+      setRoutes(publicRoutes);
+    }
+  }, [auth]);
 
   return (
     <Router>
