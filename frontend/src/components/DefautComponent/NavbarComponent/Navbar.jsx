@@ -59,7 +59,7 @@ export default function Navbar() {
     logout(null, {
       onSuccess: () => {
         handleMenuClose()
-        navigate('/login')
+        navigate('/')
       },
       onError: (error) => {
         console.error('Error logging out:', error)

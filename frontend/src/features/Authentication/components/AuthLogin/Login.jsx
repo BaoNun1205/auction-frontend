@@ -15,6 +15,7 @@ import {
 import { Visibility, VisibilityOff, Email, Lock } from '@mui/icons-material';
 import { styled, keyframes } from '@mui/material/styles';
 import Logo from '~/assets/images/logo/logo.png';
+import { useGetToken } from '~/hooks/authHook';
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(-20px); }
@@ -72,6 +73,7 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
 
 export default function LoginForm({ handleClose }) {
   const navigate = useNavigate();
+  const { mutate: getToken, isLoading: isGettingToken } = useGetToken();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
@@ -81,19 +83,18 @@ export default function LoginForm({ handleClose }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      await request({
-        method: 'post',
-        serverType: 'node',
-        data: formData,
-        apiEndpoint: 'v1/user/login',
-      });
-      localStorage.setItem('login', 'userLogined');
-      navigate('/');
-      handleClose(); // Close the modal after successful login
-    } catch (error) {
-      console.error(error);
-    }
+    getToken(
+      { email: formData.email, password: formData.password },
+      {
+        onSuccess: () => {
+          navigate('/');
+          handleClose();
+        },
+        onError: (error) => {
+          console.error('Error logging in:', error);
+        },
+      }
+    );
   };
 
   const handleChange = (e) => {

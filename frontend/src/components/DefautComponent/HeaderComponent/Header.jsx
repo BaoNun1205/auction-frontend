@@ -1,7 +1,14 @@
-import React, { useState } from 'react';
-import { AppBar, Toolbar, IconButton, Typography, InputBase, Box, useMediaQuery, useTheme } from '@mui/material';
-import { Menu as MenuIcon, ShoppingCart as OrdersIcon, Notifications as NotificationsIcon, AccountCircle as SignInIcon, Search as SearchIcon } from '@mui/icons-material';
-import { styled } from '@mui/material/styles';
+import React from 'react';
+import { 
+  AppBar, Toolbar, Typography, InputBase, Box, 
+  useMediaQuery, useTheme, Menu, MenuItem, Fade, IconButton
+} from '@mui/material';
+import { 
+  Menu as MenuIcon, Favorite as FavoriteIcon, 
+  Notifications as NotificationsIcon, AccountCircle as SignInIcon, 
+  Search as SearchIcon
+} from '@mui/icons-material';
+import { styled, alpha } from '@mui/material/styles';
 import { Link } from '@mui/material';
 import Logo from '~/components/LogoComponent/Logo';
 import AppModal from '~/components/Modal/Modal';
@@ -10,9 +17,9 @@ import LoginForm from '~/features/Authentication/components/AuthLogin/Login';
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
   borderRadius: theme.shape.borderRadius,
-  backgroundColor: theme.palette.common.white,
+  backgroundColor: alpha(theme.palette.common.white, 0.15),
   '&:hover': {
-    backgroundColor: theme.palette.common.white,
+    backgroundColor: alpha(theme.palette.common.white, 0.25),
   },
   marginRight: theme.spacing(2),
   marginLeft: 0,
@@ -23,94 +30,144 @@ const Search = styled('div')(({ theme }) => ({
   },
 }));
 
+const SearchIconWrapper = styled('div')(({ theme }) => ({
+  padding: theme.spacing(0, 2),
+  height: '100%',
+  position: 'absolute',
+  pointerEvents: 'none',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+}));
+
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
-  color: 'white',
-  backgroundColor: '#b41712', // Remove background
-  border: `1px solid ${theme.palette.common.white}`, // Add white border
-  borderRadius: theme.shape.borderRadius,
+  color: 'inherit',
+  width: '100%',
   '& .MuiInputBase-input': {
     padding: theme.spacing(1, 1, 1, 0),
-    paddingLeft: `1em`,  // Adjust padding as needed
+    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
     transition: theme.transitions.create('width'),
     width: '100%',
     [theme.breakpoints.up('md')]: {
-      width: '40ch', // Make the input longer
+      width: '40ch',
     },
   },
+}));
+
+const StyledAppBar = styled(AppBar)(({ theme }) => ({
+  backgroundColor: '#b41712',
+  boxShadow: 'none',
+  borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
+}));
+
+const NavLink = styled(Link)(({ theme }) => ({
+  color: 'white',
+  textDecoration: 'none',
+  padding: theme.spacing(1),
+  borderRadius: theme.shape.borderRadius,
+  transition: theme.transitions.create(['background-color', 'color']),
   '&:hover': {
-    backgroundColor: '#b41712', // Keep background transparent on hover
+    backgroundColor: alpha(theme.palette.common.white, 0.1),
+  },
+}));
+
+const IconButtonWithLabel = styled(IconButton)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  color: 'white',
+  margin: theme.spacing(0, 2),
+  '&:hover': {
+    backgroundColor: alpha(theme.palette.common.white, 0.1),
   },
 }));
 
 export default function Header() {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const [searchVisible, setSearchVisible] = useState(false);
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const [anchorEl, setAnchorEl] = React.useState(null);
 
-  const handleSearchClick = () => {
-    setSearchVisible(!searchVisible);
-  };
+  const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
+  const handleMenuClose = () => setAnchorEl(null);
+
+  const menuItems = [
+    { label: 'Home', path: '/' },
+    { label: 'Introduction', path: '/introduction' },
+    { label: 'News', path: '/news' },
+    { label: 'Contact', path: '/contact' },
+  ];
 
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static" sx={{ backgroundColor: '#b41712' }}>
-        <Toolbar>
-          {isMobile && (
-            <IconButton edge="start" color="inherit" aria-label="open drawer" sx={{ mr: 2 }}>
+    <StyledAppBar position="static">
+      <Toolbar>
+        {isMobile && (
+          <>
+            <IconButton
+              edge="start"
+              color="inherit"
+              aria-label="menu"
+              onClick={handleMenuOpen}
+            >
               <MenuIcon />
             </IconButton>
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleMenuClose}
+              TransitionComponent={Fade}
+            >
+              {menuItems.map((item) => (
+                <MenuItem key={item.label} onClick={handleMenuClose} component={Link} href={item.path}>
+                  {item.label}
+                </MenuItem>
+              ))}
+            </Menu>
+          </>
+        )}
+        <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
+          <Logo />
+          {!isMobile && (
+            <Box sx={{ display: 'flex', ml: 4 }}>
+              {menuItems.map((item) => (
+                <NavLink key={item.label} href={item.path} sx={{ mr: 2 }}>
+                  {item.label}
+                </NavLink>
+              ))}
+            </Box>
           )}
-          <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Logo />
-              {!isMobile && (
-                <Box sx={{ display: 'flex', gap: 4, ml: 2 }}>
-                  <Link href="/customer" color="inherit" underline="none" sx={{ color: 'white' }}>
-                    Home
-                  </Link>
-                  <Link href="#introduction" color="inherit" underline="none" sx={{ color: 'white' }}>
-                    Introduction
-                  </Link>
-                  <Link href="#news" color="inherit" underline="none" sx={{ color: 'white' }}>
-                    News
-                  </Link>
-                  <Link href="#contact" color="inherit" underline="none" sx={{ color: 'white' }}>
-                    Contact
-                  </Link>
-                </Box>
-              )}
-            </Box>
-            {/* Centering the Search input without the icon */}
-            <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}>
-              {searchVisible && (
-                <Search>
-                  <StyledInputBase placeholder="Search…" inputProps={{ 'aria-label': 'search' }} />
-                </Search>
-              )}
-            </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <IconButton onClick={handleSearchClick} color="white">
-                <SearchIcon sx={{ color: 'white' }} />
-                <Typography variant="body2" sx={{ ml: 0.5, color: 'white' }}>Search</Typography>
-              </IconButton>
-              <Box sx={{ display: 'flex', alignItems: 'center', ml: 3, color: 'white' }}>
-                <OrdersIcon />
-                <Typography variant="body2" sx={{ ml: 0.5, color: 'white' }}>Orders</Typography>
-              </Box>
-              <Box sx={{ display: 'flex', alignItems: 'center', ml: 3, color: 'white' }}>
-                <NotificationsIcon />
-                <Typography variant="body2" sx={{ ml: 0.5, color: 'white' }}>Notifications</Typography>
-              </Box>
-              <AppModal trigger={<Box sx={{ display: 'flex', alignItems: 'center', ml: 3, color: 'white', cursor: 'pointer' }}>
+        </Box>
+        <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}>
+          <Search>
+            <SearchIconWrapper>
+              <SearchIcon />
+            </SearchIconWrapper>
+            <StyledInputBase
+              placeholder="Tìm kiếm…"
+              inputProps={{ 'aria-label': 'search' }}
+            />
+          </Search>
+        </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <IconButtonWithLabel aria-label="favorites">
+            <FavoriteIcon />
+            <Typography variant="caption">Yêu thích</Typography>
+          </IconButtonWithLabel>
+          <IconButtonWithLabel aria-label="notifications">
+            <NotificationsIcon />
+            <Typography variant="caption">Thông báo</Typography>
+          </IconButtonWithLabel>
+          <AppModal
+            trigger={
+              <IconButtonWithLabel aria-label="sign in">
                 <SignInIcon />
-                <Typography variant="body2" sx={{ ml: 0.5, color: 'white' }}>Sign In</Typography>
-              </Box>}>
-                <LoginForm />
-              </AppModal>
-            </Box>
-          </Box>
-        </Toolbar>
-      </AppBar>
-    </Box>
+                <Typography variant="caption">Đăng nhập</Typography>
+              </IconButtonWithLabel>
+            }
+          >
+            <LoginForm />
+          </AppModal>
+        </Box>
+      </Toolbar>
+    </StyledAppBar>
   );
 }

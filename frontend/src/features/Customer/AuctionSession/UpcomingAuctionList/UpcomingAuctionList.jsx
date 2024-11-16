@@ -3,7 +3,7 @@ import { PiArrowRightFill } from "react-icons/pi";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Box, Typography, Grid, Divider, Button } from '@mui/material';
-import UpcomingAuctionItem from "./components/UpcomingAuctionItem";
+import UpcomingAuctionItem from "../components/UpcomingAuctionItem/UpcomingAuctionItem";
 import AuctionImg from '~/assets/images/auctionItem.png';
 
 function UpcomingAuctions() {
@@ -76,7 +76,7 @@ function UpcomingAuctions() {
   return (
     <Box mx={5}>
       <Box textAlign="center">
-        <Typography variant="h4" color="#B7201B" fontWeight="bold">Upcoming auctions</Typography>
+        <Typography variant="h4" color="#B7201B" fontWeight="bold">Phiên đấu giá sắp diễn ra</Typography>
         <Box display="flex" justifyContent="center" alignItems="center" my={2}>
           <Divider sx={{ flexGrow: 1, bgcolor: 'gray' }} />
           <ImHammer2 size={32} className="text-mainBgColor" />

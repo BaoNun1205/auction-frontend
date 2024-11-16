@@ -1,17 +1,16 @@
 import React from 'react'
 import CustomerLayout from '~/layouts/CustomerLayout'
-import UpcomingProductList from '~/features/Customer/AuctionSession/UpcomingAuctionProductList'
 import Banner from '~/components/DefautComponent/BannerComponent/BannerComponent'
-import UpcomingAuctions from '~/features/Customer/AuctionSession/UpcomingAuctions'
-import CurrentAuctions from '~/features/Customer/AuctionSession/CurrentAuctions'
+import UpcomingAuctionList from '~/features/Customer/AuctionSession/UpcomingAuctionList/UpcomingAuctionList'
+import CurrentAuctionList from '~/features/Customer/AuctionSession/CurrentAuctionList/CurrentAuctionList'
 
 
 function CustomerHomePage() {
   return (
     <CustomerLayout>
       <Banner/>
-      <UpcomingAuctions />
-      <CurrentAuctions />
+      <UpcomingAuctionList />
+      <CurrentAuctionList />
     </CustomerLayout>
   )
 }
