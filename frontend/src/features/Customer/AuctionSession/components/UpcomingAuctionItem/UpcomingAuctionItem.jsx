@@ -1,7 +1,14 @@
 import React from 'react';
 import { Button, Card, CardContent, CardMedia, Typography } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 const UpcomingAuctionItem = ({ auctionName, startDate, endDate, imgSrc }) => {
+  const navigate = useNavigate();
+
+  const handleRegisterClick = (id) => {
+    navigate(`/session/register/${id}`);
+  };
+
   return (
     <Card sx={{ display: 'flex', flexDirection: 'row', borderRadius: 2, boxShadow: 3 }}>
       <CardMedia
@@ -28,8 +35,9 @@ const UpcomingAuctionItem = ({ auctionName, startDate, endDate, imgSrc }) => {
               backgroundColor: '#8B0000',
             },
           }}
+          onClick={() => handleRegisterClick(1)}          
         >
-          Register
+          Đăng ký
         </Button>
       </CardContent>
     </Card>

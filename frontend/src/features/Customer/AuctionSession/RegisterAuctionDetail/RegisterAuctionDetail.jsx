@@ -1,45 +1,12 @@
 import React, { useState } from "react";
-import { Box, Container, Typography, Button, styled, Card, CardMedia, IconButton, Stack, Divider, Paper, Tooltip, Chip } from "@mui/material";
+import { Box, Container, Typography, Stack, Divider, Paper, Tooltip, Chip, CardMedia, IconButton } from "@mui/material";
 import { FiClock, FiUser, FiHeart, FiShare2 } from "react-icons/fi";
 import { BsArrowLeftCircle, BsArrowRightCircle } from "react-icons/bs";
 import AppModal from "~/components/Modal/Modal";
 import PlaceBidForm from "~/components/Form/PlaceBidForm/PlaceBidForm";
+import { StyledCard, ThumbnailImage, StyledButton, StyledBox, StyledPaper, StyledIconButton } from './style';
 
-const StyledCard = styled(Card)(({ theme }) => ({
-  maxWidth: "100%",
-  borderRadius: "24px",
-  boxShadow: "0 8px 24px rgba(180, 23, 18, 0.12)",
-  overflow: "hidden",
-  background: "rgba(255, 255, 255, 0.95)",
-  backdropFilter: "blur(10px)"
-}));
-
-const ThumbnailImage = styled("img")({
-  width: "120px",
-  height: "120px",
-  objectFit: "cover",
-  borderRadius: "12px",
-  cursor: "pointer",
-  transition: "all 0.4s ease",
-  "&:hover": {
-    transform: "scale(1.08)",
-    boxShadow: "0 4px 12px rgba(180, 23, 18, 0.15)"
-  }
-});
-
-const StyledButton = styled(Button)({
-  borderRadius: "12px",
-  textTransform: "none",
-  fontSize: "1.1rem",
-  padding: "12px 32px",
-  background: "linear-gradient(45deg, #B41712 30%, #d84f4b 90%)",
-  boxShadow: "0 4px 16px rgba(180, 23, 18, 0.3)",
-  "&:hover": {
-    background: "linear-gradient(45deg, #8f1210 30%, #B41712 90%)"
-  }
-});
-
-const TimedAuctionDetail = () => {
+const RegisterAuctionDetail = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
   const [startIndex, setStartIndex] = useState(0);
@@ -87,7 +54,7 @@ const TimedAuctionDetail = () => {
       <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, gap: 6 }}>
         <Box sx={{ flex: 1 }}>
           <StyledCard>
-            <Box sx={{ position: "relative" }}>
+            <StyledBox>
               <CardMedia
                 component="img"
                 image={`https://${paintings[0].images[selectedImage]}`}
@@ -98,7 +65,7 @@ const TimedAuctionDetail = () => {
                   transition: "all 0.3s ease"
                 }}
               />
-            </Box>
+            </StyledBox>
           </StyledCard>
           
           <Stack
@@ -108,13 +75,12 @@ const TimedAuctionDetail = () => {
             alignItems="center"
             justifyContent="center"
           >
-            <IconButton 
-              sx={{ color: "#B41712", opacity: startIndex === 0 ? 0.5 : 1 }}
+            <StyledIconButton 
               onClick={handlePrevClick}
               disabled={startIndex === 0}
             >
               <BsArrowLeftCircle size={28} />
-            </IconButton>
+            </StyledIconButton>
             {visibleImages.map((image, index) => (
               <ThumbnailImage
                 key={index}
@@ -127,18 +93,17 @@ const TimedAuctionDetail = () => {
                 }}
               />
             ))}
-            <IconButton 
-              sx={{ color: "#B41712", opacity: startIndex >= paintings[0].images.length - visibleThumbnails ? 0.5 : 1 }}
+            <StyledIconButton 
               onClick={handleNextClick}
               disabled={startIndex >= paintings[0].images.length - visibleThumbnails}
             >
               <BsArrowRightCircle size={28} />
-            </IconButton>
+            </StyledIconButton>
           </Stack>
         </Box>
 
         <Box sx={{ flex: 1 }}>
-          <Paper elevation={0} sx={{ pl: 4, borderRadius: "24px", background: "rgba(255, 255, 255, 0.95)" }}>
+          <StyledPaper elevation={0}>
             <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
               <Typography variant="h3" fontWeight="bold" gutterBottom>
                 {paintings[0].title}
@@ -209,17 +174,17 @@ const TimedAuctionDetail = () => {
 
               <AppModal trigger={
                 <StyledButton variant="contained" size="large">
-                  Place Bid Now
+                  Đăng ký
                 </StyledButton>
               }>
                 <PlaceBidForm />
               </AppModal>
             </Stack>
-          </Paper>
+          </StyledPaper>
         </Box>
       </Box>
     </Container>
   );
 };
 
-export default TimedAuctionDetail;
+export default RegisterAuctionDetail;

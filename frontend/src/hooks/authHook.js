@@ -7,16 +7,19 @@ import parseToken from '~/utils/parseToken'
 
 // Hook để lấy token
 export const useGetToken = () => {
-  const setToken = useAppStore((state) => state.setToken)
-  const setRole = useAppStore((state) => state.setRole)
+  const { setAuth } = useAppStore()
 
   return useMutation(getToken, {
     onSuccess: (data) => {
       const token = data.result.token;
-      setToken(token);
       const decoded = parseToken(token);
       if (decoded && decoded.scope) {
-        setRole(decoded.scope);   
+        const auth = {
+          token,
+          role: decoded.scope,
+          isAuth: true,
+        };
+        setAuth(auth);
       }
     },
     onError: (error) => {
@@ -48,12 +51,12 @@ export const useRefreshToken = () => {
 // Hook để logout
 export const useLogout = () => {
   const queryClient = useQueryClient()
-  const setToken = useAppStore((state) => state.setToken)
+  const { auth, setAuth } = useAppStore();
 
-  return useMutation(() => logout(), {
+  return useMutation(() => logout(auth.token), {
     onSuccess: (data) => {
       if (data.code === 1000) {
-        setToken('')
+        setAuth({ token: '', role: '', isAuth: false })
         console.log('Logged out successfully')
         // Invalidate queries or perform other actions
         queryClient.invalidateQueries('user')

@@ -1,7 +1,6 @@
 import React from 'react'
-import TimedAuctionDetail from '~/features/Customer/AuctionSession/TimedAuctionDetails'
+import TimedAuctionDetail from '~/features/Customer/AuctionSession/TimedAuctionDetail/TimedAuctionDetail'
 import CustomerLayout from '~/layouts/CustomerLayout'
-// import TimedAuctionDetail from '~/features/Customer/AuctionSession/TimedAuctionDetails'
 
 function TimedAuctionDetailPage() {
   return (

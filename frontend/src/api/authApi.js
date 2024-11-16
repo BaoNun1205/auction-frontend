@@ -31,10 +31,8 @@ export const refreshToken = async (token) => {
   }
 };
 
-export const logout = async () => {
+export const logout = async (token) => {
   try {
-    const token = useAppStore.getState().token;
-
     if (!token) {
       throw new Error('No token found in store');
     }

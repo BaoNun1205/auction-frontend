@@ -8,6 +8,8 @@ import {
   InputAdornment,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { useCreateAuctionHistory } from '~/hooks/auctionHistoryHook';
+import parseToken from '~/utils/parseToken';
 
 const StyledButton = styled(Button)(({ theme }) => ({
   backgroundColor: '#B7201B',
@@ -46,15 +48,32 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
   },
 }));
 
-export default function PlaceBidForm({ handleClose }) {
+export default function PlaceBidForm({ handleClose, item }) {
+  const { mutate: createAuctionHistory } = useCreateAuctionHistory();
+
   const [maximumBid, setMaximumBid] = useState(750);
   const buyersPremiumRate = 0.23;
 
+  console.log(item);
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle bid submission logic here
-    console.log('Bid submitted:', maximumBid);
-    handleClose();
+    const auctionHistory = {
+      auctionSessionId: item.auctionSessionId,
+      userId: parseToken().jti,
+      bidPrice: maximumBid,
+      bidTime: new Date().toISOString(),
+    };
+    console.log('Submitting auction history:', auctionHistory);
+    createAuctionHistory(auctionHistory, {
+      onSuccess: () => {
+        console.log('Auction history submitted successfully');
+        handleClose();
+      },
+      onError: (error) => {
+        console.error('Error submitting auction history:', error);
+      },
+    });
   };
 
   const buyersPremium = maximumBid * buyersPremiumRate;

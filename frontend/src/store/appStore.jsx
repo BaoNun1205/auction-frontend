@@ -1,3 +1,4 @@
+import { is } from 'date-fns/locale'
 import create from 'zustand'
 import { persist } from 'zustand/middleware'
 
@@ -17,11 +18,12 @@ let appStore = (set) => ({
   sessionOpen: false,
   setSessionOpen: (sessionOpen) => set((state) => ({ sessionOpen })),
 
-  token: '',
-  setToken: (token) => set((state) => ({ token })),
-
-  role: '',
-  setRole: (role) => set((state) => ({ role }))
+  auth: {
+    token: '',
+    role: '',
+    isAuth: false,
+  },
+  setAuth: (auth) => set((state) => ({ auth })),
 })
 
 appStore = persist(appStore, { name: 'appStore' })

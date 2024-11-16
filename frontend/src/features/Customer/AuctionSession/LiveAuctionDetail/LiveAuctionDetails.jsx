@@ -64,7 +64,7 @@ const TimerText = styled(Typography)({
   animation: "pulse 1s infinite"
 });
 
-const OnlineAuctionDetails = () => {
+const LiveAuctionDetails = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [timeLeft, setTimeLeft] = useState(3600); // 1 hour in seconds
 
@@ -131,4 +131,4 @@ const OnlineAuctionDetails = () => {
   );
 };
 
-export default OnlineAuctionDetails;
+export default LiveAuctionDetails;
