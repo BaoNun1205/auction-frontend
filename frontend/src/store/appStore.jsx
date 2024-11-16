@@ -22,6 +22,10 @@ let appStore = (set) => ({
     token: '',
     role: '',
     isAuth: false,
+    user: {
+      id: '',
+      username: '',
+    }
   },
   setAuth: (auth) => set((state) => ({ auth })),
 })

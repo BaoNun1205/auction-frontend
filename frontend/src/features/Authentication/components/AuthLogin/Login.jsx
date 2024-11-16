@@ -1,93 +1,48 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   Box,
-  Button,
+  Tabs,
+  Tab,
+  Typography,
+  InputAdornment,
+  IconButton,
   Checkbox,
   FormControlLabel,
-  IconButton,
-  InputAdornment,
-  TextField,
-  Typography,
   Paper,
-  Link,
 } from '@mui/material';
-import { Visibility, VisibilityOff, Email, Lock } from '@mui/icons-material';
-import { styled, keyframes } from '@mui/material/styles';
+import { Visibility, VisibilityOff, Email, Lock, Phone, Person } from '@mui/icons-material';
 import Logo from '~/assets/images/logo/logo.png';
-import { useGetToken } from '~/hooks/authHook';
+import { useGetToken, useRegister } from '~/hooks/authHook';
+import { fadeIn, StyledButton, LogoContainer, StyledTextField } from './style';
 
-const fadeIn = keyframes`
-  from { opacity: 0; transform: translateY(-20px); }
-  to { opacity: 1; transform: translateY(0); }
-`;
-
-const StyledButton = styled(Button)(({ theme }) => ({
-  backgroundColor: '#B7201B',
-  color: 'white',
-  padding: '12px',
-  borderRadius: '10px',
-  transition: 'all 0.3s ease',
-  '&:hover': {
-    backgroundColor: '#8B0000',
-    transform: 'translateY(-2px)',
-    boxShadow: '0 4px 8px rgba(183, 32, 27, 0.3)',
-  },
-  fontSize: {
-    xs: '14px',
-    md: '16px',
-    lg: '18px',
-  },
-  fontWeight: 'bold',
-  textTransform: 'none',
-}));
-
-const LogoContainer = styled(Paper)(({ theme }) => ({
-  backgroundColor: '#B7201B',
-  borderRadius: '50%',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  transition: 'transform 0.3s ease',
-  '&:hover': {
-    transform: 'scale(1.05)',
-  },
-}));
-
-const StyledTextField = styled(TextField)(({ theme }) => ({
-  '& .MuiOutlinedInput-root': {
-    '& fieldset': {
-      borderColor: 'rgba(183, 32, 27, 0.3)',
-    },
-    '&:hover fieldset': {
-      borderColor: 'rgba(183, 32, 27, 0.5)',
-    },
-    '&.Mui-focused fieldset': {
-      borderColor: '#B7201B',
-    },
-  },
-  '& .MuiInputLabel-root.Mui-focused': {
-    color: '#B7201B',
-  },
-}));
-
-export default function LoginForm({ handleClose }) {
-  const navigate = useNavigate();
-  const { mutate: getToken, isLoading: isGettingToken } = useGetToken();
+export default function AuthForm({ handleClose }) {
+  const [activeTab, setActiveTab] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState({
+  const [loginData, setLoginData] = useState({
     email: '',
     password: '',
     saveLogin: false,
   });
+  const [registerData, setRegisterData] = useState({
+    username: '',
+    phone: '',
+    email: '',
+    password: '',
+  });
 
-  const handleSubmit = async (e) => {
+  const { mutate: getToken, isLoading: isGettingToken } = useGetToken();
+  const { mutate: register, isLoading: isRegistering } = useRegister();
+
+  const handleTabChange = (event, newValue) => {
+    setActiveTab(newValue);
+  };
+
+  const handleLoginSubmit = (e) => {
     e.preventDefault();
     getToken(
-      { email: formData.email, password: formData.password },
+      { email: loginData.email, password: loginData.password },
       {
         onSuccess: () => {
-          navigate('/');
           handleClose();
         },
         onError: (error) => {
@@ -97,16 +52,36 @@ export default function LoginForm({ handleClose }) {
     );
   };
 
-  const handleChange = (e) => {
+  const handleRegisterSubmit = (e) => {
+    e.preventDefault();
+    register(registerData, {
+      onSuccess: () => {
+        handleClose();
+      },
+      onError: (error) => {
+        console.error('Error registering:', error);
+      },
+    });
+  };
+
+  const handleLoginChange = (e) => {
     const { name, value, checked } = e.target;
-    setFormData((prev) => ({
+    setLoginData((prev) => ({
       ...prev,
       [name]: name === 'saveLogin' ? checked : value,
     }));
   };
 
+  const handleRegisterChange = (e) => {
+    const { name, value } = e.target;
+    setRegisterData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
   return (
-    <Box component="form" onSubmit={handleSubmit} sx={{ textAlign: 'center' }}>
+    <Box sx={{ maxWidth: 400, width: '100%', mx: 'auto' }}>
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, mb: 4 }}>
         <LogoContainer
           elevation={3}
@@ -117,155 +92,244 @@ export default function LoginForm({ handleClose }) {
         >
           <Box component="img" src={Logo} alt="Logo" sx={{ width: '180%' }} />
         </LogoContainer>
-        <Box>
-          <Typography
-            variant="h4"
-            sx={{
-              color: '#B7201B',
-              fontWeight: 'bold',
-              fontSize: { xs: '24px', md: '28px', lg: '32px' },
-              letterSpacing: '1px',
-              marginBottom: '8px',
-            }}
-          >
-            Auction BIDMASTER
-          </Typography>
-          <Typography
-            variant="subtitle1"
-            sx={{
-              color: 'text.secondary',
-              fontSize: { xs: '14px', md: '16px' },
-            }}
-          >
-            Sign in to access your account
-          </Typography>
-        </Box>
-      </Box>
-
-      <Box sx={{ mb: 4 }}>
-        <Typography sx={{ fontSize: { xs: '14px', md: '16px' } }}>
-          Don't have an account?{' '}
-          <Link
-            component="button"
-            onClick={() => navigate('/signup')}
-            sx={{
-              fontWeight: 'bold',
-              fontSize: { xs: '14px', md: '16px' },
-              textDecoration: 'none',
-              color: '#B7201B',
-              transition: 'color 0.3s ease',
-              '&:hover': {
-                color: '#8B0000',
-              },
-            }}
-          >
-            Register now
-          </Link>
-        </Typography>
-      </Box>
-
-      <StyledTextField
-        fullWidth
-        label="Email"
-        name="email"
-        type="email"
-        value={formData.email}
-        onChange={handleChange}
-        margin="normal"
-        variant="outlined"
-        sx={{ mb: 2 }}
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <Email sx={{ color: 'action.active' }} />
-            </InputAdornment>
-          ),
-        }}
-      />
-
-      <StyledTextField
-        fullWidth
-        label="Password"
-        name="password"
-        type={showPassword ? 'text' : 'password'}
-        value={formData.password}
-        onChange={handleChange}
-        margin="normal"
-        variant="outlined"
-        sx={{ mb: 3 }}
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <Lock sx={{ color: 'action.active' }} />
-            </InputAdornment>
-          ),
-          endAdornment: (
-            <InputAdornment position="end">
-              <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
-                {showPassword ? <VisibilityOff /> : <Visibility />}
-              </IconButton>
-            </InputAdornment>
-          ),
-        }}
-      />
-
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: { xs: 'column', md: 'row' },
-          justifyContent: 'space-between',
-          alignItems: { xs: 'flex-start', md: 'center' },
-          mb: 3,
-        }}
-      >
-        <FormControlLabel
-          control={
-            <Checkbox
-              name="saveLogin"
-              checked={formData.saveLogin}
-              onChange={handleChange}
-              sx={{
-                color: '#B7201B',
-                '&.Mui-checked': {
-                  color: '#B7201B',
-                },
-              }}
-            />
-          }
-          label={
-            <Typography sx={{ fontSize: { xs: '14px', md: '16px' } }}>
-              Remember me
-            </Typography>
-          }
-        />
-        <Link
-          component="button"
+        <Typography
+          variant="h4"
           sx={{
             color: '#B7201B',
             fontWeight: 'bold',
-            fontSize: { xs: '14px', md: '16px' },
-            textDecoration: 'none',
-            transition: 'color 0.3s ease',
-            '&:hover': {
-              color: '#8B0000',
-            },
+            fontSize: { xs: '24px', md: '28px', lg: '32px' },
+            letterSpacing: '1px',
           }}
         >
-          Forgot password?
-        </Link>
+          Auction BIDMASTER
+        </Typography>
       </Box>
 
-      <StyledButton
-        type="submit"
-        fullWidth
-        size="large"
+      <Tabs
+        value={activeTab}
+        onChange={handleTabChange}
+        variant="fullWidth"
         sx={{
-          width: '100%',
-          height: '50px',
+          mb: 3,
+          '& .MuiTab-root': {
+            color: '#B7201B',
+            '&.Mui-selected': {
+              color: '#B7201B',
+              fontWeight: 'bold',
+            },
+          },
+          '& .MuiTabs-indicator': {
+            backgroundColor: '#B7201B',
+          },
         }}
       >
-        Sign In
-      </StyledButton>
+        <Tab label="Đăng nhập" />
+        <Tab label="Đăng ký" />
+      </Tabs>
+
+      {activeTab === 0 && (
+        <Box component="form" onSubmit={handleLoginSubmit}>
+          <StyledTextField
+            fullWidth
+            label="Email"
+            name="email"
+            type="email"
+            value={loginData.email}
+            onChange={handleLoginChange}
+            margin="normal"
+            variant="outlined"
+            sx={{ mb: 2 }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Email sx={{ color: 'action.active' }} />
+                </InputAdornment>
+              ),
+            }}
+          />
+
+          <StyledTextField
+            fullWidth
+            label="Mật khẩu"
+            name="password"
+            type={showPassword ? 'text' : 'password'}
+            value={loginData.password}
+            onChange={handleLoginChange}
+            margin="normal"
+            variant="outlined"
+            sx={{ mb: 3 }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Lock sx={{ color: 'action.active' }} />
+                </InputAdornment>
+              ),
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              mb: 3,
+            }}
+          >
+            <FormControlLabel
+              control={
+                <Checkbox
+                  name="saveLogin"
+                  checked={loginData.saveLogin}
+                  onChange={handleLoginChange}
+                  sx={{
+                    color: '#B7201B',
+                    '&.Mui-checked': {
+                      color: '#B7201B',
+                    },
+                  }}
+                />
+              }
+              label={
+                <Typography sx={{ fontSize: '14px' }}>
+                  Ghi nhớ đăng nhập
+                </Typography>
+              }
+            />
+            <Typography
+              component="span"
+              sx={{
+                color: '#B7201B',
+                fontWeight: 'bold',
+                fontSize: '14px',
+                textDecoration: 'none',
+                cursor: 'pointer',
+                transition: 'color 0.3s ease',
+                '&:hover': {
+                  color: '#8B0000',
+                },
+              }}
+            >
+              Quên mật khẩu?
+            </Typography>
+          </Box>
+
+          <StyledButton
+            type="submit"
+            fullWidth
+            size="large"
+            sx={{
+              height: '50px',
+            }}
+          >
+            Đăng nhập
+          </StyledButton>
+        </Box>
+      )}
+
+      {activeTab === 1 && (
+        <Box component="form" onSubmit={handleRegisterSubmit}>
+          <StyledTextField
+            fullWidth
+            label="Tên đăng nhập"
+            name="username"
+            type="text"
+            value={registerData.username}
+            onChange={handleRegisterChange}
+            margin="normal"
+            variant="outlined"
+            sx={{ mb: 2 }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Person sx={{ color: 'action.active' }} />
+                </InputAdornment>
+              ),
+            }}
+          />
+
+          <StyledTextField
+            fullWidth
+            label="Số điện thoại"
+            name="phone"
+            type="tel"
+            value={registerData.phone}
+            onChange={handleRegisterChange}
+            margin="normal"
+            variant="outlined"
+            sx={{ mb: 2 }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Phone sx={{ color: 'action.active' }} />
+                </InputAdornment>
+              ),
+            }}
+          />
+
+          <StyledTextField
+            fullWidth
+            label="Email"
+            name="email"
+            type="email"
+            value={registerData.email}
+            onChange={handleRegisterChange}
+            margin="normal"
+            variant="outlined"
+            sx={{ mb: 2 }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Email sx={{ color: 'action.active' }} />
+                </InputAdornment>
+              ),
+            }}
+          />
+
+          <StyledTextField
+            fullWidth
+            label="Mật khẩu"
+            name="password"
+            type={showPassword ? 'text' : 'password'}
+            value={registerData.password}
+            onChange={handleRegisterChange}
+            margin="normal"
+            variant="outlined"
+            sx={{ mb: 3 }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Lock sx={{ color: 'action.active' }} />
+                </InputAdornment>
+              ),
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+
+          <StyledButton
+            type="submit"
+            fullWidth
+            size="large"
+            sx={{
+              height: '50px',
+            }}
+          >
+            Đăng ký
+          </StyledButton>
+        </Box>
+      )}
     </Box>
   );
 }

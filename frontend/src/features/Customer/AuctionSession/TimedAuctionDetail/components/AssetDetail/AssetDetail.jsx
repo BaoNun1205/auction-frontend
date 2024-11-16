@@ -4,10 +4,13 @@ import { ChevronRight, Lock, LocalShipping, Whatshot } from '@mui/icons-material
 import { useTheme, useMediaQuery } from '@mui/material';
 import AppModal from "~/components/Modal/Modal";
 import PlaceBidForm from '~/components/Form/PlaceBidForm/PlaceBidForm';
+import { useAppStore } from '~/store/appStore';
+import LoginForm from '~/features/Authentication/components/AuthLogin/Login';
 
 const AssetDetail = ({ item }) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const { auth } = useAppStore()
   
     return (
       <Box mb={6}>
@@ -80,7 +83,7 @@ const AssetDetail = ({ item }) => {
                     PLACE BID
                   </Button>
                 }>
-                  <PlaceBidForm item={item}/>
+                  {auth.isAuth ? <PlaceBidForm item={item}/> : <LoginForm />}
                 </AppModal>
                 {/* <Button variant="contained" color="primary" fullWidth size="large">
                   PLACE BID

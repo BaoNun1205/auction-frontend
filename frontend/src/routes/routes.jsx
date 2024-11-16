@@ -11,9 +11,9 @@ import CustomerHomePage from '~/pages/Customer/Home'
 import AddSessionPage from '~/pages/Session/AddSessionPage'
 import TimedAuctionDetailPage from '~/pages/Customer/TimedAuctionDetailPage'
 import SessionListPage from '~/pages/Session/SessionListPage'
-import CustomerProfilePage from '~/pages/Customer/PersonalInformationPage'
 import RegisterAuctionDetailPage from '~/pages/Customer/RegisterAuctionDetailPage'
 import LoginPage from '~/pages/Authentication/LoginPage'
+import ProfilePage from '~/pages/Customer/ProfilePage'
 
 export const BASE_PATHS = {
   HOME: '/',
@@ -57,7 +57,7 @@ export const publicRoutes = [
   },
   {
     path: '/profile',
-    page: CustomerProfilePage
+    page: ProfilePage
   },
 ]
 

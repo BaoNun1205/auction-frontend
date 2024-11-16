@@ -1,14 +1,23 @@
 import React, { useState } from 'react';
 import { AppBar, Toolbar, Button, Menu, MenuItem, Container, Box, Typography } from '@mui/material';
 import { Link } from 'react-router-dom';
-import { useGetCategories } from '~/hooks/categoryHook';
+import { useFilterCategories, useGetCategories } from '~/hooks/categoryHook';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
 const CategoryBar = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [currentCategory, setCurrentCategory] = useState(null);
-  const { data } = useGetCategories();
-  const items = Array.isArray(data) ? data : [];
+  const { data, isLoading, isError } = useFilterCategories();
+
+  if (isLoading) {
+    return <Typography>Loading...</Typography>;
+  }
+
+  if (isError) {
+    return <Typography>Error loading sessions</Typography>;
+  }
+
+  const { data: items } = data;
 
   const handleClick = (event, category) => {
     setAnchorEl(event.currentTarget);
