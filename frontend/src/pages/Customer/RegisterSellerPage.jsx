@@ -1,6 +1,6 @@
 import React from 'react'
 import RegisterAuctionDetail from '~/features/Customer/AuctionSession/RegisterAuctionDetail/RegisterAuctionDetail'
-import RegisterSeller from '~/features/Customer/PersonalInformation/RegisterSeller'
+import RegisterSeller from '~/features/Customer/Profile/RegisterSeller'
 import CustomerLayout from '~/layouts/CustomerLayout'
 
 function RegisterSellerPage() {

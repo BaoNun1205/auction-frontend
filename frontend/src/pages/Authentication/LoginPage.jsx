@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Container } from '@mui/material';
-import LoginForm from '~/features/Authentication/components/AuthLogin/Login';
+import Login from '~/features/Authentication/components/AuthLogin/Login';
 
 const LoginPage = () => {
   return (
@@ -26,7 +26,7 @@ const LoginPage = () => {
           p: 4,
         }}
       >
-        <LoginForm />
+        <Login />
       </Container>
     </Box>
   );

@@ -18,6 +18,10 @@ export const useGetToken = () => {
           token,
           role: decoded.scope,
           isAuth: true,
+          user: {
+            id: decoded.jti,
+            username: decoded.sub,
+          },
         };
         setAuth(auth);
       }
@@ -56,7 +60,7 @@ export const useLogout = () => {
   return useMutation(() => logout(auth.token), {
     onSuccess: (data) => {
       if (data.code === 1000) {
-        setAuth({ token: '', role: '', isAuth: false })
+        setAuth({ token: '', role: '', isAuth: false, user: { id: '', username: '' } })
         console.log('Logged out successfully')
         // Invalidate queries or perform other actions
         queryClient.invalidateQueries('user')

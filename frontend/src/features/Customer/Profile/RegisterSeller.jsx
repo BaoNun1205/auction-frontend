@@ -25,7 +25,7 @@ const RegisterSeller = () => {
     <Box sx={{ p: 4 }}>
       <Typography
         variant="h4"
-        sx={{ textAlign: 'center', color: '#B7201B', fontWeight: 'bold', mb: 4 }}
+        sx={{ textAlign: 'center', color: '#d32f2f', fontWeight: 'bold', mb: 4 }}
       >
         Seller Information
       </Typography>
