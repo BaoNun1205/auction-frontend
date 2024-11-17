@@ -5,7 +5,7 @@ import CurrentAuctionItem from '../components/CurrentAuctionItem/CurrentAuctionI
 import { useFilterSessions } from '~/hooks/sessionHook';
 
 const CurrentAuctions = () => {
-  const { data, isLoading, isError } = useFilterSessions({ status: '1' });
+  const { data, isLoading, isError } = useFilterSessions({ status: 'ONGOING' });
   console.log('Data:', data);
 
   if (isLoading) {
