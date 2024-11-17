@@ -13,6 +13,7 @@ import AuctionInfo from './AuctionInfo';
 import CustomerInformation from './CustomerInfomation';
 import { useLogout } from '~/hooks/authHook';
 import AppModal from '~/components/Modal/Modal';
+import AddressesInfo from './AddressInfo';
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -60,11 +61,12 @@ const Profile = () => {
   };
 
   const menuItems = [
-    { text: 'Personal Information', icon: <Person />, value: 1 },
-    { text: 'Won Items', icon: <EmojiEvents />, value: 2 },
-    { text: 'Auction', icon: <Gavel />, value: 3 },
-    { text: 'Register to sell items', icon: <Store />, value: 4 },
-    { text: 'Logout', icon: <ExitToApp />, value: 5, onClick: handleLogout },
+    { text: 'Hồ sơ', icon: <Person />, value: 1 },
+    { text: 'Địa chỉ', icon: <Person />, value: 2 },
+    { text: 'Won Items', icon: <EmojiEvents />, value: 3 },
+    { text: 'Auction', icon: <Gavel />, value: 4 },
+    { text: 'Register to sell items', icon: <Store />, value: 5 },
+    { text: 'Logout', icon: <ExitToApp />, value: 6, onClick: handleLogout },
   ];
 
   return (
@@ -95,9 +97,10 @@ const Profile = () => {
         <Grid item xs={12} md={9}>
           <StyledPaper elevation={3}>
             {tab === 1 && <CustomerInformation />}
-            {tab === 2 && <WonItems />}
-            {tab === 3 && <AuctionInfo />}
-            {tab === 4 && <RegisterSeller />}
+            {tab === 2 && <AddressesInfo />}
+            {tab === 3 && <WonItems />}
+            {tab === 4 && <AuctionInfo />}
+            {tab === 5 && <RegisterSeller />}
           </StyledPaper>
         </Grid>
       </Grid>

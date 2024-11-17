@@ -1,6 +1,7 @@
 // hooks/useAuth.js
 import { set } from 'date-fns'
 import { useMutation, useQueryClient } from 'react-query'
+import { Navigate, useNavigate } from 'react-router-dom'
 import { getToken, logout, register, confirmAccount, refreshToken, introspect } from '~/api/authApi'
 import { useAppStore } from '~/store/appStore'
 import parseToken from '~/utils/parseToken'
@@ -8,6 +9,7 @@ import parseToken from '~/utils/parseToken'
 // Hook để lấy token
 export const useGetToken = () => {
   const { setAuth } = useAppStore()
+  const navigate = useNavigate()
 
   return useMutation(getToken, {
     onSuccess: (data) => {
@@ -24,7 +26,10 @@ export const useGetToken = () => {
           },
         };
         setAuth(auth);
+
+        navigate('/');
       }
+      n
     },
     onError: (error) => {
       console.error('Error retrieving token:', error)
@@ -35,12 +40,12 @@ export const useGetToken = () => {
 
 // Hook để refresh token
 export const useRefreshToken = () => {
-  const setToken = useAppStore((state) => state.setToken);
+  const { auth, setAuth } = useAppStore();
 
-  return useMutation(refreshToken, {
+  return useMutation(() => refreshToken(auth.token), {
     onSuccess: (data) => {
-      if (data && data.token) {
-        setToken(data.token);
+      if (data && data.result.token) {
+        setAuth({ ...auth, token: data.result.token });
         console.log('Token refreshed successfully:', data);
       } else {
         console.error('Invalid response structure:', data);

@@ -2,40 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAppStore } from '~/store/appStore';
 import { introspect } from '~/api/authApi';
+import { privateRoutes } from './routes';
 
-const RequireAuth = () => {
-  const token = useAppStore.getState().token;
-  const location = useLocation();
-  const [isLoading, setIsLoading] = useState(true);
-  const [isValid, setIsValid] = useState(false);
+const RequireAuth = ({ isValid }) => {
 
-  useEffect(() => {
-    const validateToken = async () => {
-      if (token) {
-        try {
-          const data = await introspect(token);
-          setIsValid(data?.result?.valid);
-        } catch (error) {
-          console.error('Error introspecting token:', error);
-          setIsValid(false);
-        } finally {
-          setIsLoading(false);
-        }
-      } else {
-        setIsLoading(false);
-      }
-    };
+  const isPrivateRoute = privateRoutes.some(route => route.path === location.pathname);
 
-    validateToken();
-  }, [token]);
-
-  if (isLoading) {
-    return <div>Loading...</div>;
+  if (!isValid && isPrivateRoute) {
+    return <Navigate to="/login" />;
   }
-
-  // if (!isValid) {
-  //   return <Navigate to="/login" />;
-  // }
 
   // Token is valid
   return <Outlet />;

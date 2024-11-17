@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Modal, Button, IconButton, Box } from '@mui/material';
+import { Modal, IconButton, Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import CloseIcon from '@mui/icons-material/Close';
 
@@ -9,7 +9,7 @@ const StyledModal = styled(Modal)(({ theme }) => ({
   justifyContent: 'center',
 }));
 
-const ModalContent = styled(Box)(({ theme }) => ({
+const ModalContent = styled(Box)(({ theme, maxWidth }) => ({
   backgroundColor: theme.palette.background.paper,
   boxShadow: theme.shadows[5],
   padding: theme.spacing(2, 4, 3),
@@ -17,10 +17,10 @@ const ModalContent = styled(Box)(({ theme }) => ({
   borderRadius: theme.shape.borderRadius,
   position: 'relative',
   width: '100%',
-  maxWidth: '500px',
+  maxWidth: maxWidth || '500px',
 }));
 
-const AppModal = ({ trigger, children, ...rest }) => {
+const AppModal = ({ trigger, children, maxWidth, ...rest }) => {
   const [open, setOpen] = useState(false);
 
   const handleOpen = () => setOpen(true);
@@ -39,7 +39,7 @@ const AppModal = ({ trigger, children, ...rest }) => {
         aria-describedby="modal-description"
         {...rest}
       >
-        <ModalContent>
+        <ModalContent maxWidth={maxWidth}>
           <IconButton
             aria-label="close"
             onClick={handleClose}

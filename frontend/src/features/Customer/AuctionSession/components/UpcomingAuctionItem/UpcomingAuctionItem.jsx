@@ -1,7 +1,8 @@
 import React from 'react';
-import { Button, Card, CardContent, CardMedia, Typography } from '@mui/material';
+import { Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import splitDateTime from '~/utils/SplitDateTime';
+import { StyledCard, StyledCardMedia, StyledCardContent, StyledButton } from './style';
 
 const UpcomingAuctionItem = ({ item }) => {
   const navigate = useNavigate();
@@ -13,37 +14,23 @@ const UpcomingAuctionItem = ({ item }) => {
   const { date, time } = splitDateTime(item.startTime);
 
   return (
-    <Card sx={{ display: 'flex', flexDirection: 'row', borderRadius: 2, boxShadow: 3 }}>
-      <CardMedia
+    <StyledCard>
+      <StyledCardMedia
         component="img"
-        sx={{ width: 140, height: 140, borderRadius: 1, mt: 1 }}
         image={item.asset.mainImage}
         alt={`${item.asset.assetName} image`}
       />
-      <CardContent sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: 2 }}>
+      <StyledCardContent>
         <Typography variant="subtitle1" color="textPrimary" fontWeight="bold" gutterBottom>
           {item.asset.assetName}
         </Typography>
         <Typography variant="body2" color="textSecondary">Start Date: <b>{date}</b></Typography>
         <Typography variant="body2" color="textSecondary">End Date: <b>{time}</b></Typography>
-        <Button
-          variant="contained"
-          sx={{
-            backgroundColor: '#B7201B',
-            color: 'white',
-            textTransform: 'none',
-            fontWeight: 'bold',
-            mt: 1,
-            '&:hover': {
-              backgroundColor: '#8B0000',
-            },
-          }}
-          onClick={() => handleRegisterClick(1)}          
-        >
+        <StyledButton onClick={handleRegisterClick}>
           Đăng ký
-        </Button>
-      </CardContent>
-    </Card>
+        </StyledButton>
+      </StyledCardContent>
+    </StyledCard>
   );
 }
 

@@ -75,7 +75,7 @@ function UpcomingAuctions() {
   //   fetchUpcommingAuction();
   // }, []);
 
-  const { data, isLoading, isError } = useFilterSessions({ status: '0' });
+  const { data, isLoading, isError } = useFilterSessions({ status: 'UPCOMING' });
   console.log('Data:', data);
 
   if (isLoading) {
