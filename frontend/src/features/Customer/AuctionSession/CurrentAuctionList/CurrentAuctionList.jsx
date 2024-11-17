@@ -5,18 +5,18 @@ import CurrentAuctionItem from '../components/CurrentAuctionItem/CurrentAuctionI
 import { useFilterSessions } from '~/hooks/sessionHook';
 
 const CurrentAuctions = () => {
-    const { data, isLoading, isError } = useFilterSessions({ status: '0' });
-    console.log('Data:', data);
+  const { data, isLoading, isError } = useFilterSessions({ status: '1' });
+  console.log('Data:', data);
 
-    if (isLoading) {
-      return <Typography>Loading...</Typography>;
-    }
-  
-    if (isError) {
-      return <Typography>Error loading sessions</Typography>;
-    }
+  if (isLoading) {
+    return <Typography>Loading...</Typography>;
+  }
 
-    const { data: items, total: totalPages } = data;
+  if (isError) {
+    return <Typography>Error loading sessions</Typography>;
+  }
+
+  const { data: items, total: totalPages } = data;
 
   return (
     <Box textAlign="center" my={4} mx={5}>

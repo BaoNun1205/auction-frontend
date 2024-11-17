@@ -40,10 +40,6 @@ export const publicRoutes = [
     page: ConfirmAccount
   },
   {
-    path: `${BASE_PATHS.SESSION}/create/:id`,
-    page: AddSessionPage
-  },
-  {
     path: BASE_PATHS.HOME,
     page: CustomerHomePage
   },
@@ -54,10 +50,6 @@ export const publicRoutes = [
   {
     path: `${BASE_PATHS.SESSION}/register/:id`,
     page: RegisterAuctionDetailPage
-  },
-  {
-    path: '/profile',
-    page: ProfilePage
   },
 ]
 
@@ -102,15 +94,7 @@ export const adminRoutes = [
 
 export const customerRoutes = [
   {
-    path: `${BASE_PATHS.SESSION}/create/:id`,
-    page: AddSessionPage
+    path: '/profile',
+    page: ProfilePage
   },
-  {
-    path: BASE_PATHS.HOME,
-    page: CustomerHomePage
-  },
-  {
-    path: `${BASE_PATHS.SESSION}/:id`,
-    page: TimedAuctionDetailPage
-  }
 ]
