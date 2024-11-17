@@ -17,7 +17,7 @@ import { useAppStore } from '~/store/appStore';
 import { useNavigate } from 'react-router-dom';
 import { StyledAppBar, NavLink, Search, SearchIconWrapper, StyledInputBase, IconButtonWithBadge } from './style';
 
-const EnhancedHeader = () => {
+const Header = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [anchorEl, setAnchorEl] = useState(null);
@@ -143,4 +143,4 @@ const EnhancedHeader = () => {
   );
 };
 
-export default EnhancedHeader;
+export default Header;
