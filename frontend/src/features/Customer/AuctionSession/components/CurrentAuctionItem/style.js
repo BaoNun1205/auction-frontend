@@ -17,6 +17,11 @@ export const StyledCard = styled(Card)(({ theme }) => ({
   boxShadow: theme.shadows[3],
   borderBottom: `2px solid ${theme.palette.primary.main}`,
   position: 'relative',
+  transition: 'all 0.3s ease-in-out',
+  '&:hover': {
+    boxShadow: theme.shadows[10],
+    transform: 'translateY(-5px)',
+  },
 }));
 
 export const StyledCardMedia = styled(CardMedia)(({ theme }) => ({
@@ -36,8 +41,11 @@ export const StyledButton = styled(Button)(({ theme }) => ({
   color: 'white',
   textTransform: 'none',
   fontWeight: 'bold',
+  transition: 'all 0.3s ease-in-out',
   '&:hover': {
     backgroundColor: '#8B0000',
+    transform: 'translateY(-3px)',
+    boxShadow: theme.shadows[5],
   },
   display: 'block',
   marginLeft: 'auto',

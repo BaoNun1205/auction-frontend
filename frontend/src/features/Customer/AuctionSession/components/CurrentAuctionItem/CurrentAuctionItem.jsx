@@ -5,11 +5,11 @@ import { Typography } from '@mui/material';
 import { TruncatedTypography, StyledCard, StyledCardMedia, StyledCardContent, StyledButton, StyledBox } from './style';
 import splitDateTime from '~/utils/SplitDateTime';
 
-const CurrentAuctionItem = ({ items }) => {
+export default function Component({ items = [] }) {
   const navigate = useNavigate();
 
   const groupItems = (items, itemsPerGroup) => {
-    const groups = items.reduce((result, item, index) => {
+    return items.reduce((result, item, index) => {
       const groupIndex = Math.floor(index / itemsPerGroup);
       if (!result[groupIndex]) {
         result[groupIndex] = [];
@@ -17,8 +17,6 @@ const CurrentAuctionItem = ({ items }) => {
       result[groupIndex].push(item);
       return result;
     }, []);
-
-    return groups;
   };
 
   const handleJoinClick = (item) => {
@@ -37,10 +35,9 @@ const CurrentAuctionItem = ({ items }) => {
     >
       {groupedItems.map((group, index) => (
         <StyledBox key={index}>
-          {group.map((item, itemIndex) => 
-            {
-              const { date, time } = splitDateTime(item.startTime);
-              return (
+          {group.map((item, itemIndex) => {
+            const { date, time } = splitDateTime(item.endTime);
+            return (
               <StyledCard key={itemIndex}>
                 <Typography variant="subtitle2" textAlign="center">
                   {item.typeSession}
@@ -51,6 +48,7 @@ const CurrentAuctionItem = ({ items }) => {
                 <StyledCardMedia
                   component="img"
                   alt={item.name}
+                  image={item.asset.imageUrl || '/placeholder.svg?height=250&width=250'}
                 />
                 <StyledCardContent>
                   <TruncatedTypography variant="h6" component="div" textAlign="center" fontWeight="bold" mb={2}>
@@ -64,12 +62,10 @@ const CurrentAuctionItem = ({ items }) => {
                   </StyledButton>
                 </StyledCardContent>
               </StyledCard>
-            )}
-          )}
+            );
+          })}
         </StyledBox>
       ))}
     </Carousel>
   );
-};
-
-export default CurrentAuctionItem;
+}

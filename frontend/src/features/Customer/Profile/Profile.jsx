@@ -4,7 +4,7 @@ import {
   ListItemIcon, Button, styled
 } from '@mui/material';
 import { 
-  Person, EmojiEvents, Gavel, Store, ExitToApp
+  Person, EmojiEvents, Gavel, Store, ExitToApp, LocationOn
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import WonItems from './WonItems';
@@ -13,6 +13,7 @@ import AuctionInfo from './AuctionInfo';
 import CustomerInformation from './CustomerInfomation';
 import { useLogout } from '~/hooks/authHook';
 import AppModal from '~/components/Modal/Modal';
+import AddressesInfomation from './AddressInfomation/AddressInfomation';
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -60,11 +61,12 @@ const Profile = () => {
   };
 
   const menuItems = [
-    { text: 'Personal Information', icon: <Person />, value: 1 },
-    { text: 'Won Items', icon: <EmojiEvents />, value: 2 },
-    { text: 'Auction', icon: <Gavel />, value: 3 },
-    { text: 'Register to sell items', icon: <Store />, value: 4 },
-    { text: 'Logout', icon: <ExitToApp />, value: 5, onClick: handleLogout },
+    { text: 'Hồ sơ', icon: <Person />, value: 1 },
+    { text: 'Địa chỉ', icon: <LocationOn />, value: 2 },
+    { text: 'Chiến lợi phẩm', icon: <EmojiEvents />, value: 3 },
+    { text: 'Phiên đấu giá', icon: <Gavel />, value: 4 },
+    { text: 'Bán đấu giá', icon: <Store />, value: 5 },
+    { text: 'Đăng xuất', icon: <ExitToApp />, value: 6, onClick: handleLogout },
   ];
 
   return (
@@ -73,7 +75,7 @@ const Profile = () => {
         <Grid item xs={12} md={3}>
           <StyledPaper elevation={3}>
             <Typography variant="h6" gutterBottom align="center" fontWeight="bold">
-              Personal Profile
+              Thông tin tài khoản
             </Typography>
             <List>
               {menuItems.map((item) => (
@@ -95,9 +97,10 @@ const Profile = () => {
         <Grid item xs={12} md={9}>
           <StyledPaper elevation={3}>
             {tab === 1 && <CustomerInformation />}
-            {tab === 2 && <WonItems />}
-            {tab === 3 && <AuctionInfo />}
-            {tab === 4 && <RegisterSeller />}
+            {tab === 2 && <AddressesInfomation />}
+            {tab === 3 && <WonItems />}
+            {tab === 4 && <AuctionInfo />}
+            {tab === 5 && <RegisterSeller />}
           </StyledPaper>
         </Grid>
       </Grid>

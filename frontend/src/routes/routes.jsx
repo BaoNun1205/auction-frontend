@@ -14,6 +14,7 @@ import SessionListPage from '~/pages/Session/SessionListPage'
 import RegisterAuctionDetailPage from '~/pages/Customer/RegisterAuctionDetailPage'
 import LoginPage from '~/pages/Authentication/LoginPage'
 import ProfilePage from '~/pages/Customer/ProfilePage'
+import SearchResultPage from '~/pages/Customer/SearchResultPage'
 
 export const BASE_PATHS = {
   HOME: '/',
@@ -40,10 +41,6 @@ export const publicRoutes = [
     page: ConfirmAccount
   },
   {
-    path: `${BASE_PATHS.SESSION}/create/:id`,
-    page: AddSessionPage
-  },
-  {
     path: BASE_PATHS.HOME,
     page: CustomerHomePage
   },
@@ -55,6 +52,13 @@ export const publicRoutes = [
     path: `${BASE_PATHS.SESSION}/register/:id`,
     page: RegisterAuctionDetailPage
   },
+  {
+    path: `/search`,
+    page: SearchResultPage
+  },
+]
+
+export const privateRoutes = [
   {
     path: '/profile',
     page: ProfilePage
@@ -98,19 +102,4 @@ export const adminRoutes = [
     path: `${BASE_PATHS.SESSION}/create/:id`,
     page: AddSessionPage
   },
-]
-
-export const customerRoutes = [
-  {
-    path: `${BASE_PATHS.SESSION}/create/:id`,
-    page: AddSessionPage
-  },
-  {
-    path: BASE_PATHS.HOME,
-    page: CustomerHomePage
-  },
-  {
-    path: `${BASE_PATHS.SESSION}/:id`,
-    page: TimedAuctionDetailPage
-  }
 ]

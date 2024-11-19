@@ -1,46 +1,36 @@
 import React from 'react';
-import { Button, Card, CardContent, CardMedia, Typography } from '@mui/material';
+import { Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import splitDateTime from '~/utils/SplitDateTime';
+import { StyledCard, StyledCardMedia, StyledCardContent, StyledButton } from './style';
 
-const UpcomingAuctionItem = ({ auctionName, startDate, endDate, imgSrc }) => {
+const UpcomingAuctionItem = ({ item }) => {
   const navigate = useNavigate();
 
-  const handleRegisterClick = (id) => {
-    navigate(`/session/register/${id}`);
+  const handleRegisterClick = () => {
+    navigate(`/session/register/${item.auctionSessionId}`);
   };
 
+  const { date, time } = splitDateTime(item.startTime);
+
   return (
-    <Card sx={{ display: 'flex', flexDirection: 'row', borderRadius: 2, boxShadow: 3 }}>
-      <CardMedia
+    <StyledCard>
+      <StyledCardMedia
         component="img"
-        sx={{ width: 160, height: 160, borderRadius: 1 }}
-        image={imgSrc}
-        alt={`${auctionName} image`}
+        image={item.asset.mainImage}
+        alt={`${item.asset.assetName} image`}
       />
-      <CardContent sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: 2 }}>
+      <StyledCardContent>
         <Typography variant="subtitle1" color="textPrimary" fontWeight="bold" gutterBottom>
-          {auctionName}
+          {item.asset.assetName}
         </Typography>
-        <Typography variant="body2" color="textSecondary">Start Date: <b>{startDate}</b></Typography>
-        <Typography variant="body2" color="textSecondary">End Date: <b>{endDate}</b></Typography>
-        <Button
-          variant="contained"
-          sx={{
-            backgroundColor: '#B7201B',
-            color: 'white',
-            textTransform: 'none',
-            fontWeight: 'bold',
-            mt: 1,
-            '&:hover': {
-              backgroundColor: '#8B0000',
-            },
-          }}
-          onClick={() => handleRegisterClick(1)}          
-        >
+        <Typography variant="body2" color="textSecondary">Start Date: <b>{date}</b></Typography>
+        <Typography variant="body2" color="textSecondary">End Date: <b>{time}</b></Typography>
+        <StyledButton onClick={handleRegisterClick}>
           Đăng ký
-        </Button>
-      </CardContent>
-    </Card>
+        </StyledButton>
+      </StyledCardContent>
+    </StyledCard>
   );
 }
 

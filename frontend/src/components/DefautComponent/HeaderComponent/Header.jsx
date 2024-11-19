@@ -17,7 +17,7 @@ import { useAppStore } from '~/store/appStore';
 import { useNavigate } from 'react-router-dom';
 import { StyledAppBar, NavLink, Search, SearchIconWrapper, StyledInputBase, IconButtonWithBadge } from './style';
 
-const EnhancedHeader = () => {
+const Header = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [anchorEl, setAnchorEl] = useState(null);
@@ -27,10 +27,10 @@ const EnhancedHeader = () => {
   const { auth } = useAppStore();
 
   const menuItems = [
-    { label: 'Home', path: '/' },
-    { label: 'Introduction', path: '/introduction' },
-    { label: 'News', path: '/news' },
-    { label: 'Contact', path: '/contact' },
+    { label: 'Trang chủ', path: '/' },
+    { label: 'Giới thiệu', path: '/introduction' },
+    { label: 'Tin tức', path: '/news' },
+    { label: 'Liên hệ', path: '/contact' },
   ];
 
   const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
@@ -143,4 +143,4 @@ const EnhancedHeader = () => {
   );
 };
 
-export default EnhancedHeader;
+export default Header;

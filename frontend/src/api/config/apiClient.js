@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { useAppStore } from '~/store/appStore'
 
-const getToken = () => useAppStore.getState().token
+const auth = useAppStore.getState().auth
 
 const apiClient = axios.create({
   baseURL: 'http://localhost:8080',
@@ -28,7 +28,7 @@ const isPublicEndpoint = (url) => {
 // Hàm để thêm interceptor
 const addAuthInterceptor = (client) => {
   client.interceptors.request.use((config) => {
-    const token = getToken()
+    const token = auth.token
     
     if (token && !isPublicEndpoint(config.url)) {
       config.headers.Authorization = `Bearer ${token}`
