@@ -1,23 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import {
-  TextField,
-  Button,
-  Box,
   Typography,
-  Paper,
-  Tabs,
-  Tab,
-  Popover,
-  List,
-  ListItem,
-  ListItemText,
   IconButton,
   InputAdornment,
   CircularProgress,
-  Checkbox,
+  Box,
+  Tab,
+  ListItemText,
 } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import SearchIcon from '@mui/icons-material/Search';
+import {
+  StyledBox,
+  StyledTextField,
+  StyledCheckbox,
+  StyledButton,
+  StyledTabs,
+  StyledPopover,
+  StyledListItem,
+} from './style';
 
 const API_URL = 'https://provinces.open-api.vn/api';
 
@@ -104,27 +104,25 @@ export default function AddressForm() {
   const open = Boolean(anchorEl);
 
   return (
-    <Paper sx={{ maxWidth: 600, mx: 'auto', mt: 2, p: 3, borderRadius: 2 }}>
+    <StyledBox>
       <Typography variant="h5" sx={{ mb: 3 }}>
         Địa chỉ mới
       </Typography>
 
       <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-        <TextField
+        <StyledTextField
           fullWidth
           placeholder="Họ và tên"
           variant="outlined"
-          sx={{ bgcolor: 'background.paper' }}
         />
-        <TextField
+        <StyledTextField
           fullWidth
           placeholder="Số điện thoại"
           variant="outlined"
-          sx={{ bgcolor: 'background.paper' }}
         />
       </Box>
 
-      <TextField
+      <StyledTextField
         fullWidth
         placeholder="Tỉnh/Thành phố, Quận/Huyện, Phường/Xã"
         variant="outlined"
@@ -140,10 +138,9 @@ export default function AddressForm() {
           ),
           readOnly: true,
         }}
-        sx={{ mb: 2, bgcolor: 'background.paper' }}
       />
 
-      <Popover
+      <StyledPopover
         open={open}
         anchorEl={anchorEl}
         onClose={handleClose}
@@ -155,36 +152,19 @@ export default function AddressForm() {
           vertical: 'top',
           horizontal: 'left',
         }}
-        PaperProps={{
-          sx: { width: anchorEl?.offsetWidth || 'auto' }
-        }}
       >
         <Box sx={{ width: '100%', bgcolor: 'background.paper' }}>
-          <Tabs 
+          <StyledTabs 
             value={selectedTab} 
             onChange={(e, newValue) => setSelectedTab(newValue)}
-            sx={{
-              borderBottom: 1,
-              borderColor: 'divider',
-              '& .MuiTab-root': { minWidth: 0 },
-              '& .Mui-selected': { color: '#f44336' },
-              '& .MuiTabs-indicator': { bgcolor: '#f44336' }
-            }}
           >
             <Tab label="Tỉnh/Thành phố" />
             <Tab label="Quận/Huyện" disabled={!selectedProvince} />
             <Tab label="Phường/Xã" disabled={!selectedDistrict} />
-          </Tabs>
+          </StyledTabs>
           <Box sx={{ 
             maxHeight: 300, 
             overflow: 'auto',
-            '& .MuiListItem-root': {
-              py: 1.5,
-              '&:hover': {
-                bgcolor: 'action.hover',
-                cursor: 'pointer'
-              }
-            }
           }}>
             {loading ? (
               <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
@@ -193,74 +173,46 @@ export default function AddressForm() {
             ) : (
               <>
                 {selectedTab === 0 && provinces.map((province) => (
-                  <ListItem key={province.code} onClick={() => handleProvinceSelect(province)}>
+                  <StyledListItem key={province.code} onClick={() => handleProvinceSelect(province)}>
                     <ListItemText primary={province.name} />
-                  </ListItem>
+                  </StyledListItem>
                 ))}
                 {selectedTab === 1 && districts.map((district) => (
-                  <ListItem key={district.code} onClick={() => handleDistrictSelect(district)}>
+                  <StyledListItem key={district.code} onClick={() => handleDistrictSelect(district)}>
                     <ListItemText primary={district.name} />
-                  </ListItem>
+                  </StyledListItem>
                 ))}
                 {selectedTab === 2 && wards.map((ward) => (
-                  <ListItem key={ward.code} onClick={() => handleWardSelect(ward)}>
+                  <StyledListItem key={ward.code} onClick={() => handleWardSelect(ward)}>
                     <ListItemText primary={ward.name} />
-                  </ListItem>
+                  </StyledListItem>
                 ))}
               </>
             )}
           </Box>
         </Box>
-      </Popover>
+      </StyledPopover>
 
-      <TextField
+      <StyledTextField
         fullWidth
         placeholder="Địa chỉ cụ thể"
         variant="outlined"
         multiline
         rows={3}
-        sx={{ mb: 2, bgcolor: 'background.paper' }}
       />
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
-            <Checkbox
-            sx={{ 
-                color: '#f44336',
-                '&.Mui-checked': {
-                color: '#f44336',
-                }
-            }} 
-            />
-            <Typography sx={{ color: 'text.secondary' }}>
-            Đặt làm địa chỉ mặc định
-            </Typography>
-        </Box>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
+        <StyledCheckbox />
+        <Typography sx={{ color: 'text.secondary' }}>
+          Đặt làm địa chỉ mặc định
+        </Typography>
+      </Box>
 
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-        <Button 
-          variant="outlined"
-          sx={{ 
-            color: 'text.primary',
-            borderColor: 'divider',
-            '&:hover': {
-              borderColor: 'text.primary',
-            }
-          }}
-        >
-          Trở Lại
-        </Button>
-        <Button 
-          variant="contained" 
-          sx={{ 
-            bgcolor: '#f44336',
-            '&:hover': {
-              bgcolor: '#d32f2f',
-            }
-          }}
-        >
+        <StyledButton>
           Hoàn thành
-        </Button>
+        </StyledButton>
       </Box>
-    </Paper>
+    </StyledBox>
   );
 }

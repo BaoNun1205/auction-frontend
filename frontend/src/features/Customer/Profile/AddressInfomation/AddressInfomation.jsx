@@ -2,35 +2,22 @@ import React from 'react';
 import {
   Box,
   Typography,
-  Paper,
-  Button,
-  Chip,
-  Stack,
   Divider,
-  IconButton,
-  Link,
+  Stack,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import { styled } from '@mui/material/styles';
-import AddressForm from './components/AddressForm';
 import AppModal from '~/components/Modal/Modal';
+import AddressForm from '../components/AddressForm/AddressForm';
+import {
+  StyledPaper,
+  AddressItem,
+  StyledButton,
+  StyledChip,
+  StyledLink,
+  StyledOutlinedButton,
+} from './style';
 
-const StyledPaper = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(3),
-  maxWidth: 1200,
-  margin: '0 auto',
-  marginTop: theme.spacing(4),
-}));
-
-const AddressItem = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(3),
-  borderBottom: `1px solid ${theme.palette.divider}`,
-  '&:last-child': {
-    borderBottom: 'none',
-  },
-}));
-
-const AddressesInfo = () => {
+const AddressesInfomation = () => {
   const addresses = [
     {
       id: 1,
@@ -68,24 +55,18 @@ const AddressesInfo = () => {
           Địa chỉ của tôi
         </Typography>
         <AppModal
-              trigger={
-                <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          sx={{
-            bgcolor: '#ee4d2d',
-            '&:hover': {
-              bgcolor: '#d73211',
-            },
-          }}
-        >
-          Thêm địa chỉ mới
-        </Button>
-              }
-            maxWidth={600}
+          trigger={
+            <StyledButton
+              variant="contained"
+              startIcon={<AddIcon />}
             >
-              <AddressForm />
-            </AppModal>
+              Thêm địa chỉ mới
+            </StyledButton>
+          }
+          maxWidth={600}
+        >
+          <AddressForm />
+        </AppModal>
       </Box>
 
       <Box>
@@ -108,60 +89,24 @@ const AddressesInfo = () => {
                 </Typography>
                 <Stack direction="row" spacing={1}>
                   {address.isDefault && (
-                    <Chip
-                      label="Mặc định"
-                      size="small"
-                      sx={{
-                        color: '#ee4d2d',
-                        bgcolor: '#fff',
-                        border: '1px solid #ee4d2d',
-                      }}
-                    />
+                    <StyledChip label="Mặc định" size="small" />
                   )}
                   {address.tags.map((tag, index) => (
-                    <Chip
-                      key={index}
-                      label={tag}
-                      size="small"
-                      sx={{
-                        color: '#ee4d2d',
-                        bgcolor: '#fff',
-                        border: '1px solid #ee4d2d',
-                      }}
-                    />
+                    <StyledChip key={index} label={tag} size="small" />
                   ))}
                 </Stack>
               </Box>
               <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                <Link
-                  href="#"
-                  underline="none"
-                  sx={{ color: '#1976d2', fontSize: '0.875rem' }}
-                >
+                <StyledLink href="#">
                   Cập nhật
-                </Link>
-                <Link
-                  href="#"
-                  underline="none"
-                  sx={{ color: '#1976d2', fontSize: '0.875rem' }}
-                >
+                </StyledLink>
+                <StyledLink href="#">
                   Xóa
-                </Link>
+                </StyledLink>
                 {!address.isDefault && (
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    sx={{
-                      borderColor: '#595959',
-                      color: '#595959',
-                      '&:hover': {
-                        borderColor: '#404040',
-                        bgcolor: 'transparent',
-                      },
-                    }}
-                  >
+                  <StyledOutlinedButton variant="outlined" size="small">
                     Thiết lập mặc định
-                  </Button>
+                  </StyledOutlinedButton>
                 )}
               </Box>
             </Box>
@@ -172,4 +117,4 @@ const AddressesInfo = () => {
   );
 };
 
-export default AddressesInfo;
+export default AddressesInfomation;

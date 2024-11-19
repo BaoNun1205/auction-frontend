@@ -6,6 +6,7 @@ export const StyledAppBar = styled(AppBar)(({ theme }) => ({
   color: theme.palette.common.white,
   boxShadow: 'none',
   borderBottom: `1px solid ${theme.palette.divider}`,
+  zIndex: theme.zIndex.drawer + 1,
 }));
 
 export const NavLink = styled(Link)(({ theme }) => ({
