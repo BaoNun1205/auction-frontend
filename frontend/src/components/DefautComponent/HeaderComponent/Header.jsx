@@ -27,10 +27,10 @@ const Header = () => {
   const { auth } = useAppStore();
 
   const menuItems = [
-    { label: 'Home', path: '/' },
-    { label: 'Introduction', path: '/introduction' },
-    { label: 'News', path: '/news' },
-    { label: 'Contact', path: '/contact' },
+    { label: 'Trang chủ', path: '/' },
+    { label: 'Giới thiệu', path: '/introduction' },
+    { label: 'Tin tức', path: '/news' },
+    { label: 'Liên hệ', path: '/contact' },
   ];
 
   const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);

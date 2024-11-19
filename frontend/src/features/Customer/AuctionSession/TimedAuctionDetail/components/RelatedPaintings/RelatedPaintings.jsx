@@ -48,7 +48,7 @@ const RelatedPaintings = () => {
     return (
       <Box my={6}>
         <Typography variant="h5" gutterBottom>
-          Related Paintings
+          Phiên đấu giá liên quan
         </Typography>
         <Box position="relative">
           <Grid container spacing={3}>

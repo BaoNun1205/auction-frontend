@@ -4,7 +4,7 @@ import CustomerLayout from '~/layouts/CustomerLayout'
 
 function SearchResultPage() {
   return (
-    <CustomerLayout>
+    <CustomerLayout isCategory={false}>
       <SearchResults />
     </CustomerLayout>
   )

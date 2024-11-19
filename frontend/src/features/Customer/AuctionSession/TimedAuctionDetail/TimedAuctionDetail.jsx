@@ -9,7 +9,7 @@ import { useParams } from 'react-router-dom';
 const TimedAuctionDetail = () => {
   const { id } = useParams();
   const { data, isLoading, isError } = useGetSessionById(id);
-  console.log(data);
+  console.log('Session: ', data);
 
   if (isLoading) {
     return <Typography>Loading...</Typography>;

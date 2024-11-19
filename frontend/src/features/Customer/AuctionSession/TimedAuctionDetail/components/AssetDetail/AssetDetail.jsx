@@ -1,32 +1,26 @@
-import React, { useState } from 'react';
-import { Box, Typography, Card, CardMedia, Breadcrumbs, Link, Chip, Divider, Button, Grid, CardContent, Fade, Zoom } from '@mui/material';
-import { ChevronRight, Lock, LocalShipping, Whatshot } from '@mui/icons-material';
-import { useTheme, useMediaQuery, styled } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { Box, Typography, Card, Breadcrumbs, Link, Chip, Divider, Grid, CardContent, Fade, Zoom, Button, Avatar, Paper } from '@mui/material';
+import { ChevronRight, Lock, LocalShipping, Whatshot, Star, AccessTime, Inventory2, Group, Message } from '@mui/icons-material';
+import { useTheme, useMediaQuery } from '@mui/material';
 import AppModal from "~/components/Modal/Modal";
 import PlaceBidForm from '~/components/Form/PlaceBidForm/PlaceBidForm';
 import { useAppStore } from '~/store/appStore';
 import LoginForm from '~/features/Authentication/components/AuthLogin/Login';
-
-const StyledCardMedia = styled(CardMedia)(({ theme }) => ({
-  transition: 'transform 0.3s ease-in-out',
-  '&:hover': {
-    transform: 'scale(1.05)',
-  },
-}));
-
-const PlaceBidButton = styled(Button)(({ theme }) => ({
-  transition: 'all 0.3s ease-in-out',
-  '&:hover': {
-    transform: 'translateY(-3px)',
-    boxShadow: theme.shadows[4],
-  },
-}));
+import splitDateTime from '~/utils/SplitDateTime';
+import { useNavigate } from 'react-router-dom';
+import { StyledCardMedia, StyledCard } from './style';
+import { Store } from 'lucide-react';
+import { connect, disconnect, subscribe } from '~/service/webSocketService';
 
 const AssetDetail = ({ item }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const { auth } = useAppStore();
+  const navigate = useNavigate();
   const [mainImage, setMainImage] = useState(item?.listImage[0]?.imageAsset || "https://via.placeholder.com/400");
+  const [highestBid, setHighestBid] = useState(0);
+  const [totalBidder, setTotalBidder] = useState(0);
+  const [totalAuctionHistory, setTotalAuctionHistory] = useState(0);
 
   const placeholderImage = "https://via.placeholder.com/150";
 
@@ -34,16 +28,51 @@ const AssetDetail = ({ item }) => {
     setMainImage(image);
   };
 
+  const handleNavigate = (path) => {
+    navigate(path);
+  };
+
+  const sellerStats = [
+    { label: 'Đánh Giá', value: '2,2tr' },
+    { label: 'Tỉ Lệ Phản Hồi', value: '100%' },
+    { label: 'Sản Phẩm', value: '36,5k' },
+    { label: 'Thời Gian Phản Hồi', value: 'trong vài giờ' },
+    { label: 'Tham Gia', value: '4 năm trước' },
+    { label: 'Người Theo Dõi', value: '3,9tr' }
+  ];
+
+  useEffect(() => {
+    connect();
+    subscribe('/rt-product/bidPrice-update', (message) => {
+      const { totalBidder, totalAuctionHistory, highestBid } = message;
+      setTotalBidder(totalBidder);
+      setTotalAuctionHistory(totalAuctionHistory);
+      setHighestBid(highestBid);
+    });
+
+    return () => {
+      disconnect();
+    };
+  }, []);
+
   return (
     <Box mb={6}>
       <Breadcrumbs separator={<ChevronRight fontSize="small" />} aria-label="breadcrumb" mb={3}>
-        <Link color="inherit" href="/" underline="hover">
-          Home
-        </Link>
-        <Link color="inherit" href="/art" underline="hover">
-          Art
-        </Link>
-        <Typography color="text.primary">Paintings</Typography>
+        <Typography
+          color="inherit"
+          onClick={() => handleNavigate('/')}
+          sx={{ cursor: 'pointer', textDecoration: 'underline' }}
+        >
+          Trang chủ
+        </Typography>
+        <Typography
+          color="inherit"
+          onClick={() => handleNavigate('/art')}
+          sx={{ cursor: 'pointer', textDecoration: 'underline' }}
+        >
+          Phiên đấu giá đang diễn ra
+        </Typography>
+        <Typography color="text.primary">Chi tiết</Typography>
       </Breadcrumbs>
 
       <Grid container spacing={4}>
@@ -62,16 +91,8 @@ const AssetDetail = ({ item }) => {
             {item.listImage.slice(0, 4).map((image, i) => (
               <Grid item xs={3} key={i}>
                 <Fade in={true} style={{ transitionDelay: `${i * 100}ms` }}>
-                  <Card 
+                  <StyledCard 
                     onClick={() => handleThumbnailClick(image.imageAsset || placeholderImage)}
-                    sx={{ 
-                      cursor: 'pointer',
-                      transition: 'all 0.3s ease-in-out',
-                      '&:hover': {
-                        transform: 'translateY(-5px)',
-                        boxShadow: theme.shadows[5],
-                      },
-                    }}
                   >
                     <StyledCardMedia
                       component="img"
@@ -79,7 +100,7 @@ const AssetDetail = ({ item }) => {
                       image={image.imageAsset || placeholderImage}
                       alt={`Thumbnail ${i}`}
                     />
-                  </Card>
+                  </StyledCard>
                 </Fade>
               </Grid>
             ))}
@@ -92,18 +113,23 @@ const AssetDetail = ({ item }) => {
           </Typography>
           <Box display="flex" justifyContent="space-between" mb={3}>
             <Typography variant="subtitle1" color="text.secondary">
-              Estimate $50-$100
+              Giá khởi điểm: 15.000.000 VND
             </Typography>
-            <Typography variant="subtitle1" color="text.secondary">
-              Jul 02, 2024 11:00 PM GMT+7
-            </Typography>
+            {(() => {
+              const { date, time } = splitDateTime(item.endTime);
+              return (
+                <Typography variant="subtitle1" color="text.secondary">
+                  {date} {time}
+                </Typography>
+              );
+            })()}
           </Box>
 
           <Fade in={true} style={{ transitionDelay: '500ms' }}>
             <Card elevation={3} sx={{ bgcolor: 'background.default', mb: 3 }}>
               <CardContent>
                 <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                  <Typography variant="body2">Current Price (1 bid)</Typography>
+                  <Typography variant="body2">Giá hiện tại ({totalAuctionHistory} lượt)</Typography>
                   <Chip
                     icon={<Lock fontSize="small" />}
                     label="SECURE"
@@ -113,38 +139,43 @@ const AssetDetail = ({ item }) => {
                   />
                 </Box>
                 <Typography variant="h4" component="div" gutterBottom>
-                  $30
+                  {highestBid}
                 </Typography>
                 <AppModal trigger={
-                  <PlaceBidButton variant="contained" color="primary" fullWidth size="large">
-                    PLACE BID
-                  </PlaceBidButton>
+                  <Button
+                  variant="contained"
+                  sx={{
+                    transition: 'all 0.3s ease-in-out',
+                    bgcolor: '#b41712',
+                    color: 'white',
+                    px: 4,
+                    '&:hover': {
+                      bgcolor: '#8B0000',
+                      transform: 'translateY(-3px)',
+                      boxShadow: theme.shadows[4],
+                    },
+                  }}
+                >
+                  Đặt giá
+                </Button>
                 }>
                   {auth.isAuth ? <PlaceBidForm item={item}/> : <LoginForm />}
                 </AppModal>
                 <Box display="flex" alignItems="center" mt={2}>
                   <Whatshot color="error" />
                   <Typography variant="body2" color="text.secondary" ml={1}>
-                    15 active bidders | 41 watching
+                    {totalBidder} người tham gia
                   </Typography>
                 </Box>
               </CardContent>
             </Card>
           </Fade>
-
-          <Box display="flex" alignItems="center" mb={3}>
-            <Typography variant="body2">Get approved to bid.</Typography>
-            <Link href="/register" color="primary" ml={1}>
-              Register for Auction
-            </Link>
-          </Box>
-
           <Divider />
 
           <Box display="flex" alignItems="center" mt={3}>
             <LocalShipping color="action" />
             <Typography variant="body2" color="text.secondary" ml={1}>
-              See Policy for Shipping
+              Xem chính sách vận chuyển
             </Typography>
           </Box>
         </Grid>
@@ -152,15 +183,163 @@ const AssetDetail = ({ item }) => {
 
       <Divider sx={{ my: 6 }} />
 
+      <Box
+      sx={{
+        p: 4,
+        mb: 4,
+        borderRadius: 2,
+        bgcolor: 'background.paper',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.12)',
+      }}
+    >
+      <Box display="flex" flexDirection={{ xs: 'column', lg: 'row' }} gap={4}>
+        <Box display="flex" alignItems="flex-start" gap={3}>
+          <Box position="relative">
+            <Avatar
+              sx={{
+                width: 100,
+                height: 100,
+                fontSize: '2.5rem',
+                bgcolor: '#f5f5f5',
+                color: '#757575',
+                border: '1px solid',
+                borderColor: 'divider',
+              }}
+            >
+              L
+            </Avatar>
+            <Box
+              component="img"
+              src="/shopee-mall-badge.png"
+              alt="Shopee Mall"
+              sx={{
+                position: 'absolute',
+                bottom: -8,
+                left: '50%',
+                transform: 'translateX(-50%)',
+                height: 24,
+                zIndex: 1,
+              }}
+            />
+          </Box>
+          <Box flex={1}>
+            <Typography
+              variant="h5"
+              gutterBottom
+              sx={{
+                fontWeight: 500,
+                fontSize: '1.5rem',
+                lineHeight: 1.2,
+              }}
+            >
+              LOVITO OFFICIAL STORE
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              Online 9 Phút Trước
+            </Typography>
+            <Box display="flex" gap={2}>
+              <Button
+                variant="contained"
+                startIcon={<Message />}
+                sx={{
+                  bgcolor: '#b41712',
+                  color: 'white',
+                  px: 3,
+                  py: 1,
+                  fontSize: '0.95rem',
+                  fontWeight: 500,
+                  '&:hover': {
+                    bgcolor: '#8B0000',
+                    transform: 'translateY(-1px)',
+                    boxShadow: '0 4px 8px rgba(0,0,0,0.12)',
+                  },
+                  transition: 'all 0.2s ease-in-out',
+                }}
+              >
+                CHAT
+              </Button>
+              <Button
+                variant="outlined"
+                startIcon={<Store />}
+                sx={{
+                  borderColor: 'rgba(0,0,0,0.12)',
+                  color: 'text.primary',
+                  px: 3,
+                  py: 1,
+                  fontSize: '0.95rem',
+                  fontWeight: 500,
+                  '&:hover': {
+                    borderColor: 'rgba(0,0,0,0.24)',
+                    bgcolor: 'rgba(0,0,0,0.04)',
+                    transform: 'translateY(-1px)',
+                    boxShadow: '0 4px 8px rgba(0,0,0,0.06)',
+                  },
+                  transition: 'all 0.2s ease-in-out',
+                }}
+              >
+                XEM
+              </Button>
+            </Box>
+          </Box>
+        </Box>
+        <Box
+          display="flex"
+          flexWrap="wrap"
+          gap={3}
+          sx={{
+            '& > div': {
+              borderLeft: '1px solid',
+              borderColor: 'divider',
+              '&:nth-of-type(3n+1)': {
+                borderLeft: 'none',
+              },
+              '@media (max-width: 600px)': {
+                '&:nth-of-type(2n+1)': {
+                  borderLeft: 'none',
+                },
+              },
+            },
+          }}
+        >
+          {sellerStats.map((stat, index) => (
+            <Box
+              key={index}
+              sx={{
+                flex: '1 1 calc(33.333% - 16px)',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-start',
+                padding: 2,
+              }}
+            >
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                {stat.label}
+              </Typography>
+              <Typography
+                variant="body1"
+                sx={{
+                  color: stat.isHighlighted ? '#ee4d2d' : 'text.primary',
+                  fontWeight: 500,
+                  fontSize: '1rem',
+                }}
+              >
+                {stat.value}
+              </Typography>
+            </Box>
+          ))}
+        </Box>
+      </Box>
+    </Box>
+
       <Typography variant="h5" gutterBottom>
-        Item Details
+        Thông tin chi tiết
       </Typography>
       <Typography variant="h6" gutterBottom>
-        Description
+        Mô tả
       </Typography>
       <Typography paragraph dangerouslySetInnerHTML={{ __html: item.description }} />
       <Typography variant="h6" gutterBottom>
-        Buyer's Premium
+        Thông tin giá cọc
       </Typography>
       <Typography>25%</Typography>
     </Box>
