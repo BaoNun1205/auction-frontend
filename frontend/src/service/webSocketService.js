@@ -1,10 +1,16 @@
 import { Client } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
 
 let client;
 
-const connect = () => {
+const connect = (token) => {
+  const socket = new SockJS('http://localhost:8080/rt-auction');
+  
   client = new Client({
-    brokerURL: 'ws://localhost:8080/rt-auction',
+    webSocketFactory: () => socket,
+    connectHeaders: {
+      Authorization: `Bearer ${token}`,
+    },
     reconnectDelay: 5000,
     heartbeatIncoming: 4000,
     heartbeatOutgoing: 4000,
@@ -23,7 +29,7 @@ const subscribe = (topic, callback) => {
   if (client) {
     client.onConnect = () => {
       client.subscribe(topic, (message) => {
-        callback(JSON.parse(message.body));
+        callback(topic, JSON.parse(message.body));
       });
     };
   }
