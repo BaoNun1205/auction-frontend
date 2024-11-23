@@ -44,6 +44,7 @@ const AssetDetail = ({ item }) => {
   useEffect(() => {
     connect();
     subscribe('/rt-product/bidPrice-update', (message) => {
+      console.log('socket conneted message', message)
       const { totalBidder, totalAuctionHistory, highestBid } = message;
       setTotalBidder(totalBidder);
       setTotalAuctionHistory(totalAuctionHistory);
