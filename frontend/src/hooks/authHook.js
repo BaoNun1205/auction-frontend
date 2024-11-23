@@ -31,7 +31,6 @@ export const useGetToken = () => {
 
         navigate('/');
       }
-      n
     },
     onError: (error) => {
       console.error('Error retrieving token:', error)

@@ -3,10 +3,9 @@ import { Box, Typography, Card, Breadcrumbs, Link, Chip, Divider, Grid, CardCont
 import { ChevronRight, Lock, LocalShipping, Whatshot, Star, AccessTime, Inventory2, Group, Message } from '@mui/icons-material';
 import { useTheme, useMediaQuery } from '@mui/material';
 import AppModal from "~/components/Modal/Modal";
-import PlaceBidForm from '~/components/Form/PlaceBidForm/PlaceBidForm';
+import PlaceBidForm from '~/features/Customer/AuctionSession/TimedAuctionDetail/components/AssetDetail/components/PlaceBidForm/PlaceBidForm';
 import { useAppStore } from '~/store/appStore';
 import LoginForm from '~/features/Authentication/components/AuthLogin/Login';
-import splitDateTime from '~/utils/SplitDateTime';
 import { useNavigate } from 'react-router-dom';
 import { StyledCardMedia, StyledCard } from './style';
 import { Store } from 'lucide-react';
@@ -18,9 +17,9 @@ const AssetDetail = ({ item }) => {
   const { auth } = useAppStore();
   const navigate = useNavigate();
   const [mainImage, setMainImage] = useState(item?.listImage[0]?.imageAsset || "https://via.placeholder.com/400");
-  const [highestBid, setHighestBid] = useState(0);
-  const [totalBidder, setTotalBidder] = useState(0);
-  const [totalAuctionHistory, setTotalAuctionHistory] = useState(0);
+  const [highestBid, setHighestBid] = useState(item?.auctionSessionInfo?.highestBid);
+  const [totalBidder, setTotalBidder] = useState(item?.auctionSessionInfo?.totalBidder);
+  const [totalAuctionHistory, setTotalAuctionHistory] = useState(item?.auctionSessionInfo?.totalAuctionHistory);
 
   const placeholderImage = "https://via.placeholder.com/150";
 
@@ -42,7 +41,7 @@ const AssetDetail = ({ item }) => {
   ];
 
   useEffect(() => {
-    connect();
+    connect(auth.token);
     subscribe('/rt-product/bidPrice-update', (message) => {
       const { totalBidder, totalAuctionHistory, highestBid } = message;
       setTotalBidder(totalBidder);
@@ -116,10 +115,9 @@ const AssetDetail = ({ item }) => {
               Giá khởi điểm: 15.000.000 VND
             </Typography>
             {(() => {
-              const { date, time } = splitDateTime(item.endTime);
               return (
                 <Typography variant="subtitle1" color="text.secondary">
-                  {date} {time}
+                  {item.endTime.toLocaleString('vi-VN')}
                 </Typography>
               );
             })()}
@@ -139,7 +137,7 @@ const AssetDetail = ({ item }) => {
                   />
                 </Box>
                 <Typography variant="h4" component="div" gutterBottom>
-                  {highestBid}
+                  {highestBid.toLocaleString('vi-VN')} VND
                 </Typography>
                 <AppModal trigger={
                   <Button

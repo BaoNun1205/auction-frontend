@@ -3,8 +3,8 @@ import { Box, Container, Typography, Stack, Divider, Paper, Tooltip, Chip, CardM
 import { FiClock, FiUser, FiHeart, FiShare2 } from "react-icons/fi";
 import { BsArrowLeftCircle, BsArrowRightCircle } from "react-icons/bs";
 import AppModal from "~/components/Modal/Modal";
-import PlaceBidForm from "~/components/Form/PlaceBidForm/PlaceBidForm";
 import { StyledCard, ThumbnailImage, StyledButton, StyledBox, StyledPaper, StyledIconButton } from './style';
+import PlaceBidForm from "../TimedAuctionDetail/components/AssetDetail/components/PlaceBidForm/PlaceBidForm";
 
 const RegisterAuctionDetail = () => {
   const [selectedImage, setSelectedImage] = useState(0);

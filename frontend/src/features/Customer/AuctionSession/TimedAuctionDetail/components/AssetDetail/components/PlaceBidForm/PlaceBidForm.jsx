@@ -54,7 +54,7 @@ export default function PlaceBidForm({ handleClose, item }) {
 
   const { auth } = useAppStore();
 
-  const currentPrice = item.currentPrice || 0;
+  const currentPrice = item?.auctionSessionInfo?.highestBid || 0;
   const minNextBid = currentPrice + minBidIncrement;
 
   useEffect(() => {
