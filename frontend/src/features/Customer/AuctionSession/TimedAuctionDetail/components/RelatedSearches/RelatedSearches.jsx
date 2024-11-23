@@ -7,7 +7,7 @@ const RelatedSearches = () => {
     return (
       <Box my={6}>
         <Typography variant="h5" gutterBottom>
-          Related Searches
+          Từ khóa liên quan
         </Typography>
         <Box display="flex" flexWrap="wrap" gap={2}>
           {searches.map((search, index) => (

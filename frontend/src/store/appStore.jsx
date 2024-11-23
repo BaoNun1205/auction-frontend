@@ -1,3 +1,4 @@
+import { isValid } from 'date-fns'
 import { is } from 'date-fns/locale'
 import create from 'zustand'
 import { persist } from 'zustand/middleware'
@@ -22,6 +23,7 @@ let appStore = (set) => ({
     token: '',
     role: '',
     isAuth: false,
+    isValid: false,
     user: {
       id: '',
       username: '',

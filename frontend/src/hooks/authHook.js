@@ -1,5 +1,6 @@
 // hooks/useAuth.js
-import { set } from 'date-fns'
+import { isValid, set } from 'date-fns'
+import { is } from 'date-fns/locale'
 import { useMutation, useQueryClient } from 'react-query'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { getToken, logout, register, confirmAccount, refreshToken, introspect } from '~/api/authApi'
@@ -20,6 +21,7 @@ export const useGetToken = () => {
           token,
           role: decoded.scope,
           isAuth: true,
+          isValid: true,
           user: {
             id: decoded.jti,
             username: decoded.sub,
@@ -45,7 +47,7 @@ export const useRefreshToken = () => {
   return useMutation(() => refreshToken(auth.token), {
     onSuccess: (data) => {
       if (data && data.result.token) {
-        setAuth({ ...auth, token: data.result.token });
+        setAuth({ ...auth, token: data.result.token, isValid: true });
         console.log('Token refreshed successfully:', data);
       } else {
         console.error('Invalid response structure:', data);
@@ -65,7 +67,7 @@ export const useLogout = () => {
   return useMutation(() => logout(auth.token), {
     onSuccess: (data) => {
       if (data.code === 1000) {
-        setAuth({ token: '', role: '', isAuth: false, user: { id: '', username: '' } })
+        setAuth({ token: '', role: '', isAuth: false, isValid: false, user: { id: '', username: '' } })
         console.log('Logged out successfully')
         // Invalidate queries or perform other actions
         queryClient.invalidateQueries('user')

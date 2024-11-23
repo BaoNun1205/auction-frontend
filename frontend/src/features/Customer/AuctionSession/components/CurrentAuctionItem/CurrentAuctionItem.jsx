@@ -36,7 +36,7 @@ export default function Component({ items = [] }) {
       {groupedItems.map((group, index) => (
         <StyledBox key={index}>
           {group.map((item, itemIndex) => {
-            const { date, time } = splitDateTime(item.startTime);
+            const { date, time } = splitDateTime(item.endTime);
             return (
               <StyledCard key={itemIndex}>
                 <Typography variant="subtitle2" textAlign="center">
