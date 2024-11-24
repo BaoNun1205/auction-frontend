@@ -16,7 +16,7 @@ const AssetDetail = ({ item }) => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const { auth } = useAppStore();
   const navigate = useNavigate();
-  const [mainImage, setMainImage] = useState(item?.listImage[0]?.imageAsset || "https://via.placeholder.com/400");
+  const [mainImage, setMainImage] = useState(item.asset?.mainImage || "https://via.placeholder.com/400");
   const [highestBid, setHighestBid] = useState(item?.auctionSessionInfo?.highestBid);
   const [totalBidder, setTotalBidder] = useState(item?.auctionSessionInfo?.totalBidder);
   const [totalAuctionHistory, setTotalAuctionHistory] = useState(item?.auctionSessionInfo?.totalAuctionHistory);
@@ -88,7 +88,7 @@ const AssetDetail = ({ item }) => {
             </Card>
           </Zoom>
           <Grid container spacing={2} mt={2}>
-            {item.listImage.slice(0, 4).map((image, i) => (
+            {item.asset?.listImages.slice(0, 4).map((image, i) => (
               <Grid item xs={3} key={i}>
                 <Fade in={true} style={{ transitionDelay: `${i * 100}ms` }}>
                   <StyledCard 
@@ -109,11 +109,11 @@ const AssetDetail = ({ item }) => {
 
         <Grid item xs={12} md={5}>
           <Typography variant="h4" component="h1" gutterBottom>
-            {item.assetName}
+            {item.asset.assetName}
           </Typography>
           <Box display="flex" justifyContent="space-between" mb={3}>
             <Typography variant="subtitle1" color="text.secondary">
-              Giá khởi điểm: 15.000.000 VND
+              Giá khởi điểm: {item.startingBids} VND
             </Typography>
             {(() => {
               return (
