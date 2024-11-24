@@ -1,6 +1,8 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
 import svgr from 'vite-plugin-svgr'
+import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill'
+import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfill'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -11,8 +13,23 @@ export default defineConfig({
   base: './',
   resolve: {
     alias: [
-      { find: '~', replacement: '/src' }
-    ]
+      { find: '~', replacement: '/src' },
+      { find: 'global', replacement: 'globalthis' },
+    ],
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      define: {
+        global: 'globalThis', // Định nghĩa `global` thành `globalThis`
+      },
+      plugins: [
+        NodeGlobalsPolyfillPlugin({
+          process: true,
+          buffer: true,
+        }),
+        NodeModulesPolyfillPlugin(),
+      ],
+    },
   },
   server: {
     proxy: {

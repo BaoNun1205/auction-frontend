@@ -8,6 +8,7 @@ export const connect = () => {
   stompClient = Stomp.over(socket);
   stompClient.connect({}, () => {
     console.log('Connected to WebSocket');
+
   });
 };
 
