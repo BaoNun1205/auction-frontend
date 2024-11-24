@@ -50,7 +50,7 @@ export default function PlaceBidForm({ handleClose, item }) {
   const [bidPrice, setBidPrice] = useState('');
   const [error, setError] = useState('');
   const depositRate = 0.23;
-  const minBidIncrement = 100000;
+  const minBidIncrement = item.bidIncrement;
 
   const { auth } = useAppStore();
 
