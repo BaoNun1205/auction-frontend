@@ -1,38 +1,40 @@
-import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
+import Stomp from 'stompjs';
 
-let client;
+let stompClient = null;
 
-const connect = (token) => {
-  const socket = new SockJS('http://localhost:8080/rt-auction');
-  
-  client = new Client({
-    webSocketFactory: () => socket,
-    connectHeaders: {
-      Authorization: `Bearer ${token}`,
-    },
-    reconnectDelay: 5000,
-    heartbeatIncoming: 4000,
-    heartbeatOutgoing: 4000,
+export const connect = (onConnectCallback) => {
+  const socket = new SockJS('/rt-auction');  // Sử dụng URL proxy đã cấu hình trong Vite
+  stompClient = Stomp.over(socket);
+  stompClient.connect({}, () => {
+    console.log('Connected to WebSocket');
+    if (onConnectCallback) {
+      onConnectCallback();
+    }
   });
-
-  client.activate();
 };
 
-const disconnect = () => {
-  if (client) {
-    client.deactivate();
+export const disconnect = () => {
+  if (stompClient !== null) {
+    stompClient.disconnect(() => {
+      console.log('Disconnected from WebSocket');
+    });
   }
 };
 
-const subscribe = (topic, callback) => {
-  if (client) {
-    client.onConnect = () => {
-      client.subscribe(topic, (message) => {
-        callback(topic, JSON.parse(message.body));
-      });
-    };
+export const subscribe = (endpoint, callback) => {
+  if (stompClient) {
+    stompClient.subscribe(endpoint, (message) => {
+      callback(JSON.parse(message.body));
+    });
   }
 };
 
-export { connect, disconnect, subscribe };
+export const send = (destination, message) => {
+  if (stompClient !== null) {
+    stompClient.send(destination, {}, JSON.stringify(message));
+    console.log(`Sent message to ${destination}:`, message);
+  } else {
+    console.error('Stomp client is not connected.');
+  }
+}

@@ -41,16 +41,15 @@ const AssetDetail = ({ item }) => {
   ];
 
   useEffect(() => {
-    connect(auth.token);
-    subscribe('/rt-product/bidPrice-update', (message) => {
-      const { totalBidder, totalAuctionHistory, highestBid } = message;
-      setTotalBidder(totalBidder);
-      setTotalAuctionHistory(totalAuctionHistory);
-      setHighestBid(highestBid);
-    });
+    const onConnect = () => {
+      subscribe('/rt-product/bidPrice-update', (message) => {
+        console.log('Received message:', message);
+        console.log('test', message.highestBid);
+      });
+    };
 
     return () => {
-      disconnect();
+      connect(onConnect);
     };
   }, []);
 
