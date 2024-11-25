@@ -9,8 +9,8 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useCreateAuctionHistory } from '~/hooks/auctionHistoryHook';
-import parseToken from '~/utils/parseToken';
 import { useAppStore } from '~/store/appStore';
+import { send } from '~/service/webSocketService';
 
 const StyledButton = styled(Button)(({ theme }) => ({
   backgroundColor: '#B7201B',
@@ -45,13 +45,12 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
   },
 }));
 
-export default function PlaceBidForm({ handleClose, item }) {
+export default function PlaceBidForm({ handleClose, item, updateAuctionData }) {
   const { mutate: createAuctionHistory } = useCreateAuctionHistory();
   const [bidPrice, setBidPrice] = useState('');
   const [error, setError] = useState('');
   const depositRate = 0.23;
   const minBidIncrement = item.bidIncrement;
-
   const { auth } = useAppStore();
 
   const currentPrice = item?.auctionSessionInfo?.highestBid || 0;
@@ -87,6 +86,14 @@ export default function PlaceBidForm({ handleClose, item }) {
     createAuctionHistory(auctionHistory, {
       onSuccess: () => {
         console.log('Auction history submitted successfully');
+        const bidRequest = {
+          auctionSessionId: item.id,
+          userId: auth.user.id,
+          bidPrice: Number(bidPrice),
+          bidTime: new Date().toISOString(),
+        };
+        send(`/app/rt-auction/placeBid/${item.id}`, bidRequest);
+        updateAuctionData(Number(bidPrice));
         handleClose();
       },
       onError: (error) => {
