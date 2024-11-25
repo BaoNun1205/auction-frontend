@@ -1,25 +1,23 @@
-import SockJS from 'sockjs-client';
-import Stomp from 'stompjs';
+import { CompatClient, Stomp } from '@stomp/stompjs';
 
 let stompClient = null;
 
-export const connect = (onConnectCallback) => {
-  const socket = new SockJS('/rt-auction');  // Sử dụng URL proxy đã cấu hình trong Vite
+export const connect = (token, onConnectCallback) => {
+  const socket = new WebSocket('ws://localhost:8080/rt-auction');
   stompClient = Stomp.over(socket);
-  stompClient.connect({}, () => {
-    console.log('Connected to WebSocket');
-    if (onConnectCallback) {
-      onConnectCallback();
-    }
-  });
-};
 
-export const disconnect = () => {
-  if (stompClient !== null) {
-    stompClient.disconnect(() => {
-      console.log('Disconnected from WebSocket');
-    });
-  }
+  stompClient.connect(
+    { Authorization: `Bearer ${token}` },
+    () => {
+      console.log('Connected to WebSocket');
+      if (onConnectCallback) {
+        onConnectCallback();
+      }
+    },
+    (error) => {
+      console.error('Error connecting to WebSocket:', error);
+    }
+  );
 };
 
 export const subscribe = (endpoint, callback) => {
@@ -30,11 +28,17 @@ export const subscribe = (endpoint, callback) => {
   }
 };
 
-export const send = (destination, message) => {
-  if (stompClient !== null) {
-    stompClient.send(destination, {}, JSON.stringify(message));
-    console.log(`Sent message to ${destination}:`, message);
-  } else {
-    console.error('Stomp client is not connected.');
+export const send = (destination) => {
+  if (stompClient) {
+    stompClient.send(destination, {});
+    console.log(`Sent message to ${destination}`);
   }
-}
+};
+
+export const disconnect = () => {
+  if (stompClient) {
+    stompClient.disconnect(() => {
+      console.log('Disconnected from WebSocket');
+    });
+  }
+};
