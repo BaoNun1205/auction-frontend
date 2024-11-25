@@ -18,6 +18,7 @@ export const connect = (token, onConnectCallback) => {
       console.error('Error connecting to WebSocket:', error);
     }
   );
+
 };
 
 export const subscribe = (endpoint, callback) => {
