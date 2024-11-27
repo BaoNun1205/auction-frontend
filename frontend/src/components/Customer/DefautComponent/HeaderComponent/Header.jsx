@@ -22,6 +22,7 @@ const Header = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [anchorEl, setAnchorEl] = useState(null);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [searchKeyword, setSearchKeyword] = useState('');
   const navigate = useNavigate();
 
   const { auth } = useAppStore();
@@ -41,6 +42,17 @@ const Header = () => {
     handleMenuClose();
   };
   const toggleSearch = () => setSearchOpen(!searchOpen);
+
+  const handleSearchChange = (event) => {
+    setSearchKeyword(event.target.value);
+  };
+
+  const handleSearchSubmit = (event) => {
+    event.preventDefault();
+    if (searchKeyword.trim()) {
+      navigate(`/search?keyword=${searchKeyword.trim()}`);
+    }
+  };
 
   return (
     <StyledAppBar position="static">
@@ -82,15 +94,19 @@ const Header = () => {
           )}
         </Box>
         {!isMobile && (
-          <Search>
-            <SearchIconWrapper>
-              <SearchIcon />
-            </SearchIconWrapper>
-            <StyledInputBase
-              placeholder="Tìm kiếm…"
-              inputProps={{ 'aria-label': 'search' }}
-            />
-          </Search>
+          <Box component="form" onSubmit={handleSearchSubmit} sx={{ display: 'flex' }}>
+            <Search>
+              <SearchIconWrapper>
+                <SearchIcon />
+              </SearchIconWrapper>
+              <StyledInputBase
+                placeholder="Tìm kiếm…"
+                inputProps={{ 'aria-label': 'search' }}
+                value={searchKeyword}
+                onChange={handleSearchChange}
+              />
+            </Search>
+          </Box>
         )}
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           {isMobile && (
@@ -127,16 +143,20 @@ const Header = () => {
       </Toolbar>
       {isMobile && searchOpen && (
         <Box sx={{ p: 2, backgroundColor: 'background.paper' }}>
-          <Search>
-            <SearchIconWrapper>
-              <SearchIcon />
-            </SearchIconWrapper>
-            <StyledInputBase
-              placeholder="Tìm kiếm…"
-              inputProps={{ 'aria-label': 'search' }}
-              fullWidth
-            />
-          </Search>
+          <Box component="form" onSubmit={handleSearchSubmit} sx={{ display: 'flex' }}>
+            <Search>
+              <SearchIconWrapper>
+                <SearchIcon />
+              </SearchIconWrapper>
+              <StyledInputBase
+                placeholder="Tìm kiếm…"
+                inputProps={{ 'aria-label': 'search' }}
+                value={searchKeyword}
+                onChange={handleSearchChange}
+                fullWidth
+              />
+            </Search>
+          </Box>
         </Box>
       )}
     </StyledAppBar>

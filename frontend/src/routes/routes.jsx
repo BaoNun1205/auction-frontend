@@ -13,8 +13,9 @@ import TimedAuctionDetailPage from '~/pages/Customer/TimedAuctionDetailPage'
 import SessionListPage from '~/pages/Session/SessionListPage'
 import RegisterAuctionDetailPage from '~/pages/Customer/RegisterAuctionDetailPage'
 import LoginPage from '~/pages/Authentication/LoginPage'
-import ProfilePage from '~/pages/Customer/ProfilePage'
 import SearchResultPage from '~/pages/Customer/SearchResultPage'
+import ProfilePage from '~/pages/Customer/ProfilePage'
+import VendorPage from '~/pages/Vendor/VendorPage'
 
 export const BASE_PATHS = {
   HOME: '/',
@@ -24,7 +25,8 @@ export const BASE_PATHS = {
   CONFIRM_ACCOUNT: '/confirm-account',
   USERS: '/users',
   CUSTOMER: 'customer',
-  SESSION: '/session'
+  SESSION: '/session',
+  VENDOR: 'vendor'
 }
 
 export const publicRoutes = [
@@ -56,6 +58,10 @@ export const publicRoutes = [
     path: `/search`,
     page: SearchResultPage
   },
+  {
+    path: '/vendor',
+    page: VendorPage
+  }
 ]
 
 export const privateRoutes = [

@@ -11,10 +11,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useLogout } from '~/hooks/authHook';
 import AppModal from '~/components/Modal/Modal';
-import WonItems from './WonItems';
-import AuctionInfo from './AuctionInfo';
-import CustomerInformation from './CustomerInfomation';
-import AddressesInfomation from './AddressInfomation/AddressInfomation';
+import MyAssets from '../components/MyAsset';
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -44,7 +41,7 @@ const StyledListItem = styled(ListItem)(({ theme, active }) => ({
   }),
 }));
 
-const Profile = () => {
+const Main = () => {
   const [tab, setTab] = useState(1);
   const [subTab, setSubTab] = useState(null);
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
@@ -84,12 +81,8 @@ const Profile = () => {
   };
 
   const menuItems = [
-    { text: 'Hồ sơ', icon: <Person />, value: 1 },
-    { text: 'Địa chỉ', icon: <LocationOn />, value: 2 },
-    { text: 'Chiến lợi phẩm', icon: <EmojiEvents />, value: 3 },
-    { text: 'Phiên đấu giá', icon: <Gavel />, value: 4 },
-    { text: 'Bán đấu giá', icon: <Store />, value: 5 },
-    { text: 'Đăng xuất', icon: <ExitToApp />, value: 6, onClick: handleLogout }
+    { text: 'Tài sản', icon: <Person />, value: 1 },
+    { text: 'Phiên đấu giá', icon: <LocationOn />, value: 2 }
   ];
 
   const drawer = (
@@ -190,11 +183,8 @@ const Profile = () => {
           </Grid>
           <Grid item xs={12} sm={8} md={9} lg={9}>
             <StyledPaper elevation={3}>
-              {tab === 1 && <CustomerInformation />}
-              {tab === 2 && <AddressesInfomation />}
-              {tab === 3 && <WonItems />}
-              {tab === 4 && <AuctionInfo />}
-              {tab === 5 && navigate('/vendor')}
+              {tab === 1 && <MyAssets />}
+              {tab === 2 && <MyAssets />}
             </StyledPaper>
           </Grid>
         </Grid>
@@ -230,5 +220,5 @@ const Profile = () => {
   );
 };
 
-export default Profile;
+export default Main;
 
