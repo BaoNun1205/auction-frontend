@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import {
   Box,
   Typography,
@@ -21,7 +21,6 @@ import {
 } from '@mui/material';
 import { ChevronRight, Lock, LocalShipping, Whatshot, Message } from '@mui/icons-material';
 import { useTheme, useMediaQuery } from '@mui/material';
-import AppModal from "~/components/Modal/Modal";
 import { useAppStore } from '~/store/appStore';
 import LoginForm from '~/features/Authentication/components/AuthLogin/Login';
 import { useNavigate } from 'react-router-dom';
@@ -30,6 +29,7 @@ import { Store } from 'lucide-react';
 import { connect, disconnect, subscribe, send } from '~/service/webSocketService';
 import { useCreateAuctionHistory } from '~/hooks/auctionHistoryHook';
 import { Client } from '@stomp/stompjs';
+import AppModal from '~/components/Modal/Modal';
 
 const StyledButton = styled(Button)(({ theme }) => ({
   backgroundColor: '#B7201B',
@@ -76,7 +76,7 @@ const AssetDetail = ({ item }) => {
   const [bidPrice, setBidPrice] = useState('');
   const [error, setError] = useState('');
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
-  const [stompClient, setStompClient] = useState(null);
+  let stompClient = useRef(null);
   const { mutate: createAuctionHistory } = useCreateAuctionHistory();
   const depositRate = 0.23;
   const minBidIncrement = item.bidIncrement;
@@ -101,7 +101,10 @@ const AssetDetail = ({ item }) => {
   ];
 
   const onMessage = useCallback((message) => {
+    console.log('hi')
+    console.log('mess: ', message);
     const response = JSON.parse(message.body);
+    console.log('res: ', response);
     if (response.code === 200 && response.result) {
       const { auctionSessionInfo } = response.result;
       setTotalBidder(auctionSessionInfo.totalBidder);
@@ -118,30 +121,47 @@ const AssetDetail = ({ item }) => {
   }, []);
 
   useEffect(() => {
-    const client = new Client({
+    const destination = `/rt-product/bidPrice-update/${item.id}`;
+    console.log('Destination: ', destination);
+    stompClient.current = new Client({
       brokerURL: 'ws://localhost:8080/rt-auction',
       connectHeaders: {
         Authorization: `Bearer ${auth.token}`,
       },
+      
       onConnect: () => {
         console.log('Connected to WebSocket');
-        client.subscribe(`/rt-product/auction-update/${item.id}`, onMessage);
+        stompClient.current.subscribe(
+          destination,
+          onMessage
+        );
       },
       onStompError: (frame) => {
         console.error('Broker reported error: ' + frame.headers['message']);
         console.error('Additional details: ' + frame.body);
       },
     });
-
-    client.activate();
-    setStompClient(client);
-
+  
+    stompClient.current.activate();
+  
     return () => {
-      if (client) {
-        client.deactivate();
+      if (stompClient.current) {
+        stompClient.current.deactivate();
       }
     };
   }, [auth.token, item.id, onMessage]);
+
+  const handleBidPrice = () => {
+    if (stompClient.current) {
+      stompClient.current.publish({
+        destination: `/app/rt-auction/placeBid/${item.id}`
+      });
+    } else {
+      console.error('STOMP client is not connected');
+    }
+  };
+
+
 
   const currentPrice = item?.auctionSessionInfo?.highestBid || 0;
   const minNextBid = currentPrice + minBidIncrement;
@@ -182,27 +202,28 @@ const AssetDetail = ({ item }) => {
           bidPrice: Number(bidPrice),
           bidTime: new Date().toISOString(),
         };
-        if (stompClient && stompClient.connected) {
-          stompClient.publish({
-            destination: `/app/rt-auction/join/${item.id}`,
-            body: JSON.stringify(bidRequest),
-          });
-          console.log(`Sent bid request: ${JSON.stringify(bidRequest)}`);
+        // if (stompClient && stompClient.connected) {
+        //   stompClient.publish({
+        //     destination: `/app/rt-auction/join/${item.id}`,
+        //     body: JSON.stringify(bidRequest),
+        //   });
+        //   console.log(`Sent bid request: ${JSON.stringify(bidRequest)}`);
           
-          // Display a success snackbar
-          setSnackbar({
-            open: true,
-            message: 'Bid placed successfully!',
-            severity: 'success'
-          });
-        } else {
-          console.error('WebSocket is not connected');
-          setSnackbar({
-            open: true,
-            message: 'Error: Could not connect to server',
-            severity: 'error'
-          });
-        }
+        //   // Display a success snackbar
+        //   setSnackbar({
+        //     open: true,
+        //     message: 'Bid placed successfully!',
+        //     severity: 'success'
+        //   });
+        // } else {
+        //   console.error('WebSocket is not connected');
+        //   setSnackbar({
+        //     open: true,
+        //     message: 'Error: Could not connect to server',
+        //     severity: 'error'
+        //   });
+        // }
+        handleBidPrice();
       },
       onError: (error) => {
         console.error('Error submitting auction history:', error);
