@@ -36,6 +36,7 @@ import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 import { motion, AnimatePresence } from 'framer-motion';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import { useCreateRequirement } from '~/hooks/requirementHook';
 
 const primaryColor = '#b41712';
 
@@ -139,6 +140,8 @@ const AuctionRequest = () => {
   const [selectedRequirement, setSelectedRequirement] = useState(null);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const { mutate: createRequirement } = useCreateRequirement();
+
 
   const [formData, setFormData] = useState({
     name: '',
@@ -179,6 +182,24 @@ const AuctionRequest = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    const formDataObj = new FormData();
+    for (const key in formData) {
+      if (Array.isArray(formData[key])) {
+        formData[key].forEach((item, index) => {
+          formDataObj.append(`${key}[${index}]`, item);
+        });
+      } else {
+        formDataObj.append(key, formData[key]);
+      }
+    }
+
+    // Append assetName, assetPrice, and assetDescription
+    formDataObj.append('assetName', formData.name);
+    formDataObj.append('assetPrice', formData.startingPrice);
+    formDataObj.append('assetDescription', formData.description);
+    console.log('data: ', formDataObj);
+
     if (currentRequirement) {
       setRequirements(requirements.map(req => 
         req.id === currentRequirement.id ? { ...formData, id: req.id } : req
@@ -186,7 +207,15 @@ const AuctionRequest = () => {
       setSnackbar({ open: true, message: 'Yêu cầu đã được cập nhật', severity: 'success' });
     } else {
       setRequirements([...requirements, { ...formData, id: Date.now() }]);
-      setSnackbar({ open: true, message: 'Yêu cầu mới đã được thêm', severity: 'success' });
+      createRequirement(formDataObj, {
+        onSuccess: (response) => {
+          console.log('Success:', response)
+          setSnackbar({ open: true, message: 'Yêu cầu mới đã được thêm', severity: 'success' });
+        },
+        onError: (error) => {
+          console.error('Error:', error)
+        }
+      })
     }
     handleCloseDialog();
   };
@@ -265,7 +294,7 @@ const AuctionRequest = () => {
               onClick={() => handleOpenDialog()}
               sx={{ mb: 3, bgcolor: primaryColor, '&:hover': { bgcolor: '#8B110E' } }}
             >
-              Tạo Yêu cầu Mới
+              Tạo Yêu Cầu Mới
             </Button>
           </AnimatedButton>
           <TableContainer>
@@ -338,7 +367,7 @@ const AuctionRequest = () => {
 
       <Dialog open={openDialog} onClose={handleCloseDialog} fullWidth maxWidth="md">
         <DialogTitle sx={{ bgcolor: primaryColor, color: 'white' }}>
-          {currentRequirement ? (canEdit(currentRequirement.status) ? 'Chỉnh sửa Yêu cầu' : 'Chi tiết Yêu cầu') : 'Tạo Yêu cầu Mới'}
+          {currentRequirement ? (canEdit(currentRequirement.status) ? 'Chỉnh sửa Yêu cầu' : 'Chi tiết Yêu cầu') : 'Tạo Yêu Cầu Mới'}
         </DialogTitle>
         <DialogContent dividers>
           <form onSubmit={handleSubmit}>
@@ -374,8 +403,7 @@ const AuctionRequest = () => {
               {currentRequirement && currentRequirement.status === 'Approved' && (
                 <Grid item xs={12} sm={6}>
                   <TextField
-                    
-fullWidth
+                    fullWidth
                     label="Danh mục"
                     name="category"
                     value={currentRequirement.category}

@@ -11,6 +11,9 @@ export const StyledCard = styled(motion.div)(({ theme }) => ({
   '&:hover': {
     boxShadow: theme.shadows[8],
   },
+  display: 'flex',
+  flexDirection: 'column',
+  height: '100%',
 }));
 
 export const StyledCardMedia = styled(CardMedia)(({ theme }) => ({
@@ -25,8 +28,8 @@ export const StatusChip = styled(Chip)(({ status, theme }) => ({
   position: 'absolute',
   top: 16,
   left: 16,
-  backgroundColor: status === 'Not auctioned' ? 'rgba(0, 0, 0, 0.8)' : theme.palette.error.main,
-  color: 'white',
+  backgroundColor: status === 'NOT_AUCTIONED' ? 'rgba(0, 0, 0, 0.8)' : theme.palette.error.main,
+  color: theme.palette.common.white,
   fontWeight: 600,
   zIndex: 1,
 }));
@@ -43,4 +46,8 @@ export const AnimatedButton = styled(motion.button)(({ theme }) => ({
   '&:hover': {
     backgroundColor: theme.palette.error.dark,
   },
+  width: '100%',
+  textDecoration: 'none',
+  textAlign: 'center',
 }));
+

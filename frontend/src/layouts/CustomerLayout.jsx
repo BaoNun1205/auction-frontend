@@ -1,16 +1,16 @@
 import React from 'react'
-import Header from '~/components/DefautComponent/HeaderComponent/Header'
-import Footer from '~/components/DefautComponent/FooterComponent/Footer'
-import CategoryBar from '~/components/DefautComponent/HeaderComponent/CategoryBar'
+import Footer from '~/components/Customer/DefautComponent/FooterComponent/Footer'
+import CategoryBar from '~/components/Customer/DefautComponent/HeaderComponent/CategoryBar'
+import Header from '~/components/Customer/DefautComponent/HeaderComponent/Header'
 
 function CustomerLayout({ children, isCategory = true }) {
   return (
-      <>
+    <>
       <Header />
       {isCategory && <CategoryBar />}
       {children}
       {/* <Footer/>  */}
-      </>
+    </>
   )
 }
 
