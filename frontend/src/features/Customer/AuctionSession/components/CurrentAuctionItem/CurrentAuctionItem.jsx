@@ -54,8 +54,8 @@ export default function Component({ items = [] }) {
                   <TruncatedTypography variant="h6" component="div" textAlign="center" fontWeight="bold" mb={2}>
                     {item.asset.assetName}
                   </TruncatedTypography>
-                  <Typography variant="body2" sx={{ fontWeight: 'bold', marginBottom: 1 }}>
-                    Giá khởi điểm: <span style={{ fontWeight: 'normal' }}>{item.startingBids} VND</span>
+                  <Typography variant="body2" color="error" sx={{ fontWeight: 'bold' }}>
+                    Giá khởi điểm: {item.startingBids.toLocaleString('vi-VN')} ₫
                   </Typography>
                   <StyledButton onClick={() => handleJoinClick(item)}>
                     Tham gia

@@ -10,7 +10,6 @@ import {
   FormGroup,
   Breadcrumbs,
   Link,
-  Paper,
   Fade,
   Select,
   MenuItem,
@@ -20,48 +19,68 @@ import {
   ListItem,
   ListItemText,
 } from '@mui/material';
-import { motion } from 'framer-motion';
 import {
   NavigateNext as NavigateNextIcon,
   ExpandMore as ExpandMoreIcon,
   ExpandLess as ExpandLessIcon,
+  AccessTime as AccessTimeIcon,
 } from '@mui/icons-material';
 import { StyledCard, StyledCardMedia, StatusChip, AnimatedButton } from './style';
-
-const categories = [
-  {
-    name: 'Paintings',
-    subcategories: ['Oil', 'Acrylic', 'Watercolor', 'Mixed Media'],
-  },
-  {
-    name: 'Sculptures',
-    subcategories: ['Bronze', 'Marble', 'Wood', 'Clay'],
-  },
-  {
-    name: 'Photography',
-    subcategories: ['Black & White', 'Color', 'Digital', 'Analog'],
-  },
-];
+import { useFilterCategories } from '~/hooks/categoryHook';
+import { useFilterSessions } from '~/hooks/sessionHook';
+import { useLocation, Link as RouterLink } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 export default function SearchResults() {
   const [filters, setFilters] = useState({
     all: true,
     upcoming: false,
     ongoing: false,
-    ended: false,
+    notAuctioned: false,
   });
   const [sortOrder, setSortOrder] = useState('new');
   const [expandedCategory, setExpandedCategory] = useState('');
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  const artworks = Array(9).fill({
-    image: '/placeholder.svg?height=280&width=200',
-    title: 'Oil on Canvas Portrait of a Lady Signed (Picasso) Not Painted',
-    price: '$450',
-    status: Math.random() > 0.5 ? '2 Days Left' : 'Not auctioned',
-  });
+  const searchParams = new URLSearchParams(location.search);
+  const keyword = searchParams.get('keyword') || '';
+
+  const { data: sessionData, isLoading: isLoadingSessions, isError: isErrorSessions } = useFilterSessions({ keyword });
+  const { data: categoryData, isLoading: isLoadingCategories, isError: isErrorCategories } = useFilterCategories();
+
+  if (isLoadingCategories || isLoadingSessions) {
+    return <Typography>Loading...</Typography>;
+  }
+
+  if (isErrorCategories || isErrorSessions) {
+    return <Typography>Error loading data</Typography>;
+  }
+
+  const categories = categoryData.data;
+  const sessions = sessionData.data;
+  const totalResults = sessionData.total;
 
   const handleFilterChange = (event) => {
-    setFilters({ ...filters, [event.target.name]: event.target.checked });
+    const { name, checked } = event.target;
+    if (name === 'all') {
+      setFilters({
+        all: true,
+        upcoming: false,
+        ongoing: false,
+        notAuctioned: false,
+      });
+    } else {
+      setFilters((prevFilters) => {
+        const newFilters = { ...prevFilters, [name]: checked };
+        if (checked) {
+          newFilters.all = false;
+        } else if (!newFilters.upcoming && !newFilters.ongoing && !newFilters.notAuctioned) {
+          newFilters.all = true;
+        }
+        return newFilters;
+      });
+    }
   };
 
   const handleSortChange = (event) => {
@@ -72,6 +91,34 @@ export default function SearchResults() {
     setExpandedCategory(expandedCategory === category ? '' : category);
   };
 
+  const filteredSessions = sessions.filter((session) => {
+    if (filters.all) return true;
+    if (filters.upcoming && session.status === 'UPCOMING') return true;
+    if (filters.ongoing && session.status === 'ONGOING') return true;
+    if (filters.notAuctioned && session.status === 'NOT_AUCTIONED') return true;
+    return false;
+  });
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleString('vi-VN', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    }).replace(',', '');
+  };
+
+  const handleCardClick = (session) => {
+    if (session.status === 'UPCOMING') {
+      navigate(`/session/register/${session.auctionSessionId}`);
+    } else {
+      navigate(`/session/${session.auctionSessionId}`);
+    }
+  };
+
   return (
     <Box sx={{ p: 3, maxWidth: 1200, mx: 'auto' }}>
       <Breadcrumbs 
@@ -80,7 +127,7 @@ export default function SearchResults() {
       >
         <Link href="/" color="inherit" underline="hover">Home</Link>
         <Link href="/search" color="inherit" underline="hover">Search results</Link>
-        <Typography color="text.primary">165 results</Typography>
+        <Typography color="text.primary">{totalResults} results</Typography>
       </Breadcrumbs>
 
       <Grid container spacing={4}>
@@ -91,21 +138,21 @@ export default function SearchResults() {
             pb: 1,
             width: 'fit-content'
           }}>
-            Categories
+            Danh mục
           </Typography>
 
           <List>
             {categories.map((category) => (
-              <React.Fragment key={category.name}>
-                <ListItem button onClick={() => handleCategoryClick(category.name)}>
-                  <ListItemText primary={category.name} />
-                  {expandedCategory === category.name ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+              <React.Fragment key={category.categoryName}>
+                <ListItem button onClick={() => handleCategoryClick(category.categoryName)}>
+                  <ListItemText primary={category.categoryName} />
+                  {expandedCategory === category.categoryName ? <ExpandLessIcon /> : <ExpandMoreIcon />}
                 </ListItem>
-                <Collapse in={expandedCategory === category.name} timeout="auto" unmountOnExit>
+                <Collapse in={expandedCategory === category.categoryName} timeout="auto" unmountOnExit>
                   <List component="div" disablePadding>
-                    {category.subcategories.map((subcategory) => (
-                      <ListItem button key={subcategory} sx={{ pl: 4 }}>
-                        <ListItemText primary={subcategory} />
+                    {category.types.map((subcategory) => (
+                      <ListItem button key={subcategory.typeId} sx={{ pl: 4 }}>
+                        <ListItemText primary={subcategory.typeName} />
                       </ListItem>
                     ))}
                   </List>
@@ -115,22 +162,49 @@ export default function SearchResults() {
           </List>
 
           <Typography variant="h6" sx={{ mt: 4, mb: 2 }}>
-            Product status
+            Trạng thái
           </Typography>
           <FormGroup>
-            {Object.entries(filters).map(([key, value]) => (
-              <FormControlLabel
-                key={key}
-                control={
-                  <Checkbox 
-                    checked={value}
-                    onChange={handleFilterChange}
-                    name={key}
-                  />
-                }
-                label={key.charAt(0).toUpperCase() + key.slice(1)}
-              />
-            ))}
+            <FormControlLabel
+              control={
+                <Checkbox 
+                  checked={filters.all}
+                  onChange={handleFilterChange}
+                  name="all"
+                />
+              }
+              label="Tất cả"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox 
+                  checked={filters.upcoming}
+                  onChange={handleFilterChange}
+                  name="upcoming"
+                />
+              }
+              label="Sắp diễn ra"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox 
+                  checked={filters.ongoing}
+                  onChange={handleFilterChange}
+                  name="ongoing"
+                />
+              }
+              label="Đang diễn ra"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox 
+                  checked={filters.notAuctioned}
+                  onChange={handleFilterChange}
+                  name="notAuctioned"
+                />
+              }
+              label="Chưa được đấu giá"
+            />
           </FormGroup>
         </Grid>
 
@@ -151,49 +225,54 @@ export default function SearchResults() {
           </Box>
 
           <Grid container spacing={3}>
-            {artworks.map((artwork, index) => (
-              <Grid item xs={12} sm={6} md={4} key={index}>
+            {filteredSessions.map((session, index) => (
+              <Grid item xs={12} sm={6} md={4} key={session.auctionSessionId}>
                 <Fade in={true} timeout={500 + index * 100}>
                   <StyledCard
                     whileHover={{ y: -8 }}
                     transition={{ type: "spring", stiffness: 300 }}
+                    onClick={() => handleCardClick(session)}
                   >
                     <StatusChip 
-                      label={artwork.status}
-                      status={artwork.status}
+                      label={session.status === 'UPCOMING' ? 'Sắp diễn ra' : 'Đang diễn ra'}
+                      status={session.status}
                     />
                     <StyledCardMedia
-                      component="img"
-                      image={artwork.image}
-                      title={artwork.title}
+                      image={session.asset.mainImage}
+                      title={session.asset.assetName}
                     />
-                    <CardContent>
+                    <CardContent sx={{ flexGrow: 1 }}>
                       <Typography 
-                        gutterBottom 
-                        variant="body2" 
-                        component="div"
+                        variant="subtitle1" 
+                        component="h2"
                         sx={{ 
+                          fontWeight: 'bold',
+                          mb: 1,
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
                           display: '-webkit-box',
                           WebkitLineClamp: 2,
                           WebkitBoxOrient: 'vertical',
-                          height: '3em',
-                          mb: 1
                         }}
                       >
-                        {artwork.title}
+                        {session.asset.assetName}
                       </Typography>
-                      <Typography variant="h6" color="error">
-                        {artwork.price}
+                      <Typography variant="body2" color="error" sx={{ fontWeight: 'bold' }}>
+                        Giá khởi điểm: {session.startingBids.toLocaleString('vi-VN')} ₫
                       </Typography>
+                      <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                        <AccessTimeIcon sx={{ fontSize: 'small', color: 'text.secondary', mr: 0.5 }} />
+                        <Typography variant="caption" color="text.secondary">
+                          {formatDate(session.startTime)} - {formatDate(session.endTime)}
+                        </Typography>
+                      </Box>
                     </CardContent>
                     <CardActions>
                       <AnimatedButton
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
-                        Details
+                        {session.status === 'UPCOMING' ? 'Đăng ký' : 'Xem chi tiết'}
                       </AnimatedButton>
                     </CardActions>
                   </StyledCard>
@@ -209,3 +288,4 @@ export default function SearchResults() {
     </Box>
   );
 }
+
