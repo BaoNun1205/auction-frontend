@@ -8,34 +8,19 @@ import {
   IconButton,
   Checkbox,
   FormControlLabel,
-  Paper,
-  FormHelperText, // for displaying error messages
 } from '@mui/material';
 import { Visibility, VisibilityOff, Email, Lock, Phone, Person } from '@mui/icons-material';
 import Logo from '~/assets/images/logo/logo.png';
 import { useGetToken, useRegister } from '~/hooks/authHook';
 import { fadeIn, StyledButton, LogoContainer, StyledTextField } from './style';
-
-// Import the validateRegister function
-import { validateRegister } from '~/utils/validateRegister'; // Adjust the path if necessary
+import { validateLogin } from '~/utils/validateLogin'; // Import the validation function
 
 export default function AuthForm({ handleClose }) {
   const [activeTab, setActiveTab] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
-  const [loginData, setLoginData] = useState({
-    email: '',
-    password: '',
-    saveLogin: false,
-  });
-  const [registerData, setRegisterData] = useState({
-    username: '',
-    phone: '',
-    email: '',
-    password: '',
-  });
-
-  const [loginErrors, setLoginErrors] = useState({}); 
-  const [registerErrors, setRegisterErrors] = useState({}); 
+  const [loginData, setLoginData] = useState({ email: '', password: '', saveLogin: false });
+  const [registerData, setRegisterData] = useState({ username: '', phone: '', email: '', password: '' });
+  const [loginErrors, setLoginErrors] = useState({});
 
   const { mutate: getToken, isLoading: isGettingToken } = useGetToken();
   const { mutate: register, isLoading: isRegistering } = useRegister();
@@ -46,27 +31,35 @@ export default function AuthForm({ handleClose }) {
 
   const handleLoginSubmit = (e) => {
     e.preventDefault();
-
-    // Validate the login data
     const errors = validateLogin(loginData);
-
-    if (Object.keys(errors).length === 0) {
-      // If no errors, proceed with the login request
-      getToken(
-        { email: loginData.email, password: loginData.password },
-        {
-          onSuccess: () => {
-            handleClose();
-          },
-          onError: (error) => {
-            console.error('Error logging in:', error);
-          },
-        }
-      );
-    } else {
-      // Set the validation errors if there are any
+    if (Object.keys(errors).length > 0) {
       setLoginErrors(errors);
+      return;
     }
+
+    getToken(
+      { email: loginData.email, password: loginData.password },
+      {
+        onSuccess: () => {
+          handleClose();
+        },
+        onError: (error) => {
+          console.error('Error logging in:', error);
+        },
+      }
+    );
+  };
+
+  const handleRegisterSubmit = (e) => {
+    e.preventDefault();
+    register(registerData, {
+      onSuccess: () => {
+        handleClose();
+      },
+      onError: (error) => {
+        console.error('Error registering:', error);
+      },
+    });
   };
 
   const handleLoginChange = (e) => {
@@ -75,34 +68,6 @@ export default function AuthForm({ handleClose }) {
       ...prev,
       [name]: name === 'saveLogin' ? checked : value,
     }));
-
-    // Clear the error when the user starts typing
-    setLoginErrors((prev) => ({
-      ...prev,
-      [name]: '',
-    }));
-  };
-
-  const handleRegisterSubmit = (e) => {
-    e.preventDefault();
-
-    // Validate register data
-    const errors = validateRegister(registerData);
-
-    if (Object.keys(errors).length === 0) {
-      // If no errors, proceed with the registration request
-      register(registerData, {
-        onSuccess: () => {
-          handleClose();
-        },
-        onError: (error) => {
-          console.error('Error registering:', error);
-        },
-      });
-    } else {
-      // Set the validation errors if there are any
-      setRegisterErrors(errors);
-    }
   };
 
   const handleRegisterChange = (e) => {
@@ -110,12 +75,6 @@ export default function AuthForm({ handleClose }) {
     setRegisterData((prev) => ({
       ...prev,
       [name]: value,
-    }));
-
-    // Clear the error when the user starts typing
-    setRegisterErrors((prev) => ({
-      ...prev,
-      [name]: '',
     }));
   };
 
@@ -178,6 +137,8 @@ export default function AuthForm({ handleClose }) {
             margin="normal"
             variant="outlined"
             sx={{ mb: 2 }}
+            error={!!loginErrors.email}
+            helperText={loginErrors.email}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -185,8 +146,6 @@ export default function AuthForm({ handleClose }) {
                 </InputAdornment>
               ),
             }}
-            error={Boolean(loginErrors.email)}
-            helperText={loginErrors.email}
           />
 
           <StyledTextField
@@ -199,6 +158,8 @@ export default function AuthForm({ handleClose }) {
             margin="normal"
             variant="outlined"
             sx={{ mb: 3 }}
+            error={!!loginErrors.password}
+            helperText={loginErrors.password}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -213,8 +174,6 @@ export default function AuthForm({ handleClose }) {
                 </InputAdornment>
               ),
             }}
-            error={Boolean(loginErrors.password)}
-            helperText={loginErrors.password}
           />
 
           <Box
@@ -295,8 +254,6 @@ export default function AuthForm({ handleClose }) {
                 </InputAdornment>
               ),
             }}
-            error={Boolean(registerErrors.username)}
-            helperText={registerErrors.username}
           />
 
           <StyledTextField
@@ -316,8 +273,6 @@ export default function AuthForm({ handleClose }) {
                 </InputAdornment>
               ),
             }}
-            error={Boolean(registerErrors.phone)}
-            helperText={registerErrors.phone}
           />
 
           <StyledTextField
@@ -337,8 +292,6 @@ export default function AuthForm({ handleClose }) {
                 </InputAdornment>
               ),
             }}
-            error={Boolean(registerErrors.email)}
-            helperText={registerErrors.email}
           />
 
           <StyledTextField
@@ -365,8 +318,6 @@ export default function AuthForm({ handleClose }) {
                 </InputAdornment>
               ),
             }}
-            error={Boolean(registerErrors.password)}
-            helperText={registerErrors.password}
           />
 
           <StyledButton
