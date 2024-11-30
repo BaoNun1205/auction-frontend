@@ -59,8 +59,6 @@ const NavigationButton = styled(IconButton)({
 const ActionButton = styled(Button)({
   padding: "10px 24px",
   borderRadius: "8px",
-  fontWeight: "bold",
-  fontFamily: "San Francisco",
   transition: "transform 0.2s",
   "&:hover": {
     transform: "scale(1.05)",
