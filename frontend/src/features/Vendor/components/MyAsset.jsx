@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo } from 'react';
 import {
   Box,
   Typography,
@@ -9,10 +9,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   Snackbar,
   Alert,
   Chip,
@@ -24,34 +20,35 @@ import {
   Select,
   Tabs,
   Tab
-} from '@mui/material'
-import { styled } from '@mui/material/styles'
-import MoreVertIcon from '@mui/icons-material/MoreVert'
-import SearchIcon from '@mui/icons-material/Search'
-import FilterListIcon from '@mui/icons-material/FilterList'
-import { useFilterAssets } from '~/hooks/assetHook'
+} from '@mui/material';
+import { styled } from '@mui/material/styles';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import SearchIcon from '@mui/icons-material/Search';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import { useFilterAssets } from '~/hooks/assetHook';
+import { useAppStore } from '~/store/appStore';
 
 const StyledPaper = styled(Paper)({
   padding: '24px',
   marginBottom: '24px',
   borderRadius: '4px',
   boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)'
-})
+});
 
 const StyledTableCell = styled(TableCell)({
   fontWeight: 'bold',
   color: '#1a1a1a',
   borderBottom: '1px solid rgba(224, 224, 224, 1)'
-})
+});
 
 const StyledChip = styled(Chip)(({ status }) => {
-  let backgroundColor = '#ff9800' // Default orange for "Chưa đấu giá"
-  let color = '#fff'
+  let backgroundColor = '#ff9800'; // Default orange for "Chưa đấu giá"
+  let color = '#fff';
 
   if (status === 'bidding') {
-    backgroundColor = '#2196f3' // Blue for "Đang đấu giá"
+    backgroundColor = '#2196f3'; // Blue for "Đang đấu giá"
   } else if (status === 'completed') {
-    backgroundColor = '#4caf50' // Green for "Đã đấu giá thành công"
+    backgroundColor = '#4caf50'; // Green for "Đã đấu giá thành công"
   }
 
   return {
@@ -60,74 +57,69 @@ const StyledChip = styled(Chip)(({ status }) => {
     backgroundColor: backgroundColor,
     borderRadius: '16px',
     padding: '0 12px'
-  }
-})
-
-const sampleData = [
-  { id: 1, name: 'Đồng hồ Rolex cổ', startingPrice: 5000, status: 'pending' },
-  { id: 2, name: 'Bàn gỗ gụ cổ', startingPrice: 1200, status: 'bidding' },
-  { id: 3, name: 'Bộ sưu tập sách quý', startingPrice: 3000, status: 'completed' }
-]
+  };
+});
 
 const MyAssets = () => {
-  const [assets, setAssets] = useState(sampleData)
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
-  const [anchorEl, setAnchorEl] = useState(null)
-  const [selectedAsset, setSelectedAsset] = useState(null)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [priceFilter, setPriceFilter] = useState('')
-  const [activeTab, setActiveTab] = useState(0)
-  // const { data: assets } = useFilterAssets({ vendorId: })
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedAsset, setSelectedAsset] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [priceFilter, setPriceFilter] = useState('');
+  const [activeTab, setActiveTab] = useState(0);
+  const { auth } = useAppStore();
+  const { data } = useFilterAssets({ vendorId: auth?.user?.id });
+  const assets = Array.isArray(data?.data) ? data.data : [];
 
   const handleCloseSnackbar = (event, reason) => {
     if (reason === 'clickaway') {
-      return
+      return;
     }
-    setSnackbar({ ...snackbar, open: false })
-  }
+    setSnackbar({ ...snackbar, open: false });
+  };
 
   const handleMenuOpen = (event, asset) => {
-    setAnchorEl(event.currentTarget)
-    setSelectedAsset(asset)
-  }
+    setAnchorEl(event.currentTarget);
+    setSelectedAsset(asset);
+  };
 
   const handleMenuClose = () => {
-    setAnchorEl(null)
-    setSelectedAsset(null)
-  }
+    setAnchorEl(null);
+    setSelectedAsset(null);
+  };
 
   const getStatusLabel = (status) => {
     switch (status) {
-    case 'pending':
-      return 'Chưa đấu giá'
-    case 'bidding':
-      return 'Đang đấu giá'
-    case 'completed':
-      return 'Đã đấu giá thành công'
-    default:
-      return status
+      case '0':
+        return 'Chưa đấu giá';
+      case 'bidding':
+        return 'Đang đấu giá';
+      case 'completed':
+        return 'Đã đấu giá thành công';
+      default:
+        return status;
     }
-  }
+  };
 
   const filteredAssets = useMemo(() => {
     return assets.filter(asset => {
       const matchesTab = activeTab === 0 ||
         (activeTab === 1 && asset.status === 'completed') ||
         (activeTab === 2 && asset.status === 'bidding') ||
-        (activeTab === 3 && asset.status === 'pending')
-      const matchesSearch = asset.name.toLowerCase().includes(searchTerm.toLowerCase())
-      const matchesPrice = priceFilter === '' || asset.startingPrice <= parseInt(priceFilter)
-      return matchesTab && matchesSearch && matchesPrice
-    })
-  }, [assets, activeTab, searchTerm, priceFilter])
+        (activeTab === 3 && asset.status === '0');
+      const matchesSearch = asset.assetName.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesPrice = priceFilter === '' || asset.assetPrice <= parseInt(priceFilter);
+      return matchesTab && matchesSearch && matchesPrice;
+    });
+  }, [assets, activeTab, searchTerm, priceFilter]);
 
   return (
     <Box sx={{ maxWidth: 1200, margin: 'auto', padding: 3 }}>
       <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
-            Tài sản của tôi
+        Tài sản của tôi
       </Typography>
       <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-            Quản lý thông tin tài sản của bạn
+        Quản lý thông tin tài sản của bạn
       </Typography>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Tabs
@@ -179,9 +171,9 @@ const MyAssets = () => {
             sx={{ minWidth: 200 }}
           >
             <MenuItem value="">Tất cả giá</MenuItem>
-            <MenuItem value="1000">Dưới $1,000</MenuItem>
-            <MenuItem value="5000">Dưới $5,000</MenuItem>
-            <MenuItem value="10000">Dưới $10,000</MenuItem>
+            <MenuItem value="1000000">Dưới 1.000.000₫</MenuItem>
+            <MenuItem value="5000000">Dưới 5.000.000₫</MenuItem>
+            <MenuItem value="10000000">Dưới 10.000.000₫</MenuItem>
           </Select>
         </Box>
         <TableContainer>
@@ -196,9 +188,9 @@ const MyAssets = () => {
             </TableHead>
             <TableBody>
               {filteredAssets.map((asset) => (
-                <TableRow key={asset.id} sx={{ '&:hover': { backgroundColor: '#f5f5f5' } }}>
-                  <TableCell>{asset.name}</TableCell>
-                  <TableCell align="right">${asset.startingPrice.toLocaleString()}</TableCell>
+                <TableRow key={asset.assetId} sx={{ '&:hover': { backgroundColor: '#f5f5f5' } }}>
+                  <TableCell>{asset.assetName}</TableCell>
+                  <TableCell align="right">{asset.assetPrice.toLocaleString('vi-VN')}₫</TableCell>
                   <TableCell align="center">
                     <StyledChip
                       label={getStatusLabel(asset.status)}
@@ -225,7 +217,7 @@ const MyAssets = () => {
         <MenuItem onClick={handleMenuClose}>
           Xem chi tiết
         </MenuItem>
-        {selectedAsset?.status === 'pending' && (
+        {selectedAsset?.status === '0' && (
           <MenuItem onClick={handleMenuClose}>
             Chỉnh sửa
           </MenuItem>
@@ -238,8 +230,7 @@ const MyAssets = () => {
         </Alert>
       </Snackbar>
     </Box>
-  )
-}
+  );
+};
 
-export default MyAssets
-
+export default MyAssets;
