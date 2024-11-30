@@ -35,6 +35,8 @@ import {
   HourglassEmpty, 
   Info
 } from '@mui/icons-material';
+import { useGetRegisteredSession } from '~/hooks/userHook';
+import { useAppStore } from '~/store/appStore';
 
 const StyledTab = styled(Tab)(({ theme }) => ({
   fontSize: '1.1rem',
@@ -214,6 +216,10 @@ const AuctionParticipatedItem = ({ productName, imgSrc, auctionStartTime, auctio
 const AuctionInfo = () => {
   const [tab, setTab] = useState(0);
   const auctionImg = './src/assets/images/auctionItem.png';
+  const { auth } = useAppStore();
+
+  const exRegisteredData1 = useGetRegisteredSession(auth.user.id);
+  console.log('test: ', exRegisteredData1);
 
   const exRegisteredData = [
     {
@@ -306,7 +312,7 @@ const AuctionInfo = () => {
         <Box sx={{ mt: 3 }}>
           {tab === 0 ? (
             <Box>
-              {exRegisteredData.map((item) => (
+              {exRegisteredData1.map((item) => (
                 <AuctionRegisteredItem
                   key={item.id}
                   auctionName={item.auctionName}
