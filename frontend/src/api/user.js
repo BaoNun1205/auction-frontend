@@ -11,3 +11,12 @@ export const getUserById = async (id) => {
     handleApiError(error);
   }
 };
+
+export const getRegisteredSession = async (id) => {
+  try {
+    const response = await GET({ url: `${USER_PATH}/registered_sessions/${id}` });
+    return response.result;
+  } catch (error) {
+    handleApiError(error);
+  }
+}
