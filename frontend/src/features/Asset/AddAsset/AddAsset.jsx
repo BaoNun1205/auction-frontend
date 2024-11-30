@@ -24,7 +24,8 @@ import { useGetTypes } from '~/hooks/typeHook';
 const validationSchema = Yup.object().shape({
   assetName: Yup.string().required('Asset Name is required'),
   price: Yup.number().required('Price is required').positive('Price must be positive'),
-  editorContent: Yup.string().required('Description is required')
+  editorContent: Yup.string().required('Description is required'),
+  type: Yup.string().required('Type is required')
 });
 
 const AddAsset = () => {
@@ -33,8 +34,8 @@ const AddAsset = () => {
   const { mutate: createAsset } = useCreateAsset();
   const imageUploadRef = useRef();
   const navigate = useNavigate();
-  const { data } = useGetTypes()
-  const types = Array.isArray(data) ? data : []
+  const { data } = useGetTypes();
+  const types = Array.isArray(data) ? data : [];
 
   const [initialValues, setInitialValues] = useState({
     assetName: '',
@@ -52,8 +53,8 @@ const AddAsset = () => {
         assetName: requirement.assetName || '',
         price: requirement.assetPrice || '',
         editorContent: requirement.assetDescription || '',
-        vendor: requirement.vendor || '',
-        inspector: requirement.inspector || '',
+        vendor: requirement.vendor.userId || '',
+        inspector: requirement.inspector.userId || '',
         images: requirement.imageRequirements.map(img => img.image) || []
       });
     }
@@ -80,7 +81,7 @@ const AddAsset = () => {
       onError: (error) => {
         console.error('Error:', error);
         navigate(`${BASE_PATHS.ASSET}`);
-      },
+      }
     });
   };
 
@@ -134,7 +135,7 @@ const AddAsset = () => {
               validationSchema={validationSchema}
               onSubmit={handleSubmit}
             >
-              {({ values, handleChange, handleBlur, setFieldValue, isSubmitting }) => (
+              {({ values, handleChange, handleBlur, setFieldValue, isSubmitting, errors, touched }) => (
                 <Form noValidate>
                   <Stack direction="row" sx={{ my: 2 }}>
                     <Field
@@ -145,6 +146,9 @@ const AddAsset = () => {
                       onChange={handleChange}
                       onBlur={handleBlur}
                       sx={{ width: '100%' }}
+                      InputProps={{
+                        readOnly: true
+                      }}
                     />
                   </Stack>
                   <Stack spacing={2} direction="row" sx={{ my: 2 }}>
@@ -156,13 +160,18 @@ const AddAsset = () => {
                       onChange={handleChange}
                       onBlur={handleBlur}
                       sx={{ width: '50%' }}
+                      InputProps={{
+                        readOnly: true
+                      }}
                     />
                     <StackSelectComponent
                       options={types.map(type => ({ label: type.typeName, value: type.typeId }))}
-                      value={values.type}
-                      label="Type"
+                      value={types.find(type => type.typeId === values.type)?.typeName}
+                      label='Type'
                       onChange={(event, newValue) => setFieldValue('type', newValue?.value || '')}
                       sx={{ m: 1, width: '50%' }}
+                      error={touched.type && Boolean(errors.type)}
+                      helperText={touched.type && errors.type}
                     />
                   </Stack>
                   <Stack spacing={2} direction="row" sx={{ my: 2 }}>
@@ -170,19 +179,25 @@ const AddAsset = () => {
                       name="vendor"
                       as={TextFieldComponent}
                       label="Vendor Name"
-                      value={values.vendor}
+                      value={requirement?.vendor?.username}
                       onChange={handleChange}
                       onBlur={handleBlur}
                       sx={{ width: '50%' }}
+                      InputProps={{
+                        readOnly: true
+                      }}
                     />
                     <Field
                       name="inspector"
                       as={TextFieldComponent}
                       label="Inspector Name"
-                      value={values.inspector}
+                      value={requirement?.inspector?.username}
                       onChange={handleChange}
                       onBlur={handleBlur}
                       sx={{ width: '50%' }}
+                      InputProps={{
+                        readOnly: true
+                      }}
                     />
                   </Stack>
                   <Box sx={{ marginTop: 4 }}>
@@ -207,7 +222,7 @@ const AddAsset = () => {
                       type="submit"
                       variant="contained"
                       color="primary"
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || !values.type}
                       sx={{ width: '70%' }}
                     >
                       Submit
