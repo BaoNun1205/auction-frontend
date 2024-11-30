@@ -280,16 +280,12 @@ const AuctionInfo = () => {
   return (
     <Container maxWidth="lg">
       <Box sx={{ py: 4 }}>
-        <Typography 
-          variant="h4" 
-          component="h1" 
-          align="center" 
-          color="error" 
-          gutterBottom 
-          sx={{ fontWeight: 'bold', mb: 4 }}
-        >
-          Phiên đấu giá
-        </Typography>
+      <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
+            Phiên đấu giá
+          </Typography>
+          <Typography variant="subtitle1" color="text.secondary" gutterBottom>
+            Lưu trữ các phiên đấu giá đã đăng ký và tham gia
+          </Typography>
         
         <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 4 }}>
           <Tabs 

@@ -1,73 +1,73 @@
-import * as React from 'react'
-import { styled, alpha } from '@mui/material/styles'
-import Box from '@mui/material/Box'
-import Toolbar from '@mui/material/Toolbar'
-import IconButton from '@mui/material/IconButton'
-import Typography from '@mui/material/Typography'
-import InputBase from '@mui/material/InputBase'
-import Badge from '@mui/material/Badge'
-import MenuItem from '@mui/material/MenuItem'
-import Menu from '@mui/material/Menu'
-import MenuIcon from '@mui/icons-material/Menu'
-import SearchIcon from '@mui/icons-material/Search'
-import AccountCircle from '@mui/icons-material/AccountCircle'
-import MailIcon from '@mui/icons-material/Mail'
-import NotificationsIcon from '@mui/icons-material/Notifications'
-import MoreIcon from '@mui/icons-material/MoreVert'
-import MuiAppBar from '@mui/material/AppBar'
-import { useLogout } from '~/hooks/authHook'
-import { useAppStore } from '~/store/appStore'
-import { useNavigate } from 'react-router-dom'
-import ModeSelect from '~/components/ModeSelectComponent/ModeSelect'
-import { StyledIconButton } from './style'
+import * as React from 'react';
+import { styled, alpha } from '@mui/material/styles';
+import Box from '@mui/material/Box';
+import Toolbar from '@mui/material/Toolbar';
+import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
+import InputBase from '@mui/material/InputBase';
+import Badge from '@mui/material/Badge';
+import MenuItem from '@mui/material/MenuItem';
+import Menu from '@mui/material/Menu';
+import MenuIcon from '@mui/icons-material/Menu';
+import SearchIcon from '@mui/icons-material/Search';
+import AccountCircle from '@mui/icons-material/AccountCircle';
+import MailIcon from '@mui/icons-material/Mail';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import MoreIcon from '@mui/icons-material/MoreVert';
+import MuiAppBar from '@mui/material/AppBar';
+import { useLogout } from '~/hooks/authHook';
+import { useAppStore } from '~/store/appStore';
+import { useNavigate } from 'react-router-dom';
+import ModeSelect from '~/components/ModeSelectComponent/ModeSelect';
+import { StyledIconButton } from './style';
 
 const AppBar = styled(MuiAppBar, {
 })(({ theme }) => ({
   zIndex: theme.zIndex.drawer + 1
-}))
+}));
 
 export default function Navbar() {
-  const [anchorEl, setAnchorEl] = React.useState(null)
-  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null)
-  const updateOpen = useAppStore((state) => state.updateOpen)
-  const dopen = useAppStore((state) => state.dopen)
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
+  const updateOpen = useAppStore((state) => state.updateOpen);
+  const dopen = useAppStore((state) => state.dopen);
 
-  const isMenuOpen = Boolean(anchorEl)
-  const isMobileMenuOpen = Boolean(mobileMoreAnchorEl)
+  const isMenuOpen = Boolean(anchorEl);
+  const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 
   const handleProfileMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget)
-  }
+    setAnchorEl(event.currentTarget);
+  };
 
   const handleMobileMenuClose = () => {
-    setMobileMoreAnchorEl(null)
-  }
+    setMobileMoreAnchorEl(null);
+  };
 
   const handleMenuClose = () => {
-    setAnchorEl(null)
-    handleMobileMenuClose()
-  }
+    setAnchorEl(null);
+    handleMobileMenuClose();
+  };
 
   const handleMobileMenuOpen = (event) => {
-    setMobileMoreAnchorEl(event.currentTarget)
-  }
+    setMobileMoreAnchorEl(event.currentTarget);
+  };
 
-  const navigate = useNavigate()
-  const { mutate: logout, isLoading: isLoggingOut } = useLogout()
+  const navigate = useNavigate();
+  const { mutate: logout, isLoading: isLoggingOut } = useLogout();
 
   const handleLogout = () => {
     logout(null, {
       onSuccess: () => {
-        handleMenuClose()
-        navigate('/')
+        handleMenuClose();
+        navigate('/');
       },
       onError: (error) => {
-        console.error('Error logging out:', error)
+        console.error('Error logging out:', error);
       }
-    })
-  }
+    });
+  };
 
-  const menuId = 'primary-search-account-menu'
+  const menuId = 'primary-search-account-menu';
   const renderMenu = (
     <Menu
       anchorEl={anchorEl}
@@ -87,9 +87,9 @@ export default function Navbar() {
       <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
       <MenuItem onClick={handleLogout}>Log Out</MenuItem>
     </Menu>
-  )
+  );
 
-  const mobileMenuId = 'primary-search-account-menu-mobile'
+  const mobileMenuId = 'primary-search-account-menu-mobile';
   const renderMobileMenu = (
     <Menu
       anchorEl={mobileMoreAnchorEl}
@@ -109,7 +109,7 @@ export default function Navbar() {
       <MenuItem>
         <IconButton size="large" aria-label="show 4 new mails" color="inherit">
           <Badge badgeContent={4} color="error">
-            <MailIcon />
+            <MailIcon sx={{ color: 'white' }} />
           </Badge>
         </IconButton>
         <p>Messages</p>
@@ -121,7 +121,7 @@ export default function Navbar() {
           color="inherit"
         >
           <Badge badgeContent={17} color="error">
-            <NotificationsIcon />
+            <NotificationsIcon sx={{ color: 'white' }} />
           </Badge>
         </IconButton>
         <p>Notifications</p>
@@ -134,16 +134,16 @@ export default function Navbar() {
           aria-haspopup="true"
           color="inherit"
         >
-          <AccountCircle />
+          <AccountCircle sx={{ color: 'white' }} />
         </IconButton>
         <p>Profile</p>
       </MenuItem>
     </Menu>
-  )
+  );
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="fixed" sx={(theme) => ({ bgcolor: theme.palette.primary.main })}>
+      <AppBar position="fixed" sx={{ bgcolor: '#b41712' }}>
         <Toolbar>
           <StyledIconButton
             size="large"
@@ -151,14 +151,14 @@ export default function Navbar() {
             aria-label="open drawer"
             onClick={() => updateOpen(!dopen)}
           >
-            <MenuIcon />
+            <MenuIcon sx={{ color: 'white' }} />
           </StyledIconButton>
-          <ModeSelect />
+          {/* <ModeSelect /> */}
           <Box sx={{ flexGrow: 1 }} />
           <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
             <StyledIconButton size="large" aria-label="show 4 new mails">
               <Badge badgeContent={4} color="error">
-                <MailIcon />
+                <MailIcon sx={{ color: 'white' }} />
               </Badge>
             </StyledIconButton>
             <StyledIconButton
@@ -167,7 +167,7 @@ export default function Navbar() {
               color="inherit"
             >
               <Badge badgeContent={17} color="error">
-                <NotificationsIcon />
+                <NotificationsIcon sx={{ color: 'white' }} />
               </Badge>
             </StyledIconButton>
             <StyledIconButton
@@ -179,7 +179,7 @@ export default function Navbar() {
               onClick={handleProfileMenuOpen}
               color="inherit"
             >
-              <AccountCircle />
+              <AccountCircle sx={{ color: 'white' }} />
             </StyledIconButton>
           </Box>
           <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
@@ -191,7 +191,7 @@ export default function Navbar() {
               onClick={handleMobileMenuOpen}
               color="inherit"
             >
-              <MoreIcon />
+              <MoreIcon sx={{ color: 'white' }} />
             </StyledIconButton>
           </Box>
         </Toolbar>
@@ -199,5 +199,5 @@ export default function Navbar() {
       {renderMobileMenu}
       {renderMenu}
     </Box>
-  )
+  );
 }

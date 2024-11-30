@@ -177,15 +177,11 @@ const WonItems = () => {
   return (
     <Container maxWidth="lg">
       <Box sx={{ width: '100%', py: 4 }}>
-        <Typography 
-          variant="h4" 
-          component="h1" 
-          align="center" 
-          color="error" 
-          gutterBottom 
-          sx={{ fontWeight: 'bold', mb: 4 }}
-        >
-          Chiến lợi phẩm
+        <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
+            Chiến lợi phẩm
+        </Typography>
+        <Typography variant="subtitle1" color="text.secondary" gutterBottom>
+            Lưu trữ các vật phẩm đã thắng trong các phiên đấu giá
         </Typography>
 
         <Paper elevation={0} sx={{ mb: 3, borderBottom: 1, borderColor: 'divider' }}>

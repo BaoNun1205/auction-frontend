@@ -4,8 +4,8 @@ import CustomerLayout from '~/layouts/CustomerLayout'
 
 function ProfilePage() {
   return (
-    <CustomerLayout>
-        <Profile />
+    <CustomerLayout isCategory={false}>
+      <Profile />
     </CustomerLayout>
   )
 }

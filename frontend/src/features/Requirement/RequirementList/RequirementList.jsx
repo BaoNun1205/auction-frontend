@@ -1,5 +1,15 @@
 import React, { useState } from 'react';
-import { Box, Button, Table, TableBody, TableCell, TableRow, CircularProgress, Typography, MenuItem as MuiMenuItem, Modal, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import {
+  Box,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableRow,
+  CircularProgress,
+  Typography,
+  MenuItem as MuiMenuItem,
+} from '@mui/material';
 import { Eye, SlidersHorizontal, Download, Trash2 } from 'lucide-react';
 import SelectComponent from '~/components/SelectComponent/SelectComponent';
 import SearchTextField from '~/components/SearchTextFieldComponent/SearchTextField';
@@ -8,111 +18,74 @@ import PaginationControl from '~/components/PanigationControlComponent/Paginatio
 import { useApprovedRequirement, useFilterRequirements, useRejectedRequirement } from '~/hooks/requirementHook';
 import { useNavigate } from 'react-router-dom';
 import parseToken from '~/utils/parseToken';
+import splitDateTime from '~/utils/SplitDateTime';
+import ActionMenu from '~/components/IconMenuComponent/IconMenuComponent';
+import ListEmpty from '~/components/ListEmpty/ListEmpty';
+import RequirementDetails from '~/features/Requirement/RequirementList/RequirementDetail';
 import {
   StyledContainer,
-  StyledCheckbox,
   StyledControlBox,
   StyledHeaderBox,
   StyledInnerBox,
   StyledSecondaryBox,
-  StyledSpan,
-  StyledStatusBox,
-  StyledSubtitleBox,
-  StyledTableCell,
   StyledTableContainer,
   StyledTableHead,
+  StyledTableCell,
   StyledTableRow,
-  StyledTitleBox
+  StyledSpan,
+  StyledStatusBox,
+  StyledTitleBox,
+  StyledSubtitleBox,
 } from '~/features/style';
-import splitDateTime from '~/utils/SplitDateTime';
-import ActionMenu from '~/components/IconMenuComponent/IconMenuComponent';
-import ListEmpty from '~/components/ListEmpty/ListEmpty';
-import RequirementDetails from '~/features/Requirement/RequirementList/RequirementDetail'; 
-
 
 const RequirementList = () => {
-  const [selectedItems, setSelectedItems] = useState([]);
-  const [showDeleteButton, setShowDeleteButton] = useState(false);
   const [status, setStatus] = useState(0);
   const [keyword, setKeyword] = useState('');
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [openDetailsModal, setOpenDetailsModal] = useState(false);  // Modal state
+  const [openDetailsModal, setOpenDetailsModal] = useState(false);
   const [selectedRequirement, setSelectedRequirement] = useState(null);
 
   const navigate = useNavigate();
-
   const { data, error, isLoading, refetch } = useFilterRequirements(status, keyword, page, rowsPerPage);
   const items = Array.isArray(data?.data) ? data.data : [];
-  const { mutate: approvedRequirement } = useApprovedRequirement();
-  const { mutate: rejectedRequirement } = useRejectedRequirement();
+  const { mutate: approveRequirement } = useApprovedRequirement();
+  const { mutate: rejectRequirement } = useRejectedRequirement();
 
-  const publishMenuItems = [
-    { value: '0', label: 'Not Approved' },
-    { value: '1', label: 'Approved' },
-    { value: '2', label: 'Rejected' }
+  const statusMenuItems = [
+    { value: '0', label: 'Chưa Duyệt' },
+    { value: '1', label: 'Đã Duyệt' },
+    { value: '2', label: 'Từ Chối' },
   ];
 
-  const columnNames = ['Name', 'Created At', 'Expected Price', 'Status', 'Vendor', 'Inspector'];
-  
+  const columnNames = ['Tên', 'Ngày Tạo', 'Giá Dự Kiến', 'Trạng Thái', 'Người bán', 'Người kiểm duyệt'];
 
-  const handlePageChange = (newPage) => {
-    setPage(newPage);
-  };
+  const handlePageChange = (newPage) => setPage(newPage);
 
   const handleRowsPerPageChange = (newRowsPerPage) => {
     setRowsPerPage(newRowsPerPage);
     setPage(0);
   };
 
-  const handleApprovedRequirement = (item) => {
+  const handleApproveRequirement = (item) => {
     const { jti: inspectorId } = parseToken();
-    approvedRequirement({ requirementId: item.requirementId, inspectorId }, {
-      onSuccess: refetch
-    });
+    approveRequirement({ requirementId: item.requirementId, inspectorId }, { onSuccess: refetch });
   };
 
-  const handleRejectedRequirement = (item) => {
-    rejectedRequirement(item.requirementId, {
-      onSuccess: refetch
-    });
+  const handleRejectRequirement = (item) => {
+    rejectRequirement(item.requirementId, { onSuccess: refetch });
   };
 
-  const handleCreateAsset = (item) => {
-    navigate(`/asset/create/${item.requirementId}`);
-  };
-
-  const handleSelectAll = (event) => {
-    if (event.target.checked) {
-      setSelectedItems(items.map(item => item.requirementId));
-      setShowDeleteButton(true);
-    } else {
-      setSelectedItems([]);
-      setShowDeleteButton(false);
-    }
-  };
-
-  const handleSelectItem = (event, itemId) => {
-    const newSelectedItems = event.target.checked
-      ? [...selectedItems, itemId]
-      : selectedItems.filter(id => id !== itemId);
-
-    setSelectedItems(newSelectedItems);
-    setShowDeleteButton(newSelectedItems.length > 0);
-  };
-
-  const handleDelete = () => {
-    console.log('Deleting selected requirements:', selectedItems);
-  };
+  const handleCreateAsset = (item) => navigate(`/asset/create/${item.requirementId}`);
 
   const handleViewDetails = (item) => {
-    setSelectedRequirement(item);  // Set the selected requirement
-    setOpenDetailsModal(true);     // Open the modal
+    setSelectedRequirement(item);
+    setOpenDetailsModal(true);
   };
 
   const handleCloseModal = () => {
-    setOpenDetailsModal(false);    // Close the modal
-    setSelectedRequirement(null);  // Clear selected requirement
+    setOpenDetailsModal(false);
+    setSelectedRequirement(null);
   };
 
   return (
@@ -120,9 +93,9 @@ const RequirementList = () => {
       <StyledInnerBox>
         <StyledHeaderBox>
           <Box>
-            <StyledTitleBox>Yêu cầu bán đấu giá</StyledTitleBox>
-            <StyledSubtitleBox>
-              Dashboard • Requirement • <Box component="span" sx={{ color: 'primary.disable' }}>List</Box>
+            <StyledTitleBox sx={{ whiteSpace: 'nowrap' }}>Yêu cầu bán đấu giá</StyledTitleBox>
+            <StyledSubtitleBox sx={{ whiteSpace: 'nowrap' }}>
+              Dashboard • Yêu Cầu • <Box component="span" sx={{ color: 'primary.disable' }}>Danh Sách</Box>
             </StyledSubtitleBox>
           </Box>
         </StyledHeaderBox>
@@ -133,26 +106,16 @@ const RequirementList = () => {
               <SelectComponent
                 value={status}
                 onChange={(event) => setStatus(event.target.value)}
-                defaultValue=""
                 displayEmpty
-                menuItems={publishMenuItems}
-                placeholder="Status"
+                menuItems={statusMenuItems}
+                placeholder="Trạng Thái"
               />
               <SearchTextField value={keyword} onChange={(event) => setKeyword(event.target.value)} />
             </Box>
             <Box sx={{ display: 'flex', gap: 2, color: 'primary.textMain' }}>
-              {showDeleteButton && (
-                <Button
-                  startIcon={<Trash2 size={20} />}
-                  sx={{ color: 'error.main' }}
-                  onClick={handleDelete}
-                >
-                  Delete ({selectedItems.length})
-                </Button>
-              )}
-              <IconButtonComponent startIcon={<Eye size={20} />} disabled={items.length === 0}>Columns</IconButtonComponent>
-              <IconButtonComponent startIcon={<SlidersHorizontal size={20} />} disabled={items.length === 0}>Filters</IconButtonComponent>
-              <IconButtonComponent startIcon={<Download size={20} />} disabled={items.length === 0}>Export</IconButtonComponent>
+              <IconButtonComponent startIcon={<Eye size={20} />} disabled={items.length === 0}>Cột</IconButtonComponent>
+              <IconButtonComponent startIcon={<SlidersHorizontal size={20} />} disabled={items.length === 0}>Bộ Lọc</IconButtonComponent>
+              <IconButtonComponent startIcon={<Download size={20} />} disabled={items.length === 0}>Xuất</IconButtonComponent>
             </Box>
           </StyledControlBox>
         </StyledSecondaryBox>
@@ -161,16 +124,10 @@ const RequirementList = () => {
           <StyledSecondaryBox bgcolor={(theme) => theme.palette.primary.secondary}>
             <StyledTableContainer>
               <Table>
-                <StyledTableHead sx={(theme) => ({ bgcolor: theme.palette.primary.buttonHover })}>
+                <StyledTableHead sx={{ bgcolor: '#B41712' }}>
                   <TableRow>
-                    <TableCell padding="checkbox">
-                      <StyledCheckbox
-                        checked={selectedItems.length === items.length}
-                        onChange={handleSelectAll}
-                      />
-                    </TableCell>
                     {columnNames.map((columnName, index) => (
-                      <StyledTableCell key={index}>
+                      <StyledTableCell key={index} sx={{ color: 'white', whiteSpace: 'nowrap' }}>
                         {columnName}
                       </StyledTableCell>
                     ))}
@@ -180,7 +137,7 @@ const RequirementList = () => {
                 <TableBody>
                   {isLoading ? (
                     <TableRow>
-                      <TableCell colSpan={columnNames.length + 2}>
+                      <TableCell colSpan={columnNames.length + 1}>
                         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                           <CircularProgress />
                         </Box>
@@ -188,8 +145,8 @@ const RequirementList = () => {
                     </TableRow>
                   ) : error ? (
                     <TableRow>
-                      <TableCell colSpan={columnNames.length + 2}>
-                        <Typography color="error">Error fetching requirements</Typography>
+                      <TableCell colSpan={columnNames.length + 1}>
+                        <Typography color="error">Lỗi khi lấy dữ liệu yêu cầu</Typography>
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -197,18 +154,11 @@ const RequirementList = () => {
                       const { date, time } = splitDateTime(item.createdAt);
                       return (
                         <StyledTableRow key={item.requirementId}>
-                          <TableCell padding="checkbox">
-                            <StyledCheckbox
-                              checked={selectedItems.includes(item.requirementId)}
-                              onChange={(event) => handleSelectItem(event, item.requirementId)}
-                              onClick={(event) => event.stopPropagation()}
-                            />
-                          </TableCell>
-                          <TableCell>
+                          <TableCell sx={{ whiteSpace: 'nowrap' }}>
                             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                               <Box
                                 component="img"
-                                src={item.image}
+                                src={item.imageRequirements[0]?.image}
                                 sx={{ width: 48, height: 48, borderRadius: 1, mr: 2 }}
                               />
                               <Box>
@@ -216,45 +166,34 @@ const RequirementList = () => {
                               </Box>
                             </Box>
                           </TableCell>
-                          <TableCell>
-                            <StyledSpan>{date} </StyledSpan>
-                            <StyledSpan>{time}</StyledSpan>
+                          <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                            <StyledSpan>{date} {time}</StyledSpan>
+                          </TableCell>
+                          <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                            <StyledSpan>{item.assetPrice.toLocaleString()}</StyledSpan>
                           </TableCell>
                           <TableCell>
-                            <StyledSpan>${item.assetPrice.toFixed(2)}</StyledSpan>
-                          </TableCell>
-                          <TableCell>
-                            <StyledStatusBox
-                              sx={(theme) => {
-                                if (item.status === '1') {
-                                  return { bgcolor: theme.palette.success.main, color: theme.palette.success.contrastText };
-                                } else if (item.status === '2') {
-                                  return { bgcolor: theme.palette.error.main, color: theme.palette.error.contrastText };
-                                } else {
-                                  return { bgcolor: theme.palette.warning.main, color: theme.palette.warning.contrastText };
-                                }
-                              }}
-                            >
-                              {item.status === '1' ? 'Approved' : item.status === '2' ? 'Rejected' : 'Not Approved'}
+                            <StyledStatusBox sx={{ bgcolor: item.status === '1' ? 'success.main' : item.status === '2' ? 'error.main' : 'warning.main' }}>
+                              {item.status === '1' ? 'Đã Duyệt' : item.status === '2' ? 'Từ Chối' : 'Chưa Duyệt'}
                             </StyledStatusBox>
                           </TableCell>
                           <TableCell>
-                            <StyledSpan>{item.vendor || 'N/A'}</StyledSpan>
+                            <StyledSpan>{item.vendor?.username || 'N/A'}</StyledSpan>
                           </TableCell>
                           <TableCell>
-                            <StyledSpan>{item.inspector || 'N/A'}</StyledSpan>
+                            <StyledSpan>{item.inspector?.username || 'N/A'}</StyledSpan>
                           </TableCell>
                           <TableCell>
                             <ActionMenu>
                               {item.status === '0' ? (
                                 <>
-                                  <MuiMenuItem onClick={() => handleApprovedRequirement(item)}>Approve</MuiMenuItem>
-                                  <MuiMenuItem onClick={() => handleRejectedRequirement(item)}>Reject</MuiMenuItem>
-                                  <MuiMenuItem onClick={() => handleViewDetails(item)}>View Details</MuiMenuItem> {/* New menu item */}
+                                  <MuiMenuItem onClick={() => handleApproveRequirement(item)}>Duyệt</MuiMenuItem>
+                                  <MuiMenuItem onClick={() => handleRejectRequirement(item)}>Từ Chối</MuiMenuItem>
+                                  <MuiMenuItem onClick={() => handleViewDetails(item)}>Xem Chi Tiết</MuiMenuItem>
                                 </>
-                              ) : item.status === '1' ? (
-                                <MuiMenuItem onClick={() => handleCreateAsset(item)}>Create Asset</MuiMenuItem>
-                              ) : null}
+                              ) : item.status === '1' && (
+                                <MuiMenuItem onClick={() => handleCreateAsset(item)}>Tạo Tài Sản</MuiMenuItem>
+                              )}
                             </ActionMenu>
                           </TableCell>
                         </StyledTableRow>
@@ -265,36 +204,25 @@ const RequirementList = () => {
               </Table>
             </StyledTableContainer>
             <PaginationControl
+              count={data?.totalElements || 0}
               page={page}
               rowsPerPage={rowsPerPage}
-              totalItems={data?.total}
               onPageChange={handlePageChange}
               onRowsPerPageChange={handleRowsPerPageChange}
             />
           </StyledSecondaryBox>
         ) : (
-          <StyledSecondaryBox>
-            <ListEmpty nameList="requirements" />
-            <PaginationControl
-              page={page}
-              rowsPerPage={rowsPerPage}
-              totalItems={data?.total}
-              onPageChange={handlePageChange}
-              onRowsPerPageChange={handleRowsPerPageChange}
-            />
-          </StyledSecondaryBox>
+          <ListEmpty message="Không có yêu cầu nào" />
         )}
       </StyledInnerBox>
 
-      {/* Modal for viewing details */}
       <RequirementDetails
-        open={openDetailsModal} 
-        onClose={handleCloseModal} 
+        open={openDetailsModal}
+        onClose={handleCloseModal}
         requirement={selectedRequirement}
-        onApprove={handleApprovedRequirement} // Pass approve handler
-        onReject={handleRejectedRequirement}   // Pass reject handler
+        onApprove={handleApproveRequirement}
+        onReject={handleRejectRequirement}
       />
-
     </StyledContainer>
   );
 };
