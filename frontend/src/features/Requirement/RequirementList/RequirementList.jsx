@@ -173,6 +173,25 @@ const RequirementList = () => {
                             <StyledSpan>{item.assetPrice.toLocaleString()}</StyledSpan>
                           </TableCell>
                           <TableCell>
+                            <StyledStatusBox
+                              sx={(theme) => {
+                                if (item.status === '1') {
+                                  return { bgcolor: theme.palette.success.main, color: theme.palette.success.contrastText };
+                                } else if (item.status === '2') {
+                                  return { bgcolor: theme.palette.error.main, color: theme.palette.error.contrastText };
+                                } else {
+                                  return { bgcolor: theme.palette.warning.main, color: theme.palette.warning.contrastText };
+                                }
+                              }}
+                            >
+                              {item.status === '1' ? 'Đã duyệt' : item.status === '2' ? 'Đã từ chối' : 'Đang chờ duyệt'}
+                            </StyledStatusBox>
+                          </TableCell>
+                          <TableCell>
+                            <StyledSpan>{item?.vendor?.username || 'N/A'}</StyledSpan>
+                          </TableCell>
+                          <TableCell>
+                            <StyledSpan>{item?.inspector?.username || 'N/A'}</StyledSpan>
                             <StyledStatusBox sx={{ bgcolor: item.status === '1' ? 'success.main' : item.status === '2' ? 'error.main' : 'warning.main' }}>
                               {item.status === '1' ? 'Đã Duyệt' : item.status === '2' ? 'Từ Chối' : 'Chưa Duyệt'}
                             </StyledStatusBox>
@@ -187,6 +206,11 @@ const RequirementList = () => {
                             <ActionMenu>
                               {item.status === '0' ? (
                                 <>
+                                  <MuiMenuItem onClick={() => handleViewDetails(item)}>Xem chi tiết</MuiMenuItem> {/* New menu item */}
+                                </>
+                              ) : item.status === '1' ? (
+                                <MuiMenuItem onClick={() => handleCreateAsset(item)}>Tạo sản phẩm</MuiMenuItem>
+                              ) : null}
                                   <MuiMenuItem onClick={() => handleApproveRequirement(item)}>Duyệt</MuiMenuItem>
                                   <MuiMenuItem onClick={() => handleRejectRequirement(item)}>Từ Chối</MuiMenuItem>
                                   <MuiMenuItem onClick={() => handleViewDetails(item)}>Xem Chi Tiết</MuiMenuItem>
