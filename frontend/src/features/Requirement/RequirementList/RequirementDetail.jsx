@@ -167,7 +167,7 @@ const RequirementDetails = ({
                       </Typography>
 
                       <Typography variant="subtitle1">
-                        Người bán: {requirement.vendor}
+                        Người bán: {requirement.vendor?.username}
                       </Typography>
                     </Paper>
 
