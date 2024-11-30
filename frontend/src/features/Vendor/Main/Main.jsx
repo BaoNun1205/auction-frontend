@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import { 
   Box, Container, Typography, Grid, Paper, List, ListItem, ListItemText, 
   ListItemIcon, Button, styled, useTheme, useMediaQuery, IconButton, Drawer,
-  Collapse
+  Collapse, Breadcrumbs
 } from '@mui/material';
 import { 
   Person, EmojiEvents, Gavel, Store, ExitToApp, LocationOn, Menu as MenuIcon,
   ExpandLess, ExpandMore
 } from '@mui/icons-material';
-import { Home, FolderTree, ShoppingBag, Calendar, FileText } from 'lucide-react'
+import { Home, FolderTree, ShoppingBag, Calendar, FileText, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useLogout } from '~/hooks/authHook';
 import AppModal from '~/components/Modal/Modal';
@@ -56,6 +56,10 @@ const Main = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
+  const handleNavigate = (path) => {
+    navigate(path);
+  };
+
   const handleLogout = () => {
     setLogoutModalOpen(true);
   };
@@ -92,7 +96,7 @@ const Main = () => {
   const drawer = (
     <StyledPaper elevation={3}>
       <Typography variant="h6" gutterBottom align="center" fontWeight="bold" sx={{ my: 2 }}>
-        Thông tin tài khoản
+        Bán đấu giá
       </Typography>
       <List>
         {menuItems.map((item) => (
@@ -152,6 +156,35 @@ const Main = () => {
   return (
     <Box sx={{ display: 'flex' }}>
       <Container maxWidth="xl" sx={{ mt: { xs: 2, sm: 4 }, mb: { xs: 2, sm: 4 }, mx: 'auto' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', mb: 3 }}>
+          <Breadcrumbs separator={<ChevronRight fontSize="small" />} aria-label="breadcrumb">
+            <Typography
+              color="inherit"
+              onClick={() => handleNavigate('/')}
+              sx={{ cursor: 'pointer', textDecoration: 'underline' }}
+            >
+              Trang chủ
+            </Typography>
+            <Typography
+              color="inherit"
+              onClick={() => handleNavigate('/profile')}
+              sx={{ cursor: 'pointer', textDecoration: 'underline' }}
+            >
+              Thông tin tài khoản
+            </Typography>
+            <Typography
+              color="inherit"
+              onClick={() => handleNavigate('/vendor')}
+              sx={{ cursor: 'pointer', textDecoration: 'underline' }}
+            >
+              Bán đấu giá
+            </Typography>
+            <Typography color="text.primary">
+              {tab === 1 && 'Tài sản'}
+              {tab === 2 && 'Yêu cầu'}
+            </Typography>
+          </Breadcrumbs>
+        </Box>
         <Grid container spacing={3} justifyContent="center">
           {isMobile && (
             <Box sx={{ position: 'fixed', right: 16, top: 16, zIndex: 1100 }}>
@@ -196,6 +229,7 @@ const Main = () => {
         <AppModal
           open={logoutModalOpen}
           onClose={handleCloseLogoutModal}
+          fullScreen
         >
           <Box sx={{ p: 3, borderRadius: theme.shape.borderRadius * 2 }}>
             <Typography id="logout-modal-title" variant="h6" component="h2" color="#B7201B" gutterBottom>
@@ -225,4 +259,3 @@ const Main = () => {
 };
 
 export default Main;
-

@@ -99,12 +99,6 @@ const AnimatedButton = styled(motion.div)({
   display: 'inline-block'
 })
 
-const sampleData = [
-  { id: 1, name: 'Đồng hồ Rolex cổ', startingPrice: 5000000, status: 'Pending', description: 'Đồng hồ Rolex cổ từ những năm 1960, trong tình trạng hoàn hảo.', productImages: ['https://example.com/watch1.jpg', 'https://example.com/watch2.jpg'], documentImages: ['https://example.com/doc1.jpg'] },
-  { id: 2, name: 'Bàn gỗ gụ cổ', startingPrice: 1200000, status: 'Approved', description: 'Bàn gỗ gụ cổ từ thế kỷ 19 với những đường chạm khắc tinh xảo.', productImages: ['https://example.com/desk1.jpg'], documentImages: ['https://example.com/doc2.jpg'] },
-  { id: 3, name: 'Bộ sưu tập sách quý', startingPrice: 3000000, status: 'Rejected', description: 'Bộ sưu tập sách quý hiếm của các tác giả nổi tiếng thế kỷ 20.', productImages: ['https://example.com/books1.jpg', 'https://example.com/books2.jpg'], documentImages: ['https://example.com/doc4.jpg'] }
-]
-
 const AuctionRequest = () => {
   const [openDialog, setOpenDialog] = useState(false)
   const [currentRequirement, setCurrentRequirement] = useState(null)
@@ -119,7 +113,7 @@ const AuctionRequest = () => {
   const { mutate: deleteRequirement } = useDeleteRequirement()
   const { mutate: createRequirement } = useCreateRequirement()
   const { auth } = useAppStore()
-  const { data } = useRequirementsByVendorId(auth.user.id)
+  const { data, refetch } = useRequirementsByVendorId(auth.user.id)
   const requirements = Array.isArray(data) ? data : []
 
   const [formData, setFormData] = useState({
@@ -128,7 +122,7 @@ const AuctionRequest = () => {
     startingPrice: '',
     productImages: ['', '', '', ''],
     documentImages: ['', ''],
-    status: 'Pending'
+    status: '0'
   })
 
   const handleInputChange = (e) => {
@@ -182,10 +176,11 @@ const AuctionRequest = () => {
         setSnackbar({ open: true, message: 'Yêu cầu đã được cập nhật', severity: 'success' })
       } else {
         // setRequirements([...requirements, { ...formData, requirementId: Date.now() }]);
-        await createRequirement(formDataObj, {
+        createRequirement(formDataObj, {
           onSuccess: (response) => {
             console.log('Success:', response)
-            setSnackbar({ open: true, message: 'Yêu cầu mới đã được thêm', severity: 'success' })
+            setSnackbar({ open: true, message: 'Yêu cầu mới đã được tạo', severity: 'success' })
+            refetch()
           },
           onError: (error) => {
             console.error('Error:', error)
@@ -218,7 +213,7 @@ const AuctionRequest = () => {
         startingPrice: '',
         productImages: ['', '', '', ''],
         documentImages: ['', ''],
-        status: 'Pending'
+        status: '0'
       })
     }
     setOpenDialog(true)
@@ -256,7 +251,7 @@ const AuctionRequest = () => {
     setSelectedRequirement(null)
   }
 
-  const canEdit = (status) => status === '0' || status === 'Pending'
+  const canEdit = (status) => status === '0'
 
   const filteredRequirements = useMemo(() => {
     return requirements.filter(req => {
@@ -362,7 +357,7 @@ const AuctionRequest = () => {
               {filteredRequirements.map((req) => (
                 <TableRow key={req.requirementId}>
                   <TableCell>{req.assetName}</TableCell>
-                  <TableCell align="right">{`${req.assetPrice.toLocaleString()}₫`}</TableCell>
+                  <TableCell align="right">{`${req.assetPrice.toLocaleString('vi-VN')}`}₫</TableCell>
                   <TableCell align="center">
                     <StyledChip
                       label={req.status === '0' ? 'Đang chờ duyệt' : req.status === '1' ? 'Đang xử lý' : 'Đã từ chối'}
@@ -591,7 +586,12 @@ const AuctionRequest = () => {
         </DialogActions>
       </Dialog>
 
-      <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={handleCloseSnackbar}>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
         <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
           {snackbar.message}
         </Alert>
