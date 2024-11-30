@@ -18,7 +18,8 @@ import {
   InputAdornment,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import TextFieldComponent from '~/components/TextFieldComponent/TextFieldComponent';
+import { useGetUserById } from '~/hooks/userHook';
+import { useAppStore } from '~/store/appStore';
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -62,11 +63,25 @@ const StyledFormControlLabel = styled(FormControlLabel)(({ theme }) => ({
   },
 }));
 
+const maskEmail = (email) => {
+  if (!email) return '';
+  const [name, domain] = email.split('@');
+  const maskedName = name.slice(0, 2) + '*'.repeat(name.length - 2);
+  return `${maskedName}@${domain}`;
+};
+
+const maskPhone = (phone) => {
+  if (!phone) return '';
+  return phone.slice(0, 2) + '*'.repeat(phone.length - 4) + phone.slice(-2);
+};
+
 const CustomerInformation = () => {
-  const [gender, setGender] = useState('Nam');
+  const [gender, setGender] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('/placeholder.svg?height=180&width=180');
   const [errorMessage, setErrorMessage] = useState('');
-  
+  const { auth } = useAppStore();
+  const { data: user } = useGetUserById(auth?.user?.id);
+
   // Generate arrays for day, month, year options
   const days = Array.from({ length: 31 }, (_, i) => i + 1);
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
@@ -117,23 +132,33 @@ const CustomerInformation = () => {
                 <TextField
                   fullWidth
                   label="Tên đăng nhập"
-                  value="lenguyenbao07"
+                  value={user?.username}
                 />
               </Grid>
-              
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Tên"
-                  variant="outlined"
-                />
+              <Grid container item xs={12} spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Họ"
+                    variant="outlined"
+                    value={user?.firstName}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Tên"
+                    variant="outlined"
+                    value={user?.lastName}
+                  />
+                </Grid>
               </Grid>
 
               <Grid item xs={12}>
                 <TextField
                   fullWidth
                   label="Email"
-                  value="ba*********@gmail.com"
+                  value={maskEmail(user?.email)}
                   InputProps={{
                     readOnly: true,
                     endAdornment: (
@@ -151,7 +176,7 @@ const CustomerInformation = () => {
                 <TextField
                   fullWidth
                   label="Số điện thoại"
-                  value="********27"
+                  value={maskPhone(user?.phone)}
                   InputProps={{
                     readOnly: true,
                     endAdornment: (

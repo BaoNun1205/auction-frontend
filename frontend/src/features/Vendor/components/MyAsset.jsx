@@ -23,12 +23,13 @@ import {
   InputAdornment,
   Select,
   Tabs,
-  Tab,
+  Tab
 } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import SearchIcon from '@mui/icons-material/Search'
 import FilterListIcon from '@mui/icons-material/FilterList'
+import { useFilterAssets } from '~/hooks/assetHook'
 
 const StyledPaper = styled(Paper)({
   padding: '24px',
@@ -75,7 +76,8 @@ const MyAssets = () => {
   const [selectedAsset, setSelectedAsset] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [priceFilter, setPriceFilter] = useState('')
-  const [activeTab, setActiveTab] = useState(0);
+  const [activeTab, setActiveTab] = useState(0)
+  // const { data: assets } = useFilterAssets({ vendorId: })
 
   const handleCloseSnackbar = (event, reason) => {
     if (reason === 'clickaway') {
@@ -96,14 +98,14 @@ const MyAssets = () => {
 
   const getStatusLabel = (status) => {
     switch (status) {
-      case 'pending':
-        return 'Chưa đấu giá'
-      case 'bidding':
-        return 'Đang đấu giá'
-      case 'completed':
-        return 'Đã đấu giá thành công'
-      default:
-        return status
+    case 'pending':
+      return 'Chưa đấu giá'
+    case 'bidding':
+      return 'Đang đấu giá'
+    case 'completed':
+      return 'Đã đấu giá thành công'
+    default:
+      return status
     }
   }
 
@@ -112,17 +114,20 @@ const MyAssets = () => {
       const matchesTab = activeTab === 0 ||
         (activeTab === 1 && asset.status === 'completed') ||
         (activeTab === 2 && asset.status === 'bidding') ||
-        (activeTab === 3 && asset.status === 'pending');
-      const matchesSearch = asset.name.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesPrice = priceFilter === '' || asset.startingPrice <= parseInt(priceFilter);
-      return matchesTab && matchesSearch && matchesPrice;
+        (activeTab === 3 && asset.status === 'pending')
+      const matchesSearch = asset.name.toLowerCase().includes(searchTerm.toLowerCase())
+      const matchesPrice = priceFilter === '' || asset.startingPrice <= parseInt(priceFilter)
+      return matchesTab && matchesSearch && matchesPrice
     })
   }, [assets, activeTab, searchTerm, priceFilter])
 
   return (
     <Box sx={{ maxWidth: 1200, margin: 'auto', padding: 3 }}>
-      <Typography variant="h4" gutterBottom fontWeight="bold" color="#b41712" align="center" mb={4}>
-        Tài sản của tôi
+      <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
+            Tài sản của tôi
+      </Typography>
+      <Typography variant="subtitle1" color="text.secondary" gutterBottom>
+            Quản lý thông tin tài sản của bạn
       </Typography>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Tabs

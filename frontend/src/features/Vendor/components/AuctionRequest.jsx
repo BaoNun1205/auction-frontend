@@ -116,11 +116,11 @@ const AuctionRequest = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [priceFilter, setPriceFilter] = useState('')
   const [isCreating, setIsCreating] = useState(false)
-  const { mutate: deleteRequirement } = useDeleteRequirement();
+  const { mutate: deleteRequirement } = useDeleteRequirement()
   const { mutate: createRequirement } = useCreateRequirement()
   const { auth } = useAppStore()
   const { data } = useRequirementsByVendorId(auth.user.id)
-  const requirements = Array.isArray(data) ? data : [];
+  const requirements = Array.isArray(data) ? data : []
 
   const [formData, setFormData] = useState({
     name: '',
@@ -179,19 +179,19 @@ const AuctionRequest = () => {
         // setRequirements(requirements.map(req =>
         //   req.requirementId === currentRequirement.requirementId ? { ...formData, requirementId: req.requirementId } : req
         // ));
-        setSnackbar({ open: true, message: 'Yêu cầu đã được cập nhật', severity: 'success' });
+        setSnackbar({ open: true, message: 'Yêu cầu đã được cập nhật', severity: 'success' })
       } else {
         // setRequirements([...requirements, { ...formData, requirementId: Date.now() }]);
         await createRequirement(formDataObj, {
           onSuccess: (response) => {
-            console.log('Success:', response);
-            setSnackbar({ open: true, message: 'Yêu cầu mới đã được thêm', severity: 'success' });
+            console.log('Success:', response)
+            setSnackbar({ open: true, message: 'Yêu cầu mới đã được thêm', severity: 'success' })
           },
           onError: (error) => {
-            console.error('Error:', error);
-            setSnackbar({ open: true, message: 'Có lỗi xảy ra khi thêm yêu cầu', severity: 'error' });
+            console.error('Error:', error)
+            setSnackbar({ open: true, message: 'Có lỗi xảy ra khi thêm yêu cầu', severity: 'error' })
           }
-        });
+        })
       }
       handleCloseDialog()
     } finally {
@@ -201,7 +201,7 @@ const AuctionRequest = () => {
 
   const handleOpenDialog = (requirement = null) => {
     if (requirement) {
-      setCurrentRequirement(requirement);
+      setCurrentRequirement(requirement)
       setFormData({
         name: requirement.assetName,
         description: requirement.assetDescription,
@@ -209,9 +209,9 @@ const AuctionRequest = () => {
         productImages: requirement.imageRequirements.map(img => img.image),
         documentImages: ['', ''],
         status: requirement.status
-      });
+      })
     } else {
-      setCurrentRequirement(null);
+      setCurrentRequirement(null)
       setFormData({
         name: '',
         description: '',
@@ -219,10 +219,10 @@ const AuctionRequest = () => {
         productImages: ['', '', '', ''],
         documentImages: ['', ''],
         status: 'Pending'
-      });
+      })
     }
-    setOpenDialog(true);
-  };
+    setOpenDialog(true)
+  }
 
   const handleCloseDialog = () => {
     setOpenDialog(false)
@@ -235,9 +235,9 @@ const AuctionRequest = () => {
 
   const handleDeleteRequirement = () => {
     deleteRequirement(deleteConfirmation.id)
-    setSnackbar({ open: true, message: 'Yêu cầu đã được xóa', severity: 'success' });
-    setDeleteConfirmation({ open: false, id: null });
-  };
+    setSnackbar({ open: true, message: 'Yêu cầu đã được xóa', severity: 'success' })
+    setDeleteConfirmation({ open: false, id: null })
+  }
 
   const handleCloseSnackbar = (event, reason) => {
     if (reason === 'clickaway') {
@@ -263,17 +263,20 @@ const AuctionRequest = () => {
       const matchesTab = activeTab === 0 ||
         (activeTab === 1 && req.status === '1') ||
         (activeTab === 2 && req.status === '0') ||
-        (activeTab === 3 && req.status === '2');
-      const matchesSearch = req.assetName.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesPrice = priceFilter === '' || req.assetPrice <= parseInt(priceFilter);
-      return matchesTab && matchesSearch && matchesPrice;
-    });
-  }, [requirements, activeTab, searchTerm, priceFilter]);
+        (activeTab === 3 && req.status === '2')
+      const matchesSearch = req.assetName.toLowerCase().includes(searchTerm.toLowerCase())
+      const matchesPrice = priceFilter === '' || req.assetPrice <= parseInt(priceFilter)
+      return matchesTab && matchesSearch && matchesPrice
+    })
+  }, [requirements, activeTab, searchTerm, priceFilter])
 
   return (
     <Box sx={{ maxWidth: 1200, margin: 'auto', padding: 3 }}>
-      <Typography variant="h4" gutterBottom fontWeight="bold" color={primaryColor} align="center" mb={4}>
-        Yêu cầu Bán đấu giá
+      <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
+        Yêu cầu bán đấu giá
+      </Typography>
+      <Typography variant="subtitle1" color="text.secondary" gutterBottom>
+        Quản lý các yêu cầu bán đấu giá của bạn
       </Typography>
       <StyledPaper>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
