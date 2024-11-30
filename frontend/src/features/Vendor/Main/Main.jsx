@@ -8,10 +8,14 @@ import {
   Person, EmojiEvents, Gavel, Store, ExitToApp, LocationOn, Menu as MenuIcon,
   ExpandLess, ExpandMore
 } from '@mui/icons-material';
+import { Home, FolderTree, ShoppingBag, Calendar, FileText } from 'lucide-react'
 import { useNavigate } from 'react-router-dom';
 import { useLogout } from '~/hooks/authHook';
 import AppModal from '~/components/Modal/Modal';
 import MyAssets from '../components/MyAsset';
+import AuctionRequest from '../components/AuctionRequest';
+
+const primaryColor = '#b41712';
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -29,14 +33,14 @@ const StyledListItem = styled(ListItem)(({ theme, active }) => ({
   marginBottom: theme.spacing(1),
   transition: 'all 0.2s',
   '&:hover': {
-    backgroundColor: theme.palette.action.hover,
+    backgroundColor: 'rgba(180, 23, 18, 0.1)',
     transform: 'translateX(5px)',
   },
   ...(active && {
-    backgroundColor: theme.palette.primary.main,
+    backgroundColor: primaryColor,
     color: theme.palette.primary.contrastText,
     '&:hover': {
-      backgroundColor: theme.palette.primary.dark,
+      backgroundColor: '#8B0000',
     },
   }),
 }));
@@ -81,8 +85,8 @@ const Main = () => {
   };
 
   const menuItems = [
-    { text: 'Tài sản', icon: <Person />, value: 1 },
-    { text: 'Phiên đấu giá', icon: <LocationOn />, value: 2 }
+    { text: 'Tài sản', icon: <ShoppingBag />, value: 1 },
+    { text: 'Yêu cầu', icon: <FileText />, value: 2 }
   ];
 
   const drawer = (
@@ -184,7 +188,7 @@ const Main = () => {
           <Grid item xs={12} sm={8} md={9} lg={9}>
             <StyledPaper elevation={3}>
               {tab === 1 && <MyAssets />}
-              {tab === 2 && <MyAssets />}
+              {tab === 2 && <AuctionRequest />}
             </StyledPaper>
           </Grid>
         </Grid>

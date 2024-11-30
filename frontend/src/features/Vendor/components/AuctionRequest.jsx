@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react'
 import {
   Box,
   Typography,
-  TextField,
   Button,
+  TextField,
   Grid,
-  Paper,
   Table,
   TableBody,
   TableCell,
@@ -16,132 +15,112 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  useTheme,
-  useMediaQuery,
   Snackbar,
   Alert,
   Chip,
-  Card,
-  CardContent,
-  Fade,
   IconButton,
   Menu,
   MenuItem,
-} from '@mui/material';
-import { styled } from '@mui/material/styles';
-import AddIcon from '@mui/icons-material/Add';
-import CloseIcon from '@mui/icons-material/Close';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
-import { motion, AnimatePresence } from 'framer-motion';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
-import { useCreateRequirement } from '~/hooks/requirementHook';
+  Paper,
+  Tab,
+  Tabs,
+  InputAdornment,
+  Select,
+  CircularProgress
+} from '@mui/material'
+import { styled } from '@mui/material/styles'
+import AddIcon from '@mui/icons-material/Add'
+import MoreVertIcon from '@mui/icons-material/MoreVert'
+import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate'
+import CloseIcon from '@mui/icons-material/Close'
+import SearchIcon from '@mui/icons-material/Search'
+import FilterListIcon from '@mui/icons-material/FilterList'
+import { motion } from 'framer-motion'
+import ReactQuill from 'react-quill'
+import 'react-quill/dist/quill.snow.css'
+import { useCreateRequirement, useDeleteRequirement, useRequirementsByVendorId } from '~/hooks/requirementHook'
+import { useAppStore } from '~/store/appStore'
 
-const primaryColor = '#b41712';
+const primaryColor = '#b41712'
 
-const StyledCard = styled(Card)(({ theme }) => ({
+const StyledPaper = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(3),
   marginBottom: theme.spacing(3),
-  borderRadius: theme.shape.borderRadius * 2,
-  boxShadow: '0 8px 40px rgba(0, 0, 0, 0.12)',
-  overflow: 'hidden',
-  transition: 'all 0.3s ease-in-out',
-  '&:hover': {
-    transform: 'translateY(-5px)',
-    boxShadow: '0 12px 50px rgba(180, 23, 18, 0.2)',
-  },
-}));
+  borderRadius: theme.shape.borderRadius,
+  boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)'
+}))
+
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+  fontWeight: 'bold'
+}))
+
+const StyledChip = styled(Chip)(({ theme, status }) => ({
+  fontWeight: 'bold',
+  color: theme.palette.getContrastText(
+    status === '1' ? theme.palette.success.main :
+      status === '2' ? theme.palette.error.main :
+        theme.palette.warning.main
+  ),
+  backgroundColor:
+    status === '1' ? theme.palette.success.main :
+      status === '2' ? theme.palette.error.main :
+        theme.palette.warning.main
+}))
 
 const ImagePreview = styled(Box)({
   position: 'relative',
-  height: 200,
+  height: 150,
   width: '100%',
   backgroundSize: 'cover',
   backgroundPosition: 'center',
   cursor: 'pointer',
-  transition: 'transform 0.3s ease-in-out',
+  borderRadius: 4,
   '&:hover': {
-    transform: 'scale(1.05)',
-  },
-});
-
-const DeleteImageButton = styled(Button)({
-  position: 'absolute',
-  top: 5,
-  right: 5,
-  minWidth: 'auto',
-  padding: '4px',
-  backgroundColor: 'rgba(255, 255, 255, 0.7)',
-  '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-  },
-});
+    opacity: 0.8
+  }
+})
 
 const ImageUploadButton = styled(Button)(({ theme }) => ({
-  height: 200,
+  height: 150,
+  width: '100%',
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'center',
   border: `2px dashed ${theme.palette.grey[300]}`,
-  borderRadius: theme.shape.borderRadius,
+  borderRadius: 4,
   cursor: 'pointer',
-  transition: 'all 0.3s ease-in-out',
   '&:hover': {
-    borderColor: primaryColor,
-    backgroundColor: theme.palette.action.hover,
-  },
-}));
-
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
-  fontWeight: 'bold',
-  color: theme.palette.common.white,
-  backgroundColor: primaryColor,
-}));
-
-const StyledTableRow = styled(TableRow)(({ theme }) => ({
-  '&:nth-of-type(odd)': {
-    backgroundColor: theme.palette.action.hover,
-  },
-  '&:hover': {
-    backgroundColor: 'rgba(180, 23, 18, 0.08)',
-  },
-  transition: 'background-color 0.3s ease-in-out',
-}));
-
-const StyledChip = styled(Chip)(({ theme, status }) => ({
-  fontWeight: 'bold',
-  color: theme.palette.common.white,
-  backgroundColor:
-    status === 'Approved' ? theme.palette.success.main :
-    status === 'Rejected' ? theme.palette.error.main :
-    theme.palette.warning.main,
-}));
+    backgroundColor: theme.palette.action.hover
+  }
+}))
 
 const AnimatedButton = styled(motion.div)({
-  display: 'inline-block',
-});
+  display: 'inline-block'
+})
 
 const sampleData = [
-  { id: 1, name: 'Vintage Rolex Watch', startingPrice: '5000', status: 'Pending', description: 'A classic Rolex watch from the 1960s in excellent condition.', productImages: ['https://example.com/watch1.jpg', 'https://example.com/watch2.jpg'], documentImages: ['https://example.com/doc1.jpg'], category: 'Watches' },
-  { id: 2, name: 'Antique Mahogany Desk', startingPrice: '1200', status: 'Approved', description: 'Beautiful 19th century mahogany writing desk with intricate carvings.', productImages: ['https://example.com/desk1.jpg'], documentImages: ['https://example.com/doc2.jpg'], category: 'Furniture' },
-  { id: 3, name: 'First Edition Book Collection', startingPrice: '3000', status: 'Rejected', description: 'A collection of rare first edition books from renowned 20th century authors.', productImages: ['https://example.com/books1.jpg', 'https://example.com/books2.jpg'], documentImages: ['https://example.com/doc4.jpg'], category: 'Books' },
-];
-
-const categories = ['Watches', 'Furniture', 'Books', 'Art', 'Jewelry', 'Electronics', 'Other'];
+  { id: 1, name: 'Đồng hồ Rolex cổ', startingPrice: 5000000, status: 'Pending', description: 'Đồng hồ Rolex cổ từ những năm 1960, trong tình trạng hoàn hảo.', productImages: ['https://example.com/watch1.jpg', 'https://example.com/watch2.jpg'], documentImages: ['https://example.com/doc1.jpg'] },
+  { id: 2, name: 'Bàn gỗ gụ cổ', startingPrice: 1200000, status: 'Approved', description: 'Bàn gỗ gụ cổ từ thế kỷ 19 với những đường chạm khắc tinh xảo.', productImages: ['https://example.com/desk1.jpg'], documentImages: ['https://example.com/doc2.jpg'] },
+  { id: 3, name: 'Bộ sưu tập sách quý', startingPrice: 3000000, status: 'Rejected', description: 'Bộ sưu tập sách quý hiếm của các tác giả nổi tiếng thế kỷ 20.', productImages: ['https://example.com/books1.jpg', 'https://example.com/books2.jpg'], documentImages: ['https://example.com/doc4.jpg'] }
+]
 
 const AuctionRequest = () => {
-  const [requirements, setRequirements] = useState(sampleData);
-  const [openDialog, setOpenDialog] = useState(false);
-  const [currentRequirement, setCurrentRequirement] = useState(null);
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
-  const [deleteConfirmation, setDeleteConfirmation] = useState({ open: false, id: null });
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [selectedRequirement, setSelectedRequirement] = useState(null);
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const { mutate: createRequirement } = useCreateRequirement();
-
+  const [openDialog, setOpenDialog] = useState(false)
+  const [currentRequirement, setCurrentRequirement] = useState(null)
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
+  const [deleteConfirmation, setDeleteConfirmation] = useState({ open: false, id: null })
+  const [anchorEl, setAnchorEl] = useState(null)
+  const [selectedRequirement, setSelectedRequirement] = useState(null)
+  const [activeTab, setActiveTab] = useState(0)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [priceFilter, setPriceFilter] = useState('')
+  const [isCreating, setIsCreating] = useState(false)
+  const { mutate: deleteRequirement } = useDeleteRequirement();
+  const { mutate: createRequirement } = useCreateRequirement()
+  const { auth } = useAppStore()
+  const { data } = useRequirementsByVendorId(auth.user.id)
+  const requirements = Array.isArray(data) ? data : [];
 
   const [formData, setFormData] = useState({
     name: '',
@@ -149,81 +128,88 @@ const AuctionRequest = () => {
     startingPrice: '',
     productImages: ['', '', '', ''],
     documentImages: ['', ''],
-    status: 'Pending',
-  });
+    status: 'Pending'
+  })
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
+    const { name, value } = e.target
+    setFormData({ ...formData, [name]: value })
+  }
 
   const handleDescriptionChange = (content) => {
-    setFormData({ ...formData, description: content });
-  };
+    setFormData({ ...formData, description: content })
+  }
 
   const handleImageUpload = (e, type, index) => {
-    const file = e.target.files[0];
+    const file = e.target.files[0]
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const newImages = [...formData[type]];
-        newImages[index] = reader.result;
-        setFormData({ ...formData, [type]: newImages });
-      };
-      reader.readAsDataURL(file);
+      const newImages = [...formData[type]]
+      newImages[index] = file
+      setFormData({ ...formData, [type]: newImages })
     }
-  };
+  }
 
   const handleDeleteImage = (type, index) => {
-    const newImages = [...formData[type]];
-    newImages[index] = '';
-    setFormData({ ...formData, [type]: newImages });
-  };
+    const newImages = [...formData[type]]
+    newImages[index] = ''
+    setFormData({ ...formData, [type]: newImages })
+  }
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setIsCreating(true) // Set loading state
 
-    const formDataObj = new FormData();
-    for (const key in formData) {
-      if (Array.isArray(formData[key])) {
-        formData[key].forEach((item, index) => {
-          formDataObj.append(`${key}[${index}]`, item);
-        });
-      } else {
-        formDataObj.append(key, formData[key]);
+    const formDataObj = new FormData()
+    formDataObj.append('assetName', formData.name)
+    formDataObj.append('assetPrice', formData.startingPrice)
+    formDataObj.append('assetDescription', formData.description)
+
+    // Combine productImages and documentImages into a single array
+    const allImages = [...formData.productImages, ...formData.documentImages]
+
+    // Append all non-empty images to the FormData
+    allImages.forEach((image) => {
+      if (image) {
+        formDataObj.append('images', image)
       }
-    }
+    })
 
-    // Append assetName, assetPrice, and assetDescription
-    formDataObj.append('assetName', formData.name);
-    formDataObj.append('assetPrice', formData.startingPrice);
-    formDataObj.append('assetDescription', formData.description);
-    console.log('data: ', formDataObj);
-
-    if (currentRequirement) {
-      setRequirements(requirements.map(req => 
-        req.id === currentRequirement.id ? { ...formData, id: req.id } : req
-      ));
-      setSnackbar({ open: true, message: 'Yêu cầu đã được cập nhật', severity: 'success' });
-    } else {
-      setRequirements([...requirements, { ...formData, id: Date.now() }]);
-      createRequirement(formDataObj, {
-        onSuccess: (response) => {
-          console.log('Success:', response)
-          setSnackbar({ open: true, message: 'Yêu cầu mới đã được thêm', severity: 'success' });
-        },
-        onError: (error) => {
-          console.error('Error:', error)
-        }
-      })
+    try {
+      if (currentRequirement) {
+        // setRequirements(requirements.map(req =>
+        //   req.requirementId === currentRequirement.requirementId ? { ...formData, requirementId: req.requirementId } : req
+        // ));
+        setSnackbar({ open: true, message: 'Yêu cầu đã được cập nhật', severity: 'success' });
+      } else {
+        // setRequirements([...requirements, { ...formData, requirementId: Date.now() }]);
+        await createRequirement(formDataObj, {
+          onSuccess: (response) => {
+            console.log('Success:', response);
+            setSnackbar({ open: true, message: 'Yêu cầu mới đã được thêm', severity: 'success' });
+          },
+          onError: (error) => {
+            console.error('Error:', error);
+            setSnackbar({ open: true, message: 'Có lỗi xảy ra khi thêm yêu cầu', severity: 'error' });
+          }
+        });
+      }
+      handleCloseDialog()
+    } finally {
+      setIsCreating(false) // Reset loading state
     }
-    handleCloseDialog();
-  };
+  }
 
   const handleOpenDialog = (requirement = null) => {
     if (requirement) {
       setCurrentRequirement(requirement);
-      setFormData(requirement);
+      setFormData({
+        name: requirement.assetName,
+        description: requirement.assetDescription,
+        startingPrice: requirement.assetPrice,
+        productImages: requirement.imageRequirements.map(img => img.image),
+        documentImages: ['', ''],
+        status: requirement.status
+      });
     } else {
       setCurrentRequirement(null);
       setFormData({
@@ -232,58 +218,87 @@ const AuctionRequest = () => {
         startingPrice: '',
         productImages: ['', '', '', ''],
         documentImages: ['', ''],
-        status: 'Pending',
+        status: 'Pending'
       });
     }
     setOpenDialog(true);
   };
 
   const handleCloseDialog = () => {
-    setOpenDialog(false);
-    setCurrentRequirement(null);
-  };
+    setOpenDialog(false)
+    setCurrentRequirement(null)
+  }
 
   const handleDeleteConfirmation = (id) => {
-    setDeleteConfirmation({ open: true, id });
-  };
+    setDeleteConfirmation({ open: true, id })
+  }
 
   const handleDeleteRequirement = () => {
-    setRequirements(requirements.filter(req => req.id !== deleteConfirmation.id));
+    deleteRequirement(deleteConfirmation.id)
     setSnackbar({ open: true, message: 'Yêu cầu đã được xóa', severity: 'success' });
     setDeleteConfirmation({ open: false, id: null });
   };
 
   const handleCloseSnackbar = (event, reason) => {
     if (reason === 'clickaway') {
-      return;
+      return
     }
-    setSnackbar({ ...snackbar, open: false });
-  };
-
-  const handleCreateProduct = (id) => {
-    console.log(`Creating product for requirement ${id}`);
-    setSnackbar({ open: true, message: 'Sản phẩm đã được tạo', severity: 'success' });
-  };
+    setSnackbar({ ...snackbar, open: false })
+  }
 
   const handleMenuOpen = (event, requirement) => {
-    setAnchorEl(event.currentTarget);
-    setSelectedRequirement(requirement);
-  };
+    setAnchorEl(event.currentTarget)
+    setSelectedRequirement(requirement)
+  }
 
   const handleMenuClose = () => {
-    setAnchorEl(null);
-    setSelectedRequirement(null);
-  };
+    setAnchorEl(null)
+    setSelectedRequirement(null)
+  }
 
-  const canEdit = (status) => status === 'Rejected';
+  const canEdit = (status) => status === '0' || status === 'Pending'
+
+  const filteredRequirements = useMemo(() => {
+    return requirements.filter(req => {
+      const matchesTab = activeTab === 0 ||
+        (activeTab === 1 && req.status === '1') ||
+        (activeTab === 2 && req.status === '0') ||
+        (activeTab === 3 && req.status === '2');
+      const matchesSearch = req.assetName.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesPrice = priceFilter === '' || req.assetPrice <= parseInt(priceFilter);
+      return matchesTab && matchesSearch && matchesPrice;
+    });
+  }, [requirements, activeTab, searchTerm, priceFilter]);
 
   return (
     <Box sx={{ maxWidth: 1200, margin: 'auto', padding: 3 }}>
       <Typography variant="h4" gutterBottom fontWeight="bold" color={primaryColor} align="center" mb={4}>
         Yêu cầu Bán đấu giá
       </Typography>
-      <StyledCard>
-        <CardContent>
+      <StyledPaper>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+          <Tabs
+            value={activeTab}
+            onChange={(e, newValue) => setActiveTab(newValue)}
+            indicatorColor="primary"
+            textColor="primary"
+            sx={{
+              '& .MuiTab-root': {
+                color: 'inherit',
+                '&.Mui-selected': {
+                  color: primaryColor
+                }
+              },
+              '& .MuiTabs-indicator': {
+                backgroundColor: primaryColor
+              }
+            }}
+          >
+            <Tab label="Tất cả" />
+            <Tab label="Đang xử lý" />
+            <Tab label="Đang chờ duyệt" />
+            <Tab label="Đã từ chối" />
+          </Tabs>
           <AnimatedButton
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -292,51 +307,76 @@ const AuctionRequest = () => {
               variant="contained"
               startIcon={<AddIcon />}
               onClick={() => handleOpenDialog()}
-              sx={{ mb: 3, bgcolor: primaryColor, '&:hover': { bgcolor: '#8B110E' } }}
+              sx={{ bgcolor: primaryColor, '&:hover': { bgcolor: '#8B110E' } }}
             >
               Tạo Yêu Cầu Mới
             </Button>
           </AnimatedButton>
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <StyledTableCell>Tên Sản phẩm</StyledTableCell>
-                  <StyledTableCell align="right">Giá khởi điểm</StyledTableCell>
-                  <StyledTableCell align="center">Trạng thái</StyledTableCell>
-                  {/* Only show Category column for Approved requirements */}
-                  <StyledTableCell align="center">Danh mục</StyledTableCell>
-                  <StyledTableCell align="center">Hành động</StyledTableCell>
+        </Box>
+        <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+          <TextField
+            fullWidth
+            placeholder="Tìm kiếm theo tên sản phẩm"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              )
+            }}
+          />
+          <Select
+            value={priceFilter}
+            onChange={(e) => setPriceFilter(e.target.value)}
+            displayEmpty
+            variant="outlined"
+            startAdornment={
+              <InputAdornment position="start">
+                <FilterListIcon />
+              </InputAdornment>
+            }
+            sx={{ minWidth: 200 }}
+          >
+            <MenuItem value="">Tất cả giá</MenuItem>
+            <MenuItem value="200000">Dưới 200.000₫</MenuItem>
+            <MenuItem value="500000">Dưới 500.000₫</MenuItem>
+            <MenuItem value="1000000">Dưới 1.000.000₫</MenuItem>
+          </Select>
+        </Box>
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <StyledTableCell>Tên Sản phẩm</StyledTableCell>
+                <StyledTableCell align="right">Giá khởi điểm</StyledTableCell>
+                <StyledTableCell align="center">Trạng thái</StyledTableCell>
+                <StyledTableCell align="center">Hành động</StyledTableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {filteredRequirements.map((req) => (
+                <TableRow key={req.requirementId}>
+                  <TableCell>{req.assetName}</TableCell>
+                  <TableCell align="right">{`${req.assetPrice.toLocaleString()}₫`}</TableCell>
+                  <TableCell align="center">
+                    <StyledChip
+                      label={req.status === '0' ? 'Đang chờ duyệt' : req.status === '1' ? 'Đang xử lý' : 'Đã từ chối'}
+                      status={req.status}
+                    />
+                  </TableCell>
+                  <TableCell align="center">
+                    <IconButton onClick={(e) => handleMenuOpen(e, req)}>
+                      <MoreVertIcon />
+                    </IconButton>
+                  </TableCell>
                 </TableRow>
-              </TableHead>
-              <TableBody>
-                <AnimatePresence>
-                  {requirements.map((req) => (
-                    <Fade key={req.id} in={true}>
-                      <StyledTableRow>
-                        <TableCell>{req.name}</TableCell>
-                        <TableCell align="right">{`$${req.startingPrice}`}</TableCell>
-                        <TableCell align="center">
-                          <StyledChip label={req.status} status={req.status} />
-                        </TableCell>
-                        {/* Only show Category for Approved requirements */}
-                        <TableCell align="center">
-                          {req.status === 'Approved' ? req.category : '-'}
-                        </TableCell>
-                        <TableCell align="center">
-                          <IconButton onClick={(e) => handleMenuOpen(e, req)}>
-                            <MoreVertIcon />
-                          </IconButton>
-                        </TableCell>
-                      </StyledTableRow>
-                    </Fade>
-                  ))}
-                </AnimatePresence>
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </CardContent>
-      </StyledCard>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </StyledPaper>
 
       <Menu
         anchorEl={anchorEl}
@@ -344,30 +384,37 @@ const AuctionRequest = () => {
         onClose={handleMenuClose}
       >
         <MenuItem onClick={() => {
-          handleOpenDialog(selectedRequirement);
-          handleMenuClose();
+          handleOpenDialog(selectedRequirement)
+          handleMenuClose()
         }}>
           {canEdit(selectedRequirement?.status) ? 'Chỉnh sửa' : 'Xem chi tiết'}
         </MenuItem>
-        <MenuItem onClick={() => {
-          handleDeleteConfirmation(selectedRequirement?.id);
-          handleMenuClose();
-        }}>
-          Xóa
-        </MenuItem>
-        {selectedRequirement?.status === 'Approved' && (
+        {canEdit(selectedRequirement?.status) && (
           <MenuItem onClick={() => {
-            handleCreateProduct(selectedRequirement?.id);
-            handleMenuClose();
+            handleDeleteConfirmation(selectedRequirement?.requirementId)
+            handleMenuClose()
           }}>
-            Tạo sản phẩm
+            Xóa
           </MenuItem>
         )}
       </Menu>
 
       <Dialog open={openDialog} onClose={handleCloseDialog} fullWidth maxWidth="md">
-        <DialogTitle sx={{ bgcolor: primaryColor, color: 'white' }}>
-          {currentRequirement ? (canEdit(currentRequirement.status) ? 'Chỉnh sửa Yêu cầu' : 'Chi tiết Yêu cầu') : 'Tạo Yêu Cầu Mới'}
+        <DialogTitle sx={{ bgcolor: primaryColor, color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography variant="h6">
+            {currentRequirement ? (canEdit(currentRequirement.status) ? 'Chỉnh sửa Yêu cầu' : 'Chi tiết Yêu cầu') : 'Tạo Yêu Cầu Mới'}
+          </Typography>
+          <IconButton
+            edge="end"
+            color="inherit"
+            onClick={handleCloseDialog}
+            aria-label="close"
+            sx={{
+              color: 'white'
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
         </DialogTitle>
         <DialogContent dividers>
           <form onSubmit={handleSubmit}>
@@ -395,23 +442,11 @@ const AuctionRequest = () => {
                   required
                   variant="outlined"
                   InputProps={{
-                    startAdornment: <Typography color="textSecondary">$</Typography>,
+                    startAdornment: <Typography color="textSecondary">₫</Typography>
                   }}
                   disabled={currentRequirement && !canEdit(currentRequirement.status)}
                 />
               </Grid>
-              {currentRequirement && currentRequirement.status === 'Approved' && (
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Danh mục"
-                    name="category"
-                    value={currentRequirement.category}
-                    variant="outlined"
-                    disabled
-                  />
-                </Grid>
-              )}
               <Grid item xs={12}>
                 <Typography variant="subtitle1" gutterBottom>
                   Mô tả
@@ -441,11 +476,15 @@ const AuctionRequest = () => {
                       />
                       <label htmlFor={`product-image-upload-${index}`}>
                         {image ? (
-                          <ImagePreview style={{ backgroundImage: `url(${image})` }}>
+                          <ImagePreview style={{ backgroundImage: `url(${image instanceof File ? URL.createObjectURL(image) : image})` }}>
                             {(!currentRequirement || canEdit(currentRequirement.status)) && (
-                              <DeleteImageButton onClick={() => handleDeleteImage('productImages', index)} size="small">
+                              <IconButton
+                                size="small"
+                                onClick={() => handleDeleteImage('productImages', index)}
+                                sx={{ position: 'absolute', top: 5, right: 5, bgcolor: 'rgba(255,255,255,0.7)' }}
+                              >
                                 <CloseIcon />
-                              </DeleteImageButton>
+                              </IconButton>
                             )}
                           </ImagePreview>
                         ) : (
@@ -478,11 +517,15 @@ const AuctionRequest = () => {
                       />
                       <label htmlFor={`document-image-upload-${index}`}>
                         {image ? (
-                          <ImagePreview style={{ backgroundImage: `url(${image})` }}>
+                          <ImagePreview style={{ backgroundImage: `url(${image instanceof File ? URL.createObjectURL(image) : image})` }}>
                             {(!currentRequirement || canEdit(currentRequirement.status)) && (
-                              <DeleteImageButton onClick={() => handleDeleteImage('documentImages', index)} size="small">
+                              <IconButton
+                                size="small"
+                                onClick={() => handleDeleteImage('documentImages', index)}
+                                sx={{ position: 'absolute', top: 5, right: 5, bgcolor: 'rgba(255,255,255,0.7)' }}
+                              >
                                 <CloseIcon />
-                              </DeleteImageButton>
+                              </IconButton>
                             )}
                           </ImagePreview>
                         ) : (
@@ -510,12 +553,17 @@ const AuctionRequest = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <Button 
-                onClick={handleSubmit} 
-                variant="contained" 
+              <Button
+                onClick={handleSubmit}
+                variant="contained"
+                disabled={isCreating}
                 sx={{ bgcolor: primaryColor, '&:hover': { bgcolor: '#8B110E' } }}
               >
-                {currentRequirement ? 'Cập nhật' : 'Tạo Yêu cầu'}
+                {isCreating ? (
+                  <CircularProgress size={24} color="inherit" />
+                ) : (
+                  currentRequirement ? 'Cập nhật' : 'Tạo Yêu cầu'
+                )}
               </Button>
             </AnimatedButton>
           )}
@@ -546,8 +594,8 @@ const AuctionRequest = () => {
         </Alert>
       </Snackbar>
     </Box>
-  );
-};
+  )
+}
 
-export default AuctionRequest;
+export default AuctionRequest
 

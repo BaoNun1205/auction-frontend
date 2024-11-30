@@ -1,10 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react'
 import {
   Box,
   Typography,
   TextField,
-  Button,
-  Grid,
   Table,
   TableBody,
   TableCell,
@@ -18,489 +16,225 @@ import {
   Snackbar,
   Alert,
   Chip,
-  Card,
-  CardContent,
-  Fade,
   IconButton,
   Menu,
   MenuItem,
+  Paper,
+  InputAdornment,
   Select,
-  FormControl,
-  InputLabel,
-} from '@mui/material';
-import { styled } from '@mui/material/styles';
-import AddIcon from '@mui/icons-material/Add';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { motion, AnimatePresence } from 'framer-motion';
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+  Tabs,
+  Tab,
+} from '@mui/material'
+import { styled } from '@mui/material/styles'
+import MoreVertIcon from '@mui/icons-material/MoreVert'
+import SearchIcon from '@mui/icons-material/Search'
+import FilterListIcon from '@mui/icons-material/FilterList'
 
-const primaryColor = '#b41712';
+const StyledPaper = styled(Paper)({
+  padding: '24px',
+  marginBottom: '24px',
+  borderRadius: '4px',
+  boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)'
+})
 
-const StyledCard = styled(Card)(({ theme }) => ({
-  marginBottom: theme.spacing(3),
-  borderRadius: theme.shape.borderRadius * 2,
-  boxShadow: '0 8px 40px rgba(0, 0, 0, 0.12)',
-  overflow: 'hidden',
-  transition: 'all 0.3s ease-in-out',
-  '&:hover': {
-    transform: 'translateY(-5px)',
-    boxShadow: '0 12px 50px rgba(180, 23, 18, 0.2)',
-  },
-}));
-
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
+const StyledTableCell = styled(TableCell)({
   fontWeight: 'bold',
-  color: theme.palette.common.white,
-  backgroundColor: primaryColor,
-}));
+  color: '#1a1a1a',
+  borderBottom: '1px solid rgba(224, 224, 224, 1)'
+})
 
-const StyledTableRow = styled(TableRow)(({ theme }) => ({
-  '&:nth-of-type(odd)': {
-    backgroundColor: theme.palette.action.hover,
-  },
-  '&:hover': {
-    backgroundColor: 'rgba(180, 23, 18, 0.08)',
-  },
-  transition: 'background-color 0.3s ease-in-out',
-}));
+const StyledChip = styled(Chip)(({ status }) => {
+  let backgroundColor = '#ff9800' // Default orange for "Chưa đấu giá"
+  let color = '#fff'
 
-const StyledChip = styled(Chip)(({ theme, status }) => ({
-  fontWeight: 'bold',
-  color: theme.palette.common.white,
-  backgroundColor:
-    status === 'Đang đấu giá' ? theme.palette.info.main :
-    status === 'Đã đấu giá thành công' ? theme.palette.success.main :
-    theme.palette.warning.main,
-}));
+  if (status === 'bidding') {
+    backgroundColor = '#2196f3' // Blue for "Đang đấu giá"
+  } else if (status === 'completed') {
+    backgroundColor = '#4caf50' // Green for "Đã đấu giá thành công"
+  }
 
-const AnimatedButton = styled(motion.div)({
-  display: 'inline-block',
-});
+  return {
+    fontWeight: 'bold',
+    color: color,
+    backgroundColor: backgroundColor,
+    borderRadius: '16px',
+    padding: '0 12px'
+  }
+})
 
 const sampleData = [
-  { id: 1, name: 'Đồng hồ Rolex cổ', startingPrice: '5000', status: 'Chưa đấu giá', description: 'Đồng hồ Rolex cổ từ những năm 1960, trong tình trạng hoàn hảo.' },
-  { id: 2, name: 'Bàn gỗ gụ cổ', startingPrice: '1200', status: 'Đang đấu giá', description: 'Bàn gỗ gụ cổ từ thế kỷ 19 với những đường chạm khắc tinh xảo.' },
-  { id: 3, name: 'Bộ sưu tập sách quý', startingPrice: '3000', status: 'Đã đấu giá thành công', description: 'Bộ sưu tập sách quý hiếm của các tác giả nổi tiếng thế kỷ 20.' },
-];
+  { id: 1, name: 'Đồng hồ Rolex cổ', startingPrice: 5000, status: 'pending' },
+  { id: 2, name: 'Bàn gỗ gụ cổ', startingPrice: 1200, status: 'bidding' },
+  { id: 3, name: 'Bộ sưu tập sách quý', startingPrice: 3000, status: 'completed' }
+]
 
 const MyAssets = () => {
-  const [assets, setAssets] = useState(sampleData);
-  const [openDialog, setOpenDialog] = useState(false);
-  const [currentAsset, setCurrentAsset] = useState(null);
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
-  const [deleteConfirmation, setDeleteConfirmation] = useState({ open: false, id: null });
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [selectedAsset, setSelectedAsset] = useState(null);
-  const [auctionDialog, setAuctionDialog] = useState(false);
-
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    startingPrice: '',
-    status: 'Chưa đấu giá',
-  });
-
-  const [auctionData, setAuctionData] = useState({
-    startTime: null,
-    endTime: null,
-    auctionType: '',
-    description: '',
-  });
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleAuctionInputChange = (e) => {
-    const { name, value } = e.target;
-    setAuctionData({ ...auctionData, [name]: value });
-  };
-
-  const handleDescriptionChange = (content) => {
-    setFormData({ ...formData, description: content });
-  };
-
-  const handleAuctionDescriptionChange = (content) => {
-    setAuctionData({ ...auctionData, description: content });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (currentAsset) {
-      setAssets(assets.map(asset => 
-        asset.id === currentAsset.id ? { ...formData, id: asset.id } : asset
-      ));
-      setSnackbar({ open: true, message: 'Tài sản đã được cập nhật', severity: 'success' });
-    } else {
-      setAssets([...assets, { ...formData, id: Date.now() }]);
-      setSnackbar({ open: true, message: 'Tài sản mới đã được thêm', severity: 'success' });
-    }
-    handleCloseDialog();
-  };
-
-  const handleAuctionSubmit = (e) => {
-    e.preventDefault();
-    const updatedAsset = { ...selectedAsset, ...auctionData, status: 'Đang đấu giá' };
-    setAssets(assets.map(asset => 
-      asset.id === selectedAsset.id ? updatedAsset : asset
-    ));
-    setSnackbar({ open: true, message: 'Phiên đấu giá đã được tạo', severity: 'success' });
-    handleCloseAuctionDialog();
-  };
-
-  const handleOpenDialog = (asset = null) => {
-    if (asset) {
-      setCurrentAsset(asset);
-      setFormData(asset);
-    } else {
-      setCurrentAsset(null);
-      setFormData({
-        name: '',
-        description: '',
-        startingPrice: '',
-        status: 'Chưa đấu giá',
-      });
-    }
-    setOpenDialog(true);
-  };
-
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-    setCurrentAsset(null);
-  };
-
-  const handleOpenAuctionDialog = (asset) => {
-    setSelectedAsset(asset);
-    setAuctionData({
-      startTime: null,
-      endTime: null,
-      auctionType: '',
-      description: '',
-    });
-    setAuctionDialog(true);
-  };
-
-  const handleCloseAuctionDialog = () => {
-    setAuctionDialog(false);
-    setSelectedAsset(null);
-  };
-
-  const handleDeleteConfirmation = (id) => {
-    setDeleteConfirmation({ open: true, id });
-  };
-
-  const handleDeleteAsset = () => {
-    setAssets(assets.filter(asset => asset.id !== deleteConfirmation.id));
-    setSnackbar({ open: true, message: 'Tài sản đã được xóa', severity: 'success' });
-    setDeleteConfirmation({ open: false, id: null });
-  };
+  const [assets, setAssets] = useState(sampleData)
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
+  const [anchorEl, setAnchorEl] = useState(null)
+  const [selectedAsset, setSelectedAsset] = useState(null)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [priceFilter, setPriceFilter] = useState('')
+  const [activeTab, setActiveTab] = useState(0);
 
   const handleCloseSnackbar = (event, reason) => {
     if (reason === 'clickaway') {
-      return;
+      return
     }
-    setSnackbar({ ...snackbar, open: false });
-  };
+    setSnackbar({ ...snackbar, open: false })
+  }
 
   const handleMenuOpen = (event, asset) => {
-    setAnchorEl(event.currentTarget);
-    setSelectedAsset(asset);
-  };
+    setAnchorEl(event.currentTarget)
+    setSelectedAsset(asset)
+  }
 
   const handleMenuClose = () => {
-    setAnchorEl(null);
-    setSelectedAsset(null);
-  };
+    setAnchorEl(null)
+    setSelectedAsset(null)
+  }
+
+  const getStatusLabel = (status) => {
+    switch (status) {
+      case 'pending':
+        return 'Chưa đấu giá'
+      case 'bidding':
+        return 'Đang đấu giá'
+      case 'completed':
+        return 'Đã đấu giá thành công'
+      default:
+        return status
+    }
+  }
+
+  const filteredAssets = useMemo(() => {
+    return assets.filter(asset => {
+      const matchesTab = activeTab === 0 ||
+        (activeTab === 1 && asset.status === 'completed') ||
+        (activeTab === 2 && asset.status === 'bidding') ||
+        (activeTab === 3 && asset.status === 'pending');
+      const matchesSearch = asset.name.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesPrice = priceFilter === '' || asset.startingPrice <= parseInt(priceFilter);
+      return matchesTab && matchesSearch && matchesPrice;
+    })
+  }, [assets, activeTab, searchTerm, priceFilter])
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDateFns}>
-      <Box sx={{ maxWidth: 1200, margin: 'auto', padding: 3 }}>
-        <Typography variant="h4" gutterBottom fontWeight="bold" color={primaryColor} align="center" mb={4}>
-          Tài sản của tôi
-        </Typography>
-        <StyledCard>
-          <CardContent>
-            <AnimatedButton
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                onClick={() => handleOpenDialog()}
-                sx={{ mb: 3, bgcolor: primaryColor, '&:hover': { bgcolor: '#8B110E' } }}
-              >
-                Thêm Tài sản Mới
-              </Button>
-            </AnimatedButton>
-            <TableContainer>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <StyledTableCell>Tên Tài sản</StyledTableCell>
-                    <StyledTableCell align="right">Giá khởi điểm</StyledTableCell>
-                    <StyledTableCell align="center">Trạng thái</StyledTableCell>
-                    <StyledTableCell align="center">Hành động</StyledTableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  <AnimatePresence>
-                    {assets.map((asset) => (
-                      <Fade key={asset.id} in={true}>
-                        <StyledTableRow>
-                          <TableCell>{asset.name}</TableCell>
-                          <TableCell align="right">{`$${asset.startingPrice}`}</TableCell>
-                          <TableCell align="center">
-                            <StyledChip label={asset.status} status={asset.status} />
-                          </TableCell>
-                          <TableCell align="center">
-                            <IconButton onClick={(e) => handleMenuOpen(e, asset)}>
-                              <MoreVertIcon />
-                            </IconButton>
-                          </TableCell>
-                        </StyledTableRow>
-                      </Fade>
-                    ))}
-                  </AnimatePresence>
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </CardContent>
-        </StyledCard>
-
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={handleMenuClose}
+    <Box sx={{ maxWidth: 1200, margin: 'auto', padding: 3 }}>
+      <Typography variant="h4" gutterBottom fontWeight="bold" color="#b41712" align="center" mb={4}>
+        Tài sản của tôi
+      </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Tabs
+          value={activeTab}
+          onChange={(e, newValue) => setActiveTab(newValue)}
+          sx={{
+            '& .MuiTab-root': {
+              color: '#1a1a1a',
+              '&.Mui-selected': {
+                color: '#b41712'
+              }
+            },
+            '& .MuiTabs-indicator': {
+              backgroundColor: '#b41712'
+            }
+          }}
         >
-          <MenuItem onClick={() => {
-            handleOpenDialog(selectedAsset);
-            handleMenuClose();
-          }}>
-            Xem chi tiết
-          </MenuItem>
-          {selectedAsset?.status === 'Chưa đấu giá' && (
-            <>
-              <MenuItem onClick={() => {
-                handleDeleteConfirmation(selectedAsset?.id);
-                handleMenuClose();
-              }}>
-                Xóa
-              </MenuItem>
-              <MenuItem onClick={() => {
-                handleOpenAuctionDialog(selectedAsset);
-                handleMenuClose();
-              }}>
-                Tạo phiên đấu giá
-              </MenuItem>
-            </>
-          )}
-          {selectedAsset?.status === 'Đang đấu giá' && (
-            <MenuItem onClick={() => {
-              // Implement view auction details logic here
-              handleMenuClose();
-            }}>
-              Xem chi tiết phiên đấu giá
-            </MenuItem>
-          )}
-        </Menu>
-
-        <Dialog open={openDialog} onClose={handleCloseDialog} fullWidth maxWidth="md">
-          <DialogTitle sx={{ bgcolor: primaryColor, color: 'white' }}>
-            {currentAsset ? 'Chi tiết Tài sản' : 'Thêm Tài sản Mới'}
-          </DialogTitle>
-          <DialogContent dividers>
-            <form onSubmit={handleSubmit}>
-              <Grid container spacing={3}>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Tên tài sản"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    required
-                    variant="outlined"
-                    disabled={currentAsset}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Giá khởi điểm"
-                    name="startingPrice"
-                    type="number"
-                    value={formData.startingPrice}
-                    onChange={handleInputChange}
-                    required
-                    variant="outlined"
-                    InputProps={{
-                      startAdornment: <Typography color="textSecondary">$</Typography>,
-                    }}
-                    disabled={currentAsset}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <Typography variant="subtitle1" gutterBottom>
-                    Mô tả
-                  </Typography>
-                  <ReactQuill
-                    value={formData.description}
-                    onChange={handleDescriptionChange}
-                    theme="snow"
-                    style={{ height: '200px', marginBottom: '50px' }}
-                    readOnly={currentAsset}
-                  />
-                </Grid>
-              </Grid>
-            </form>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseDialog} sx={{ color: 'grey.500' }}>
-              Đóng
-            </Button>
-            {!currentAsset && (
-              <AnimatedButton
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Button 
-                  onClick={handleSubmit} 
-                  variant="contained" 
-                  sx={{ bgcolor: primaryColor, '&:hover': { bgcolor: '#8B110E' } }}
-                >
-                  Thêm Tài sản
-                </Button>
-              </AnimatedButton>
-            )}
-          </DialogActions>
-        </Dialog>
-
-        <Dialog open={auctionDialog} onClose={handleCloseAuctionDialog} fullWidth maxWidth="md">
-          <DialogTitle sx={{ bgcolor: primaryColor, color: 'white' }}>
-            Tạo Phiên Đấu giá
-          </DialogTitle
->
-          <DialogContent dividers>
-            <form onSubmit={handleAuctionSubmit}>
-              <Grid container spacing={3}>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Tên tài sản"
-                    value={selectedAsset?.name || ''}
-                    variant="outlined"
-                    disabled
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Giá khởi điểm"
-                    value={selectedAsset?.startingPrice || ''}
-                    variant="outlined"
-                    disabled
-                    InputProps={{
-                      startAdornment: <Typography color="textSecondary">$</Typography>,
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <DateTimePicker
-                    label="Thời gian bắt đầu"
-                    value={auctionData.startTime}
-                    onChange={(newValue) => setAuctionData({ ...auctionData, startTime: newValue })}
-                    renderInput={(params) => <TextField {...params} fullWidth required />}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <DateTimePicker
-                    label="Thời gian kết thúc"
-                    value={auctionData.endTime}
-                    onChange={(newValue) => setAuctionData({ ...auctionData, endTime: newValue })}
-                    renderInput={(params) => <TextField {...params} fullWidth required />}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <FormControl fullWidth variant="outlined" required>
-                    <InputLabel id="auction-type-label">Loại phiên đấu giá</InputLabel>
-                    <Select
-                      labelId="auction-type-label"
-                      id="auction-type"
-                      value={auctionData.auctionType}
-                      onChange={handleAuctionInputChange}
-                      label="Loại phiên đấu giá"
-                      name="auctionType"
-                    >
-                      <MenuItem value="Timed Auction">Timed Auction</MenuItem>
-                      <MenuItem value="Live Auction">Live Auction</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12}>
-                  <Typography variant="subtitle1" gutterBottom>
-                    Mô tả phiên đấu giá
-                  </Typography>
-                  <ReactQuill
-                    value={auctionData.description}
-                    onChange={handleAuctionDescriptionChange}
-                    theme="snow"
-                    style={{ height: '200px', marginBottom: '50px' }}
-                  />
-                </Grid>
-              </Grid>
-            </form>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseAuctionDialog} sx={{ color: 'grey.500' }}>
-              Hủy
-            </Button>
-            <AnimatedButton
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Button 
-                onClick={handleAuctionSubmit} 
-                variant="contained" 
-                sx={{ bgcolor: primaryColor, '&:hover': { bgcolor: '#8B110E' } }}
-              >
-                Tạo Phiên Đấu giá
-              </Button>
-            </AnimatedButton>
-          </DialogActions>
-        </Dialog>
-
-        <Dialog
-          open={deleteConfirmation.open}
-          onClose={() => setDeleteConfirmation({ open: false, id: null })}
-        >
-          <DialogTitle>Xác nhận xóa</DialogTitle>
-          <DialogContent>
-            <Typography>Bạn có chắc chắn muốn xóa tài sản này?</Typography>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setDeleteConfirmation({ open: false, id: null })} color="primary">
-              Hủy
-            </Button>
-            <Button onClick={handleDeleteAsset} color="error" variant="contained">
-              Xóa
-            </Button>
-          </DialogActions>
-        </Dialog>
-
-        <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={handleCloseSnackbar}>
-          <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
-            {snackbar.message}
-          </Alert>
-        </Snackbar>
+          <Tab label="TẤT CẢ" />
+          <Tab label="ĐÃ ĐẤU GIÁ THÀNH CÔNG" />
+          <Tab label="ĐANG ĐẤU GIÁ" />
+          <Tab label="CHƯA ĐẤU GIÁ" />
+        </Tabs>
       </Box>
-    </LocalizationProvider>
-  );
-};
+      <StyledPaper>
+        <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+          <TextField
+            fullWidth
+            placeholder="Tìm kiếm theo tên sản phẩm"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              )
+            }}
+          />
+          <Select
+            value={priceFilter}
+            onChange={(e) => setPriceFilter(e.target.value)}
+            displayEmpty
+            variant="outlined"
+            startAdornment={
+              <InputAdornment position="start">
+                <FilterListIcon />
+              </InputAdornment>
+            }
+            sx={{ minWidth: 200 }}
+          >
+            <MenuItem value="">Tất cả giá</MenuItem>
+            <MenuItem value="1000">Dưới $1,000</MenuItem>
+            <MenuItem value="5000">Dưới $5,000</MenuItem>
+            <MenuItem value="10000">Dưới $10,000</MenuItem>
+          </Select>
+        </Box>
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow sx={{ backgroundColor: '#b41712' }}>
+                <StyledTableCell sx={{ color: 'white' }}>Tên Tài sản</StyledTableCell>
+                <StyledTableCell align="right" sx={{ color: 'white' }}>Giá khởi điểm</StyledTableCell>
+                <StyledTableCell align="center" sx={{ color: 'white' }}>Trạng thái</StyledTableCell>
+                <StyledTableCell align="center" sx={{ color: 'white' }}>Hành động</StyledTableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {filteredAssets.map((asset) => (
+                <TableRow key={asset.id} sx={{ '&:hover': { backgroundColor: '#f5f5f5' } }}>
+                  <TableCell>{asset.name}</TableCell>
+                  <TableCell align="right">${asset.startingPrice.toLocaleString()}</TableCell>
+                  <TableCell align="center">
+                    <StyledChip
+                      label={getStatusLabel(asset.status)}
+                      status={asset.status}
+                    />
+                  </TableCell>
+                  <TableCell align="center">
+                    <IconButton onClick={(e) => handleMenuOpen(e, asset)}>
+                      <MoreVertIcon />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </StyledPaper>
 
-export default MyAssets;
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleMenuClose}
+      >
+        <MenuItem onClick={handleMenuClose}>
+          Xem chi tiết
+        </MenuItem>
+        {selectedAsset?.status === 'pending' && (
+          <MenuItem onClick={handleMenuClose}>
+            Chỉnh sửa
+          </MenuItem>
+        )}
+      </Menu>
+
+      <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={handleCloseSnackbar}>
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+    </Box>
+  )
+}
+
+export default MyAssets
+
