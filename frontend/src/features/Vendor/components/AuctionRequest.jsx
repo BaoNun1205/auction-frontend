@@ -251,7 +251,8 @@ const AuctionRequest = () => {
     setSelectedRequirement(null)
   }
 
-  const canEdit = (status) => status === '0'
+  const canEdit = (status) => status === '2'
+  const canDelete = (status) => status === '0' || status === '2'
 
   const filteredRequirements = useMemo(() => {
     return requirements.filter(req => {
@@ -387,7 +388,7 @@ const AuctionRequest = () => {
         }}>
           {canEdit(selectedRequirement?.status) ? 'Chỉnh sửa' : 'Xem chi tiết'}
         </MenuItem>
-        {canEdit(selectedRequirement?.status) && (
+        {canDelete(selectedRequirement?.status) && (
           <MenuItem onClick={() => {
             handleDeleteConfirmation(selectedRequirement?.requirementId)
             handleMenuClose()

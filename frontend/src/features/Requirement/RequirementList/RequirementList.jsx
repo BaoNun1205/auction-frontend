@@ -235,25 +235,23 @@ const RequirementList = () => {
                                 }
                               }}
                             >
-                              {item.status === '1' ? 'Approved' : item.status === '2' ? 'Rejected' : 'Not Approved'}
+                              {item.status === '1' ? 'Đã duyệt' : item.status === '2' ? 'Đã từ chối' : 'Đang chờ duyệt'}
                             </StyledStatusBox>
                           </TableCell>
                           <TableCell>
-                            <StyledSpan>{item.vendor || 'N/A'}</StyledSpan>
+                            <StyledSpan>{item?.vendor?.username || 'N/A'}</StyledSpan>
                           </TableCell>
                           <TableCell>
-                            <StyledSpan>{item.inspector || 'N/A'}</StyledSpan>
+                            <StyledSpan>{item?.inspector?.username || 'N/A'}</StyledSpan>
                           </TableCell>
                           <TableCell>
                             <ActionMenu>
                               {item.status === '0' ? (
                                 <>
-                                  <MuiMenuItem onClick={() => handleApprovedRequirement(item)}>Approve</MuiMenuItem>
-                                  <MuiMenuItem onClick={() => handleRejectedRequirement(item)}>Reject</MuiMenuItem>
-                                  <MuiMenuItem onClick={() => handleViewDetails(item)}>View Details</MuiMenuItem> {/* New menu item */}
+                                  <MuiMenuItem onClick={() => handleViewDetails(item)}>Xem chi tiết</MuiMenuItem> {/* New menu item */}
                                 </>
                               ) : item.status === '1' ? (
-                                <MuiMenuItem onClick={() => handleCreateAsset(item)}>Create Asset</MuiMenuItem>
+                                <MuiMenuItem onClick={() => handleCreateAsset(item)}>Tạo sản phẩm</MuiMenuItem>
                               ) : null}
                             </ActionMenu>
                           </TableCell>

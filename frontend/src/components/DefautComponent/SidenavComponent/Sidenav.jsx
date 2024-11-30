@@ -88,9 +88,7 @@ const CategoryItem = {
 const AssetItem = {
   icon: <ShoppingBag />,
   name: 'Asset',
-  subItems: [
-    { name: 'List', path: '/asset' },
-  ]
+  path: '/asset'
 }
 
 const RequirementItem = {
@@ -105,10 +103,7 @@ const RequirementItem = {
 const SessionItem = {
   icon: <Calendar />,
   name: 'Session',
-  subItems: [
-    { name: 'List', path: '/session' },
-    { name: 'Create', path: '/session/create' },
-  ]
+  path: '/session'
 }
 
 const Sidenav = ({ children }) => {
@@ -159,24 +154,14 @@ const Sidenav = ({ children }) => {
                   item={CategoryItem}
                   handleClick={handleCategoryClick}
                 />
-                <MenuItemExpand
-                  open={open}
-                  itemOpen={assetOpen}
-                  item={AssetItem}
-                  handleClick={handleAssetClick}
-                />
+                <ItemExpand item={AssetItem} open={open} />
                 <MenuItemExpand
                   open={open}
                   itemOpen={requirementOpen}
                   item={RequirementItem}
                   handleClick={handleRequirementClick}
                 />
-                <MenuItemExpand
-                  open={open}
-                  itemOpen={sessionOpen}
-                  item={SessionItem}
-                  handleClick={handleSessionClick}
-                />
+                <ItemExpand item={SessionItem} open={open} />
               </>
             ) : (
               <>
