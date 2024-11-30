@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 
-import { getRequirement, getRequirementById, createRequirement, filteredRequirements, approvedRequirement, rejectedRequirement } from '~/api/requirementApi'
+import { getRequirement, getRequirementById, createRequirement, filteredRequirements, approvedRequirement, rejectedRequirement, getRequirementsByVendorId, deleteRequirementById } from '~/api/requirementApi'
 
 // Hook để lấy danh sách yêu cầu
 export const useGetRequirement = () => {
@@ -38,6 +38,33 @@ export const useFilterRequirements = (status, keyword, page, size) => {
     }
   )
 }
+
+export const useDeleteRequirement = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation(deleteRequirementById, {
+    onSuccess: (data) => {
+      console.log('Requirement deleted successfully:', data);
+      // Invalidate queries or perform other actions
+      queryClient.invalidateQueries('requirementsByVendorId');
+    },
+    onError: (error) => {
+      console.error('Error deleting requirement:', error);
+    },
+  });
+};
+
+export const useRequirementsByVendorId = (vendorId) => {
+  return useQuery(
+    ['requirementsByVendorId', vendorId],
+    () => getRequirementsByVendorId(vendorId),
+    {
+      onError: (error) => {
+        console.error('Error fetching requirements by vendor ID:', error);
+      },
+    }
+  );
+};
 
 export const useApprovedRequirement = () => {
   const queryClient = useQueryClient()

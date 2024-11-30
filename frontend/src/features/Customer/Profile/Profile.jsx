@@ -16,6 +16,8 @@ import AuctionInfo from './AuctionInfo';
 import CustomerInformation from './CustomerInfomation';
 import AddressesInfomation from './AddressInfomation/AddressInfomation';
 
+const primaryColor = '#b41712';
+
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
   height: '100%',
@@ -32,14 +34,14 @@ const StyledListItem = styled(ListItem)(({ theme, active }) => ({
   marginBottom: theme.spacing(1),
   transition: 'all 0.2s',
   '&:hover': {
-    backgroundColor: theme.palette.action.hover,
+    backgroundColor: 'rgba(180, 23, 18, 0.1)',
     transform: 'translateX(5px)',
   },
   ...(active && {
-    backgroundColor: theme.palette.primary.main,
+    backgroundColor: primaryColor,
     color: theme.palette.primary.contrastText,
     '&:hover': {
-      backgroundColor: theme.palette.primary.dark,
+      backgroundColor: '#8B0000',
     },
   }),
 }));
@@ -94,7 +96,7 @@ const Profile = () => {
 
   const drawer = (
     <StyledPaper elevation={3}>
-      <Typography variant="h6" gutterBottom align="center" fontWeight="bold" sx={{ my: 2 }}>
+      <Typography variant="h6" gutterBottom align="center" fontWeight="bold" sx={{ my: 2, color: primaryColor }}>
         Thông tin tài khoản
       </Typography>
       <List>
@@ -204,7 +206,7 @@ const Profile = () => {
           onClose={handleCloseLogoutModal}
         >
           <Box sx={{ p: 3, borderRadius: theme.shape.borderRadius * 2 }}>
-            <Typography id="logout-modal-title" variant="h6" component="h2" color="#B7201B" gutterBottom>
+            <Typography id="logout-modal-title" variant="h6" component="h2" color={primaryColor} gutterBottom>
               Xác nhận đăng xuất
             </Typography>
             <Typography id="logout-modal-description" sx={{ mt: 2 }}>
@@ -216,7 +218,7 @@ const Profile = () => {
               </Button>
               <Button 
                 variant="contained" 
-                color="primary" 
+                sx={{ backgroundColor: primaryColor, '&:hover': { backgroundColor: '#8B0000' } }}
                 onClick={handleConfirmLogout}
                 disabled={isLoggingOut}
               >
@@ -231,4 +233,3 @@ const Profile = () => {
 };
 
 export default Profile;
-

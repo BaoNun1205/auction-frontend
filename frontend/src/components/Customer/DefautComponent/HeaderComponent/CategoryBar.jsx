@@ -7,26 +7,57 @@ import {
   MenuItem, 
   Container, 
   Box, 
-  Typography, 
-  useTheme, 
-  alpha 
+  Typography,
+  styled
 } from '@mui/material';
 import { Link } from 'react-router-dom';
-import { useFilterCategories } from '~/hooks/categoryHook';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import { useFilterCategories } from '~/hooks/categoryHook';
+
+const StyledAppBar = styled(AppBar)(({ theme }) => ({
+  backgroundColor: '#ffffff',
+  boxShadow: 'none',
+  borderBottom: '1px solid #e0e0e0',
+}));
+
+const StyledButton = styled(Button)(({ theme }) => ({
+  color: '#000000',
+  fontWeight: 'bold',
+  padding: theme.spacing(1.5, 2),
+  borderRadius: 0,
+  borderBottom: '3px solid transparent',
+  '&:hover': {
+    backgroundColor: 'transparent',
+    borderBottom: `3px solid #b41712`,
+  },
+  '&:focus': {
+    backgroundColor: 'rgba(180, 23, 18, 0.1)',
+  },
+  transition: 'all 0.3s',
+}));
+
+const StyledMenuItem = styled(MenuItem)(({ theme }) => ({
+  padding: theme.spacing(1, 2),
+  '&:hover': {
+    backgroundColor: 'rgba(180, 23, 18, 0.1)',
+  },
+  '&:focus': {
+    backgroundColor: 'rgba(180, 23, 18, 0.2)',
+  },
+  transition: 'all 0.2s',
+}));
 
 const CategoryBar = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const { data, isLoading, isError } = useFilterCategories();
-  const theme = useTheme();
 
   if (isLoading) {
-    return <Typography>Loading...</Typography>;
+    return <Typography align="center" py={2}>Loading...</Typography>;
   }
 
   if (isError) {
-    return <Typography>Error loading categories</Typography>;
+    return <Typography align="center" py={2} color="error">Error loading categories</Typography>;
   }
 
   const { data: categories } = data;
@@ -41,15 +72,7 @@ const CategoryBar = () => {
   };
 
   return (
-    <AppBar 
-      position="static" 
-      color="default" 
-      elevation={0} 
-      sx={{ 
-        borderBottom: `1px solid ${theme.palette.divider}`,
-        backgroundColor: theme.palette.background.paper
-      }}
-    >
+    <StyledAppBar position="static">
       <Container maxWidth="lg">
         <Toolbar disableGutters>
           <Box 
@@ -60,28 +83,12 @@ const CategoryBar = () => {
           >
             {categories.map((category) => (
               <Box key={category.categoryId} sx={{ minWidth: 'max-content' }}>
-                <Button
-                  color="inherit"
+                <StyledButton
                   onClick={(event) => handleClick(event, category)}
                   endIcon={<KeyboardArrowDownIcon />}
-                  sx={{
-                    fontWeight: 'bold',
-                    px: 2,
-                    py: 1.5,
-                    borderRadius: 0,
-                    borderBottom: '3px solid transparent',
-                    '&:hover': {
-                      backgroundColor: 'transparent',
-                      borderBottom: `3px solid ${theme.palette.primary.main}`,
-                    },
-                    '&:focus': {
-                      backgroundColor: alpha(theme.palette.primary.main, 0.1),
-                    },
-                    transition: 'all 0.3s',
-                  }}
                 >
                   {category.categoryName}
-                </Button>
+                </StyledButton>
                 <Menu
                   anchorEl={anchorEl}
                   open={Boolean(anchorEl) && selectedCategory === category}
@@ -100,28 +107,25 @@ const CategoryBar = () => {
                       mt: 1,
                       borderRadius: 2,
                       minWidth: 180,
+                      border: '1px solid rgba(180, 23, 18, 0.1)',
+                      '& .MuiList-root': {
+                        paddingTop: 1,
+                        paddingBottom: 1,
+                      },
                     },
                   }}
                 >
                   {category.types.map((type) => (
-                    <MenuItem
+                    <StyledMenuItem
                       key={type.typeId}
                       component={Link}
                       to={`/customer-asset/${category.categoryId}/${type.typeId}`}
                       onClick={handleClose}
-                      sx={{
-                        py: 1,
-                        '&:hover': {
-                          backgroundColor: alpha(theme.palette.primary.main, 0.1),
-                        },
-                        '&:focus': {
-                          backgroundColor: alpha(theme.palette.primary.main, 0.2),
-                        },
-                        transition: 'all 0.2s',
-                      }}
                     >
-                      <Typography variant="body2">{type.typeName}</Typography>
-                    </MenuItem>
+                      <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                        {type.typeName}
+                      </Typography>
+                    </StyledMenuItem>
                   ))}
                 </Menu>
               </Box>
@@ -129,8 +133,9 @@ const CategoryBar = () => {
           </Box>
         </Toolbar>
       </Container>
-    </AppBar>
+    </StyledAppBar>
   );
 };
 
 export default CategoryBar;
+

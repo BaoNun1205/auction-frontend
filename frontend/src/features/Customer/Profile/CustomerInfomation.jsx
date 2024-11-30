@@ -114,7 +114,7 @@ const CustomerInformation = () => {
           <Box component="form" sx={{ mt: 4 }}>
             <Grid container spacing={3}>
               <Grid item xs={12}>
-                <TextFieldComponent
+                <TextField
                   fullWidth
                   label="Tên đăng nhập"
                   value="lenguyenbao07"
@@ -122,7 +122,7 @@ const CustomerInformation = () => {
               </Grid>
               
               <Grid item xs={12}>
-                <TextFieldComponent
+                <TextField
                   fullWidth
                   label="Tên"
                   variant="outlined"
@@ -130,7 +130,7 @@ const CustomerInformation = () => {
               </Grid>
 
               <Grid item xs={12}>
-                <TextFieldComponent
+                <TextField
                   fullWidth
                   label="Email"
                   value="ba*********@gmail.com"
@@ -148,7 +148,7 @@ const CustomerInformation = () => {
               </Grid>
 
               <Grid item xs={12}>
-                <TextFieldComponent
+                <TextField
                   fullWidth
                   label="Số điện thoại"
                   value="********27"

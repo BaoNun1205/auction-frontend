@@ -1,5 +1,5 @@
 import parseToken from '~/utils/parseToken';
-import { POST, GET, PUT } from './config/axiosMethods';
+import { POST, GET, PUT, DELETE } from './config/axiosMethods';
 import handleApiError from './config/handldeApiError';
 
 export const REQUIREMENT_PATH = '/requirement';
@@ -36,10 +36,28 @@ export const getRequirement = async () => {
   }
 };
 
+export const getRequirementsByVendorId = async (vendorId) => {
+  try {
+    const response = await GET({ url: `${REQUIREMENT_PATH}/vendor/${vendorId}` });
+    return response.data.result;
+  } catch (error) {
+    handleApiError(error);
+  }
+};
+
 export const getRequirementById = async (requirementId) => {
   try {
     const response = await GET({ url: `${REQUIREMENT_PATH}/${requirementId}` });
     return response.data.result;
+  } catch (error) {
+    handleApiError(error);
+  }
+}
+
+export const deleteRequirementById = async (requirementId) => {
+  try {
+    const response = await DELETE({ url: `${REQUIREMENT_PATH}/${requirementId}` });
+    return response.data;
   } catch (error) {
     handleApiError(error);
   }
