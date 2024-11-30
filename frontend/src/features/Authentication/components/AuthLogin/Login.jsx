@@ -1,5 +1,3 @@
-// src/components/AuthForm.js
-
 import React, { useState } from 'react';
 import {
   Box,
@@ -16,8 +14,7 @@ import Logo from '~/assets/images/logo/logo.png';
 import { useGetToken, useRegister } from '~/hooks/authHook';
 import { fadeIn, StyledButton, LogoContainer, StyledTextField } from './style';
 import { validateLogin } from '~/utils/validateLogin';
-import { validateRegister } from '~/utils/validateRegister'; // Import the validateRegister function
-
+import { validateRegister } from '~/utils/validateRegister'; 
 export default function AuthForm({ handleClose }) {
   const [activeTab, setActiveTab] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
