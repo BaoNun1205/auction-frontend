@@ -1,41 +1,51 @@
-export const validateRegister = (registerData) => {
+export const validateRegister = (data) => {
     const errors = {};
   
-    // Kiểm tra tên người dùng
-    if (!registerData.username) {
-      errors.username = "Tên người dùng là bắt buộc.";
-    } else if (registerData.username.length < 3) {
-      errors.username = "Tên người dùng phải có ít nhất 3 ký tự.";
+    // Validate Username
+    if (!data.username) {
+      errors.username = 'Tên đăng nhập là bắt buộc';
+    } else if (data.username.length < 3) {
+      errors.username = 'Tên đăng nhập phải có ít nhất 3 ký tự';
     }
   
-    // Kiểm tra số điện thoại
-    if (!registerData.phone) {
-      errors.phone = "Số điện thoại là bắt buộc.";
-    } else if (!/^\d{10}$/.test(registerData.phone)) {
-      errors.phone = "Số điện thoại phải có 10 chữ số.";
+    // Validate Phone
+    const phonePattern = /^[0-9]{10,11}$/;  // Example pattern for phone numbers
+    if (!data.phone) {
+      errors.phone = 'Số điện thoại là bắt buộc';
+    } else if (!phonePattern.test(data.phone)) {
+      errors.phone = 'Số điện thoại không hợp lệ';
     }
   
-    // Kiểm tra email
-    if (!registerData.email) {
-      errors.email = "Email là bắt buộc.";
-    } else if (!/\S+@\S+\.\S+/.test(registerData.email)) {
-      errors.email = "Email không hợp lệ.";
+    // Validate Email
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+    if (!data.email) {
+      errors.email = 'Email là bắt buộc';
+    } else if (!emailPattern.test(data.email)) {
+      errors.email = 'Email không hợp lệ';
     }
   
-    // Kiểm tra mật khẩu
-    if (!registerData.password) {
-      errors.password = "Mật khẩu là bắt buộc.";
-    } else if (registerData.password.length < 8) {
-      errors.password = "Mật khẩu phải có ít nhất 8 ký tự.";
-    } else if (!/[a-z]/.test(registerData.password)) {
-      errors.password = "Mật khẩu phải chứa ít nhất một ký tự chữ thường.";
-    } else if (!/[A-Z]/.test(registerData.password)) {
-      errors.password = "Mật khẩu phải chứa ít nhất một ký tự chữ hoa.";
-    } else if (!/[0-9]/.test(registerData.password)) {
-      errors.password = "Mật khẩu phải chứa ít nhất một chữ số.";
-    } else if (!/[!@#$%^&*(),.?":{}|<>]/.test(registerData.password)) {
-      errors.password = "Mật khẩu phải chứa ít nhất một ký tự đặc biệt.";
+    // Validate Password
+    const password = data.password;
+  
+    // Check for password length
+    if (!password) {
+      errors.password = 'Mật khẩu là bắt buộc';
+    } else if (password.length < 6) {
+      errors.password = 'Mật khẩu phải có ít nhất 6 ký tự';
+    } else if (!/[a-z]/.test(password)) {
+      // Check for at least one lowercase letter
+      errors.password = 'Mật khẩu phải chứa ít nhất một chữ cái viết thường';
+    } else if (!/[A-Z]/.test(password)) {
+      // Check for at least one uppercase letter
+      errors.password = 'Mật khẩu phải chứa ít nhất một chữ cái viết hoa';
+    } else if (!/\d/.test(password)) {
+      // Check for at least one digit
+      errors.password = 'Mật khẩu phải chứa ít nhất một số';
+    } else if (!/[!@#$%^&*]/.test(password)) {
+      // Check for at least one special character
+      errors.password = 'Mật khẩu phải chứa ít nhất một ký tự đặc biệt';
     }
   
     return errors;
-};
+  };
+  

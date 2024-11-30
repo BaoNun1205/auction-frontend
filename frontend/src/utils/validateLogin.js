@@ -1,18 +1,18 @@
 export const validateLogin = (loginData) => {
   const errors = {};
 
-  // Check for empty email
+  // Kiểm tra xem email có trống không
   if (!loginData.email) {
-    errors.email = 'Email is required';
+    errors.email = 'Email là bắt buộc';
   } else if (!/\S+@\S+\.\S+/.test(loginData.email)) {
-    errors.email = 'Email is invalid';
+    errors.email = 'Email không hợp lệ';
   }
 
-  // Check for empty password
+  // Kiểm tra xem mật khẩu có trống không
   if (!loginData.password) {
-    errors.password = 'Password is required';
-  } else if (loginData.password.length < 6) {
-    errors.password = 'Password must be at least 6 characters long';
+    errors.password = 'Mật khẩu là bắt buộc';
+  } else if (loginData.password.length < 8) {
+    errors.password = 'Mật khẩu phải có ít nhất 8 ký tự';
   }
 
   return errors;
