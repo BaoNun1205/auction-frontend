@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { Box, Container, Typography } from '@mui/material';
 import RelatedPaintings from './components/RelatedPaintings/RelatedPaintings';
 import RelatedSearches from './components/RelatedSearches/RelatedSearches';
-import AssetDetail from './components/AssetDetail/AssetDetail';
 import { useGetSessionById } from '~/hooks/sessionHook';
 import { useParams } from 'react-router-dom';
+import AssetDetail from './components/AssetDetail';
 
 const TimedAuctionDetail = () => {
   const { id } = useParams();
