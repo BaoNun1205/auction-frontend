@@ -36,7 +36,7 @@ export default function SearchResults() {
     all: true,
     upcoming: false,
     ongoing: false,
-    notAuctioned: false,
+    finished: false,
   });
   const [sortOrder, setSortOrder] = useState('new');
   const [expandedCategory, setExpandedCategory] = useState('');
@@ -68,14 +68,14 @@ export default function SearchResults() {
         all: true,
         upcoming: false,
         ongoing: false,
-        notAuctioned: false,
+        finished: false,
       });
     } else {
       setFilters((prevFilters) => {
         const newFilters = { ...prevFilters, [name]: checked };
         if (checked) {
           newFilters.all = false;
-        } else if (!newFilters.upcoming && !newFilters.ongoing && !newFilters.notAuctioned) {
+        } else if (!newFilters.upcoming && !newFilters.ongoing && !newFilters.finished) {
           newFilters.all = true;
         }
         return newFilters;
@@ -95,7 +95,7 @@ export default function SearchResults() {
     if (filters.all) return true;
     if (filters.upcoming && session.status === 'UPCOMING') return true;
     if (filters.ongoing && session.status === 'ONGOING') return true;
-    if (filters.notAuctioned && session.status === 'NOT_AUCTIONED') return true;
+    if (filters.finished && session.status === 'FINISHED') return true;
     return false;
   });
 
@@ -116,6 +116,19 @@ export default function SearchResults() {
       navigate(`/session/register/${session.auctionSessionId}`);
     } else {
       navigate(`/session/${session.auctionSessionId}`);
+    }
+  };
+
+  const getStatusLabel = (status) => {
+    switch (status) {
+      case 'UPCOMING':
+        return 'Sắp diễn ra';
+      case 'ONGOING':
+        return 'Đang diễn ra';
+      case 'FINISHED':
+        return 'Đã kết thúc';
+      default:
+        return '';
     }
   };
 
@@ -198,12 +211,12 @@ export default function SearchResults() {
             <FormControlLabel
               control={
                 <Checkbox 
-                  checked={filters.notAuctioned}
+                  checked={filters.finished}
                   onChange={handleFilterChange}
-                  name="notAuctioned"
+                  name="finished"
                 />
               }
-              label="Chưa được đấu giá"
+              label="Đã kết thúc"
             />
           </FormGroup>
         </Grid>
@@ -234,7 +247,7 @@ export default function SearchResults() {
                     onClick={() => handleCardClick(session)}
                   >
                     <StatusChip 
-                      label={session.status === 'UPCOMING' ? 'Sắp diễn ra' : 'Đang diễn ra'}
+                      label={getStatusLabel(session.status)}
                       status={session.status}
                     />
                     <StyledCardMedia
@@ -288,4 +301,3 @@ export default function SearchResults() {
     </Box>
   );
 }
-

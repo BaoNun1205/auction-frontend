@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'
 import {
   Box,
   Typography,
@@ -15,18 +15,18 @@ import {
   Avatar,
   Paper,
   Link,
-  InputAdornment,
-} from '@mui/material';
-import { styled } from '@mui/material/styles';
-import { useGetUserById } from '~/hooks/userHook';
-import { useAppStore } from '~/store/appStore';
+  InputAdornment
+} from '@mui/material'
+import { styled } from '@mui/material/styles'
+import { useGetUserById } from '~/hooks/userHook'
+import { useAppStore } from '~/store/appStore'
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
   maxWidth: 1200,
   margin: '0 auto',
-  marginTop: theme.spacing(4),
-}));
+  marginTop: theme.spacing(4)
+}))
 
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
@@ -37,8 +37,8 @@ const VisuallyHiddenInput = styled('input')({
   bottom: 0,
   left: 0,
   whiteSpace: 'nowrap',
-  width: 1,
-});
+  width: 1
+})
 
 const StyledSelect = styled(Select)(({ theme }) => ({
   bgcolor: theme.palette.primary.secondary,
@@ -52,68 +52,68 @@ const StyledSelect = styled(Select)(({ theme }) => ({
   },
   '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
     borderColor: theme.palette.primary.borderFocus
-  },
-}));
+  }
+}))
 
 const StyledFormControlLabel = styled(FormControlLabel)(({ theme }) => ({
   '& .MuiRadio-root': {
     '&.Mui-checked': {
-      color: '#b41712',
-    },
-  },
-}));
+      color: '#b41712'
+    }
+  }
+}))
 
 const maskEmail = (email) => {
-  if (!email) return '';
-  const [name, domain] = email.split('@');
-  const maskedName = name.slice(0, 2) + '*'.repeat(name.length - 2);
-  return `${maskedName}@${domain}`;
-};
+  if (!email) return ''
+  const [name, domain] = email.split('@')
+  const maskedName = name.slice(0, 2) + '*'.repeat(name.length - 2)
+  return `${maskedName}@${domain}`
+}
 
 const maskPhone = (phone) => {
-  if (!phone) return '';
-  return phone.slice(0, 2) + '*'.repeat(phone.length - 4) + phone.slice(-2);
-};
+  if (!phone) return ''
+  return phone.slice(0, 2) + '*'.repeat(phone.length - 4) + phone.slice(-2)
+}
 
 const CustomerInformation = () => {
-  const [gender, setGender] = useState('');
-  const [avatarUrl, setAvatarUrl] = useState('/placeholder.svg?height=180&width=180');
-  const [errorMessage, setErrorMessage] = useState('');
-  const { auth } = useAppStore();
-  const { data: user } = useGetUserById(auth?.user?.id);
+  const [gender, setGender] = useState('')
+  const [avatarUrl, setAvatarUrl] = useState('/placeholder.svg?height=180&width=180')
+  const [errorMessage, setErrorMessage] = useState('')
+  const { auth } = useAppStore()
+  const { data: user } = useGetUserById(auth?.user?.id)
 
   // Generate arrays for day, month, year options
-  const days = Array.from({ length: 31 }, (_, i) => i + 1);
-  const months = Array.from({ length: 12 }, (_, i) => i + 1);
-  const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 100 }, (_, i) => currentYear - i);
+  const days = Array.from({ length: 31 }, (_, i) => i + 1)
+  const months = Array.from({ length: 12 }, (_, i) => i + 1)
+  const currentYear = new Date().getFullYear()
+  const years = Array.from({ length: 100 }, (_, i) => currentYear - i)
 
   const handleImageUpload = (event) => {
-    const file = event.target.files?.[0];
+    const file = event.target.files?.[0]
     if (file) {
       if (file.size > 1024 * 1024) {
-        setErrorMessage('Kích thước file vượt quá 1MB');
-        return;
+        setErrorMessage('Kích thước file vượt quá 1MB')
+        return
       }
       if (!['image/jpeg', 'image/png'].includes(file.type)) {
-        setErrorMessage('Chỉ chấp nhận file JPEG hoặc PNG');
-        return;
+        setErrorMessage('Chỉ chấp nhận file JPEG hoặc PNG')
+        return
       }
-      setErrorMessage('');
-      const reader = new FileReader();
+      setErrorMessage('')
+      const reader = new FileReader()
       reader.onload = (e) => {
-        setAvatarUrl(e.target.result);
-      };
-      reader.readAsDataURL(file);
+        setAvatarUrl(e.target.result)
+      }
+      reader.readAsDataURL(file)
     }
-  };
+  }
 
   const StyledFormLabel = styled(FormLabel)(({ theme }) => ({
     color: theme.palette.text.primary,
     '&.Mui-focused': {
-      color: theme.palette.text.primary,
-    },
-  }));
+      color: theme.palette.text.primary
+    }
+  }))
 
   return (
     <StyledPaper elevation={0}>
@@ -132,7 +132,11 @@ const CustomerInformation = () => {
                 <TextField
                   fullWidth
                   label="Tên đăng nhập"
+                  name="username"
                   value={user?.username}
+                  InputLabelProps={{
+                    shrink: true
+                  }}
                 />
               </Grid>
               <Grid container item xs={12} spacing={2}>
@@ -142,6 +146,9 @@ const CustomerInformation = () => {
                     label="Họ"
                     variant="outlined"
                     value={user?.firstName}
+                    InputLabelProps={{
+                      shrink: true
+                    }}
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>
@@ -150,6 +157,9 @@ const CustomerInformation = () => {
                     label="Tên"
                     variant="outlined"
                     value={user?.lastName}
+                    InputLabelProps={{
+                      shrink: true
+                    }}
                   />
                 </Grid>
               </Grid>
@@ -167,7 +177,7 @@ const CustomerInformation = () => {
                           Thay Đổi
                         </Link>
                       </InputAdornment>
-                    ),
+                    )
                   }}
                 />
               </Grid>
@@ -185,7 +195,7 @@ const CustomerInformation = () => {
                           Thay Đổi
                         </Link>
                       </InputAdornment>
-                    ),
+                    )
                   }}
                 />
               </Grid>
@@ -270,8 +280,8 @@ const CustomerInformation = () => {
                 color: 'white',
                 px: 4,
                 '&:hover': {
-                  bgcolor: '#8B0000',
-                },
+                  bgcolor: '#8B0000'
+                }
               }}
             >
               Lưu
@@ -280,7 +290,7 @@ const CustomerInformation = () => {
         </Grid>
       </Grid>
     </StyledPaper>
-  );
-};
+  )
+}
 
-export default CustomerInformation;
+export default CustomerInformation

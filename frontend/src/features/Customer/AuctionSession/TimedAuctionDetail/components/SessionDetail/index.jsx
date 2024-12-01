@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState, useRef } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import {
   Box,
   Typography,
@@ -35,12 +35,8 @@ const SessionDetail = ({ item }) => {
   const [highestBid, setHighestBid] = useState(item?.auctionSessionInfo?.highestBid)
   const [totalBidder, setTotalBidder] = useState(item?.auctionSessionInfo?.totalBidder)
   const [totalAuctionHistory, setTotalAuctionHistory] = useState(item?.auctionSessionInfo?.totalAuctionHistory)
-  const [bidPrice, setBidPrice] = useState('')
-  const [error, setError] = useState('')
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
   const { mutate: createAuctionHistory } = useCreateAuctionHistory()
-  const depositRate = 0.23
-  const minBidIncrement = item.bidIncrement
 
   const placeholderImage = 'https://via.placeholder.com/150'
 
@@ -60,7 +56,6 @@ const SessionDetail = ({ item }) => {
       setTotalAuctionHistory(auctionSessionInfo.totalAuctionHistory)
       setHighestBid(auctionSessionInfo.highestBid)
 
-      // Display a snackbar notification for the new bid
       setSnackbar({
         open: true,
         message: `New bid: ${auctionSessionInfo.highestBid.toLocaleString('vi-VN')} VND`,
@@ -70,24 +65,19 @@ const SessionDetail = ({ item }) => {
   }, [])
 
   useEffect(() => {
-    const destination = `/rt-product/bidPrice-update/${item.id}`
-    connectWebSocket(auth.token, destination, onMessage)
+    if (isAuctionOngoing()) {
+      const destination = `/rt-product/bidPrice-update/${item.id}`
+      connectWebSocket(auth.token, destination, onMessage)
 
-    return () => {
-      disconnectWebSocket()
+      return () => {
+        disconnectWebSocket()
+      }
     }
   }, [auth.token, item.id, onMessage])
 
   const handleBidPrice = () => {
     sendMessage(`/app/rt-auction/placeBid/${item.id}`, {})
   }
-
-  const currentPrice = item?.auctionSessionInfo?.highestBid || 0
-  const minNextBid = currentPrice + minBidIncrement
-
-  useEffect(() => {
-    setBidPrice(minNextBid.toString())
-  }, [minNextBid])
 
   const handleSubmit = (bidPrice) => {
     const auctionHistory = {
@@ -96,16 +86,8 @@ const SessionDetail = ({ item }) => {
       bidPrice: bidPrice,
       bidTime: new Date().toISOString()
     }
-    console.log('Submitting auction history:', auctionHistory)
     createAuctionHistory(auctionHistory, {
       onSuccess: () => {
-        console.log('Auction history submitted successfully')
-        const bidRequest = {
-          auctionSessionId: item.id,
-          userId: auth.user.id,
-          bidPrice: bidPrice,
-          bidTime: new Date().toISOString()
-        }
         handleBidPrice()
       },
       onError: (error) => {
@@ -124,6 +106,19 @@ const SessionDetail = ({ item }) => {
       return
     }
     setSnackbar({ ...snackbar, open: false })
+  }
+
+  const isAuctionOngoing = () => {
+    const now = new Date()
+    const startTime = new Date(item.startTime)
+    const endTime = new Date(item.endTime)
+    return now >= startTime && now <= endTime
+  }
+
+  const isAuctionEnded = () => {
+    const now = new Date()
+    const endTime = new Date(item.endTime)
+    return now > endTime
   }
 
   return (
@@ -154,7 +149,7 @@ const SessionDetail = ({ item }) => {
                 component="img"
                 height="400"
                 image={mainImage}
-                alt="European School, Floral Still Life"
+                alt={item.asset.assetName}
               />
             </Card>
           </Zoom>
@@ -184,22 +179,20 @@ const SessionDetail = ({ item }) => {
           </Typography>
           <Box display="flex" justifyContent="space-between" mb={3}>
             <Typography variant="subtitle1" color="text.secondary">
-              Giá khởi điểm: {item.startingBids} VND
+              Giá khởi điểm: {item.startingBids.toLocaleString('vi-VN')} VND
             </Typography>
-            {(() => {
-              return (
-                <Typography variant="subtitle1" color="text.secondary">
-                  {new Date(item.endTime).toLocaleString('vi-VN')}
-                </Typography>
-              )
-            })()}
+            <Typography variant="subtitle1" color="text.secondary">
+              {new Date(item.endTime).toLocaleString('vi-VN')}
+            </Typography>
           </Box>
 
           <Fade in={true} style={{ transitionDelay: '500ms' }}>
             <Card elevation={3} sx={{ bgcolor: 'background.default', mb: 3 }}>
               <CardContent>
                 <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                  <Typography variant="body2">Giá hiện tại ({totalAuctionHistory} lượt)</Typography>
+                  <Typography variant="body2">
+                    {isAuctionEnded() ? 'Giá cuối cùng' : 'Giá hiện tại'} ({totalAuctionHistory} lượt)
+                  </Typography>
                   <Chip
                     icon={<Lock fontSize="small" />}
                     label="SECURE"
@@ -211,30 +204,37 @@ const SessionDetail = ({ item }) => {
                 <Typography variant="h4" component="div" gutterBottom>
                   {highestBid.toLocaleString('vi-VN')} VND
                 </Typography>
-                <AppModal trigger={
-                  <Button
-                    variant="contained"
-                    sx={{
-                      transition: 'all 0.3s ease-in-out',
-                      bgcolor: '#b41712',
-                      color: 'white',
-                      px: 4,
-                      '&:hover': {
-                        bgcolor: '#8B0000',
-                        transform: 'translateY(-3px)',
-                        boxShadow: theme.shadows[4]
-                      }
-                    }}
-                  >
-                    Đặt giá
-                  </Button>
-                }>
-                  {auth.isAuth ? (
-                    <PlaceBidForm item={item} onSubmit={handleSubmit} />
-                  ) : (
-                    <LoginForm />
-                  )}
-                </AppModal>
+                {isAuctionOngoing() && (
+                  <AppModal trigger={
+                    <Button
+                      variant="contained"
+                      sx={{
+                        transition: 'all 0.3s ease-in-out',
+                        bgcolor: '#b41712',
+                        color: 'white',
+                        px: 4,
+                        '&:hover': {
+                          bgcolor: '#8B0000',
+                          transform: 'translateY(-3px)',
+                          boxShadow: theme.shadows[4]
+                        }
+                      }}
+                    >
+                      Đặt giá
+                    </Button>
+                  }>
+                    {auth.isAuth ? (
+                      <PlaceBidForm item={item} onSubmit={handleSubmit} />
+                    ) : (
+                      <LoginForm />
+                    )}
+                  </AppModal>
+                )}
+                {isAuctionEnded() && (
+                  <Typography variant="h6" color="error" mt={2}>
+                    Phiên đấu giá đã kết thúc
+                  </Typography>
+                )}
                 <Box display="flex" alignItems="center" mt={2}>
                   <Whatshot color="error" />
                   <Typography variant="body2" color="text.secondary" ml={1}>
@@ -284,3 +284,4 @@ const SessionDetail = ({ item }) => {
 }
 
 export default SessionDetail
+

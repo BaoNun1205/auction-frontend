@@ -1,58 +1,58 @@
-import React, { useState } from 'react';
-import { 
-  AppBar, Toolbar, Typography, Box, 
+import React, { useState } from 'react'
+import {
+  AppBar, Toolbar, Typography, Box,
   useMediaQuery, useTheme, Menu, MenuItem, Fade, IconButton,
   Badge, Avatar, Link
-} from '@mui/material';
-import { 
-  Menu as MenuIcon, Favorite as FavoriteIcon, 
-  Notifications as NotificationsIcon, AccountCircle as SignInIcon, 
+} from '@mui/material'
+import {
+  Menu as MenuIcon, Favorite as FavoriteIcon,
+  Notifications as NotificationsIcon, AccountCircle as SignInIcon,
   Search as SearchIcon, AccountCircle as ProfileIcon,
   Close as CloseIcon
-} from '@mui/icons-material';
-import Logo from '~/components/LogoComponent/Logo';
-import AppModal from '~/components/Modal/Modal';
-import Login from '~/features/Authentication/components/AuthLogin/Login';
-import { useAppStore } from '~/store/appStore';
-import { useNavigate } from 'react-router-dom';
-import { StyledAppBar, NavLink, Search, SearchIconWrapper, StyledInputBase, IconButtonWithBadge } from './style';
+} from '@mui/icons-material'
+import Logo from '~/assets/images/logo/logo.png';
+import AppModal from '~/components/Modal/Modal'
+import Login from '~/features/Authentication/components/AuthLogin/Login'
+import { useAppStore } from '~/store/appStore'
+import { useNavigate } from 'react-router-dom'
+import { StyledAppBar, NavLink, Search, SearchIconWrapper, StyledInputBase, IconButtonWithBadge, LogoContainer } from './style'
 
 const Header = () => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [searchKeyword, setSearchKeyword] = useState('');
-  const navigate = useNavigate();
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'))
+  const [anchorEl, setAnchorEl] = useState(null)
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [searchKeyword, setSearchKeyword] = useState('')
+  const navigate = useNavigate()
 
-  const { auth } = useAppStore();
+  const { auth } = useAppStore()
 
   const menuItems = [
     { label: 'Trang chủ', path: '/' },
     { label: 'Giới thiệu', path: '/introduction' },
     { label: 'Tin tức', path: '/news' },
-    { label: 'Liên hệ', path: '/contact' },
-  ];
+    { label: 'Liên hệ', path: '/contact' }
+  ]
 
-  const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
-  const handleMenuClose = () => setAnchorEl(null);
-  const handleProfileClick = () => navigate('/profile');
+  const handleMenuOpen = (event) => setAnchorEl(event.currentTarget)
+  const handleMenuClose = () => setAnchorEl(null)
+  const handleProfileClick = () => navigate('/profile')
   const handleMenuItemClick = (path) => {
-    navigate(path);
-    handleMenuClose();
-  };
-  const toggleSearch = () => setSearchOpen(!searchOpen);
+    navigate(path)
+    handleMenuClose()
+  }
+  const toggleSearch = () => setSearchOpen(!searchOpen)
 
   const handleSearchChange = (event) => {
-    setSearchKeyword(event.target.value);
-  };
+    setSearchKeyword(event.target.value)
+  }
 
   const handleSearchSubmit = (event) => {
-    event.preventDefault();
+    event.preventDefault()
     if (searchKeyword.trim()) {
-      navigate(`/search?keyword=${searchKeyword.trim()}`);
+      navigate(`/search?keyword=${searchKeyword.trim()}`)
     }
-  };
+  }
 
   return (
     <StyledAppBar position="static">
@@ -82,7 +82,16 @@ const Header = () => {
           </>
         )}
         <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
-          <Logo />
+          <LogoContainer
+            elevation={3}
+            sx={{
+              width: { xs: 50, md: 60, lg: 80 },
+              height: { xs: 50, md: 60, lg: 80 }
+            }}
+            onClick={() => navigate('/')}
+          >
+            <Box component="img" src={Logo} alt="Logo" sx={{ width: '180%' }} />
+          </LogoContainer>
           {!isMobile && (
             <Box sx={{ display: 'flex', ml: 4 }}>
               {menuItems.map((item) => (
@@ -160,7 +169,7 @@ const Header = () => {
         </Box>
       )}
     </StyledAppBar>
-  );
-};
+  )
+}
 
-export default Header;
+export default Header
