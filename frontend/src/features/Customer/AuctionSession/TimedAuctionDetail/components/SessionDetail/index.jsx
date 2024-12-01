@@ -12,9 +12,10 @@ import {
   Zoom,
   Button,
   Snackbar,
-  Alert
+  Alert,
+  Avatar
 } from '@mui/material'
-import { ChevronRight, Lock, LocalShipping, Whatshot } from '@mui/icons-material'
+import { ChevronRight, Lock, Whatshot } from '@mui/icons-material'
 import { useTheme, useMediaQuery } from '@mui/material'
 import { useAppStore } from '~/store/appStore'
 import LoginForm from '~/features/Authentication/components/AuthLogin/Login'
@@ -25,6 +26,7 @@ import AppModal from '~/components/Modal/Modal'
 import PlaceBidForm from './components/PlaceBidForm/PlaceBidForm'
 import VendorInformation from '../VendorInfomation'
 import { connectWebSocket, disconnectWebSocket, sendMessage } from '~/service/webSocketService'
+import Countdown from 'react-countdown'
 
 const SessionDetail = ({ item }) => {
   const theme = useTheme()
@@ -65,7 +67,7 @@ const SessionDetail = ({ item }) => {
   }, [])
 
   useEffect(() => {
-    if (isAuctionOngoing()) {
+    if (item.status === 'ONGOING') {
       const destination = `/rt-product/bidPrice-update/${item.id}`
       connectWebSocket(auth.token, destination, onMessage)
 
@@ -108,18 +110,17 @@ const SessionDetail = ({ item }) => {
     setSnackbar({ ...snackbar, open: false })
   }
 
-  const isAuctionOngoing = () => {
-    const now = new Date()
-    const startTime = new Date(item.startTime)
-    const endTime = new Date(item.endTime)
-    return now >= startTime && now <= endTime
-  }
-
-  const isAuctionEnded = () => {
-    const now = new Date()
-    const endTime = new Date(item.endTime)
-    return now > endTime
-  }
+  const renderCountdown = ({ days, hours, minutes, seconds, completed }) => {
+    if (completed) {
+      return <span>Phiên đấu giá đã kết thúc</span>;
+    } else {
+      return (
+        <span>
+          {days} ngày {hours} giờ {minutes} phút {seconds} giây
+        </span>
+      );
+    }
+  };
 
   return (
     <Box mb={6}>
@@ -191,7 +192,7 @@ const SessionDetail = ({ item }) => {
               <CardContent>
                 <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                   <Typography variant="body2">
-                    {isAuctionEnded() ? 'Giá cuối cùng' : 'Giá hiện tại'} ({totalAuctionHistory} lượt)
+                    {item.status === 'FINISHED' ? 'Giá cuối cùng' : 'Giá hiện tại'} ({totalAuctionHistory} lượt)
                   </Typography>
                   <Chip
                     icon={<Lock fontSize="small" />}
@@ -204,7 +205,7 @@ const SessionDetail = ({ item }) => {
                 <Typography variant="h4" component="div" gutterBottom>
                   {highestBid.toLocaleString('vi-VN')} VND
                 </Typography>
-                {isAuctionOngoing() && (
+                {item.status === 'ONGOING' && (
                   <AppModal trigger={
                     <Button
                       variant="contained"
@@ -230,7 +231,7 @@ const SessionDetail = ({ item }) => {
                     )}
                   </AppModal>
                 )}
-                {isAuctionEnded() && (
+                {item.status === 'FINISHED' && (
                   <Typography variant="h6" color="error" mt={2}>
                     Phiên đấu giá đã kết thúc
                   </Typography>
@@ -247,11 +248,22 @@ const SessionDetail = ({ item }) => {
           <Divider />
 
           <Box display="flex" alignItems="center" mt={3}>
-            <LocalShipping color="action" />
-            <Typography variant="body2" color="text.secondary" ml={1}>
-              Xem chính sách vận chuyển
-            </Typography>
-          </Box>
+      {item.status === 'ONGOING' ? (
+        <Box display="flex" alignItems="center">
+          <Typography variant="body1" mr={1}>
+            Thời gian còn lại:
+          </Typography>
+          <Countdown date={new Date(item.endTime)} renderer={renderCountdown} />
+        </Box>
+      ) : (
+        <Box display="flex" alignItems="center">
+          <Avatar src={item.auctionSessionInfo.user.avatar || placeholderImage} alt="Winner Avatar" />
+          <Typography variant="body1" ml={2}>
+            Người thắng: {item.auctionSessionInfo.user.username}
+          </Typography>
+        </Box>
+      )}
+    </Box>
         </Grid>
       </Grid>
       <Divider sx={{ my: 6 }} />
