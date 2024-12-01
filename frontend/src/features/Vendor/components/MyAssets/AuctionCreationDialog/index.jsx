@@ -66,6 +66,8 @@ const AuctionCreationDialog = ({ open, onClose, asset }) => {
     }
   }, [asset]);
 
+  console.log('sessionData:', asset);
+
   const handleSubmit = (values, { setSubmitting }) => {
     const sessionData = {
       typeSession: values.type,

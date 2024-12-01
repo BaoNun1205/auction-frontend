@@ -26,7 +26,7 @@ import { useAppStore } from '~/store/appStore';
 const AddressesInfomation = () => {
   const { auth } = useAppStore()
   // Gọi hook để lấy dữ liệu địa chỉ của người dùng
-  const { data: addresses, isLoading, isError, error } = useGetAddressByUserId(auth.user.id);
+  const { data: addresses, isLoading, isError, error, refetch } = useGetAddressByUserId(auth.user.id);
 
   if (isLoading) {
     return (
@@ -61,7 +61,7 @@ const AddressesInfomation = () => {
           }
           maxWidth={600}
         >
-          <AddressForm />
+          <AddressForm refresh={refetch}/>
         </AppModal>
       </Box>
 

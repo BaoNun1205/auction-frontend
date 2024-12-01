@@ -23,7 +23,7 @@ import { useAppStore } from '~/store/appStore';
 
 const API_URL = 'https://provinces.open-api.vn/api';
 
-export default function AddressForm() {
+export default function AddressForm({ refresh, handleClose }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedTab, setSelectedTab] = useState(0);
   const [provinces, setProvinces] = useState([]);
@@ -87,7 +87,7 @@ export default function AddressForm() {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleClose = () => {
+  const handleCloseAddress = () => {
     setAnchorEl(null);
   };
 
@@ -120,7 +120,7 @@ export default function AddressForm() {
 
   const handleWardSelect = (ward) => {
     setSelectedWard(ward.name);
-    handleClose();
+    handleCloseAddress();
 
     // Update ward in formData
     setFormData({
@@ -148,8 +148,15 @@ export default function AddressForm() {
 
     console.log('Address Data:', addressData); // Check if the data is correct
 
-    // Call API to create address
-    createAddress(addressData);  // Call the hook to create the address
+    createAddress(addressData, {
+      onSuccess: () => {
+        refresh();
+        handleClose()
+      },
+      onError: (error) => {
+        console.error('Error creating address:', error);
+      },
+    });
   };
 
   const open = Boolean(anchorEl);
@@ -200,7 +207,7 @@ export default function AddressForm() {
       <StyledPopover
         open={open}
         anchorEl={anchorEl}
-        onClose={handleClose}
+        onClose={handleCloseAddress}
         anchorOrigin={{
           vertical: 'bottom',
           horizontal: 'left',
