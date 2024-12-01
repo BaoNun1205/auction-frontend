@@ -218,7 +218,7 @@ const AuctionInfo = () => {
   const auctionImg = './src/assets/images/auctionItem.png';
   const { auth } = useAppStore();
 
-  const exRegisteredData1 = useGetRegisteredSession(auth.user.id);
+  const exRegisteredData1 = useGetRegisteredSession(auth.userId);
   console.log('test: ', exRegisteredData1);
 
   const exRegisteredData = [
