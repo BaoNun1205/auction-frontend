@@ -12,8 +12,9 @@ import { Home, FolderTree, ShoppingBag, Calendar, FileText, ChevronRight } from 
 import { useNavigate } from 'react-router-dom';
 import { useLogout } from '~/hooks/authHook';
 import AppModal from '~/components/Modal/Modal';
-import MyAssets from '../components/MyAsset';
-import AuctionRequest from '../components/AuctionRequest';
+import AuctionRequest from '../components/AuctionRequests';
+import MyAssets from '../components/MyAssets';
+import AuctionSessions from '../components/MyAuctionSession';
 
 const primaryColor = '#b41712';
 
@@ -90,7 +91,8 @@ const Main = () => {
 
   const menuItems = [
     { text: 'Tài sản', icon: <ShoppingBag />, value: 1 },
-    { text: 'Yêu cầu', icon: <FileText />, value: 2 }
+    { text: 'Yêu cầu', icon: <FileText />, value: 2 },
+    { text: 'Phiên đấu giá', icon: <Calendar />, value: 3 }
   ];
 
   const drawer = (
@@ -182,6 +184,7 @@ const Main = () => {
             <Typography color="text.primary">
               {tab === 1 && 'Tài sản'}
               {tab === 2 && 'Yêu cầu'}
+              {tab === 3 && 'Phiên đấu giá'}
             </Typography>
           </Breadcrumbs>
         </Box>
@@ -222,6 +225,7 @@ const Main = () => {
             <StyledPaper elevation={3}>
               {tab === 1 && <MyAssets />}
               {tab === 2 && <AuctionRequest />}
+              {tab === 3 && <AuctionSessions />}
             </StyledPaper>
           </Grid>
         </Grid>

@@ -4,7 +4,6 @@ import {
   Typography,
   Button,
   TextField,
-  Grid,
   Table,
   TableBody,
   TableCell,
@@ -17,87 +16,27 @@ import {
   DialogActions,
   Snackbar,
   Alert,
-  Chip,
   IconButton,
   Menu,
   MenuItem,
-  Paper,
   Tab,
   Tabs,
   InputAdornment,
   Select,
   CircularProgress
 } from '@mui/material'
-import { styled } from '@mui/material/styles'
 import AddIcon from '@mui/icons-material/Add'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
-import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate'
 import CloseIcon from '@mui/icons-material/Close'
 import SearchIcon from '@mui/icons-material/Search'
 import FilterListIcon from '@mui/icons-material/FilterList'
-import { motion } from 'framer-motion'
-import ReactQuill from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
 import { useCreateRequirement, useDeleteRequirement, useRequirementsByVendorId } from '~/hooks/requirementHook'
 import { useAppStore } from '~/store/appStore'
+import RequirementFormContent from './RequirementFormContent'
+import { AnimatedButton, StyledChip, StyledPaper, StyledTableCell } from './style'
 
 const primaryColor = '#b41712'
-
-const StyledPaper = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(3),
-  marginBottom: theme.spacing(3),
-  borderRadius: theme.shape.borderRadius,
-  boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)'
-}))
-
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
-  fontWeight: 'bold'
-}))
-
-const StyledChip = styled(Chip)(({ theme, status }) => ({
-  fontWeight: 'bold',
-  color: theme.palette.getContrastText(
-    status === '1' ? theme.palette.success.main :
-      status === '2' ? theme.palette.error.main :
-        theme.palette.warning.main
-  ),
-  backgroundColor:
-    status === '1' ? theme.palette.success.main :
-      status === '2' ? theme.palette.error.main :
-        theme.palette.warning.main
-}))
-
-const ImagePreview = styled(Box)({
-  position: 'relative',
-  height: 150,
-  width: '100%',
-  backgroundSize: 'cover',
-  backgroundPosition: 'center',
-  cursor: 'pointer',
-  borderRadius: 4,
-  '&:hover': {
-    opacity: 0.8
-  }
-})
-
-const ImageUploadButton = styled(Button)(({ theme }) => ({
-  height: 150,
-  width: '100%',
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-  border: `2px dashed ${theme.palette.grey[300]}`,
-  borderRadius: 4,
-  cursor: 'pointer',
-  '&:hover': {
-    backgroundColor: theme.palette.action.hover
-  }
-}))
-
-const AnimatedButton = styled(motion.div)({
-  display: 'inline-block'
-})
 
 const AuctionRequest = () => {
   const [openDialog, setOpenDialog] = useState(false)
@@ -201,8 +140,8 @@ const AuctionRequest = () => {
         name: requirement.assetName,
         description: requirement.assetDescription,
         startingPrice: requirement.assetPrice,
-        productImages: requirement.imageRequirements.map(img => img.image),
-        documentImages: ['', ''],
+        productImages: requirement.imageRequirements.slice(0, 4).map(img => img.image),
+        documentImages: requirement.imageRequirements.slice(4, 6).map(img => img.image),
         status: requirement.status
       })
     } else {
@@ -349,8 +288,8 @@ const AuctionRequest = () => {
             <TableHead>
               <TableRow>
                 <StyledTableCell>Tên Sản phẩm</StyledTableCell>
-                <StyledTableCell align="right">Giá khởi điểm</StyledTableCell>
-                <StyledTableCell align="center">Trạng thái</StyledTableCell>
+                <StyledTableCell>Giá khởi điểm</StyledTableCell>
+                <StyledTableCell>Trạng thái</StyledTableCell>
                 <StyledTableCell align="center">Hành động</StyledTableCell>
               </TableRow>
             </TableHead>
@@ -358,8 +297,8 @@ const AuctionRequest = () => {
               {filteredRequirements.map((req) => (
                 <TableRow key={req.requirementId}>
                   <TableCell>{req.assetName}</TableCell>
-                  <TableCell align="right">{`${req.assetPrice.toLocaleString('vi-VN')}`}₫</TableCell>
-                  <TableCell align="center">
+                  <TableCell>{`${req.assetPrice.toLocaleString('vi-VN')}`}₫</TableCell>
+                  <TableCell>
                     <StyledChip
                       label={req.status === '0' ? 'Đang chờ duyệt' : req.status === '1' ? 'Đang xử lý' : 'Đã từ chối'}
                       status={req.status}
@@ -416,132 +355,15 @@ const AuctionRequest = () => {
           </IconButton>
         </DialogTitle>
         <DialogContent dividers>
-          <form onSubmit={handleSubmit}>
-            <Grid container spacing={3}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Tên sản phẩm"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  required
-                  variant="outlined"
-                  disabled={currentRequirement && !canEdit(currentRequirement.status)}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Giá khởi điểm"
-                  name="startingPrice"
-                  type="number"
-                  value={formData.startingPrice}
-                  onChange={handleInputChange}
-                  required
-                  variant="outlined"
-                  InputProps={{
-                    startAdornment: <Typography color="textSecondary">₫</Typography>
-                  }}
-                  disabled={currentRequirement && !canEdit(currentRequirement.status)}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <Typography variant="subtitle1" gutterBottom>
-                  Mô tả
-                </Typography>
-                <ReactQuill
-                  value={formData.description}
-                  onChange={handleDescriptionChange}
-                  theme="snow"
-                  style={{ height: '200px', marginBottom: '50px' }}
-                  readOnly={currentRequirement && !canEdit(currentRequirement.status)}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <Typography variant="h6" gutterBottom color={primaryColor}>
-                  Hình ảnh sản phẩm
-                </Typography>
-                <Grid container spacing={2}>
-                  {formData.productImages.map((image, index) => (
-                    <Grid item xs={12} sm={3} key={`product-${index}`}>
-                      <input
-                        accept="image/*"
-                        style={{ display: 'none' }}
-                        id={`product-image-upload-${index}`}
-                        type="file"
-                        onChange={(e) => handleImageUpload(e, 'productImages', index)}
-                        disabled={currentRequirement && !canEdit(currentRequirement.status)}
-                      />
-                      <label htmlFor={`product-image-upload-${index}`}>
-                        {image ? (
-                          <ImagePreview style={{ backgroundImage: `url(${image instanceof File ? URL.createObjectURL(image) : image})` }}>
-                            {(!currentRequirement || canEdit(currentRequirement.status)) && (
-                              <IconButton
-                                size="small"
-                                onClick={() => handleDeleteImage('productImages', index)}
-                                sx={{ position: 'absolute', top: 5, right: 5, bgcolor: 'rgba(255,255,255,0.7)' }}
-                              >
-                                <CloseIcon />
-                              </IconButton>
-                            )}
-                          </ImagePreview>
-                        ) : (
-                          <ImageUploadButton component="span" disabled={currentRequirement && !canEdit(currentRequirement.status)}>
-                            <AddPhotoAlternateIcon sx={{ fontSize: 40, color: 'grey.500' }} />
-                            <Typography variant="body2" color="textSecondary">
-                              Thêm ảnh
-                            </Typography>
-                          </ImageUploadButton>
-                        )}
-                      </label>
-                    </Grid>
-                  ))}
-                </Grid>
-              </Grid>
-              <Grid item xs={12}>
-                <Typography variant="h6" gutterBottom color={primaryColor}>
-                  Hình ảnh giấy tờ
-                </Typography>
-                <Grid container spacing={2}>
-                  {formData.documentImages.map((image, index) => (
-                    <Grid item xs={12} sm={6} key={`document-${index}`}>
-                      <input
-                        accept="image/*"
-                        style={{ display: 'none' }}
-                        id={`document-image-upload-${index}`}
-                        type="file"
-                        onChange={(e) => handleImageUpload(e, 'documentImages', index)}
-                        disabled={currentRequirement && !canEdit(currentRequirement.status)}
-                      />
-                      <label htmlFor={`document-image-upload-${index}`}>
-                        {image ? (
-                          <ImagePreview style={{ backgroundImage: `url(${image instanceof File ? URL.createObjectURL(image) : image})` }}>
-                            {(!currentRequirement || canEdit(currentRequirement.status)) && (
-                              <IconButton
-                                size="small"
-                                onClick={() => handleDeleteImage('documentImages', index)}
-                                sx={{ position: 'absolute', top: 5, right: 5, bgcolor: 'rgba(255,255,255,0.7)' }}
-                              >
-                                <CloseIcon />
-                              </IconButton>
-                            )}
-                          </ImagePreview>
-                        ) : (
-                          <ImageUploadButton component="span" disabled={currentRequirement && !canEdit(currentRequirement.status)}>
-                            <AddPhotoAlternateIcon sx={{ fontSize: 40, color: 'grey.500' }} />
-                            <Typography variant="body2" color="textSecondary">
-                              Thêm ảnh
-                            </Typography>
-                          </ImageUploadButton>
-                        )}
-                      </label>
-                    </Grid>
-                  ))}
-                </Grid>
-              </Grid>
-            </Grid>
-          </form>
+          <RequirementFormContent
+            formData={formData}
+            handleInputChange={handleInputChange}
+            handleDescriptionChange={handleDescriptionChange}
+            handleImageUpload={handleImageUpload}
+            handleDeleteImage={handleDeleteImage}
+            canEdit={canEdit(currentRequirement?.status)}
+            currentRequirement={currentRequirement}
+          />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialog} sx={{ color: 'grey.500' }}>
@@ -561,7 +383,7 @@ const AuctionRequest = () => {
                 {isCreating ? (
                   <CircularProgress size={24} color="inherit" />
                 ) : (
-                  currentRequirement ? 'Cập nhật' : 'Tạo Yêu cầu'
+                  currentRequirement ? 'Gửi lại' : 'Tạo Yêu cầu'
                 )}
               </Button>
             </AnimatedButton>

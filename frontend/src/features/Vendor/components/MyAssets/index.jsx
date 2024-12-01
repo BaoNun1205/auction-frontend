@@ -27,6 +27,8 @@ import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { useFilterAssets } from '~/hooks/assetHook';
 import { useAppStore } from '~/store/appStore';
+import AuctionCreationDialog from './AuctionCreationDialog';
+import { StyledSpan } from '~/features/style';
 
 const StyledPaper = styled(Paper)({
   padding: '24px',
@@ -53,6 +55,7 @@ const StyledChip = styled(Chip)(({ status }) => {
 
   return {
     fontWeight: 'bold',
+    minWidth: '120px',
     color: color,
     backgroundColor: backgroundColor,
     borderRadius: '16px',
@@ -61,6 +64,8 @@ const StyledChip = styled(Chip)(({ status }) => {
 });
 
 const MyAssets = () => {
+  const [openDialog, setOpenDialog] = useState(false);
+  const [isAuctionDialogOpen, setIsAuctionDialogOpen] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedAsset, setSelectedAsset] = useState(null);
@@ -70,6 +75,30 @@ const MyAssets = () => {
   const { auth } = useAppStore();
   const { data } = useFilterAssets({ vendorId: auth?.user?.id });
   const assets = Array.isArray(data?.data) ? data.data : [];
+
+  const handleViewDetails = () => {
+    setOpenDialog(true);
+    handleMenuClose();
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+  };
+
+  const handleOpenAuctionDialog = () => {
+    setIsAuctionDialogOpen(true);
+  };
+
+  const handleCloseAuctionDialog = () => {
+    setIsAuctionDialogOpen(false);
+  };
+
+  const handleCreateAuction = (auctionData) => {
+    // Handle the creation of the auction with the provided data
+    console.log('Creating auction:', auctionData);
+    // You would typically send this data to your backend API
+    setSnackbar({ open: true, message: 'Phiên đấu giá đã được tạo', severity: 'success' });
+  };
 
   const handleCloseSnackbar = (event, reason) => {
     if (reason === 'clickaway') {
@@ -179,19 +208,31 @@ const MyAssets = () => {
         <TableContainer>
           <Table>
             <TableHead>
-              <TableRow sx={{ backgroundColor: '#b41712' }}>
-                <StyledTableCell sx={{ color: 'white' }}>Tên Tài sản</StyledTableCell>
-                <StyledTableCell align="right" sx={{ color: 'white' }}>Giá khởi điểm</StyledTableCell>
-                <StyledTableCell align="center" sx={{ color: 'white' }}>Trạng thái</StyledTableCell>
-                <StyledTableCell align="center" sx={{ color: 'white' }}>Hành động</StyledTableCell>
+              <TableRow>
+                <StyledTableCell>Tài sản</StyledTableCell>
+                <StyledTableCell>Giá khởi điểm</StyledTableCell>
+                <StyledTableCell>Trạng thái</StyledTableCell>
+                <StyledTableCell align="center">Hành động</StyledTableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {filteredAssets.map((asset) => (
                 <TableRow key={asset.assetId} sx={{ '&:hover': { backgroundColor: '#f5f5f5' } }}>
-                  <TableCell>{asset.assetName}</TableCell>
-                  <TableCell align="right">{asset.assetPrice.toLocaleString('vi-VN')}₫</TableCell>
-                  <TableCell align="center">
+                  <TableCell>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <Box
+                        component="img"
+                        src={asset.mainImage}
+                        sx={{ width: 48, height: 48, borderRadius: 1, mr: 2 }}
+                      />
+                      <Box>
+                        <StyledSpan>{asset.assetName}</StyledSpan>
+                        <Box sx={{ color: '#637381' }}>{asset.type.typeName || 'N/A'}</Box>
+                      </Box>
+                    </Box>
+                  </TableCell>
+                  <TableCell>{asset.assetPrice.toLocaleString('vi-VN')}₫</TableCell>
+                  <TableCell>
                     <StyledChip
                       label={getStatusLabel(asset.status)}
                       status={asset.status}
@@ -214,15 +255,34 @@ const MyAssets = () => {
         open={Boolean(anchorEl)}
         onClose={handleMenuClose}
       >
-        <MenuItem onClick={handleMenuClose}>
+        <MenuItem onClick={handleViewDetails}>
           Xem chi tiết
         </MenuItem>
-        {selectedAsset?.status === '0' && (
-          <MenuItem onClick={handleMenuClose}>
-            Chỉnh sửa
+        {selectedAsset?.status === '0' && [
+          <MenuItem key="delete" onClick={handleMenuClose}>
+            Xóa
+          </MenuItem>,
+          <MenuItem key="create-auction" onClick={() => {
+            handleOpenAuctionDialog();
+            handleMenuClose();
+          }}>
+            Tạo phiên đấu giá
           </MenuItem>
-        )}
+        ]}
       </Menu>
+
+      <AuctionCreationDialog
+        open={isAuctionDialogOpen}
+        onClose={handleCloseAuctionDialog}
+        onSubmit={handleCreateAuction}
+        asset={selectedAsset}
+      />
+
+      <AuctionCreationDialog
+        open={openDialog}
+        onClose={handleCloseDialog}
+        asset={selectedAsset}
+      />
 
       <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={handleCloseSnackbar}>
         <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
