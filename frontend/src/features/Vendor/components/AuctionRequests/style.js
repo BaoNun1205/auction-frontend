@@ -22,6 +22,7 @@ export const StyledTableCell = styled(TableCell)(({ theme }) => ({
 
 export const StyledChip = styled(Chip)(({ theme, status }) => ({
   fontWeight: 'bold',
+  minWidth: 120,
   color: theme.palette.getContrastText(
     status === '1' ? theme.palette.success.main :
       status === '2' ? theme.palette.error.main :
