@@ -29,6 +29,7 @@ import { useFilterAssets } from '~/hooks/assetHook';
 import { useAppStore } from '~/store/appStore';
 import AuctionCreationDialog from './AuctionCreationDialog';
 import { StyledSpan } from '~/features/style';
+import AssetsDetailsDialog from './AssetDetailsDialog'
 
 const StyledPaper = styled(Paper)({
   padding: '24px',
@@ -278,7 +279,7 @@ const MyAssets = () => {
         asset={selectedAsset}
       />
 
-      <AuctionCreationDialog
+      <AssetsDetailsDialog
         open={openDialog}
         onClose={handleCloseDialog}
         asset={selectedAsset}

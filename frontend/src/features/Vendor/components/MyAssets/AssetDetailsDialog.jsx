@@ -1,116 +1,262 @@
-import React from 'react';
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  Typography,
-  Grid,
-  Chip,
-  IconButton,
-  Box,
-} from '@mui/material';
-import { styled } from '@mui/material/styles';
-import CloseIcon from '@mui/icons-material/Close';
-import Slider from 'react-slick';
-import 'slick-carousel/slick/slick.css';
-import 'slick-carousel/slick/slick-theme.css';
+import React, { useState, useEffect } from 'react';
+import { Box, TextField, Typography, Grid, Paper, Modal, IconButton, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { styled } from '@mui/system';
+import { FiMaximize2, FiX } from 'react-icons/fi';
 
-const StyledDialog = styled(Dialog)(({ theme }) => ({
-  '& .MuiDialogContent-root': {
-    padding: theme.spacing(3),
-  },
-  '& .MuiDialogTitle-root': {
-    padding: theme.spacing(2),
+const StyledPaper = styled(Paper)(({ theme }) => ({
+  padding: '1rem',
+  borderRadius: '8px',
+  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+  transition: 'transform 0.2s ease-in-out',
+  '&:hover': {
+    transform: 'translateY(-4px)',
   },
 }));
 
 const ImageContainer = styled(Box)({
-  height: 300,
-  width: '100%',
   position: 'relative',
-  '& img': {
-    width: '100%',
-    height: '100%',
-    objectFit: 'cover',
+  height: '100px',
+  borderRadius: '8px',
+  overflow: 'hidden',
+  cursor: 'pointer',
+  transition: 'transform 0.2s ease-in-out',
+  '&:hover': {
+    transform: 'scale(1.05)',
   },
 });
 
-const AssetDetailsDialog = ({ open, onClose, asset }) => {
-  const sliderSettings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    autoplay: true,
-    autoplaySpeed: 3000,
+const StyledImage = styled('img')({
+  width: '100%',
+  height: '100%',
+  objectFit: 'cover',
+});
+
+const ModalImage = styled('img')({
+  maxWidth: '80vw',
+  maxHeight: '80vh',
+  objectFit: 'contain',
+});
+
+// Cập nhật phần mô tả có chiều cao động và có scroll khi cần
+const DescriptionContainer = styled(Box)(({ theme }) => ({
+  padding: '1rem',
+  border: '1px solid #ddd', // Đặt viền cho phần mô tả
+  borderRadius: '8px',
+  backgroundColor: '#f9f9f9', // Nền nhẹ nhàng
+  marginTop: '1rem',
+  whiteSpace: 'pre-line', // Giữ nguyên dòng mới nếu có
+  overflowY: 'auto', // Kích hoạt thanh cuộn khi nội dung vượt quá chiều cao
+}));
+
+const AssetsDetailsDialog = ({ open, onClose, asset }) => {
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [initialValues, setInitialValues] = useState({
+    assetName: 'Unknown Asset',
+    startingPrice: 'N/A',
+    status: 'N/A',
+    description: 'No description available',
+    images: [],
+    documents: [],
+    type: {
+      typeName: 'Unknown Type',
+      typeImage: '',
+    },
+  });
+
+  useEffect(() => {
+    if (asset) {
+      setInitialValues((prevValues) => ({
+        ...prevValues,
+        assetName: asset.assetName || 'Unknown Asset',
+        startingPrice: asset.assetPrice || 'N/A',
+        status: asset.status === '0' ? 'Inactive' : 'Active', // Assuming '0' means inactive
+        description: asset.assetDescription || 'No description available',
+        images: asset.listImages.slice(0, 4).map((image) => image.imageAsset) || [], // Lấy 4 ảnh đầu tiên
+        documents: asset.listImages.slice(-2).map((image) => image.imageAsset) || [], // Lấy 2 ảnh cuối
+        type: {
+          typeName: asset.type?.typeName || 'Unknown Type',
+          typeImage: asset.type?.image || '',
+        },
+      }));
+    }
+  }, [asset]); // This will run when the 'asset' prop changes
+
+  const handleImageClick = (imageUrl) => {
+    setSelectedImage(imageUrl);
   };
 
-  if (!asset) return null;
-
   return (
-    <StyledDialog
-      onClose={onClose}
+    <Modal
       open={open}
-      maxWidth="md"
-      fullWidth
+      onClose={onClose}
+      aria-labelledby="image-modal"
+      sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', p: 2 }}
     >
-      <DialogTitle sx={{ m: 0, p: 2, bgcolor: 'primary.main', color: 'primary.contrastText' }}>
-        Chi tiết tài sản
-        <IconButton
-          aria-label="close"
-          onClick={onClose}
-          sx={{
-            position: 'absolute',
-            right: 8,
-            top: 8,
-            color: 'inherit',
-          }}
-        >
-          <CloseIcon />
-        </IconButton>
-      </DialogTitle>
-      <DialogContent dividers>
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={6}>
-            <Slider {...sliderSettings}>
-              {asset.images.map((image, index) => (
-                <ImageContainer key={index}>
-                  <img src={image} alt={`Asset ${index + 1}`} />
-                </ImageContainer>
-              ))}
-            </Slider>
+      <Box sx={{ maxWidth: '600px', width: '100%' }}>
+        <StyledPaper elevation={3}>
+          <Typography
+            variant="h5"
+            gutterBottom
+            sx={{
+              mb: 2,
+              padding: '8px 16px',      
+              borderRadius: '4px',       
+              textAlign: 'center',        
+              display: 'flex',      
+              justifyContent: 'center',  
+              alignItems: 'center',       
+            }}
+          >
+            Chi tiết tài sản
+          </Typography>
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Tên tài sản"
+                value={initialValues.assetName}
+                InputProps={{ readOnly: true }}
+                aria-label="Tên tài sản"
+              />
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Giá khởi điểm"
+                type="number"
+                value={initialValues.startingPrice}
+                InputProps={{ readOnly: true }}
+                aria-label="Giá khởi điểm"
+              />
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+              <FormControl fullWidth>
+                <InputLabel>Trạng thái</InputLabel>
+                <Select value={initialValues.status} label="Trạng thái" inputProps={{ readOnly: true }} aria-label="Trạng thái">
+                  <MenuItem value="Active">Đang đấu giá</MenuItem>
+                  <MenuItem value="Inactive">Chưa đấu giá</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Loại tài sản"
+                value={initialValues.type.typeName}
+                InputProps={{ readOnly: true }}
+                aria-label="Loại tài sản"
+              />
+            </Grid>
+
+            <Grid item xs={12}>
+              {/* Render phần mô tả với HTML */}
+              <DescriptionContainer>
+                <div dangerouslySetInnerHTML={{ __html: initialValues.description }} />
+              </DescriptionContainer>
+            </Grid>
+
+            <Grid item xs={12}>
+              <Typography variant="h6" gutterBottom>
+                Hình ảnh tài sản
+              </Typography>
+              <Grid container spacing={1}>
+                {initialValues.images.length > 0 ? initialValues.images.map((image, index) => (
+                  <Grid item xs={12} sm={6} md={3} key={index}>
+                    <ImageContainer onClick={() => handleImageClick(image)}>
+                      <StyledImage
+                        src={image}
+                        alt={`Asset ${index + 1}`}
+                        loading="lazy"
+                      />
+                      <IconButton
+                        sx={{
+                          position: 'absolute',
+                          right: 8,
+                          top: 8,
+                          backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                        }}
+                      >
+                        <FiMaximize2 />
+                      </IconButton>
+                    </ImageContainer>
+                  </Grid>
+                )) : (
+                  <Grid item xs={12}>Không có hình ảnh</Grid>
+                )}
+              </Grid>
+            </Grid>
+
+            <Grid item xs={12}>
+              <Typography variant="h6" gutterBottom>
+                Hình ảnh giấy tờ
+              </Typography>
+              <Grid container spacing={1}>
+                {initialValues.documents.length > 0 ? initialValues.documents.map((image, index) => (
+                  <Grid item xs={12} sm={6} key={index}>
+                    <ImageContainer onClick={() => handleImageClick(image)}>
+                      <StyledImage
+                        src={image}
+                        alt={`Document ${index + 1}`}
+                        loading="lazy"
+                      />
+                      <IconButton
+                        sx={{
+                          position: 'absolute',
+                          right: 8,
+                          top: 8,
+                          backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                        }}
+                      >
+                        <FiMaximize2 />
+                      </IconButton>
+                    </ImageContainer>
+                  </Grid>
+                )) : (
+                  <Grid item xs={12}>Không có tài liệu</Grid>
+                )}
+              </Grid>
+            </Grid>
           </Grid>
-          <Grid item xs={12} md={6}>
-            <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', color: 'primary.main' }}>
-              {asset.assetName}
-            </Typography>
-            <Typography variant="subtitle1" gutterBottom>
-              Danh mục: {asset.type.typeName}
-            </Typography>
-            <Typography variant="h6" color="secondary.main" gutterBottom>
-              Giá khởi điểm: {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(asset.assetPrice)}
-            </Typography>
-            <Chip 
-              label={asset.status === '0' ? 'Chưa đấu giá' : asset.status === 'bidding' ? 'Đang đấu giá' : 'Đã đấu giá thành công'}
-              color={asset.status === '0' ? 'warning' : asset.status === 'bidding' ? 'primary' : 'success'}
-              sx={{ mt: 1, mb: 2 }}
-            />
-            <Typography variant="body2" color="text.secondary" gutterBottom>
-              Thời gian tạo: {new Date(asset.createdAt).toLocaleString('vi-VN')}
-            </Typography>
-            <Typography variant="h6" gutterBottom sx={{ mt: 2, fontWeight: 'bold' }}>
-              Mô tả
-            </Typography>
-            <Typography variant="body1">
-              {asset.assetDescription}
-            </Typography>
-          </Grid>
-        </Grid>
-      </DialogContent>
-    </StyledDialog>
+
+          {/* Modal to show enlarged image */}
+          <Modal
+            open={!!selectedImage}
+            onClose={() => setSelectedImage(null)}
+            aria-labelledby="image-modal"
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              p: 2,
+            }}
+          >
+            <Box sx={{ position: 'relative' }}>
+              <IconButton
+                onClick={() => setSelectedImage(null)}
+                sx={{
+                  position: 'absolute',
+                  right: -20,
+                  top: -20,
+                  backgroundColor: 'white',
+                  '&:hover': { backgroundColor: '#f5f5f5' },
+                }}
+              >
+                <FiX />
+              </IconButton>
+              <ModalImage
+                src={selectedImage || ''}
+                alt="Xem phóng to"
+                loading="lazy"
+              />
+            </Box>
+          </Modal>
+        </StyledPaper>
+      </Box>
+    </Modal>
   );
 };
 
-export default AssetDetailsDialog;
-
+export default AssetsDetailsDialog;
