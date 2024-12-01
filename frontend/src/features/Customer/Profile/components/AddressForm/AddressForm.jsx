@@ -18,13 +18,14 @@ import {
   StyledPopover,
   StyledListItem,
 } from './style';
+import { useCreateAddress } from '~/hooks/addressHook';  // Import useCreateAddress hook
+import { useAppStore } from '~/store/appStore';
 
 const API_URL = 'https://provinces.open-api.vn/api';
 
 export default function AddressForm() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedTab, setSelectedTab] = useState(0);
-  const [addressType, setAddressType] = useState('home');
   const [provinces, setProvinces] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [wards, setWards] = useState([]);
@@ -32,6 +33,15 @@ export default function AddressForm() {
   const [selectedDistrict, setSelectedDistrict] = useState('');
   const [selectedWard, setSelectedWard] = useState('');
   const [loading, setLoading] = useState(false);
+  const { auth } = useAppStore()
+  const [formData, setFormData] = useState({
+    userId: auth.user.id, 
+    recipientName: '',
+    phone: '',
+    addressDetail: '',
+  });
+
+  const { mutate: createAddress, isLoading: isSubmitting, isError, error } = useCreateAddress();
 
   useEffect(() => {
     fetchProvinces();
@@ -83,10 +93,16 @@ export default function AddressForm() {
 
   const handleProvinceSelect = (province) => {
     setSelectedProvince(province.name);
-    setSelectedDistrict('');
+    setSelectedDistrict(''); // Reset district and ward when province is selected
     setSelectedWard('');
     fetchDistricts(province.code);
     setSelectedTab(1);
+
+    // Update province in formData
+    setFormData({
+      ...formData,
+      province: province.name,
+    });
   };
 
   const handleDistrictSelect = (district) => {
@@ -94,17 +110,52 @@ export default function AddressForm() {
     setSelectedWard('');
     fetchWards(district.code);
     setSelectedTab(2);
+
+    // Update district in formData
+    setFormData({
+      ...formData,
+      district: district.name,
+    });
   };
 
   const handleWardSelect = (ward) => {
     setSelectedWard(ward.name);
     handleClose();
+
+    // Update ward in formData
+    setFormData({
+      ...formData,
+      ward: ward.name,
+    });
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    const addressData = {
+      ...formData,
+      province: selectedProvince,
+      district: selectedDistrict,
+      ward: selectedWard,
+    };
+
+    console.log('Address Data:', addressData); // Check if the data is correct
+
+    // Call API to create address
+    createAddress(addressData);  // Call the hook to create the address
   };
 
   const open = Boolean(anchorEl);
 
   return (
-    <StyledBox>
+    <StyledBox component="form" onSubmit={handleFormSubmit}>
       <Typography variant="h5" sx={{ mb: 3 }}>
         Địa chỉ mới
       </Typography>
@@ -114,11 +165,17 @@ export default function AddressForm() {
           fullWidth
           placeholder="Họ và tên"
           variant="outlined"
+          name="recipientName"
+          value={formData.recipientName}
+          onChange={handleInputChange}
         />
         <StyledTextField
           fullWidth
           placeholder="Số điện thoại"
           variant="outlined"
+          name="phone"
+          value={formData.phone}
+          onChange={handleInputChange}
         />
       </Box>
 
@@ -154,18 +211,12 @@ export default function AddressForm() {
         }}
       >
         <Box sx={{ width: '100%', bgcolor: 'background.paper' }}>
-          <StyledTabs 
-            value={selectedTab} 
-            onChange={(e, newValue) => setSelectedTab(newValue)}
-          >
+          <StyledTabs value={selectedTab} onChange={(e, newValue) => setSelectedTab(newValue)}>
             <Tab label="Tỉnh/Thành phố" />
             <Tab label="Quận/Huyện" disabled={!selectedProvince} />
             <Tab label="Phường/Xã" disabled={!selectedDistrict} />
           </StyledTabs>
-          <Box sx={{ 
-            maxHeight: 300, 
-            overflow: 'auto',
-          }}>
+          <Box sx={{ maxHeight: 300, overflow: 'auto' }}>
             {loading ? (
               <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
                 <CircularProgress />
@@ -199,6 +250,9 @@ export default function AddressForm() {
         variant="outlined"
         multiline
         rows={3}
+        name="addressDetail"
+        value={formData.addressDetail}
+        onChange={handleInputChange}
       />
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
@@ -209,8 +263,8 @@ export default function AddressForm() {
       </Box>
 
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-        <StyledButton>
-          Hoàn thành
+        <StyledButton type="submit" disabled={isSubmitting}>
+          {isSubmitting ? <CircularProgress size={24} /> : 'Hoàn thành'}
         </StyledButton>
       </Box>
     </StyledBox>
