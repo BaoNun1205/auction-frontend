@@ -1,34 +1,49 @@
-import React, { useState } from "react";
-import { Box, Container, Typography, Stack, Divider, Paper, Tooltip, Chip, CardMedia, IconButton } from "@mui/material";
-import { FiClock, FiUser, FiHeart, FiShare2 } from "react-icons/fi";
-import { BsArrowLeftCircle, BsArrowRightCircle } from "react-icons/bs";
-import AppModal from "~/components/Modal/Modal";
-import PlaceBidForm from "~/components/Form/PlaceBidForm/PlaceBidForm";
-import { StyledCard, ThumbnailImage, StyledButton, StyledBox, StyledPaper, StyledIconButton } from './style';
+import React, { useState } from 'react';
+import {
+  Box,
+  Container,
+  Typography,
+  Stack,
+  Divider,
+  Tooltip,
+  Chip,
+  IconButton,
+  Grid,
+  useMediaQuery,
+  useTheme,
+  Skeleton,
+} from '@mui/material';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import ShareIcon from '@mui/icons-material/Share';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import PersonIcon from '@mui/icons-material/Person';
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import { StyledCard, ThumbnailImage, StyledButton, StyledIconButton } from './style';
 
 const RegisterAuctionDetail = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [startIndex, setStartIndex] = useState(0);
-  const visibleThumbnails = 3;
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const paintings = [
     {
       id: 1,
-      title: "Nature Collection",
-      artist: "Elena Rodriguez",
+      title: "Ethereal Whispers",
+      artist: "Aria Moonstone",
       images: [
-        "images.unsplash.com/photo-1579783902614-a3fb3927b6a5",
-        "images.unsplash.com/photo-1547891654-e66ed7ebb968",
-        "images.unsplash.com/photo-1549289524-06cf8837ace5",
-        "images.unsplash.com/photo-1579783902614-a3fb3927b6a5",
+        "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1547891654-e66ed7ebb968?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1549289524-06cf8837ace5?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?auto=format&fit=crop&w=800&q=80",
       ],
-      estimatedPrice: "$15,000 - $20,000",
-      currentBid: "$16,500",
-      bidders: 8,
-      timeLeft: "2 days 4 hours",
-      description: "A stunning collection of nature-inspired artwork capturing the essence of natural beauty across different seasons and landscapes. Each piece tells its own story while maintaining a cohesive theme throughout the collection."
-    }
+      estimatedPrice: "$18,000 - $25,000",
+      currentBid: "$19,500",
+      bidders: 12,
+      timeLeft: "1 day 6 hours",
+      description: "A mesmerizing collection that blends surrealism and nature, 'Ethereal Whispers' invites viewers into a dreamlike realm where reality and imagination intertwine. Each piece is a window into a world where flora and fauna take on mystical qualities, evoking a sense of wonder and introspection.",
+    },
   ];
 
   const handleThumbnailClick = (index) => {
@@ -36,90 +51,80 @@ const RegisterAuctionDetail = () => {
   };
 
   const handlePrevClick = () => {
-    setStartIndex((prevIndex) => Math.max(0, prevIndex - 1));
-    setSelectedImage((prevSelected) => prevSelected > 0 ? prevSelected - 1 : paintings[0].images.length - 1);
+    setSelectedImage((prevSelected) =>
+      prevSelected > 0 ? prevSelected - 1 : paintings[0].images.length - 1
+    );
   };
 
   const handleNextClick = () => {
-    setStartIndex((prevIndex) => 
-      Math.min(prevIndex + 1, paintings[0].images.length - visibleThumbnails)
+    setSelectedImage((prevSelected) =>
+      prevSelected < paintings[0].images.length - 1 ? prevSelected + 1 : 0
     );
-    setSelectedImage((prevSelected) => prevSelected < paintings[0].images.length - 1 ? prevSelected + 1 : 0);
   };
-
-  const visibleImages = paintings[0].images.slice(startIndex, startIndex + visibleThumbnails);
 
   return (
     <Container maxWidth="lg" sx={{ py: 6 }}>
-      <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, gap: 6 }}>
-        <Box sx={{ flex: 1 }}>
+      <Grid container spacing={6}>
+        <Grid item xs={12} md={6}>
           <StyledCard>
-            <StyledBox>
-              <CardMedia
-                component="img"
-                image={`https://${paintings[0].images[selectedImage]}`}
-                alt="Painting"
-                sx={{
-                  height: { xs: 400, md: 600 },
-                  objectFit: "cover",
-                  transition: "all 0.3s ease"
-                }}
-              />
-            </StyledBox>
+            <Box
+              component="img"
+              src={paintings[0].images[selectedImage]}
+              alt={`${paintings[0].title} - Image ${selectedImage + 1}`}
+              sx={{
+                width: '100%',
+                height: { xs: 400, md: 600 },
+                objectFit: 'cover',
+                transition: 'all 0.3s ease',
+              }}
+            />
           </StyledCard>
-          
+
           <Stack
             direction="row"
             spacing={2}
-            sx={{ overflowX: "hidden", pb: 1, mt: 5, pt: 8 }}
+            sx={{ mt: 4 }}
             alignItems="center"
             justifyContent="center"
           >
-            <StyledIconButton 
-              onClick={handlePrevClick}
-              disabled={startIndex === 0}
-            >
-              <BsArrowLeftCircle size={28} />
+            <StyledIconButton onClick={handlePrevClick} aria-label="Previous image">
+              <ArrowBackIosNewIcon />
             </StyledIconButton>
-            {visibleImages.map((image, index) => (
+            {paintings[0].images.map((image, index) => (
               <ThumbnailImage
                 key={index}
-                src={`https://${image}`}
-                alt={`Thumbnail ${startIndex + index + 1}`}
-                onClick={() => handleThumbnailClick(startIndex + index)}
-                sx={{
-                  border: selectedImage === (startIndex + index) ? "4px solid #B41712" : "4px solid transparent",
-                  opacity: selectedImage === (startIndex + index) ? 1 : 0.7
-                }}
+                src={image}
+                alt={`Thumbnail ${index + 1}`}
+                onClick={() => handleThumbnailClick(index)}
+                selected={selectedImage === index}
+                aria-label={`Select image ${index + 1}`}
               />
             ))}
-            <StyledIconButton 
-              onClick={handleNextClick}
-              disabled={startIndex >= paintings[0].images.length - visibleThumbnails}
-            >
-              <BsArrowRightCircle size={28} />
+            <StyledIconButton onClick={handleNextClick} aria-label="Next image">
+              <ArrowForwardIosIcon />
             </StyledIconButton>
           </Stack>
-        </Box>
+        </Grid>
 
-        <Box sx={{ flex: 1 }}>
-          <StyledPaper elevation={0}>
+        <Grid item xs={12} md={6}>
+          <Box sx={{ pl: { md: 4 } }}>
             <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-              <Typography variant="h3" fontWeight="bold" gutterBottom>
+              <Typography variant="h4" fontWeight="bold" gutterBottom>
                 {paintings[0].title}
               </Typography>
               <Stack direction="row" spacing={1}>
-                <Tooltip title="Add to favorites">
+                <Tooltip title={isFavorite ? "Remove from favorites" : "Add to favorites"}>
                   <IconButton
                     onClick={() => setIsFavorite(!isFavorite)}
                     sx={{ color: isFavorite ? "#B41712" : "inherit" }}
+                    aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
                   >
-                    <FiHeart size={24} fill={isFavorite ? "currentColor" : "none"} />
+                    <FavoriteIcon />
                   </IconButton>
                 </Tooltip>
                 <Tooltip title="Share">
-                  <IconButton>
-                    <FiShare2 size={24} />
+                  <IconButton aria-label="Share">
+                    <ShareIcon />
                   </IconButton>
                 </Tooltip>
               </Stack>
@@ -129,15 +134,19 @@ const RegisterAuctionDetail = () => {
               <Typography variant="h6" color="text.secondary">
                 by {paintings[0].artist}
               </Typography>
-              <Chip label="Verified Artist" sx={{ backgroundColor: "#B41712", color: "white" }} size="small" />
+              <Chip
+                label="Verified Artist"
+                sx={{ backgroundColor: "#B41712", color: "white" }}
+                size="small"
+              />
             </Stack>
-            
+
             <Typography variant="body1" color="text.secondary" paragraph>
               {paintings[0].description}
             </Typography>
-            
+
             <Divider sx={{ my: 4 }} />
-            
+
             <Stack spacing={3}>
               <Box>
                 <Typography variant="subtitle1" color="text.secondary" gutterBottom>
@@ -147,7 +156,7 @@ const RegisterAuctionDetail = () => {
                   {paintings[0].estimatedPrice}
                 </Typography>
               </Box>
-              
+
               <Box>
                 <Typography variant="subtitle1" color="text.secondary" gutterBottom>
                   Current Bid
@@ -159,32 +168,23 @@ const RegisterAuctionDetail = () => {
 
               <Stack direction="row" spacing={4} sx={{ mt: 2 }}>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <FiUser size={20} />
-                  <Typography variant="h6">
-                    {paintings[0].bidders} bidders
-                  </Typography>
+                  <PersonIcon />
+                  <Typography variant="h6">{paintings[0].bidders} bidders</Typography>
                 </Box>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <FiClock size={20} />
-                  <Typography variant="h6">
-                    {paintings[0].timeLeft} left
-                  </Typography>
+                  <AccessTimeIcon />
+                  <Typography variant="h6">{paintings[0].timeLeft} left</Typography>
                 </Box>
               </Stack>
 
-              <AppModal trigger={
-                <StyledButton variant="contained" size="large">
-                  Đăng ký
-                </StyledButton>
-              }>
-                <PlaceBidForm />
-              </AppModal>
+              <StyledButton>Đăng ký đấu giá</StyledButton>
             </Stack>
-          </StyledPaper>
-        </Box>
-      </Box>
+          </Box>
+        </Grid>
+      </Grid>
     </Container>
   );
 };
 
 export default RegisterAuctionDetail;
+

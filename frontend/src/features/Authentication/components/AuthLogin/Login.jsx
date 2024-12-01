@@ -8,27 +8,20 @@ import {
   IconButton,
   Checkbox,
   FormControlLabel,
-  Paper,
 } from '@mui/material';
 import { Visibility, VisibilityOff, Email, Lock, Phone, Person } from '@mui/icons-material';
 import Logo from '~/assets/images/logo/logo.png';
 import { useGetToken, useRegister } from '~/hooks/authHook';
 import { fadeIn, StyledButton, LogoContainer, StyledTextField } from './style';
-
+import { validateLogin } from '~/utils/validateLogin';
+import { validateRegister } from '~/utils/validateRegister'; 
 export default function AuthForm({ handleClose }) {
   const [activeTab, setActiveTab] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
-  const [loginData, setLoginData] = useState({
-    email: '',
-    password: '',
-    saveLogin: false,
-  });
-  const [registerData, setRegisterData] = useState({
-    username: '',
-    phone: '',
-    email: '',
-    password: '',
-  });
+  const [loginData, setLoginData] = useState({ email: '', password: '', saveLogin: false });
+  const [registerData, setRegisterData] = useState({ username: '', phone: '', email: '', password: '' });
+  const [loginErrors, setLoginErrors] = useState({});
+  const [registerErrors, setRegisterErrors] = useState({});
 
   const { mutate: getToken, isLoading: isGettingToken } = useGetToken();
   const { mutate: register, isLoading: isRegistering } = useRegister();
@@ -39,6 +32,12 @@ export default function AuthForm({ handleClose }) {
 
   const handleLoginSubmit = (e) => {
     e.preventDefault();
+    const errors = validateLogin(loginData);
+    if (Object.keys(errors).length > 0) {
+      setLoginErrors(errors);
+      return;
+    }
+
     getToken(
       { email: loginData.email, password: loginData.password },
       {
@@ -54,6 +53,12 @@ export default function AuthForm({ handleClose }) {
 
   const handleRegisterSubmit = (e) => {
     e.preventDefault();
+    const errors = validateRegister(registerData); // Validate registration data
+    if (Object.keys(errors).length > 0) {
+      setRegisterErrors(errors); // Set registration errors
+      return;
+    }
+
     register(registerData, {
       onSuccess: () => {
         handleClose();
@@ -78,6 +83,14 @@ export default function AuthForm({ handleClose }) {
       ...prev,
       [name]: value,
     }));
+  };
+
+  const handleInputFocus = (field) => {
+    setLoginErrors((prev) => ({
+      ...prev,
+      [field]: undefined,
+    }));
+    setRegisterErrors({}); // Hide all errors when focusing on any field in register form
   };
 
   return (
@@ -136,9 +149,12 @@ export default function AuthForm({ handleClose }) {
             type="email"
             value={loginData.email}
             onChange={handleLoginChange}
+            onFocus={() => handleInputFocus('email')}
             margin="normal"
             variant="outlined"
             sx={{ mb: 2 }}
+            error={!!loginErrors.email}
+            helperText={loginErrors.email}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -155,9 +171,12 @@ export default function AuthForm({ handleClose }) {
             type={showPassword ? 'text' : 'password'}
             value={loginData.password}
             onChange={handleLoginChange}
+            onFocus={() => handleInputFocus('password')}
             margin="normal"
             variant="outlined"
             sx={{ mb: 3 }}
+            error={!!loginErrors.password}
+            helperText={loginErrors.password}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -212,7 +231,7 @@ export default function AuthForm({ handleClose }) {
                 cursor: 'pointer',
                 transition: 'color 0.3s ease',
                 '&:hover': {
-                  color: '#8B0000',
+                  color: '#6C1B19',
                 },
               }}
             >
@@ -242,9 +261,12 @@ export default function AuthForm({ handleClose }) {
             type="text"
             value={registerData.username}
             onChange={handleRegisterChange}
+            onFocus={() => handleInputFocus('username')}  // Focus event added here
             margin="normal"
             variant="outlined"
             sx={{ mb: 2 }}
+            error={!!registerErrors.username}
+            helperText={registerErrors.username}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -258,12 +280,15 @@ export default function AuthForm({ handleClose }) {
             fullWidth
             label="Số điện thoại"
             name="phone"
-            type="tel"
+            type="text"
             value={registerData.phone}
             onChange={handleRegisterChange}
+            onFocus={() => handleInputFocus('phone')}  // Focus event added here
             margin="normal"
             variant="outlined"
             sx={{ mb: 2 }}
+            error={!!registerErrors.phone}
+            helperText={registerErrors.phone}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -280,9 +305,12 @@ export default function AuthForm({ handleClose }) {
             type="email"
             value={registerData.email}
             onChange={handleRegisterChange}
+            onFocus={() => handleInputFocus('email')}  // Focus event added here
             margin="normal"
             variant="outlined"
             sx={{ mb: 2 }}
+            error={!!registerErrors.email}
+            helperText={registerErrors.email}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -299,9 +327,12 @@ export default function AuthForm({ handleClose }) {
             type={showPassword ? 'text' : 'password'}
             value={registerData.password}
             onChange={handleRegisterChange}
+            onFocus={() => handleInputFocus('password')}  // Focus event added here
             margin="normal"
             variant="outlined"
             sx={{ mb: 3 }}
+            error={!!registerErrors.password}
+            helperText={registerErrors.password}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">

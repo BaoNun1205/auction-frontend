@@ -1,16 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import {
   Box,
-  Button,
-  TextField,
   Typography,
   Paper,
+  TextField,
   InputAdornment,
+  Button,
+  styled
 } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import { useCreateAuctionHistory } from '~/hooks/auctionHistoryHook';
-import parseToken from '~/utils/parseToken';
-import { useAppStore } from '~/store/appStore';
+
+const StyledTextField = styled(TextField)(({ theme }) => ({
+  '& .MuiOutlinedInput-root': {
+    '& fieldset': {
+      borderColor: 'rgba(0, 0, 0, 0.23)'
+    },
+    '&:hover fieldset': {
+      borderColor: 'rgba(0, 0, 0, 0.5)'
+    },
+    '&.Mui-focused fieldset': {
+      borderColor: '#B7201B'
+    }
+  },
+  '& .MuiInputLabel-root.Mui-focused': {
+    color: '#B7201B'
+  }
+}));
 
 const StyledButton = styled(Button)(({ theme }) => ({
   backgroundColor: '#B7201B',
@@ -21,40 +35,19 @@ const StyledButton = styled(Button)(({ theme }) => ({
   '&:hover': {
     backgroundColor: '#8B0000',
     transform: 'translateY(-2px)',
-    boxShadow: '0 4px 8px rgba(183, 32, 27, 0.3)',
+    boxShadow: '0 4px 8px rgba(183, 32, 27, 0.3)'
   },
   fontSize: '16px',
   fontWeight: 'bold',
-  textTransform: 'none',
+  textTransform: 'none'
 }));
 
-const StyledTextField = styled(TextField)(({ theme }) => ({
-  '& .MuiOutlinedInput-root': {
-    '& fieldset': {
-      borderColor: 'rgba(0, 0, 0, 0.23)',
-    },
-    '&:hover fieldset': {
-      borderColor: 'rgba(0, 0, 0, 0.5)',
-    },
-    '&.Mui-focused fieldset': {
-      borderColor: '#B7201B',
-    },
-  },
-  '& .MuiInputLabel-root.Mui-focused': {
-    color: '#B7201B',
-  },
-}));
-
-export default function PlaceBidForm({ handleClose, item }) {
-  const { mutate: createAuctionHistory } = useCreateAuctionHistory();
+const PlaceBidForm = ({ item, onSubmit }) => {
   const [bidPrice, setBidPrice] = useState('');
   const [error, setError] = useState('');
   const depositRate = 0.23;
-  const minBidIncrement = 100000;
-
-  const { auth } = useAppStore();
-
-  const currentPrice = item.currentPrice || 0;
+  const minBidIncrement = item.bidIncrement;
+  const currentPrice = item?.auctionSessionInfo?.highestBid || 0;
   const minNextBid = currentPrice + minBidIncrement;
 
   useEffect(() => {
@@ -77,22 +70,7 @@ export default function PlaceBidForm({ handleClose, item }) {
       setError(`Giá đặt phải lớn hơn hoặc bằng ${minNextBid.toLocaleString('vi-VN')} VND`);
       return;
     }
-    const auctionHistory = {
-      auctionSessionId: item.id,
-      userId: auth.user.id,
-      bidPrice: Number(bidPrice),
-      bidTime: new Date().toISOString(),
-    };
-    console.log('Submitting auction history:', auctionHistory);
-    createAuctionHistory(auctionHistory, {
-      onSuccess: () => {
-        console.log('Auction history submitted successfully');
-        handleClose();
-      },
-      onError: (error) => {
-        console.error('Error submitting auction history:', error);
-      },
-    });
+    onSubmit(Number(bidPrice));
   };
 
   const deposit = Number(bidPrice) * depositRate;
@@ -121,7 +99,7 @@ export default function PlaceBidForm({ handleClose, item }) {
           error={!!error}
           helperText={error}
           InputProps={{
-            endAdornment: <InputAdornment position="end">VND</InputAdornment>,
+            endAdornment: <InputAdornment position="end">VND</InputAdornment>
           }}
           sx={{ mb: 2 }}
         />
@@ -140,7 +118,7 @@ export default function PlaceBidForm({ handleClose, item }) {
         size="large"
         sx={{
           width: '100%',
-          height: '50px',
+          height: '50px'
         }}
         disabled={Number(bidPrice) < minNextBid}
       >
@@ -148,4 +126,7 @@ export default function PlaceBidForm({ handleClose, item }) {
       </StyledButton>
     </Box>
   );
-}
+};
+
+export default PlaceBidForm;
+

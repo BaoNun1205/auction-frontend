@@ -4,26 +4,26 @@ import Box from '@mui/material/Box'
 import Toolbar from '@mui/material/Toolbar'
 import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
-import InputBase from '@mui/material/InputBase'
 import Badge from '@mui/material/Badge'
 import MenuItem from '@mui/material/MenuItem'
 import Menu from '@mui/material/Menu'
 import MenuIcon from '@mui/icons-material/Menu'
-import SearchIcon from '@mui/icons-material/Search'
-import AccountCircle from '@mui/icons-material/AccountCircle'
 import MailIcon from '@mui/icons-material/Mail'
 import NotificationsIcon from '@mui/icons-material/Notifications'
+import AccountCircle from '@mui/icons-material/AccountCircle'
 import MoreIcon from '@mui/icons-material/MoreVert'
 import MuiAppBar from '@mui/material/AppBar'
 import { useLogout } from '~/hooks/authHook'
 import { useAppStore } from '~/store/appStore'
 import { useNavigate } from 'react-router-dom'
-import ModeSelect from '~/components/ModeSelectComponent/ModeSelect'
 import { StyledIconButton } from './style'
 
+// AppBar custom styled to make it transparent
 const AppBar = styled(MuiAppBar, {
 })(({ theme }) => ({
-  zIndex: theme.zIndex.drawer + 1
+  zIndex: theme.zIndex.drawer + 1,
+  backgroundColor: 'transparent', // Make background transparent
+  boxShadow: 'none', // Remove box shadow for full transparency
 }))
 
 export default function Navbar() {
@@ -143,7 +143,7 @@ export default function Navbar() {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="fixed" sx={(theme) => ({ bgcolor: theme.palette.primary.main })}>
+      <AppBar position="fixed">
         <Toolbar>
           <StyledIconButton
             size="large"
@@ -153,7 +153,6 @@ export default function Navbar() {
           >
             <MenuIcon />
           </StyledIconButton>
-          <ModeSelect />
           <Box sx={{ flexGrow: 1 }} />
           <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
             <StyledIconButton size="large" aria-label="show 4 new mails">

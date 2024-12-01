@@ -1,13 +1,13 @@
-import React, { useState } from 'react'
-import { Box, Button, Table, TableBody, TableCell, TableRow, Popover, CircularProgress, Typography, MenuItem as MuiMenuItem } from '@mui/material'
-import { Eye, SlidersHorizontal, Download, Trash2 } from 'lucide-react'
-import SelectComponent from '~/components/SelectComponent/SelectComponent'
-import SearchTextField from '~/components/SearchTextFieldComponent/SearchTextField'
-import IconButtonComponent from '~/components/IconButtonComponent/IconButtonComponent'
-import PaginationControl from '~/components/PanigationControlComponent/PaginationControl'
-import { useApprovedRequirement, useFilterRequirements, useRejectedRequirement } from '~/hooks/requirementHook'
-import { useNavigate } from 'react-router-dom'
-import parseToken from '~/utils/parseToken'
+import React, { useState } from 'react';
+import { Box, Button, Table, TableBody, TableCell, TableRow, CircularProgress, Typography, MenuItem as MuiMenuItem, Modal, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import { Eye, SlidersHorizontal, Download, Trash2 } from 'lucide-react';
+import SelectComponent from '~/components/SelectComponent/SelectComponent';
+import SearchTextField from '~/components/SearchTextFieldComponent/SearchTextField';
+import IconButtonComponent from '~/components/IconButtonComponent/IconButtonComponent';
+import PaginationControl from '~/components/PanigationControlComponent/PaginationControl';
+import { useApprovedRequirement, useFilterRequirements, useRejectedRequirement } from '~/hooks/requirementHook';
+import { useNavigate } from 'react-router-dom';
+import parseToken from '~/utils/parseToken';
 import {
   StyledContainer,
   StyledCheckbox,
@@ -23,111 +23,111 @@ import {
   StyledTableHead,
   StyledTableRow,
   StyledTitleBox
-} from '~/features/style'
-import splitDateTime from '~/utils/SplitDateTime'
-import ActionMenu from '~/components/IconMenuComponent/IconMenuComponent'
-import ListEmpty from '~/components/ListEmpty/ListEmpty'
+} from '~/features/style';
+import splitDateTime from '~/utils/SplitDateTime';
+import ActionMenu from '~/components/IconMenuComponent/IconMenuComponent';
+import ListEmpty from '~/components/ListEmpty/ListEmpty';
+import RequirementDetails from '~/features/Requirement/RequirementList/RequirementDetail'; 
+
 
 const RequirementList = () => {
-  const [selectedItems, setSelectedItems] = useState([])
-  const [showDeleteButton, setShowDeleteButton] = useState(false)
-  const [status, setStatus] = useState(0)
-  const [keyword, setKeyword] = useState('')
-  const [page, setPage] = useState(0)
-  const [rowsPerPage, setRowsPerPage] = useState(10)
-  const [anchorEl, setAnchorEl] = useState(null)
-  const navigate = useNavigate()
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [showDeleteButton, setShowDeleteButton] = useState(false);
+  const [status, setStatus] = useState(0);
+  const [keyword, setKeyword] = useState('');
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [openDetailsModal, setOpenDetailsModal] = useState(false);  // Modal state
+  const [selectedRequirement, setSelectedRequirement] = useState(null);
 
-  const handleOpenPopover = (event) => {
-    setAnchorEl(event.currentTarget)
-  }
+  const navigate = useNavigate();
 
-  const handleClosePopover = () => {
-    setAnchorEl(null)
-  }
+  const { data, error, isLoading, refetch } = useFilterRequirements(status, keyword, page, rowsPerPage);
+  const items = Array.isArray(data?.data) ? data.data : [];
+  const { mutate: approvedRequirement } = useApprovedRequirement();
+  const { mutate: rejectedRequirement } = useRejectedRequirement();
 
-  const { data, error, isLoading, refetch } = useFilterRequirements(status, keyword, page, rowsPerPage)
-  const items = Array.isArray(data?.data) ? data.data : []
+  const publishMenuItems = [
+    { value: '0', label: 'Not Approved' },
+    { value: '1', label: 'Approved' },
+    { value: '2', label: 'Rejected' }
+  ];
 
-  const { mutate: approvedRequirement } = useApprovedRequirement()
-  const { mutate: rejectedRequirement } = useRejectedRequirement()
-
-  console.log('items:', items)
+  const columnNames = ['Name', 'Created At', 'Expected Price', 'Status', 'Vendor', 'Inspector'];
+  
 
   const handlePageChange = (newPage) => {
-    setPage(newPage)
-  }
+    setPage(newPage);
+  };
 
   const handleRowsPerPageChange = (newRowsPerPage) => {
-    setRowsPerPage(newRowsPerPage)
-    setPage(0)
-  }
+    setRowsPerPage(newRowsPerPage);
+    setPage(0);
+  };
 
   const handleApprovedRequirement = (item) => {
-    const { jti: inspectorId } = parseToken()
+    const { jti: inspectorId } = parseToken();
     approvedRequirement({ requirementId: item.requirementId, inspectorId }, {
-      onSuccess: () => {
-        refetch()
-      }
-    })
-  }
+      onSuccess: refetch
+    });
+  };
 
   const handleRejectedRequirement = (item) => {
     rejectedRequirement(item.requirementId, {
-      onSuccess: () => {
-        refetch()
-      }
-    })
-  }
+      onSuccess: refetch
+    });
+  };
 
   const handleCreateAsset = (item) => {
-    navigate(`/asset/create/${item.requirementId}`)
-  }
+    navigate(`/asset/create/${item.requirementId}`);
+  };
 
   const handleSelectAll = (event) => {
     if (event.target.checked) {
-      setSelectedItems(items.map(item => item.requirementId))
-      setShowDeleteButton(true)
+      setSelectedItems(items.map(item => item.requirementId));
+      setShowDeleteButton(true);
     } else {
-      setSelectedItems([])
-      setShowDeleteButton(false)
+      setSelectedItems([]);
+      setShowDeleteButton(false);
     }
-  }
+  };
 
   const handleSelectItem = (event, itemId) => {
     const newSelectedItems = event.target.checked
       ? [...selectedItems, itemId]
-      : selectedItems.filter(id => id !== itemId)
+      : selectedItems.filter(id => id !== itemId);
 
-    setSelectedItems(newSelectedItems)
-    setShowDeleteButton(newSelectedItems.length > 0)
-  }
+    setSelectedItems(newSelectedItems);
+    setShowDeleteButton(newSelectedItems.length > 0);
+  };
 
   const handleDelete = () => {
-    console.log('Deleting selected requirements:', selectedItems)
-  }
+    console.log('Deleting selected requirements:', selectedItems);
+  };
 
-  const publishMenuItems = [
-    { value: '0', label: 'Not Appoved' },
-    { value: '1', label: 'Approved' },
-    { value: '2', label: 'Rejected' }
-  ]
+  const handleViewDetails = (item) => {
+    setSelectedRequirement(item);  // Set the selected requirement
+    setOpenDetailsModal(true);     // Open the modal
+  };
 
-  const columnNames = ['Name', 'Create At', 'Expected Price', 'Status', 'Vendor', 'Inspector']
+  const handleCloseModal = () => {
+    setOpenDetailsModal(false);    // Close the modal
+    setSelectedRequirement(null);  // Clear selected requirement
+  };
 
   return (
     <StyledContainer>
       <StyledInnerBox>
         <StyledHeaderBox>
           <Box>
-            <StyledTitleBox>Requirement List</StyledTitleBox>
+            <StyledTitleBox>Yêu cầu bán đấu giá</StyledTitleBox>
             <StyledSubtitleBox>
               Dashboard • Requirement • <Box component="span" sx={{ color: 'primary.disable' }}>List</Box>
             </StyledSubtitleBox>
           </Box>
         </StyledHeaderBox>
 
-        <StyledSecondaryBox bgcolor={(theme) => (theme.palette.primary.secondary)}>
+        <StyledSecondaryBox bgcolor={(theme) => theme.palette.primary.secondary}>
           <StyledControlBox>
             <Box sx={{ display: 'flex', gap: 2 }}>
               <SelectComponent
@@ -138,10 +138,7 @@ const RequirementList = () => {
                 menuItems={publishMenuItems}
                 placeholder="Status"
               />
-              <SearchTextField
-                value={keyword}
-                onChange={(event) => setKeyword(event.target.value)}
-              />
+              <SearchTextField value={keyword} onChange={(event) => setKeyword(event.target.value)} />
             </Box>
             <Box sx={{ display: 'flex', gap: 2, color: 'primary.textMain' }}>
               {showDeleteButton && (
@@ -153,7 +150,7 @@ const RequirementList = () => {
                   Delete ({selectedItems.length})
                 </Button>
               )}
-              <IconButtonComponent startIcon={<Eye size={20} />} disabled={items.length === 0}>Colums</IconButtonComponent>
+              <IconButtonComponent startIcon={<Eye size={20} />} disabled={items.length === 0}>Columns</IconButtonComponent>
               <IconButtonComponent startIcon={<SlidersHorizontal size={20} />} disabled={items.length === 0}>Filters</IconButtonComponent>
               <IconButtonComponent startIcon={<Download size={20} />} disabled={items.length === 0}>Export</IconButtonComponent>
             </Box>
@@ -161,7 +158,7 @@ const RequirementList = () => {
         </StyledSecondaryBox>
 
         {items.length > 0 ? (
-          <StyledSecondaryBox bgcolor={(theme) => (theme.palette.primary.secondary)}>
+          <StyledSecondaryBox bgcolor={(theme) => theme.palette.primary.secondary}>
             <StyledTableContainer>
               <Table>
                 <StyledTableHead sx={(theme) => ({ bgcolor: theme.palette.primary.buttonHover })}>
@@ -197,7 +194,7 @@ const RequirementList = () => {
                     </TableRow>
                   ) : (
                     items.map((item) => {
-                      const { date, time } = splitDateTime(item.createdAt)
+                      const { date, time } = splitDateTime(item.createdAt);
                       return (
                         <StyledTableRow key={item.requirementId}>
                           <TableCell padding="checkbox">
@@ -230,48 +227,36 @@ const RequirementList = () => {
                             <StyledStatusBox
                               sx={(theme) => {
                                 if (item.status === '1') {
-                                  return {
-                                    bgcolor: theme.palette.success.main,
-                                    color: theme.palette.success.contrastText
-                                  }
+                                  return { bgcolor: theme.palette.success.main, color: theme.palette.success.contrastText };
                                 } else if (item.status === '2') {
-                                  return {
-                                    bgcolor: theme.palette.error.main,
-                                    color: theme.palette.error.contrastText
-                                  }
+                                  return { bgcolor: theme.palette.error.main, color: theme.palette.error.contrastText };
                                 } else {
-                                  return {
-                                    bgcolor: theme.palette.warning.main,
-                                    color: theme.palette.warning.contrastText
-                                  }
+                                  return { bgcolor: theme.palette.warning.main, color: theme.palette.warning.contrastText };
                                 }
                               }}
                             >
-                              {item.status === '1' ? 'Approved' : item.status === '2' ? 'Reject' : 'Not Approved'}
+                              {item.status === '1' ? 'Đã duyệt' : item.status === '2' ? 'Đã từ chối' : 'Đang chờ duyệt'}
                             </StyledStatusBox>
                           </TableCell>
                           <TableCell>
-                            <StyledSpan>{item.vendor || 'N/A'}</StyledSpan>
+                            <StyledSpan>{item?.vendor?.username || 'N/A'}</StyledSpan>
                           </TableCell>
                           <TableCell>
-                            <StyledSpan>{item.inspector || 'N/A'}</StyledSpan>
+                            <StyledSpan>{item?.inspector?.username || 'N/A'}</StyledSpan>
                           </TableCell>
                           <TableCell>
                             <ActionMenu>
                               {item.status === '0' ? (
                                 <>
-                                  <MuiMenuItem onClick={() => handleApprovedRequirement(item)}>Approved</MuiMenuItem>
-                                  <MuiMenuItem onClick={() => handleRejectedRequirement(item)}>Reject</MuiMenuItem>
+                                  <MuiMenuItem onClick={() => handleViewDetails(item)}>Xem chi tiết</MuiMenuItem> {/* New menu item */}
                                 </>
                               ) : item.status === '1' ? (
-                                <MuiMenuItem onClick={() => handleCreateAsset(item)}>Create Asset</MuiMenuItem>
-                              ) : item.status === '2' ? (
-                                {/* <MuiMenuItem onClick={() => handleDeleteRequirement(item)}>Delete</MuiMenuItem> */}
+                                <MuiMenuItem onClick={() => handleCreateAsset(item)}>Tạo sản phẩm</MuiMenuItem>
                               ) : null}
                             </ActionMenu>
                           </TableCell>
                         </StyledTableRow>
-                      )
+                      );
                     })
                   )}
                 </TableBody>
@@ -298,8 +283,18 @@ const RequirementList = () => {
           </StyledSecondaryBox>
         )}
       </StyledInnerBox>
-    </StyledContainer>
-  )
-}
 
-export default RequirementList
+      {/* Modal for viewing details */}
+      <RequirementDetails
+        open={openDetailsModal} 
+        onClose={handleCloseModal} 
+        requirement={selectedRequirement}
+        onApprove={handleApprovedRequirement} // Pass approve handler
+        onReject={handleRejectedRequirement}   // Pass reject handler
+      />
+
+    </StyledContainer>
+  );
+};
+
+export default RequirementList;

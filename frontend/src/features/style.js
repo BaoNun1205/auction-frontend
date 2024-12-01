@@ -31,7 +31,7 @@ export const StyledSubtitleBox = styled(Box)(({ theme }) => ({
 
 export const StyledSecondaryBox = styled(Box)(({ theme }) => ({
   bgcolor: theme.palette.primary.secondary,
-  borderRadius: 2,
+  borderRadius: 3,
   boxShadow: `0px 4px 6px ${theme.palette.primary.buttonHover}`
 }))
 

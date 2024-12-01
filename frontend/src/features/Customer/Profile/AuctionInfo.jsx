@@ -35,6 +35,8 @@ import {
   HourglassEmpty, 
   Info
 } from '@mui/icons-material';
+import { useGetRegisteredSession } from '~/hooks/userHook';
+import { useAppStore } from '~/store/appStore';
 
 const StyledTab = styled(Tab)(({ theme }) => ({
   fontSize: '1.1rem',
@@ -214,6 +216,10 @@ const AuctionParticipatedItem = ({ productName, imgSrc, auctionStartTime, auctio
 const AuctionInfo = () => {
   const [tab, setTab] = useState(0);
   const auctionImg = './src/assets/images/auctionItem.png';
+  const { auth } = useAppStore();
+
+  const exRegisteredData1 = useGetRegisteredSession(auth.userId);
+  console.log('test: ', exRegisteredData1);
 
   const exRegisteredData = [
     {
@@ -280,16 +286,12 @@ const AuctionInfo = () => {
   return (
     <Container maxWidth="lg">
       <Box sx={{ py: 4 }}>
-        <Typography 
-          variant="h4" 
-          component="h1" 
-          align="center" 
-          color="error" 
-          gutterBottom 
-          sx={{ fontWeight: 'bold', mb: 4 }}
-        >
-          Phiên đấu giá
-        </Typography>
+      <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
+            Phiên đấu giá
+          </Typography>
+          <Typography variant="subtitle1" color="text.secondary" gutterBottom>
+            Lưu trữ các phiên đấu giá đã đăng ký và tham gia
+          </Typography>
         
         <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 4 }}>
           <Tabs 

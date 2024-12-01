@@ -1,32 +1,39 @@
-import { Client } from '@stomp/stompjs';
+import { Client } from '@stomp/stompjs'
 
-let client;
+let stompClient = null
 
-const connect = () => {
-  client = new Client({
+export const connectWebSocket = (authToken, destination, onMessage) => {
+  stompClient = new Client({
     brokerURL: 'ws://localhost:8080/rt-auction',
-    reconnectDelay: 5000,
-    heartbeatIncoming: 4000,
-    heartbeatOutgoing: 4000,
-  });
+    connectHeaders: {
+      Authorization: `Bearer ${authToken}`
+    },
+    onConnect: () => {
+      console.log('Connected to WebSocket')
+      stompClient.subscribe(destination, onMessage)
+    },
+    onStompError: (frame) => {
+      console.error('Broker reported error: ' + frame.headers['message'])
+      console.error('Additional details: ' + frame.body)
+    }
+  })
 
-  client.activate();
-};
+  stompClient.activate()
+}
 
-const disconnect = () => {
-  if (client) {
-    client.deactivate();
+export const disconnectWebSocket = () => {
+  if (stompClient) {
+    stompClient.deactivate()
   }
-};
+}
 
-const subscribe = (topic, callback) => {
-  if (client) {
-    client.onConnect = () => {
-      client.subscribe(topic, (message) => {
-        callback(JSON.parse(message.body));
-      });
-    };
+export const sendMessage = (destination, body) => {
+  if (stompClient) {
+    stompClient.publish({
+      destination,
+      body: JSON.stringify(body)
+    })
+  } else {
+    console.error('STOMP client is not connected')
   }
-};
-
-export { connect, disconnect, subscribe };
+}
