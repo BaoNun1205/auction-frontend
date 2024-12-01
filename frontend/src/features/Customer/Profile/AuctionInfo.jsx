@@ -312,7 +312,7 @@ const AuctionInfo = () => {
         <Box sx={{ mt: 3 }}>
           {tab === 0 ? (
             <Box>
-              {exRegisteredData1.map((item) => (
+              {exRegisteredData.map((item) => (
                 <AuctionRegisteredItem
                   key={item.id}
                   auctionName={item.auctionName}
