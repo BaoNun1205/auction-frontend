@@ -12,8 +12,8 @@ import { Home, FolderTree, ShoppingBag, Calendar, FileText, ChevronRight } from 
 import { useNavigate } from 'react-router-dom';
 import { useLogout } from '~/hooks/authHook';
 import AppModal from '~/components/Modal/Modal';
+import AuctionRequest from '../components/AuctionRequests';
 import MyAssets from '../components/MyAsset';
-import AuctionRequest from '../components/AuctionRequest';
 
 const primaryColor = '#b41712';
 
