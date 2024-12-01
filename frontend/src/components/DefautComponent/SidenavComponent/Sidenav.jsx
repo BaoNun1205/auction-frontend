@@ -1,185 +1,215 @@
-import * as React from 'react'
-import { styled, useTheme } from '@mui/material/styles'
-import Box from '@mui/material/Box'
-import MuiDrawer from '@mui/material/Drawer'
-import List from '@mui/material/List'
-import IconButton from '@mui/material/IconButton'
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
-import ChevronRightIcon from '@mui/icons-material/ChevronRight'
-import { useAppStore } from '~/store/appStore'
-import { Home, FolderTree, ShoppingBag, Calendar, FileText } from 'lucide-react'
-import MenuItemExpand from './MenuItemExpandComponent/MenuItemExpand'
-import ItemExpand from './ItemExpandComponent/ItemExpand'
-import MenuItem from './MenuItemComponent/MenuItem'
+import React, { useState, useEffect } from 'react';
+import { Box, List, ListItem, ListItemIcon, ListItemText, Typography, Divider, IconButton } from '@mui/material';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { useAppStore } from '~/store/appStore'; // Đảm bảo store này có logic đúng
+import { styled } from '@mui/material/styles';
+import { Home, Folder, ShoppingBag, FileText, Calendar } from 'react-feather';
+import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'; // Nhập các icon để chuyển đổi
+import { useNavigate } from 'react-router-dom'; // Nhập useNavigate từ react-router-dom
 
-const drawerWidth = 240
+// Độ rộng của Drawer
+const drawerWidth = 200;
+const drawerCollapsedWidth = 56;
 
-const openedMixin = (theme) => ({
-  width: drawerWidth,
-  transition: theme.transitions.create('width', {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.enteringScreen
-  }),
-  overflowX: 'hidden'
-})
-
-const closedMixin = (theme) => ({
-  transition: theme.transitions.create('width', {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen
-  }),
-  overflowX: 'hidden',
-  width: `calc(${theme.spacing(7)} + 1px)`,
-  [theme.breakpoints.up('sm')]: {
-    width: `calc(${theme.spacing(12)} + 1px)`
-  }
-})
-
-const DrawerHeader = styled('div')(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'flex-end',
-  padding: theme.spacing(0, 1),
-  bgcolor: 'primary.main',
-  // necessary for content to be below app bar
-  ...theme.mixins.toolbar
-}))
-
-const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
-  ({ theme }) => ({
-    width: drawerWidth,
-    flexShrink: 0,
-    whiteSpace: 'nowrap',
-    boxSizing: 'border-box',
-    variants: [
-      {
-        props: ({ open }) => open,
-        style: {
-          ...openedMixin(theme),
-          '& .MuiDrawer-paper': openedMixin(theme)
-        }
-      },
-      {
-        props: ({ open }) => !open,
-        style: {
-          ...closedMixin(theme),
-          '& .MuiDrawer-paper': closedMixin(theme)
-        }
-      }
-    ]
-  })
-)
-
-const HomeItem = {
-  icon: <Home />,
-  name: 'Home',
-  path: '/'
-}
-
+// Định nghĩa các mục
+const HomeItem = { icon: <Home />, name: 'Trang Chủ', path: '/' };
 const CategoryItem = {
-  icon: <FolderTree />,
-  name: 'Category',
+  icon: <Folder />,
+  name: 'Danh Mục',
   subItems: [
-    { name: 'Category', path: '/category' },
-    { name: 'Type', path: '/category/type' }
+    { name: 'Danh Mục', path: '/category' },
+    { name: 'Loại', path: '/category/type' }
   ]
-}
-
-const AssetItem = {
-  icon: <ShoppingBag />,
-  name: 'Asset',
-  path: '/asset'
-}
-
+};
+const AssetItem = { icon: <ShoppingBag />, name: 'Tài Sản', subItems: [{ name: 'Danh Sách', path: '/asset' }] };
 const RequirementItem = {
   icon: <FileText />,
-  name: 'Requirement',
+  name: 'Yêu Cầu',
   subItems: [
-    { name: 'List', path: '/requirement' },
-    { name: 'Create', path: '/requirement/create' },
+    { name: 'Danh Sách', path: '/requirement' },
+    { name: 'Tạo Mới', path: '/requirement/create' }
   ]
-}
-
+};
 const SessionItem = {
   icon: <Calendar />,
-  name: 'Session',
-  path: '/session'
-}
+  name: 'Phiên',
+  subItems: [
+    { name: 'Danh Sách', path: '/session' },
+    { name: 'Tạo Mới', path: '/session/create' }
+  ]
+};
+
+const menuItems = [HomeItem, CategoryItem, AssetItem, RequirementItem, SessionItem];
+
+// Drawer đã được tùy chỉnh với nền trắng và văn bản đen
+const StyledDrawer = styled('div')(({ open }) => ({
+  width: open ? drawerWidth : drawerCollapsedWidth,
+  flexShrink: 0,
+  whiteSpace: 'nowrap',
+  position: 'fixed',
+  top: 0,
+  left: 0,
+  height: '100vh',
+  borderRight: '1px solid #ccc',
+  backgroundColor: '#fff',
+  boxShadow: '2px 0 5px rgba(0, 0, 0, 0.1)',
+  transition: 'width 0.4s ease',  // Hiệu ứng chuyển đổi khi mở/đóng drawer
+}));
+
+const ListItemStyled = styled(ListItem)(({ isActive, open }) => ({
+  backgroundColor: isActive ? '#f0f0f0' : 'transparent',
+  '&:hover': { backgroundColor: '#e0e0e0' },
+  borderRadius: '8px',
+  transition: 'all 0.3s ease',  // Hiệu ứng chuyển đổi trạng thái item
+  padding: open ? '8px 12px' : '12px 0',
+  marginBottom: '8px',
+}));
 
 const Sidenav = ({ children }) => {
-  const theme = useTheme()
-  const open = useAppStore((state) => state.dopen) // open side nav
-  const categoryOpen = useAppStore((state) => state.categoryOpen) // open category menu
-  const setCategoryOpen = useAppStore((state) => state.setCategoryOpen) // set category menu
-  const assetOpen = useAppStore((state) => state.assetOpen) // open asset menu
-  const setAssetOpen = useAppStore((state) => state.setAssetOpen) // set asset menu
-  const requirementOpen = useAppStore((state) => state.requirementOpen) // open requirement menu
-  const setRequirementOpen = useAppStore((state) => state.setRequirementOpen) // set requirement menu
-  const sessionOpen = useAppStore((state) => state.sessionOpen) // open session menu
-  const setSessionOpen = useAppStore((state) => state.setSessionOpen) // set session
+  const open = useAppStore((state) => state.dopen); // Truy cập state dopen từ Zustand
+  const setDopen = useAppStore((state) => state.updateOpen); // Cập nhật state dopen
+  const [activeSubItem, setActiveSubItem] = useState(''); // Theo dõi sub-item đang hoạt động (kết hợp khóa)
+  const [expandedItems, setExpandedItems] = useState({}); // Quản lý trạng thái mở rộng như một đối tượng
+  const navigate = useNavigate();
 
-  const handleCategoryClick = () => {
-    setCategoryOpen(!categoryOpen)
-  }
+  // Đặt trạng thái mặc định trước khi tải từ localStorage
+  const [loading, setLoading] = useState(true);
 
-  const handleAssetClick = () => {
-    setAssetOpen(!assetOpen)
-  }
+  // Effect để tải trạng thái từ localStorage khi component được mount
+  useEffect(() => {
+    const savedExpandedItems = JSON.parse(localStorage.getItem('expandedItems')) || {};
+    const savedActiveSubItem = localStorage.getItem('activeSubItem') || ''; // Lấy sub-item đang hoạt động đã lưu
+    setExpandedItems(savedExpandedItems);
+    setActiveSubItem(savedActiveSubItem);
+    setLoading(false); // Đặt loading thành false sau khi tải hoàn tất
+  }, []);
 
-  const handleRequirementClick = () => {
-    setRequirementOpen(!requirementOpen)
-  }
+  // Hàm để cập nhật localStorage mỗi khi expandedItems hoặc activeSubItem thay đổi
+  const updateLocalStorage = (newExpandedItems, newActiveSubItem) => {
+    localStorage.setItem('expandedItems', JSON.stringify(newExpandedItems));
+    localStorage.setItem('activeSubItem', newActiveSubItem); // Lưu trạng thái active sub-item vào localStorage
+  };
 
-  const handleSessionClick = () => {
-    setSessionOpen(!sessionOpen)
+  // Chuyển đổi trạng thái mở rộng của các mục cha (bao gồm cả sub-items của chúng)
+  const handleItemClick = (itemId, path) => {
+    const item = menuItems.find((item) => item.name === itemId);
+
+    if (item?.subItems) {
+      setExpandedItems((prevExpandedItems) => {
+        const updatedExpandedItems = {
+          ...prevExpandedItems,
+          [itemId]: !prevExpandedItems[itemId], // Chuyển đổi trạng thái mở rộng của mục được chọn
+        };
+        updateLocalStorage(updatedExpandedItems, activeSubItem); // Lưu trạng thái vào localStorage
+        return updatedExpandedItems;
+      });
+    }
+
+    navigate(path); // Chuyển hướng đến path
+  };
+
+  const handleSubItemClick = (subItemId, path, parentItemId) => {
+    // Tạo khóa duy nhất bằng cách sử dụng cả tên mục cha và tên sub-item
+    const newActiveSubItem = `${parentItemId}-${subItemId}`;
+    setActiveSubItem(newActiveSubItem);
+
+    setExpandedItems((prevExpandedItems) => ({
+      ...prevExpandedItems,
+      [parentItemId]: true, // Giữ mục cha luôn mở rộng
+    }));
+
+    updateLocalStorage(expandedItems, newActiveSubItem); // Lưu trạng thái active sub-item vào localStorage
+
+    navigate(path); // Chuyển hướng đến path của sub-item
+  };
+
+  const handleDrawerToggle = () => {
+    setDopen(!open); // Chuyển đổi trạng thái dopen để mở/đóng drawer
+  };
+
+  const handleDragEnd = (result) => {
+    if (!result.destination) return;
+
+    const newItems = Array.from(menuItems);
+    const [reorderedItem] = newItems.splice(result.source.index, 1);
+    newItems.splice(result.destination.index, 0, reorderedItem);
+  };
+
+  if (loading) {
+    return null; // Không render gì khi đang tải
   }
 
   return (
-    <Box sx={{ display: 'flex' }}>
-      <Drawer variant="permanent" open={open}>
-        <DrawerHeader>
-          <IconButton>
-            {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+    <Box>
+      <StyledDrawer open={open}>
+        <Box sx={{ padding: '8px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          {open ? (
+            <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#000' }}>
+              Admin
+            </Typography>
+          ) : (
+            <Box sx={{ width: '100%' }} />
+          )}
+          <IconButton onClick={handleDrawerToggle} sx={{ padding: 0, display: 'flex', justifyContent: 'center' }}>
+            {open ? <FiChevronLeft /> : <FiChevronRight />} {/* Hiển thị icon tương ứng */}
           </IconButton>
-        </DrawerHeader>
-        <Box sx={(theme) => ({ bgcolor: theme.palette.primary.main, height: '100vh' })}>
-          <List sx={(theme) => ({ bgcolor: theme.palette.primary.main })}>
-            {open ? (
-              <>
-                <ItemExpand item={HomeItem} open={open} />
-                {/* <ItemExpand item={CategoryItem} open={open} /> */}
-                <MenuItemExpand
-                  open={open}
-                  itemOpen={categoryOpen}
-                  item={CategoryItem}
-                  handleClick={handleCategoryClick}
-                />
-                <ItemExpand item={AssetItem} open={open} />
-                <MenuItemExpand
-                  open={open}
-                  itemOpen={requirementOpen}
-                  item={RequirementItem}
-                  handleClick={handleRequirementClick}
-                />
-                <ItemExpand item={SessionItem} open={open} />
-              </>
-            ) : (
-              <>
-                <MenuItem item={HomeItem} />
-                <MenuItem item={CategoryItem} />
-                <MenuItem item={AssetItem} />
-                <MenuItem item={RequirementItem} />
-                <MenuItem item={SessionItem} />
-              </>
-            )}
-          </List>
         </Box>
-      </Drawer>
-      <Box sx={{ bgcolor: 'primary.main' }}>
+
+        <Divider sx={{ marginBottom: '8px', borderColor: '#ddd' }} />
+
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <Droppable droppableId="sidebar-items">
+            {(provided) => (
+              <List {...provided.droppableProps} ref={provided.innerRef} sx={{ padding: '8px 16px' }}>
+                {menuItems.map((item, index) => (
+                  <Draggable key={item.name} draggableId={item.name} index={index}>
+                    {(provided) => (
+                      <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+                        <ListItemStyled
+                          button
+                          onClick={() => handleItemClick(item.name, item.path)}
+                          isActive={false} // Các mục cha không nên được đánh dấu là đang hoạt động
+                          open={open}
+                        >
+                          <ListItemIcon sx={{ minWidth: '32px', marginRight: '4px' }}>
+                            {item.icon}
+                          </ListItemIcon>
+                          {open && <ListItemText primary={item.name} />}
+                        </ListItemStyled>
+
+                        {open && expandedItems[item.name] && item.subItems?.map((subItem) => (
+                          <ListItemStyled
+                            key={subItem.name}
+                            button
+                            onClick={() => handleSubItemClick(subItem.name, subItem.path, item.name)} // Xử lý click vào sub-item
+                            isActive={activeSubItem === `${item.name}-${subItem.name}`} // So sánh bằng khóa parentName-subItemName
+                            sx={{ pl: 4 }}
+                          >
+                            <ListItemText primary={subItem.name} />
+                          </ListItemStyled>
+                        ))}
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+              </List>
+            )}
+          </Droppable>
+        </DragDropContext>
+      </StyledDrawer>
+
+      {/* Nội dung chính sẽ dịch chuyển sang phải khi sidebar mở */}
+      <Box
+        sx={{
+          flexGrow: 1,
+          marginLeft: open ? `${drawerWidth}px` : `${drawerWidth}px`, // Bắt đầu với drawer ở độ rộng đầy đủ
+          transition: 'margin-left 0.4s ease', // Hiệu ứng khi drawer chuyển đổi
+        }}
+      >
         {children}
       </Box>
     </Box>
-  )
-}
+  );
+};
 
-export default Sidenav
+export default Sidenav;
