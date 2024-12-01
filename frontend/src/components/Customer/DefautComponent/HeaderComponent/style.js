@@ -1,5 +1,5 @@
 import { styled, alpha } from '@mui/material/styles';
-import { AppBar, InputBase, Link, IconButton } from '@mui/material';
+import { AppBar, InputBase, Link, IconButton, Paper } from '@mui/material';
 
 export const StyledAppBar = styled(AppBar)(({ theme }) => ({
   backgroundColor: '#b41712',
@@ -61,4 +61,18 @@ export const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 export const IconButtonWithBadge = styled(IconButton)(({ theme }) => ({
   margin: theme.spacing(0, 0.5),
+}));
+
+export const LogoContainer = styled(Paper)(({ theme }) => ({
+  backgroundColor: '#B7201B',
+  borderRadius: '50%',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  transition: 'transform 0.3s ease',
+  '&:hover': {
+    transform: 'scale(1.05)',
+  },
+  marginTop: theme.spacing(2),
+  marginBottom: theme.spacing(2),
 }));
