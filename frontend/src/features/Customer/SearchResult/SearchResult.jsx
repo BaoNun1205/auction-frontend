@@ -40,13 +40,25 @@ export default function SearchResults() {
   });
   const [sortOrder, setSortOrder] = useState('new');
   const [expandedCategory, setExpandedCategory] = useState('');
+  const [status, setStatus] = useState('');
+  const [keyword, setKeyword] = useState('');
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
   const location = useLocation();
   const navigate = useNavigate();
 
   const searchParams = new URLSearchParams(location.search);
-  const keyword = searchParams.get('keyword') || '';
+  const searchKeyword = searchParams.get('keyword') || '';
 
-  const { data: sessionData, isLoading: isLoadingSessions, isError: isErrorSessions } = useFilterSessions({ keyword });
+  const payload = {
+    status,
+    keyword: searchKeyword,
+    page,
+    size: rowsPerPage,
+  };
+
+  const { data: sessionData, isLoading: isLoadingSessions, isError: isErrorSessions } = useFilterSessions(payload);
   const { data: categoryData, isLoading: isLoadingCategories, isError: isErrorCategories } = useFilterCategories();
 
   if (isLoadingCategories || isLoadingSessions) {
@@ -70,13 +82,16 @@ export default function SearchResults() {
         ongoing: false,
         finished: false,
       });
+      setStatus('');
     } else {
       setFilters((prevFilters) => {
         const newFilters = { ...prevFilters, [name]: checked };
         if (checked) {
           newFilters.all = false;
+          setStatus(name.toUpperCase());
         } else if (!newFilters.upcoming && !newFilters.ongoing && !newFilters.finished) {
           newFilters.all = true;
+          setStatus('');
         }
         return newFilters;
       });
@@ -89,6 +104,15 @@ export default function SearchResults() {
 
   const handleCategoryClick = (category) => {
     setExpandedCategory(expandedCategory === category ? '' : category);
+  };
+
+  const handlePageChange = (event, newPage) => {
+    setPage(newPage - 1);
+  };
+
+  const handleRowsPerPageChange = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
   };
 
   const filteredSessions = sessions.filter((session) => {
@@ -294,7 +318,12 @@ export default function SearchResults() {
             ))}
           </Grid>
           <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-            <Pagination count={10} color="primary" />
+            <Pagination
+              count={Math.ceil(totalResults / rowsPerPage)}
+              page={page + 1}
+              onChange={handlePageChange}
+              color="primary"
+            />
           </Box>
         </Grid>
       </Grid>

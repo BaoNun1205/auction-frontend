@@ -19,7 +19,7 @@ export const useCreateSession = () => {
 
 export const useFilterSessions = (payload) => {
   return useQuery({
-    queryKey: ['filteredRequirements', payload],
+    queryKey: ['filteredSessions', payload],
     queryFn: () => filterSessions(payload),
     onError: (error) => {
       console.error('Error fetching filtered sessions:', error)
