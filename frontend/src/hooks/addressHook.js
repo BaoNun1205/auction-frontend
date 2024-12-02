@@ -1,38 +1,25 @@
-import { useQuery, useMutation, useQueryClient } from 'react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createAddress, getAddressByUserId } from '~/api/addressApi'
 
 export const useCreateAddress = () => {
   const queryClient = useQueryClient()
 
-  return useMutation(createAddress, {
+  return useMutation({
+    mutationFn: createAddress,
     onSuccess: (data) => {
-      console.log('Asset created successfully:', data)
+      console.log('Address created successfully:', data)
       // Invalidate queries or perform other actions
-      queryClient.invalidateQueries('asset')
+      queryClient.invalidateQueries(['address'])
     },
     onError: (error) => {
-      console.error('Error creating asset:', error)
+      console.error('Error creating address:', error)
     }
   })
 }
 
-// export const useGetAssetById = (assetId) => {
-//   return useQuery(['asset', assetId], () => getAssetById(assetId))
-// }
-
-// export const useFilterAssets = (payload) => {
-//   return useQuery(
-//     ['filterAssets', payload],
-//     () => filterAssets(payload),
-//     {
-//       onError: (error) => {
-//         console.error('Error fetching filtered assets:', error)
-//       }
-//     }
-//   )
-// }
-
-
 export const useGetAddressByUserId = (userId) => {
-    return useQuery(['address', userId], () => getAddressByUserId(userId));
-  };
+  return useQuery({
+    queryKey: ['address', userId],
+    queryFn: () => getAddressByUserId(userId),
+  });
+}
