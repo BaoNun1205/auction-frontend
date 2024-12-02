@@ -1,33 +1,35 @@
-import { useQuery, useMutation, useQueryClient } from 'react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createSesion, getSessionById, filterSessions } from '~/api/sessionApi'
 
 export const useCreateSession = () => {
   const queryClient = useQueryClient()
 
-  return useMutation(createSesion, {
+  return useMutation({
+    mutationFn: createSesion,
     onSuccess: (data) => {
       console.log('Session created successfully:', data)
       // Invalidate queries or perform other actions
-    //   queryClient.invalidateQueries('session')
+      // queryClient.invalidateQueries(['session'])
     },
     onError: (error) => {
-      console.error('Error creating asset:', error)
+      console.error('Error creating session:', error)
     }
   })
 }
 
 export const useFilterSessions = (payload) => {
-  return useQuery(
-    ['filteredRequirements', payload],
-    () => filterSessions(payload),
-    {
-      onError: (error) => {
-        console.error('Error fetching filtered categories:', error)
-      }
+  return useQuery({
+    queryKey: ['filteredRequirements', payload],
+    queryFn: () => filterSessions(payload),
+    onError: (error) => {
+      console.error('Error fetching filtered sessions:', error)
     }
-  )
+  })
 }
 
 export const useGetSessionById = (sessionId) => {
-  return useQuery(['session', sessionId], () => getSessionById(sessionId))
+  return useQuery({
+    queryKey: ['session', sessionId],
+    queryFn: () => getSessionById(sessionId)
+  })
 }
