@@ -39,6 +39,7 @@ export default function AddressForm({ refresh, handleClose }) {
     recipientName: '',
     phone: '',
     addressDetail: '',
+    isDefault: false,  // Thêm trường isDefault
   });
 
   const { mutate: createAddress, isLoading: isSubmitting, isError, error } = useCreateAddress();
@@ -137,6 +138,14 @@ export default function AddressForm({ refresh, handleClose }) {
     });
   };
 
+  // Handle checkbox change
+  const handleCheckboxChange = (e) => {
+    setFormData({
+      ...formData,
+      isDefault: e.target.checked, // Update isDefault when checkbox is checked or unchecked
+    });
+  };
+
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     const addressData = {
@@ -151,7 +160,7 @@ export default function AddressForm({ refresh, handleClose }) {
     createAddress(addressData, {
       onSuccess: () => {
         refresh();
-        handleClose()
+        handleClose();
       },
       onError: (error) => {
         console.error('Error creating address:', error);
@@ -263,7 +272,7 @@ export default function AddressForm({ refresh, handleClose }) {
       />
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
-        <StyledCheckbox />
+        <StyledCheckbox checked={formData.isDefault} onChange={handleCheckboxChange} />
         <Typography sx={{ color: 'text.secondary' }}>
           Đặt làm địa chỉ mặc định
         </Typography>

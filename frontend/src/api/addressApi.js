@@ -24,3 +24,17 @@ export const getAddressByUserId = async (userId) => {
       handleApiError(error)
     }
   }
+
+
+  export const updateAddress = async (addressId, payload) => {
+    try {
+      const response = await PUT({
+        url: `${ADDRESS_PATH}/${addressId}`,
+        payload: payload,
+      });
+      return response.data; // Trả về dữ liệu từ API sau khi cập nhật
+    } catch (error) {
+      handleApiError(error); // Xử lý lỗi nếu có
+    }
+  }; 
+
