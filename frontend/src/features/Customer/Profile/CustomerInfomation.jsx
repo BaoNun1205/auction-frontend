@@ -139,29 +139,13 @@ const CustomerInformation = () => {
                   }}
                 />
               </Grid>
-              <Grid container item xs={12} spacing={2}>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Họ"
-                    variant="outlined"
-                    value={user?.firstName}
-                    InputLabelProps={{
-                      shrink: true
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Tên"
-                    variant="outlined"
-                    value={user?.lastName}
-                    InputLabelProps={{
-                      shrink: true
-                    }}
-                  />
-                </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="Họ và tên"
+                  variant="outlined"
+                  value={user?.name}
+                />
               </Grid>
 
               <Grid item xs={12}>
