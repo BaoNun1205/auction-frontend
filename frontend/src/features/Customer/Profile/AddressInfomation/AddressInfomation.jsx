@@ -4,6 +4,8 @@ import {
   Typography,
   Divider,
   Stack,
+  CircularProgress,
+  Alert,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import AppModal from '~/components/Modal/Modal';
@@ -17,36 +19,30 @@ import {
   StyledOutlinedButton,
 } from './style';
 
+// Hook để lấy địa chỉ của người dùng
+import { useGetAddressByUserId } from '~/hooks/addressHook';
+import { useAppStore } from '~/store/appStore';
+
 const AddressesInfomation = () => {
-  const addresses = [
-    {
-      id: 1,
-      name: 'Lê Nguyễn Bảo',
-      phone: '(+84) 375 969 227',
-      address: 'Ktx D2, 484 Đường Lê Văn Việt',
-      district: 'Phường Tăng Nhơn Phú A, Thành Phố Thủ Đức, TP. Hồ Chí Minh',
-      isDefault: true,
-      tags: [],
-    },
-    {
-      id: 2,
-      name: 'Lê Nguyễn Bảo',
-      phone: '(+84) 375 969 227',
-      address: 'Tân Vinh - Xuân Sơn Nam - Đồng Xuân - Phú Yên',
-      district: 'Xã Xuân Sơn Nam, Huyện Đồng Xuân, Phú Yên',
-      isDefault: false,
-      tags: ['Địa chỉ lấy hàng', 'Địa chỉ trả hàng'],
-    },
-    {
-      id: 3,
-      name: 'Lê Nguyễn Bảo',
-      phone: '(+84) 375 969 227',
-      address: 'Chung Cư Phúc Đạt Tower, Số 159, Quốc Lộ 1k',
-      district: 'Phường Đông Hòa, Thành Phố Dĩ An, Bình Dương',
-      isDefault: false,
-      tags: [],
-    },
-  ];
+  const { auth } = useAppStore()
+  // Gọi hook để lấy dữ liệu địa chỉ của người dùng
+  const { data: addresses, isLoading, isError, error, refetch } = useGetAddressByUserId(auth.user.id);
+
+  if (isLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
+        <Alert severity="error">{error.message}</Alert>
+      </Box>
+    );
+  }
 
   return (
     <StyledPaper elevation={0}>
@@ -65,53 +61,53 @@ const AddressesInfomation = () => {
           }
           maxWidth={600}
         >
-          <AddressForm />
+          <AddressForm refresh={refetch}/>
         </AppModal>
       </Box>
 
       <Box>
-        {addresses.map((address) => (
-          <AddressItem key={address.id}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                  <Typography variant="subtitle1" fontWeight="bold">
-                    {address.name}
+        {addresses && addresses.length > 0 ? (
+          addresses.map((address) => (
+            <AddressItem key={address.addressId}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <Box>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                    <Typography variant="subtitle1" fontWeight="bold">
+                      {address.recipientName}
+                    </Typography>
+                    <Divider orientation="vertical" flexItem />
+                    <Typography color="text.secondary">{address.phone}</Typography>
+                  </Box>
+                  <Typography color="text.secondary" sx={{ mb: 1 }}>
+                    {address.addressDetail}
                   </Typography>
-                  <Divider orientation="vertical" flexItem />
-                  <Typography color="text.secondary">{address.phone}</Typography>
+                  <Typography color="text.secondary" sx={{ mb: 1 }}>
+                    {address.ward}, {address.district}, {address.province}
+                  </Typography>
+                  <Stack direction="row" spacing={1}>
+                    {address.isDefault && (
+                      <StyledChip label="Mặc định" size="small" />
+                    )}
+                    {address.tags?.map((tag, index) => (
+                      <StyledChip key={index} label={tag} size="small" />
+                    ))}
+                  </Stack>
                 </Box>
-                <Typography color="text.secondary" sx={{ mb: 1 }}>
-                  {address.address}
-                </Typography>
-                <Typography color="text.secondary" sx={{ mb: 1 }}>
-                  {address.district}
-                </Typography>
-                <Stack direction="row" spacing={1}>
-                  {address.isDefault && (
-                    <StyledChip label="Mặc định" size="small" />
+                <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                  <StyledLink href="#">Cập nhật</StyledLink>
+                  <StyledLink href="#">Xóa</StyledLink>
+                  {!address.isDefault && (
+                    <StyledOutlinedButton variant="outlined" size="small">
+                      Thiết lập mặc định
+                    </StyledOutlinedButton>
                   )}
-                  {address.tags.map((tag, index) => (
-                    <StyledChip key={index} label={tag} size="small" />
-                  ))}
-                </Stack>
+                </Box>
               </Box>
-              <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                <StyledLink href="#">
-                  Cập nhật
-                </StyledLink>
-                <StyledLink href="#">
-                  Xóa
-                </StyledLink>
-                {!address.isDefault && (
-                  <StyledOutlinedButton variant="outlined" size="small">
-                    Thiết lập mặc định
-                  </StyledOutlinedButton>
-                )}
-              </Box>
-            </Box>
-          </AddressItem>
-        ))}
+            </AddressItem>
+          ))
+        ) : (
+          <Typography color="text.secondary">Không có địa chỉ nào.</Typography>
+        )}
       </Box>
     </StyledPaper>
   );

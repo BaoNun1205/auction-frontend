@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   DialogTitle,
   DialogContent,
@@ -24,8 +24,11 @@ import { isAfter, addHours } from 'date-fns';
 import CloseIcon from '@mui/icons-material/Close';
 import { useCreateSession } from '~/hooks/sessionHook';
 import { StyledDialog, StyledFormControl, primaryColor } from './style';
+import ReactQuill from 'react-quill';
 
 const validationSchema = Yup.object().shape({
+  name: Yup.string().required('Tên sản phẩm là bắt buộc'),
+  description: Yup.string().required('Mô tả là bắt buộc'),
   type: Yup.string().required('Loại phiên đấu giá là bắt buộc'),
   startTime: Yup.date()
     .required('Thời gian bắt đầu là bắt buộc')
@@ -45,10 +48,14 @@ const validationSchema = Yup.object().shape({
     .max(Yup.ref('startingBid'), 'Giá cọc không được lớn hơn giá khởi điểm'),
 });
 
-const AuctionCreationDialog = ({ open, onClose, asset }) => {
+const AuctionCreationDialog = ({ open, onClose, asset, refresh }) => {
   const { mutate: createSession } = useCreateSession();
 
   const [initialValues, setInitialValues] = useState({
+    name: '',
+    description: '',
+    assetId: '',
+    vendorId: '',
     type: '',
     startTime: addHours(new Date(), 1),
     endTime: addHours(new Date(), 25),
@@ -59,26 +66,40 @@ const AuctionCreationDialog = ({ open, onClose, asset }) => {
 
   useEffect(() => {
     if (asset) {
-      setInitialValues((prevValues) => ({
-        ...prevValues,
+      setInitialValues({
+        name: '',
+        description: '',
+        assetId: asset.assetId,
+        vendorId: asset.vendor.userId,
+        type: '',
+        startTime: addHours(new Date(), 1),
+        endTime: addHours(new Date(), 25),
         startingBid: asset.assetPrice || '',
-      }));
+        bidIncrement: '',
+        depositPrice: '',
+      });
     }
   }, [asset]);
 
   const handleSubmit = (values, { setSubmitting }) => {
+
     const sessionData = {
+      name: values.name,
+      description: values.description,
       typeSession: values.type,
-      assetId: asset.assetId,
-      userId: asset?.vendor?.userId,
+      assetId: values.assetId,
+      userId: values.vendorId,
       startingBids: values.startingBid,
       bidIncrement: values.bidIncrement,
       depositAmount: values.depositPrice,
+      startTime: values.startTime,
+      endTime: values.endTime,
     };
 
     createSession(sessionData, {
       onSuccess: () => {
         setSubmitting(false);
+        refresh();
         onClose();
       },
       onError: (error) => {
@@ -91,7 +112,15 @@ const AuctionCreationDialog = ({ open, onClose, asset }) => {
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={viLocale}>
       <StyledDialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-        <DialogTitle>
+        <DialogTitle
+          sx={{
+            position: 'sticky',
+            top: 0,
+            backgroundColor: 'white',
+            zIndex: 100,
+            borderBottom: '1px solid #ddd',
+          }}
+        >
           <Typography variant="h6">Tạo Phiên Đấu Giá</Typography>
           <IconButton
             aria-label="close"
@@ -113,25 +142,54 @@ const AuctionCreationDialog = ({ open, onClose, asset }) => {
           {({ values, errors, touched, handleChange, handleBlur, setFieldValue, isSubmitting }) => (
             <Form noValidate>
               <DialogContent>
-                <Box sx={{ mb: 3 }}>
-                  <StyledFormControl fullWidth variant="outlined">
-                    <InputLabel id="session-type-label">Loại phiên đấu giá *</InputLabel>
-                    <Select
-                      labelId="session-type-label"
-                      name="type"
-                      value={values.type}
+                <Grid container spacing={2} sx={{ mb: 3 }}>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Tên sản phẩm"
+                      name="name"
+                      required
+                      variant="outlined"
+                      value={values.name}
                       onChange={handleChange}
                       onBlur={handleBlur}
-                      label="Loại phiên đấu giá *"
-                      error={touched.type && Boolean(errors.type)}
-                    >
-                      <MenuItem value="LIVE">Đấu giá trực tiếp</MenuItem>
-                      <MenuItem value="TIMED">Đấu giá có thời hạn</MenuItem>
-                    </Select>
-                  </StyledFormControl>
-                </Box>
-
-                <Grid container spacing={2} sx={{ mb: 3 }}>
+                      error={touched.name && Boolean(errors.name)}
+                      helperText={touched.name && errors.name}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Typography variant="subtitle1" gutterBottom>
+                      Mô tả
+                    </Typography>
+                    <ReactQuill
+                      theme="snow"
+                      value={values.description}
+                      onChange={(value) => setFieldValue('description', value)}
+                      style={{ height: '200px', marginBottom: '50px' }}
+                    />
+                    {touched.description && Boolean(errors.description) && (
+                      <Typography color="error" variant="caption">
+                        {errors.description}
+                      </Typography>
+                    )}
+                  </Grid>
+                  <Grid item xs={12}>
+                    <StyledFormControl fullWidth variant="outlined">
+                      <InputLabel id="session-type-label">Loại phiên đấu giá *</InputLabel>
+                      <Select
+                        labelId="session-type-label"
+                        name="type"
+                        value={values.type}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        label="Loại phiên đấu giá *"
+                        error={touched.type && Boolean(errors.type)}
+                      >
+                        <MenuItem value="LIVE">Đấu giá trực tiếp</MenuItem>
+                        <MenuItem value="TIMED">Đấu giá có thời hạn</MenuItem>
+                      </Select>
+                    </StyledFormControl>
+                  </Grid>
                   <Grid item xs={12} sm={6}>
                     <DateTimePicker
                       label="Thời gian bắt đầu"

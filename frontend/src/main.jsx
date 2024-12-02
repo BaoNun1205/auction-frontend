@@ -3,7 +3,8 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import CssBaseline from '@mui/material/CssBaseline';
 import { Experimental_CssVarsProvider as CssVarsProvider } from '@mui/material/styles';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import theme from './theme';
 import App from './App.jsx';
 import { useAppStore } from './store/appStore';
@@ -26,6 +27,7 @@ const RootComponent = () => {
           <App />
         </>
       )}
+      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 };

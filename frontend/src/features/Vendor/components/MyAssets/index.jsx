@@ -29,7 +29,7 @@ import { useFilterAssets } from '~/hooks/assetHook';
 import { useAppStore } from '~/store/appStore';
 import AuctionCreationDialog from './AuctionCreationDialog';
 import { StyledSpan } from '~/features/style';
-import AssetsDetailsDialog from './AssetDetailsDialog'
+import AssetDetailDialog from './AssetDetailDialog';
 
 const StyledPaper = styled(Paper)({
   padding: '24px',
@@ -44,25 +44,19 @@ const StyledTableCell = styled(TableCell)({
   borderBottom: '1px solid rgba(224, 224, 224, 1)'
 });
 
-const StyledChip = styled(Chip)(({ status }) => {
-  let backgroundColor = '#ff9800'; // Default orange for "Chưa đấu giá"
-  let color = '#fff';
-
-  if (status === 'bidding') {
-    backgroundColor = '#2196f3'; // Blue for "Đang đấu giá"
-  } else if (status === 'completed') {
-    backgroundColor = '#4caf50'; // Green for "Đã đấu giá thành công"
-  }
-
-  return {
-    fontWeight: 'bold',
-    minWidth: '120px',
-    color: color,
-    backgroundColor: backgroundColor,
-    borderRadius: '16px',
-    padding: '0 12px'
-  };
-});
+const StyledChip = styled(Chip)(({ theme, status }) => ({
+  fontWeight: 'bold',
+  minWidth: 120,
+  color: theme.palette.getContrastText(
+    status === 'ONGOING' ? theme.palette.warning.main :
+      status === 'FINISHED' ? theme.palette.success.main :
+        theme.palette.error.main
+  ),
+  backgroundColor:
+    status === 'ONGOING' ? theme.palette.warning.main :
+      status === 'FINISHED' ? theme.palette.success.main :
+        theme.palette.error.main
+}))
 
 const MyAssets = () => {
   const [openDialog, setOpenDialog] = useState(false);
@@ -74,7 +68,7 @@ const MyAssets = () => {
   const [priceFilter, setPriceFilter] = useState('');
   const [activeTab, setActiveTab] = useState(0);
   const { auth } = useAppStore();
-  const { data } = useFilterAssets({ vendorId: auth?.user?.id });
+  const { data, refetch } = useFilterAssets({ vendorId: auth?.user?.id });
   const assets = Array.isArray(data?.data) ? data.data : [];
 
   const handleViewDetails = () => {
@@ -120,11 +114,11 @@ const MyAssets = () => {
 
   const getStatusLabel = (status) => {
     switch (status) {
-      case '0':
+      case 'NOT_AUCTIONED':
         return 'Chưa đấu giá';
-      case 'bidding':
+      case 'ONGOING':
         return 'Đang đấu giá';
-      case 'completed':
+      case 'FINISHED':
         return 'Đã đấu giá thành công';
       default:
         return status;
@@ -134,9 +128,9 @@ const MyAssets = () => {
   const filteredAssets = useMemo(() => {
     return assets.filter(asset => {
       const matchesTab = activeTab === 0 ||
-        (activeTab === 1 && asset.status === 'completed') ||
-        (activeTab === 2 && asset.status === 'bidding') ||
-        (activeTab === 3 && asset.status === '0');
+        (activeTab === 1 && asset.status === 'FINISHED') ||
+        (activeTab === 2 && asset.status === 'ONGOING') ||
+        (activeTab === 3 && asset.status === 'NOT_AUCTIONED');
       const matchesSearch = asset.assetName.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesPrice = priceFilter === '' || asset.assetPrice <= parseInt(priceFilter);
       return matchesTab && matchesSearch && matchesPrice;
@@ -275,11 +269,11 @@ const MyAssets = () => {
       <AuctionCreationDialog
         open={isAuctionDialogOpen}
         onClose={handleCloseAuctionDialog}
-        onSubmit={handleCreateAuction}
         asset={selectedAsset}
+        refresh={refetch}
       />
 
-      <AssetsDetailsDialog
+      <AssetDetailDialog
         open={openDialog}
         onClose={handleCloseDialog}
         asset={selectedAsset}
