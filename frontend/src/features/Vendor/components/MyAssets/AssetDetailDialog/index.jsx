@@ -1,54 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Box, TextField, Typography, Grid, Paper, Modal, IconButton, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
-import { styled } from '@mui/system';
+import { Box, TextField, Typography, Grid, Modal, IconButton, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { FiMaximize2, FiX } from 'react-icons/fi';
+import { StyledPaper, ImageContainer, StyledImage, ModalImage, DescriptionContainer } from './style';
 
-const StyledPaper = styled(Paper)(({ theme }) => ({
-  padding: '1rem',
-  borderRadius: '8px',
-  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-  transition: 'transform 0.2s ease-in-out',
-  '&:hover': {
-    transform: 'translateY(-4px)',
-  },
-}));
-
-const ImageContainer = styled(Box)({
-  position: 'relative',
-  height: '100px',
-  borderRadius: '8px',
-  overflow: 'hidden',
-  cursor: 'pointer',
-  transition: 'transform 0.2s ease-in-out',
-  '&:hover': {
-    transform: 'scale(1.05)',
-  },
-});
-
-const StyledImage = styled('img')({
-  width: '100%',
-  height: '100%',
-  objectFit: 'cover',
-});
-
-const ModalImage = styled('img')({
-  maxWidth: '80vw',
-  maxHeight: '80vh',
-  objectFit: 'contain',
-});
-
-// Cập nhật phần mô tả có chiều cao động và có scroll khi cần
-const DescriptionContainer = styled(Box)(({ theme }) => ({
-  padding: '1rem',
-  border: '1px solid #ddd', // Đặt viền cho phần mô tả
-  borderRadius: '8px',
-  backgroundColor: '#f9f9f9', // Nền nhẹ nhàng
-  marginTop: '1rem',
-  whiteSpace: 'pre-line', // Giữ nguyên dòng mới nếu có
-  overflowY: 'auto', // Kích hoạt thanh cuộn khi nội dung vượt quá chiều cao
-}));
-
-const AssetsDetailsDialog = ({ open, onClose, asset }) => {
+const AssetDetailDialog = ({ open, onClose, asset }) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [initialValues, setInitialValues] = useState({
     assetName: 'Unknown Asset',
@@ -259,4 +214,4 @@ const AssetsDetailsDialog = ({ open, onClose, asset }) => {
   );
 };
 
-export default AssetsDetailsDialog;
+export default AssetDetailDialog;
