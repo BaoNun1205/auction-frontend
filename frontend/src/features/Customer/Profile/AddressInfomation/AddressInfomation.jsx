@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Typography,
@@ -10,6 +10,7 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import AppModal from '~/components/Modal/Modal';
 import AddressForm from '../components/AddressForm/AddressForm';
+import AddressUpdateForm from '../components/AddressForm/AddressUpdateForm';
 import {
   StyledPaper,
   AddressItem,
@@ -24,7 +25,9 @@ import { useGetAddressByUserId } from '~/hooks/addressHook';
 import { useAppStore } from '~/store/appStore';
 
 const AddressesInfomation = () => {
-  const { auth } = useAppStore()
+  const { auth } = useAppStore();
+  const [selectedAddress, setSelectedAddress] = useState(null);
+
   // Gọi hook để lấy dữ liệu địa chỉ của người dùng
   const { data: addresses, isLoading, isError, error, refetch } = useGetAddressByUserId(auth.user.id);
 
@@ -44,6 +47,11 @@ const AddressesInfomation = () => {
     );
   }
 
+  // Sắp xếp địa chỉ để các địa chỉ mặc định (isDefault = true) lên đầu
+  const sortedAddresses = addresses?.sort((a, b) => {
+    return b.isDefault ? 1 : a.isDefault ? -1 : 0;
+  });
+
   return (
     <StyledPaper elevation={0}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
@@ -61,13 +69,13 @@ const AddressesInfomation = () => {
           }
           maxWidth={600}
         >
-          <AddressForm refresh={refetch}/>
+          <AddressForm refresh={refetch} />
         </AppModal>
       </Box>
 
       <Box>
-        {addresses && addresses.length > 0 ? (
-          addresses.map((address) => (
+        {sortedAddresses && sortedAddresses.length > 0 ? (
+          sortedAddresses.map((address) => (
             <AddressItem key={address.addressId}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <Box>
@@ -94,7 +102,16 @@ const AddressesInfomation = () => {
                   </Stack>
                 </Box>
                 <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                  <StyledLink href="#">Cập nhật</StyledLink>
+                  {/* Open Modal for updating address */}
+                  <AppModal
+                    trigger={<button onClick={() => setSelectedAddress(address)}>Cập nhật</button>}
+                    maxWidth={600}
+                  >
+                    <AddressUpdateForm
+                      refresh={refetch}
+                      address={selectedAddress} // Pass the selected address for editing
+                    />
+                  </AppModal>
                   <StyledLink href="#">Xóa</StyledLink>
                   {!address.isDefault && (
                     <StyledOutlinedButton variant="outlined" size="small">
