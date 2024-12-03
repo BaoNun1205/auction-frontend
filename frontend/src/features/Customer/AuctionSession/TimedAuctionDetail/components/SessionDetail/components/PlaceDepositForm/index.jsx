@@ -1,11 +1,11 @@
-import React from 'react';
+import React from 'react'
 import {
   Box,
   Typography,
   Paper,
   Button,
   styled
-} from '@mui/material';
+} from '@mui/material'
 
 const StyledButton = styled(Button)(({ theme }) => ({
   backgroundColor: '#B7201B',
@@ -21,15 +21,15 @@ const StyledButton = styled(Button)(({ theme }) => ({
   fontSize: '16px',
   fontWeight: 'bold',
   textTransform: 'none'
-}));
+}))
 
 const PlaceDepositForm = ({ item, onSubmit }) => {
-  const depositAmount = item.depositAmount;
+  const depositAmount = item.depositAmount
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    onSubmit(depositAmount);
-  };
+    e.preventDefault()
+    onSubmit()
+  }
 
   return (
     <Box component="form" onSubmit={handleSubmit} sx={{ textAlign: 'center', p: 2 }}>
@@ -56,7 +56,7 @@ const PlaceDepositForm = ({ item, onSubmit }) => {
         Gửi
       </StyledButton>
     </Box>
-  );
-};
+  )
+}
 
-export default PlaceDepositForm;
+export default PlaceDepositForm
