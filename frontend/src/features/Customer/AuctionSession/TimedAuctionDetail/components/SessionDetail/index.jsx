@@ -32,6 +32,7 @@ import VendorInformation from '../VendorInfomation'
 import { connectWebSocket, disconnectWebSocket, sendMessage } from '~/service/webSocketService'
 import Countdown from 'react-countdown'
 import PlaceDepositForm from './components/PlaceDepositForm'
+import { useCreateDeposit } from '~/hooks/depositHook'
 
 const customTheme = createTheme({
   palette: {
@@ -52,6 +53,7 @@ const SessionDetail = ({ item }) => {
   const [totalAuctionHistory, setTotalAuctionHistory] = useState(item?.auctionSessionInfo?.totalAuctionHistory)
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
   const { mutate: createAuctionHistory } = useCreateAuctionHistory()
+  const { mutate: createDeposit } = useCreateDeposit();
   const { data: isDeposit, error: depositError, isLoading: depositLoading } = useCheckDeposit({ userId: auth.user.id, auctionSessionId: item.id })
 
   const placeholderImage = 'https://via.placeholder.com/150'
@@ -95,7 +97,7 @@ const SessionDetail = ({ item }) => {
     sendMessage(`/app/rt-auction/placeBid/${item.id}`, {})
   }
 
-  const handleSubmit = (bidPrice) => {
+  const handleSubmitPrice = (bidPrice) => {
     const auctionHistory = {
       auctionSessionId: item.id,
       userId: auth.user.id,
@@ -106,6 +108,24 @@ const SessionDetail = ({ item }) => {
       onSuccess: () => {
         handleBidPrice()
       },
+      onError: (error) => {
+        console.error('Error submitting auction history:', error)
+        setSnackbar({
+          open: true,
+          message: 'Error placing bid. Please try again.',
+          severity: 'error'
+        })
+      }
+    })
+  }
+
+  const handleSubmitDeposit = () => {
+    const depositAuction = {
+      auctionSessionId: item.id,
+      userId: auth.user.id,
+      depositPrice: item.depositAmount
+    }
+    createDeposit(depositAuction, {
       onError: (error) => {
         console.error('Error submitting auction history:', error)
         setSnackbar({
@@ -299,9 +319,9 @@ const SessionDetail = ({ item }) => {
                       }>
                         {auth.isAuth ? (
                           isDeposit === false ? (
-                            <PlaceDepositForm item={item} />
+                            <PlaceDepositForm item={item} onSubmit={handleSubmitDeposit} />
                           ) : (
-                            <PlaceBidForm item={item} onSubmit={handleSubmit} />
+                            <PlaceBidForm item={item} onSubmit={handleSubmitPrice} />
                           )
                         ) : (
                           <LoginForm />
