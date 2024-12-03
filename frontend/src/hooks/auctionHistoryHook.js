@@ -1,5 +1,5 @@
-import { useMutation } from '@tanstack/react-query';
-import { createAuctionHistory } from '~/api/auctionHistoryApi';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { checkDeposit, createAuctionHistory } from '~/api/auctionHistoryApi';
 
 export const useCreateAuctionHistory = () => {
   return useMutation({
@@ -9,6 +9,20 @@ export const useCreateAuctionHistory = () => {
     },
     onError: (error) => {
       console.error('Error creating auction history:', error);
+    },
+  });
+};
+
+export const useCheckDeposit = (payload) => {
+  return useQuery({
+    queryKey: ['checkDeposit', payload],
+    queryFn: () => checkDeposit(payload),
+    enabled: !!payload,
+    onSuccess: (data) => {
+      console.log('Deposit check result:', data);
+    },
+    onError: (error) => {
+      console.error('Error checking deposit:', error);
     },
   });
 };

@@ -314,7 +314,7 @@ const AuctionRequest = () => {
               {filteredRequirements.map((req) => (
                 <TableRow key={req.requirementId}>
                   <TableCell>{req.assetName}</TableCell>
-                  <TableCell>{`${req.assetPrice.toLocaleString('vi-VN')}`}₫</TableCell>
+                  <TableCell sx={{ color: 'red', fontWeight: 'bold' }}>{`${req.assetPrice.toLocaleString('vi-VN')}`} ₫</TableCell>
                   <TableCell>
                     <StyledChip
                       label={req.status === '0' ? 'Đang chờ duyệt' : req.status === '1' ? 'Đang xử lý' : 'Đã từ chối'}
