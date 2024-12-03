@@ -20,3 +20,18 @@ export const getRegisteredSession = async (id) => {
     handleApiError(error);
   }
 }
+
+export const updateUser = async (userId, payload) => {
+  try {
+    const response = await PUT({
+      url: `${USER_PATH}/${userId}`,
+      payload: payload,
+      headers: { 
+        'Content-Type': 'multipart/form-data' 
+      }
+    });
+    return response.data;
+  } catch (error) {
+    handleApiError(error);
+  }
+};

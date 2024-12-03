@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -16,17 +16,33 @@ import {
   Paper,
   Link,
   InputAdornment
-} from '@mui/material'
-import { styled } from '@mui/material/styles'
-import { useGetUserById } from '~/hooks/userHook'
-import { useAppStore } from '~/store/appStore'
+} from '@mui/material';
+import {
+  StyledBox,
+  StyledTextField,
+  StyledCheckbox,
+  StyledButton,
+  StyledTabs,
+  StyledPopover,
+  StyledListItem,
+} from './style';
+
+import { styled } from '@mui/material/styles';
+import { useGetUserById, useUpdateUser } from '~/hooks/userHook';
+import { useAppStore } from '~/store/appStore';
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
   maxWidth: 1200,
   margin: '0 auto',
-  marginTop: theme.spacing(4)
-}))
+  marginTop: theme.spacing(4),
+}));
+
+const StyledFormLabel = styled(FormLabel)(({ theme }) => ({
+  fontWeight: 'bold',
+  fontSize: '1rem',
+  color: theme.palette.text.primary,
+}));
 
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
@@ -37,83 +53,123 @@ const VisuallyHiddenInput = styled('input')({
   bottom: 0,
   left: 0,
   whiteSpace: 'nowrap',
-  width: 1
-})
+  width: 1,
+});
 
 const StyledSelect = styled(Select)(({ theme }) => ({
   bgcolor: theme.palette.primary.secondary,
   color: theme.palette.text.secondary,
   minWidth: 120,
   '& .MuiOutlinedInput-notchedOutline': {
-    borderColor: theme.palette.primary.border
+    borderColor: theme.palette.primary.border,
   },
   '&:hover .MuiOutlinedInput-notchedOutline': {
-    borderColor: theme.palette.primary.borderHover
+    borderColor: theme.palette.primary.borderHover,
   },
   '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-    borderColor: theme.palette.primary.borderFocus
-  }
-}))
+    borderColor: theme.palette.primary.borderFocus,
+  },
+}));
 
 const StyledFormControlLabel = styled(FormControlLabel)(({ theme }) => ({
   '& .MuiRadio-root': {
     '&.Mui-checked': {
-      color: '#b41712'
-    }
-  }
-}))
+      color: '#b41712',
+    },
+  },
+}));
 
 const maskEmail = (email) => {
-  if (!email) return ''
-  const [name, domain] = email.split('@')
-  const maskedName = name.slice(0, 2) + '*'.repeat(name.length - 2)
-  return `${maskedName}@${domain}`
-}
+  if (!email) return '';
+  const [name, domain] = email.split('@');
+  const maskedName = name.slice(0, 2) + '*'.repeat(name.length - 2);
+  return `${maskedName}@${domain}`;
+};
 
 const maskPhone = (phone) => {
-  if (!phone) return ''
-  return phone.slice(0, 2) + '*'.repeat(phone.length - 4) + phone.slice(-2)
-}
+  if (!phone) return '';
+  return phone.slice(0, 2) + '*'.repeat(phone.length - 4) + phone.slice(-2);
+};
 
 const CustomerInformation = () => {
-  const [gender, setGender] = useState('')
-  const [avatarUrl, setAvatarUrl] = useState('/placeholder.svg?height=180&width=180')
-  const [errorMessage, setErrorMessage] = useState('')
-  const { auth } = useAppStore()
-  const { data: user } = useGetUserById(auth?.user?.id)
+  const [gender, setGender] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('/placeholder.svg?height=180&width=180');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [dateOfBirth, setDateOfBirth] = useState({
+    day: '',
+    month: '',
+    year: '',
+  });
+  const [name, setName] = useState('');
+  const { auth } = useAppStore();
+  const { data: user } = useGetUserById(auth?.user?.id);
+
+  // Update user data hook
+  const { mutate: updateUser } = useUpdateUser();
+
+  // Set the gender, avatar, name, and date of birth values based on the API data
+  useEffect(() => {
+    if (user?.gender) {
+      setGender(user.gender);
+    }
+    if (user?.dateOfBirth) {
+      const [year, month, day] = user.dateOfBirth.split('-');
+      setDateOfBirth({ day, month, year });
+    }
+    if (user?.avatar) {
+      setAvatarUrl(user.avatar);
+    } else {
+      setAvatarUrl('/placeholder.svg?height=180&width=180');
+    }
+    if (user?.name) {
+      setName(user.name);  // Load user name into state
+    }
+  }, [user]);
 
   // Generate arrays for day, month, year options
-  const days = Array.from({ length: 31 }, (_, i) => i + 1)
-  const months = Array.from({ length: 12 }, (_, i) => i + 1)
-  const currentYear = new Date().getFullYear()
-  const years = Array.from({ length: 100 }, (_, i) => currentYear - i)
+  const days = Array.from({ length: 31 }, (_, i) => i + 1);
+  const months = Array.from({ length: 12 }, (_, i) => i + 1);
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 100 }, (_, i) => currentYear - i);
 
   const handleImageUpload = (event) => {
-    const file = event.target.files?.[0]
+    const file = event.target.files?.[0];
     if (file) {
       if (file.size > 1024 * 1024) {
-        setErrorMessage('Kích thước file vượt quá 1MB')
-        return
+        setErrorMessage('Kích thước file vượt quá 1MB');
+        return;
       }
       if (!['image/jpeg', 'image/png'].includes(file.type)) {
-        setErrorMessage('Chỉ chấp nhận file JPEG hoặc PNG')
-        return
+        setErrorMessage('Chỉ chấp nhận file JPEG hoặc PNG');
+        return;
       }
-      setErrorMessage('')
-      const reader = new FileReader()
+      setErrorMessage('');
+      const reader = new FileReader();
       reader.onload = (e) => {
-        setAvatarUrl(e.target.result)
-      }
-      reader.readAsDataURL(file)
+        setAvatarUrl(e.target.result);
+      };
+      reader.readAsDataURL(file);
     }
-  }
+  };
 
-  const StyledFormLabel = styled(FormLabel)(({ theme }) => ({
-    color: theme.palette.text.primary,
-    '&.Mui-focused': {
-      color: theme.palette.text.primary
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (name === 'name') {
+      setName(value);  // Update name when input changes
     }
-  }))
+  };
+
+  const handleSave = () => {
+    const payload = {
+      name,
+      gender,
+      dateOfBirth: `${dateOfBirth.year}-${dateOfBirth.month}-${dateOfBirth.day}`,
+      // avatar: avatarUrl,
+    };
+
+    // Call the updateUser function from the hook
+    updateUser({ userId: auth?.user?.id, payload });
+  };
 
   return (
     <StyledPaper elevation={0}>
@@ -135,16 +191,18 @@ const CustomerInformation = () => {
                   name="username"
                   value={user?.username}
                   InputLabelProps={{
-                    shrink: true
+                    shrink: true,
                   }}
                 />
               </Grid>
+
               <Grid item xs={12}>
-                <TextField
+                <StyledTextField
                   fullWidth
                   label="Họ và tên"
-                  variant="outlined"
-                  value={user?.name}
+                  value={name}  // Use 'name' state for editing
+                  onChange={handleChange}  // Handle change to update 'name'
+                  name="name"
                 />
               </Grid>
 
@@ -157,11 +215,11 @@ const CustomerInformation = () => {
                     readOnly: true,
                     endAdornment: (
                       <InputAdornment position="end">
-                        <Link underline='none' href='/' sx={{ ml: 1, color: '#b41712' }}>
+                        <Link underline="none" href="/" sx={{ ml: 1, color: '#b41712' }}>
                           Thay Đổi
                         </Link>
                       </InputAdornment>
-                    )
+                    ),
                   }}
                 />
               </Grid>
@@ -179,7 +237,7 @@ const CustomerInformation = () => {
                           Thay Đổi
                         </Link>
                       </InputAdornment>
-                    )
+                    ),
                   }}
                 />
               </Grid>
@@ -187,10 +245,14 @@ const CustomerInformation = () => {
               <Grid item xs={12}>
                 <FormControl component="fieldset">
                   <StyledFormLabel component="legend">Giới tính</StyledFormLabel>
-                  <RadioGroup row value={gender} onChange={(e) => setGender(e.target.value)}>
-                    <StyledFormControlLabel value="Nam" control={<Radio />} label="Nam" />
-                    <StyledFormControlLabel value="Nữ" control={<Radio />} label="Nữ" />
-                    <StyledFormControlLabel value="Khác" control={<Radio />} label="Khác" />
+                  <RadioGroup
+                    row
+                    value={gender}
+                    onChange={(e) => setGender(e.target.value)}
+                  >
+                    <StyledFormControlLabel value="MALE" control={<Radio />} label="Nam" />
+                    <StyledFormControlLabel value="FEMALE" control={<Radio />} label="Nữ" />
+                    <StyledFormControlLabel value="OTHER" control={<Radio />} label="Khác" />
                   </RadioGroup>
                 </FormControl>
               </Grid>
@@ -199,25 +261,40 @@ const CustomerInformation = () => {
                 <FormLabel component="legend">Ngày sinh</FormLabel>
                 <Grid container spacing={2} sx={{ mt: 1 }}>
                   <Grid item xs={4}>
-                    <StyledSelect fullWidth defaultValue="" displayEmpty>
+                    <StyledSelect
+                      fullWidth
+                      value={dateOfBirth.day}
+                      onChange={(e) => setDateOfBirth({ ...dateOfBirth, day: e.target.value })}
+                      displayEmpty
+                    >
                       <MenuItem value="" disabled>Ngày</MenuItem>
-                      {days.map(day => (
+                      {days.map((day) => (
                         <MenuItem key={day} value={day}>{day}</MenuItem>
                       ))}
                     </StyledSelect>
                   </Grid>
                   <Grid item xs={4}>
-                    <StyledSelect fullWidth defaultValue="" displayEmpty>
+                    <StyledSelect
+                      fullWidth
+                      value={dateOfBirth.month}
+                      onChange={(e) => setDateOfBirth({ ...dateOfBirth, month: e.target.value })}
+                      displayEmpty
+                    >
                       <MenuItem value="" disabled>Tháng</MenuItem>
-                      {months.map(month => (
+                      {months.map((month) => (
                         <MenuItem key={month} value={month}>{month}</MenuItem>
                       ))}
                     </StyledSelect>
                   </Grid>
                   <Grid item xs={4}>
-                    <StyledSelect fullWidth defaultValue="" displayEmpty>
+                    <StyledSelect
+                      fullWidth
+                      value={dateOfBirth.year}
+                      onChange={(e) => setDateOfBirth({ ...dateOfBirth, year: e.target.value })}
+                      displayEmpty
+                    >
                       <MenuItem value="" disabled>Năm</MenuItem>
-                      {years.map(year => (
+                      {years.map((year) => (
                         <MenuItem key={year} value={year}>{year}</MenuItem>
                       ))}
                     </StyledSelect>
@@ -230,10 +307,7 @@ const CustomerInformation = () => {
 
         <Grid item xs={12} md={4} sx={{ textAlign: 'center' }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-            <Avatar
-              sx={{ width: 180, height: 180 }}
-              src={avatarUrl}
-            />
+            <Avatar sx={{ width: 180, height: 180 }} src={avatarUrl} />
             <Button
               component="label"
               variant="outlined"
@@ -264,9 +338,10 @@ const CustomerInformation = () => {
                 color: 'white',
                 px: 4,
                 '&:hover': {
-                  bgcolor: '#8B0000'
-                }
+                  bgcolor: '#8B0000',
+                },
               }}
+              onClick={handleSave} // Trigger save on button click
             >
               Lưu
             </Button>
@@ -274,7 +349,7 @@ const CustomerInformation = () => {
         </Grid>
       </Grid>
     </StyledPaper>
-  )
-}
+  );
+};
 
-export default CustomerInformation
+export default CustomerInformation;

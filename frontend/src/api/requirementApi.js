@@ -90,3 +90,15 @@ export const rejectedRequirement = async (requirementId) => {
     handleApiError(error);
   }
 }
+
+export const updateRequirement = async (requirementId, payload) => {
+  try {
+    const response = await PUT({
+      url: `${REQUIREMENT_PATH}/${requirementId}`,
+      payload: payload, // The payload with updated data
+    });
+    return response.data; // Return the response data after update
+  } catch (error) {
+    handleApiError(error); // Handle any errors
+  }
+};
