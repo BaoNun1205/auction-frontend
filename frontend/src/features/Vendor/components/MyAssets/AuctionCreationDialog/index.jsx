@@ -82,9 +82,6 @@ const AuctionCreationDialog = ({ open, onClose, asset, refresh }) => {
   }, [asset]);
 
   const handleSubmit = (values, { setSubmitting }) => {
-    const adjustedStartTime = addHours(values.startTime, 7);
-    const adjustedEndTime = addHours(values.endTime, 7);
-
     const sessionData = {
       name: values.name,
       description: values.description,
@@ -94,8 +91,8 @@ const AuctionCreationDialog = ({ open, onClose, asset, refresh }) => {
       startingBids: values.startingBid,
       bidIncrement: values.bidIncrement,
       depositAmount: values.depositPrice,
-      startTime: adjustedStartTime.toISOString(),
-      endTime: adjustedEndTime.toISOString(),
+      startTime: values.startTime.toISOString(),
+      endTime: values.endTime.toISOString(),
     };
 
     createSession(sessionData, {
