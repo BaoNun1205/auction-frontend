@@ -1,6 +1,5 @@
 import { styled } from '@mui/material/styles';
 import { Button, Card, CardMedia } from '@mui/material';
-import { red } from '@mui/material/colors';
 
 export const StyledCardMedia = styled(CardMedia)(({ theme }) => ({
   transition: 'transform 0.3s ease-in-out',
@@ -17,3 +16,6 @@ export const StyledCard = styled(Card)(({ theme }) => ({
     boxShadow: theme.shadows[5],
   },
 }));
+
+export const primaryColor = '#b41712';
+

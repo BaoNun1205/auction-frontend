@@ -45,35 +45,37 @@ const StyledButton = styled(Button)(({ theme }) => ({
 const PlaceBidForm = ({ item, onSubmit }) => {
   const [bidPrice, setBidPrice] = useState('');
   const [error, setError] = useState('');
-  const depositRate = 0.23;
   const minBidIncrement = item.bidIncrement;
   const currentPrice = item?.auctionSessionInfo?.highestBid || 0;
   const minNextBid = currentPrice + minBidIncrement;
 
   useEffect(() => {
-    setBidPrice(minNextBid.toString());
+    setBidPrice(formatNumber(minNextBid.toString()));
   }, [minNextBid]);
 
+  const formatNumber = (value) => {
+    return value.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  };
+
   const handleBidPriceChange = (e) => {
-    const value = e.target.value;
+    const value = e.target.value.replace(/\./g, '');
     if (Number(value) < minNextBid) {
       setError(`Giá đặt phải lớn hơn hoặc bằng ${minNextBid.toLocaleString('vi-VN')} VND`);
     } else {
       setError('');
     }
-    setBidPrice(value);
+    setBidPrice(formatNumber(value));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (Number(bidPrice) < minNextBid) {
+    const numericBidPrice = Number(bidPrice.replace(/\./g, ''));
+    if (numericBidPrice < minNextBid) {
       setError(`Giá đặt phải lớn hơn hoặc bằng ${minNextBid.toLocaleString('vi-VN')} VND`);
       return;
     }
-    onSubmit(Number(bidPrice));
+    onSubmit(numericBidPrice);
   };
-
-  const deposit = Number(bidPrice) * depositRate;
 
   return (
     <Box component="form" onSubmit={handleSubmit} sx={{ textAlign: 'center', p: 2 }}>
@@ -81,7 +83,7 @@ const PlaceBidForm = ({ item, onSubmit }) => {
         Đặt giá
       </Typography>
       <Typography variant="body1" sx={{ mb: 3 }}>
-        Nhập số tiền bạn muốn đặt. Giá cọc là 23% giá trị sản phẩm.
+        Nhập số tiền bạn muốn đặt.
       </Typography>
       <Paper elevation={1} sx={{ p: 2, mb: 3 }}>
         <Typography variant="body2" sx={{ mb: 1, textAlign: 'left' }}>
@@ -93,7 +95,7 @@ const PlaceBidForm = ({ item, onSubmit }) => {
         <StyledTextField
           fullWidth
           label="Giá đặt"
-          type="number"
+          type="text"
           value={bidPrice}
           onChange={handleBidPriceChange}
           error={!!error}
@@ -103,14 +105,6 @@ const PlaceBidForm = ({ item, onSubmit }) => {
           }}
           sx={{ mb: 2 }}
         />
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-          <Typography>Giá cọc (23%)</Typography>
-          <Typography>{deposit.toLocaleString('vi-VN')} VND</Typography>
-        </Box>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
-          <Typography>Tổng cộng</Typography>
-          <Typography>{Number(bidPrice).toLocaleString('vi-VN')} VND</Typography>
-        </Box>
       </Paper>
       <StyledButton
         type="submit"
@@ -120,7 +114,7 @@ const PlaceBidForm = ({ item, onSubmit }) => {
           width: '100%',
           height: '50px'
         }}
-        disabled={Number(bidPrice) < minNextBid}
+        disabled={Number(bidPrice.replace(/\./g, '')) < minNextBid}
       >
         Gửi
       </StyledButton>
@@ -129,4 +123,3 @@ const PlaceBidForm = ({ item, onSubmit }) => {
 };
 
 export default PlaceBidForm;
-

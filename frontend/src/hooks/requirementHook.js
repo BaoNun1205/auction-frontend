@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getRequirement, getRequirementById, createRequirement, filteredRequirements, approvedRequirement, rejectedRequirement, getRequirementsByVendorId, deleteRequirementById } from '~/api/requirementApi'
+import { getRequirement, getRequirementById, createRequirement, filteredRequirements, approvedRequirement, rejectedRequirement, getRequirementsByVendorId, deleteRequirementById, updateRequirement } from '~/api/requirementApi'
 
 // Hook để lấy danh sách yêu cầu
 export const useGetRequirement = () => {
@@ -100,3 +100,19 @@ export const useRejectedRequirement = () => {
     }
   });
 }
+
+export const useupdateRequirement = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ requirementId, payload }) => updateRequirement(requirementId, payload), // Call the API with addressId and payload
+    onSuccess: (data) => {
+      console.log('Requirement updated successfully:', data);
+      // Invalidate queries to refetch the updated data
+      queryClient.invalidateQueries(['requirements']);
+    },
+    onError: (error) => {
+      console.error('Error updating requirement:', error);
+    }
+  });
+};

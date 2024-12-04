@@ -31,7 +31,7 @@ import CloseIcon from '@mui/icons-material/Close'
 import SearchIcon from '@mui/icons-material/Search'
 import FilterListIcon from '@mui/icons-material/FilterList'
 import 'react-quill/dist/quill.snow.css'
-import { useCreateRequirement, useDeleteRequirement, useRequirementsByVendorId } from '~/hooks/requirementHook'
+import { useCreateRequirement, useDeleteRequirement, useRequirementsByVendorId, useupdateRequirement } from '~/hooks/requirementHook'
 import { useAppStore } from '~/store/appStore'
 import RequirementFormContent from './RequirementFormContent'
 import { AnimatedButton, StyledChip, StyledPaper, StyledTableCell } from './style'
@@ -51,6 +51,7 @@ const AuctionRequest = () => {
   const [isCreating, setIsCreating] = useState(false)
   const { mutate: deleteRequirement } = useDeleteRequirement()
   const { mutate: createRequirement } = useCreateRequirement()
+  const { mutate: updateRequirement } = useupdateRequirement()
   const { auth } = useAppStore()
   const { data, refetch } = useRequirementsByVendorId(auth.user.id)
   const requirements = Array.isArray(data) ? data : []
@@ -96,7 +97,7 @@ const AuctionRequest = () => {
     formDataObj.append('assetName', formData.name)
     formDataObj.append('assetPrice', formData.startingPrice)
     formDataObj.append('assetDescription', formData.description)
-
+    formDataObj.append('status', "0")
     // Combine productImages and documentImages into a single array
     const allImages = [...formData.productImages, ...formData.documentImages]
 
@@ -110,9 +111,25 @@ const AuctionRequest = () => {
     try {
       if (currentRequirement) {
         // setRequirements(requirements.map(req =>
-        //   req.requirementId === currentRequirement.requirementId ? { ...formData, requirementId: req.requirementId } : req
+        //   req.requirementId === currentRequirement.requirementId ? { ...formData, status: "2" } : req
         // ));
-        setSnackbar({ open: true, message: 'Yêu cầu đã được cập nhật', severity: 'success' })
+        // setSnackbar({ open: true, message: 'Yêu cầu đã được cập nhật', severity: 'success' })
+
+        updateRequirement({ requirementId: currentRequirement.requirementId, payload: formDataObj }, {
+          onSuccess: (response) => {
+            console.log('Success:', response)
+            setSnackbar({ open: true, message: 'Yêu cầu đã được cập nhật', severity: 'success' })
+            refetch()
+          },
+          onError: (error) => {
+            console.error('Error:', error)
+            setSnackbar({ open: true, message: 'Có lỗi xảy ra khi cập nhật yêu cầu', severity: 'error' })
+          }
+        })
+
+        console.log(currentRequirement)
+
+
       } else {
         // setRequirements([...requirements, { ...formData, requirementId: Date.now() }]);
         createRequirement(formDataObj, {
@@ -297,7 +314,7 @@ const AuctionRequest = () => {
               {filteredRequirements.map((req) => (
                 <TableRow key={req.requirementId}>
                   <TableCell>{req.assetName}</TableCell>
-                  <TableCell>{`${req.assetPrice.toLocaleString('vi-VN')}`}₫</TableCell>
+                  <TableCell sx={{ color: 'red', fontWeight: 'bold' }}>{`${req.assetPrice.toLocaleString('vi-VN')}`} ₫</TableCell>
                   <TableCell>
                     <StyledChip
                       label={req.status === '0' ? 'Đang chờ duyệt' : req.status === '1' ? 'Đang xử lý' : 'Đã từ chối'}

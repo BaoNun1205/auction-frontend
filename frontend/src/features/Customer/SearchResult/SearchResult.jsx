@@ -276,7 +276,7 @@ export default function SearchResults() {
                     />
                     <StyledCardMedia
                       image={session.asset.mainImage}
-                      title={session.asset.assetName}
+                      title={session.name}
                     />
                     <CardContent sx={{ flexGrow: 1 }}>
                       <Typography 
@@ -292,7 +292,7 @@ export default function SearchResults() {
                           WebkitBoxOrient: 'vertical',
                         }}
                       >
-                        {session.asset.assetName}
+                        {session.name}
                       </Typography>
                       <Typography variant="body2" color="error" sx={{ fontWeight: 'bold' }}>
                         Giá khởi điểm: {session.startingBids.toLocaleString('vi-VN')} ₫
