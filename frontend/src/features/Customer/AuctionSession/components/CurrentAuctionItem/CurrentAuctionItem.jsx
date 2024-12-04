@@ -48,11 +48,11 @@ export default function Component({ items = [] }) {
                 <StyledCardMedia
                   component="img"
                   alt={item.name}
-                  image={item.asset.imageUrl || '/placeholder.svg?height=250&width=250'}
+                  image={item.asset.mainImage || '/placeholder.svg?height=250&width=250'}
                 />
                 <StyledCardContent>
                   <TruncatedTypography variant="h6" component="div" textAlign="center" fontWeight="bold" mb={2}>
-                    {item.asset.assetName}
+                    {item.name}
                   </TruncatedTypography>
                   <Typography variant="body2" color="error" sx={{ fontWeight: 'bold' }}>
                     Giá khởi điểm: {item.startingBids.toLocaleString('vi-VN')} ₫

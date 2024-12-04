@@ -48,7 +48,7 @@ const validationSchema = Yup.object().shape({
     .max(Yup.ref('startingBid'), 'Giá cọc không được lớn hơn giá khởi điểm'),
 });
 
-const AuctionCreationDialog = ({ open, onClose, asset, refresh }) => {
+const Reauction = ({ open, onClose, asset, refresh }) => {
   const { mutate: createSession } = useCreateSession();
 
   const [initialValues, setInitialValues] = useState({
@@ -82,8 +82,6 @@ const AuctionCreationDialog = ({ open, onClose, asset, refresh }) => {
   }, [asset]);
 
   const handleSubmit = (values, { setSubmitting }) => {
-    const adjustedStartTime = addHours(values.startTime, 7);
-    const adjustedEndTime = addHours(values.endTime, 7);
 
     const sessionData = {
       name: values.name,
@@ -94,8 +92,8 @@ const AuctionCreationDialog = ({ open, onClose, asset, refresh }) => {
       startingBids: values.startingBid,
       bidIncrement: values.bidIncrement,
       depositAmount: values.depositPrice,
-      startTime: adjustedStartTime.toISOString(),
-      endTime: adjustedEndTime.toISOString(),
+      startTime: values.startTime.toISOString(),
+      endTime: values.endTime.toISOString(),
     };
 
     createSession(sessionData, {
@@ -308,4 +306,4 @@ const AuctionCreationDialog = ({ open, onClose, asset, refresh }) => {
   );
 };
 
-export default AuctionCreationDialog;
+export default Reauction;

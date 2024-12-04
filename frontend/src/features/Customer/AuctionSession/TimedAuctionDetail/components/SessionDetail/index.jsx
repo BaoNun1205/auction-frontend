@@ -42,7 +42,7 @@ const customTheme = createTheme({
   }
 })
 
-const SessionDetail = ({ item }) => {
+const SessionDetail = ({ item, refresh }) => {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const { auth } = useAppStore()
@@ -54,7 +54,7 @@ const SessionDetail = ({ item }) => {
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
   const { mutate: createAuctionHistory } = useCreateAuctionHistory()
   const { mutate: createDeposit } = useCreateDeposit();
-  const { data: isDeposit, error: depositError, isLoading: depositLoading } = useCheckDeposit({ userId: auth.user.id, auctionSessionId: item.id })
+  const { data: isDeposit, refetch: refetchIsDeposit, error: depositError, isLoading: depositLoading } = useCheckDeposit({ userId: auth.user.id, auctionSessionId: item.id })
 
   const placeholderImage = 'https://via.placeholder.com/150'
 
@@ -107,6 +107,7 @@ const SessionDetail = ({ item }) => {
     createAuctionHistory(auctionHistory, {
       onSuccess: () => {
         handleBidPrice()
+        refresh()
       },
       onError: (error) => {
         console.error('Error submitting auction history:', error)
@@ -126,6 +127,9 @@ const SessionDetail = ({ item }) => {
       depositPrice: item.depositAmount
     }
     createDeposit(depositAuction, {
+      onSuccess: () => {
+        refetchIsDeposit()
+      },
       onError: (error) => {
         console.error('Error submitting auction history:', error)
         setSnackbar({
@@ -157,18 +161,21 @@ const SessionDetail = ({ item }) => {
   }
 
   const renderWinnerSection = () => {
-    if (item.status !== 'FINISHED') return null
+    if (item.status !== 'AUCTION_SUCCESS' && item.status !== 'AUCTION_FAILED') return null
 
     return (
       <Fade in={true} style={{ transitionDelay: '700ms' }}>
         <Paper elevation={3} sx={{ p: 4, mt: 3, bgcolor: theme.palette.background.paper, borderRadius: 2 }}>
           <Box display="flex" alignItems="center" justifyContent="center" flexDirection="column">
-            {/* <EmojiEvents sx={{ fontSize: 80, color: theme.palette.warning.main, mb: 2 }} /> */}
-            <Typography variant="h5" gutterBottom align="center" sx={{ fontWeight: 'bold' }}>
-              Người Thắng Cuộc
-            </Typography>
-            {item.auctionSessionInfo.user ? (
+            {item.status === 'AUCTION_FAILED' ? (
+              <Typography variant="h6" color="error" align="center">
+                Chưa có người đấu giá
+              </Typography>
+            ) : (
               <>
+                <Typography variant="h5" gutterBottom align="center" sx={{ fontWeight: 'bold' }}>
+                  Người Thắng Cuộc
+                </Typography>
                 <Avatar
                   src={item.auctionSessionInfo.user.avatar || placeholderImage}
                   alt="Winner Avatar"
@@ -198,10 +205,6 @@ const SessionDetail = ({ item }) => {
                   </Grid>
                 </Grid>
               </>
-            ) : (
-              <Typography variant="h6" color="error" align="center">
-                Chưa có người đấu giá
-              </Typography>
             )}
           </Box>
         </Paper>
