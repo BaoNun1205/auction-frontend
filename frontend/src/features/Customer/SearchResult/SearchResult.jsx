@@ -36,7 +36,7 @@ export default function SearchResults() {
     all: true,
     upcoming: false,
     ongoing: false,
-    finished: false,
+    auction_success: false,
   });
   const [sortOrder, setSortOrder] = useState('new');
   const [expandedCategory, setExpandedCategory] = useState('');
@@ -70,7 +70,7 @@ export default function SearchResults() {
   }
 
   const categories = categoryData.data;
-  const sessions = sessionData.data;
+  const sessions = sessionData.data.filter(session => session.status !== 'AUCTION_FAILED');
   const totalResults = sessionData.total;
 
   const handleFilterChange = (event) => {
@@ -80,7 +80,7 @@ export default function SearchResults() {
         all: true,
         upcoming: false,
         ongoing: false,
-        finished: false,
+        auction_success: false,
       });
       setStatus('');
     } else {
@@ -89,7 +89,7 @@ export default function SearchResults() {
         if (checked) {
           newFilters.all = false;
           setStatus(name.toUpperCase());
-        } else if (!newFilters.upcoming && !newFilters.ongoing && !newFilters.finished) {
+        } else if (!newFilters.upcoming && !newFilters.ongoing && !newFilters.auction_success) {
           newFilters.all = true;
           setStatus('');
         }
@@ -119,7 +119,7 @@ export default function SearchResults() {
     if (filters.all) return true;
     if (filters.upcoming && session.status === 'UPCOMING') return true;
     if (filters.ongoing && session.status === 'ONGOING') return true;
-    if (filters.finished && session.status === 'FINISHED') return true;
+    if (filters.auction_success && session.status === 'AUCTION_SUCCESS') return true;
     return false;
   });
 
@@ -149,10 +149,23 @@ export default function SearchResults() {
         return 'Sắp diễn ra';
       case 'ONGOING':
         return 'Đang diễn ra';
-      case 'FINISHED':
-        return 'Đã kết thúc';
+      case 'AUCTION_SUCCESS':
+        return 'Đấu giá thành công';
       default:
         return '';
+    }
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'UPCOMING':
+        return 'info';
+      case 'ONGOING':
+        return 'warning';
+      case 'AUCTION_SUCCESS':
+        return 'success';
+      default:
+        return 'default';
     }
   };
 
@@ -235,12 +248,12 @@ export default function SearchResults() {
             <FormControlLabel
               control={
                 <Checkbox 
-                  checked={filters.finished}
+                  checked={filters.auction_success}
                   onChange={handleFilterChange}
-                  name="finished"
+                  name="auction_success"
                 />
               }
-              label="Đã kết thúc"
+              label="Đấu giá thành công"
             />
           </FormGroup>
         </Grid>
@@ -270,9 +283,9 @@ export default function SearchResults() {
                     transition={{ type: "spring", stiffness: 300 }}
                     onClick={() => handleCardClick(session)}
                   >
-                    <StatusChip 
+                    <StatusChip
                       label={getStatusLabel(session.status)}
-                      status={session.status}
+                      color={getStatusColor(session.status)}
                     />
                     <StyledCardMedia
                       image={session.asset.mainImage}

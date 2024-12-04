@@ -109,7 +109,7 @@ const AuctionRegisteredItem = ({ auctionName, imgSrc, startTime, endTime, starti
           <Box sx={{ display: 'flex', flexWrap: 'wrap', mb: 2 }}>
             <InfoChip icon={<CalendarToday />} label={`Bắt đầu: ${new Date(startTime).toLocaleString('vi-VN')}`} />
             <InfoChip icon={<HourglassEmpty />} label={`Kết thúc: ${new Date(endTime).toLocaleString('vi-VN')}`} />
-            <InfoChip icon={<People />} label={`Số người đăng ký: ${registrants}`} color="secondary" />
+            <InfoChip icon={<People />} label={`Số người đăng ký: ${registrants}`}/>
             <InfoChip icon={<MonetizationOn />} label={`Giá khởi điểm: ${startingPrice.toLocaleString('vi-VN')} VNĐ`} color="primary" />
           </Box>
         </CardContent>

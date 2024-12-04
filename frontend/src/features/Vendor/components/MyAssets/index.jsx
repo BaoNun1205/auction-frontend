@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo } from 'react';
 import {
   Box,
   Typography,
@@ -20,122 +20,126 @@ import {
   Select,
   Tabs,
   Tab
-} from '@mui/material'
-import { styled } from '@mui/material/styles'
-import MoreVertIcon from '@mui/icons-material/MoreVert'
-import SearchIcon from '@mui/icons-material/Search'
-import FilterListIcon from '@mui/icons-material/FilterList'
-import { useFilterAssets } from '~/hooks/assetHook'
-import { useAppStore } from '~/store/appStore'
-import AuctionCreationDialog from './AuctionCreationDialog'
-import { StyledSpan } from '~/features/style'
-import AssetDetailDialog from './AssetDetailDialog'
+} from '@mui/material';
+import { styled } from '@mui/material/styles';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import SearchIcon from '@mui/icons-material/Search';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import { useFilterAssets } from '~/hooks/assetHook';
+import { useAppStore } from '~/store/appStore';
+import AuctionCreationDialog from './AuctionCreationDialog';
+import { StyledSpan } from '~/features/style';
+import AssetDetailDialog from './AssetDetailDialog';
 
 const StyledPaper = styled(Paper)({
   padding: '24px',
   marginBottom: '24px',
   borderRadius: '4px',
   boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)'
-})
+});
 
 const StyledTableCell = styled(TableCell)({
   fontWeight: 'bold',
   color: '#1a1a1a',
   borderBottom: '1px solid rgba(224, 224, 224, 1)'
-})
+});
 
 const StyledChip = styled(Chip)(({ theme, status }) => ({
   fontWeight: 'bold',
   minWidth: 120,
   color: theme.palette.getContrastText(
     status === 'ONGOING' ? theme.palette.warning.main :
-      status === 'FINISHED' ? theme.palette.success.main :
-        theme.palette.error.main
+      status === 'AUCTION_SUCCESS' ? theme.palette.success.main :
+        status === 'AUCTION_FAILED' ? theme.palette.error.main :
+          theme.palette.info.main
   ),
   backgroundColor:
     status === 'ONGOING' ? theme.palette.warning.main :
-      status === 'FINISHED' ? theme.palette.success.main :
-        theme.palette.error.main
-}))
+      status === 'AUCTION_SUCCESS' ? theme.palette.success.main :
+        status === 'AUCTION_FAILED' ? theme.palette.error.main :
+          theme.palette.info.main
+}));
 
 const MyAssets = () => {
-  const [openDialog, setOpenDialog] = useState(false)
-  const [isAuctionDialogOpen, setIsAuctionDialogOpen] = useState(false)
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
-  const [anchorEl, setAnchorEl] = useState(null)
-  const [selectedAsset, setSelectedAsset] = useState(null)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [priceFilter, setPriceFilter] = useState('')
-  const [activeTab, setActiveTab] = useState(0)
-  const { auth } = useAppStore()
-  const { data, refetch } = useFilterAssets({ vendorId: auth?.user?.id })
-  const assets = Array.isArray(data?.data) ? data.data : []
+  const [openDialog, setOpenDialog] = useState(false);
+  const [isAuctionDialogOpen, setIsAuctionDialogOpen] = useState(false);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedAsset, setSelectedAsset] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [priceFilter, setPriceFilter] = useState('');
+  const [activeTab, setActiveTab] = useState(0);
+  const { auth } = useAppStore();
+  const { data, refetch } = useFilterAssets({ vendorId: auth?.user?.id });
+  const assets = Array.isArray(data?.data) ? data.data : [];
 
   const handleViewDetails = () => {
-    setOpenDialog(true)
-    handleMenuClose()
-  }
+    setOpenDialog(true);
+    handleMenuClose();
+  };
 
   const handleCloseDialog = () => {
-    setOpenDialog(false)
-  }
+    setOpenDialog(false);
+  };
 
   const handleOpenAuctionDialog = () => {
-    setIsAuctionDialogOpen(true)
-  }
+    setIsAuctionDialogOpen(true);
+  };
 
   const handleCloseAuctionDialog = () => {
-    setIsAuctionDialogOpen(false)
-  }
+    setIsAuctionDialogOpen(false);
+  };
 
   const handleCreateAuction = (auctionData) => {
     // Handle the creation of the auction with the provided data
-    console.log('Creating auction:', auctionData)
+    console.log('Creating auction:', auctionData);
     // You would typically send this data to your backend API
-    setSnackbar({ open: true, message: 'Phiên đấu giá đã được tạo', severity: 'success' })
-  }
+    setSnackbar({ open: true, message: 'Phiên đấu giá đã được tạo', severity: 'success' });
+  };
 
   const handleCloseSnackbar = (event, reason) => {
     if (reason === 'clickaway') {
-      return
+      return;
     }
-    setSnackbar({ ...snackbar, open: false })
-  }
+    setSnackbar({ ...snackbar, open: false });
+  };
 
   const handleMenuOpen = (event, asset) => {
-    setAnchorEl(event.currentTarget)
-    setSelectedAsset(asset)
-  }
+    setAnchorEl(event.currentTarget);
+    setSelectedAsset(asset);
+  };
 
   const handleMenuClose = () => {
-    setAnchorEl(null)
-    setSelectedAsset(null)
-  }
+    setAnchorEl(null);
+    setSelectedAsset(null);
+  };
 
   const getStatusLabel = (status) => {
     switch (status) {
-    case 'NOT_AUCTIONED':
-      return 'Chưa đấu giá'
-    case 'ONGOING':
-      return 'Đang đấu giá'
-    case 'FINISHED':
-      return 'Đã đấu giá thành công'
-    default:
-      return status
+      case 'NOT_AUCTIONED':
+        return 'Chưa đấu giá';
+      case 'ONGOING':
+        return 'Đang đấu giá';
+      case 'AUCTION_SUCCESS':
+        return 'Đã đấu giá thành công';
+      case 'AUCTION_FAILED':
+        return 'Đấu giá thất bại';
+      default:
+        return status;
     }
-  }
+  };
 
   const filteredAssets = useMemo(() => {
     return assets.filter(asset => {
       const matchesTab = activeTab === 0 ||
-        (activeTab === 1 && asset.status === 'FINISHED') ||
+        (activeTab === 1 && asset.status === 'AUCTION_SUCCESS') ||
         (activeTab === 2 && asset.status === 'ONGOING') ||
-        (activeTab === 3 && asset.status === 'NOT_AUCTIONED')
-      const matchesSearch = asset.assetName.toLowerCase().includes(searchTerm.toLowerCase())
-      const matchesPrice = priceFilter === '' || asset.assetPrice <= parseInt(priceFilter)
-      return matchesTab && matchesSearch && matchesPrice
-    })
-  }, [assets, activeTab, searchTerm, priceFilter])
+        (activeTab === 3 && asset.status === 'NOT_AUCTIONED');
+      const matchesSearch = asset.assetName.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesPrice = priceFilter === '' || asset.assetPrice <= parseInt(priceFilter);
+      return matchesTab && matchesSearch && matchesPrice;
+    });
+  }, [assets, activeTab, searchTerm, priceFilter]);
 
   return (
     <Box sx={{ maxWidth: 1200, margin: 'auto', padding: 3 }}>
@@ -253,7 +257,7 @@ const MyAssets = () => {
         <MenuItem onClick={handleViewDetails}>
           Xem chi tiết
         </MenuItem>
-        {selectedAsset?.status === 'FINISHED' && (
+        {selectedAsset?.status === 'AUCTION_SUCCESS' && (
           <MenuItem onClick={handleMenuClose}>
             Xóa
           </MenuItem>
@@ -287,7 +291,7 @@ const MyAssets = () => {
         </Alert>
       </Snackbar>
     </Box>
-  )
-}
+  );
+};
 
-export default MyAssets
+export default MyAssets;

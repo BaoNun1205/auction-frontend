@@ -31,6 +31,7 @@ import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { useFilterSessions } from '~/hooks/sessionHook';
 import { useAppStore } from '~/store/appStore';
+import Reauction from './Reauction';
 
 const primaryColor = '#b41712';
 
@@ -46,6 +47,7 @@ const AuctionSessions = () => {
   const [priceFilter, setPriceFilter] = useState('');
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
+  const [isReauctionDialogOpen, setReauctionDialogOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedSession, setSelectedSession] = useState(null);
   const { auth } = useAppStore();
@@ -70,7 +72,8 @@ const AuctionSessions = () => {
       const matchesTab = activeTab === 0 ||
         (activeTab === 1 && session.status === 'ONGOING') ||
         (activeTab === 2 && session.status === 'UPCOMING') ||
-        (activeTab === 3 && session.status === 'FINISHED');
+        (activeTab === 3 && session.status === 'AUCTION_SUCCESS') ||
+        (activeTab === 4 && session.status === 'AUCTION_FAILED');
       const matchesPrice = !priceFilter || session.startingBids <= parseInt(priceFilter);
       const matchesDateRange = (!startDate || new Date(session.startTime) >= startDate) &&
         (!endDate || new Date(session.endTime) <= endDate);
@@ -82,10 +85,12 @@ const AuctionSessions = () => {
   const getStatusColor = (status) => {
     switch (status) {
       case 'ONGOING':
-        return 'success';
-      case 'UPCOMING':
         return 'warning';
-      case 'FINISHED':
+      case 'UPCOMING':
+        return 'info';
+      case 'AUCTION_SUCCESS':
+        return 'success';
+      case 'AUCTION_FAILED':
         return 'error';
       default:
         return 'default';
@@ -98,8 +103,10 @@ const AuctionSessions = () => {
         return 'Đang diễn ra';
       case 'UPCOMING':
         return 'Sắp diễn ra';
-      case 'FINISHED':
-        return 'Đã kết thúc';
+      case 'AUCTION_SUCCESS':
+        return 'Đấu giá thành công';
+      case 'AUCTION_FAILED':
+        return 'Đấu giá thất bại';
       default:
         return 'Không xác định';
     }
@@ -115,18 +122,21 @@ const AuctionSessions = () => {
     setSelectedSession(null);
   };
 
+  const handleOpenAuctionDialog = () => {
+  setReauctionDialogOpen(true);
+};
+
+const handleCloseAuctionDialog = () => {
+  setReauctionDialogOpen(false);
+};
+
   const handleViewDetails = () => {
     console.log('View details for session:', selectedSession);
     handleMenuClose();
   };
 
-  const handleEdit = () => {
-    console.log('Edit session:', selectedSession);
-    handleMenuClose();
-  };
-
-  const handleDelete = () => {
-    console.log('Delete session:', selectedSession);
+  const handleReauction = () => {
+    console.log('Reauction session:', selectedSession);
     handleMenuClose();
   };
 
@@ -164,7 +174,8 @@ const AuctionSessions = () => {
             <Tab label="TẤT CẢ" />
             <Tab label="ĐANG DIỄN RA" />
             <Tab label="SẮP DIỄN RA" />
-            <Tab label="ĐÃ KẾT THÚC" />
+            <Tab label="ĐẤU GIÁ THÀNH CÔNG" />
+            <Tab label="ĐẤU GIÁ THẤT BẠI" />
           </Tabs>
 
           <Box sx={{ p: 3 }}>
@@ -217,12 +228,12 @@ const AuctionSessions = () => {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell>Tên phiên đấu giá</TableCell>
-                    <TableCell>Thời gian bắt đầu</TableCell>
-                    <TableCell>Thời gian kết thúc</TableCell>
-                    <TableCell>Giá khởi điểm</TableCell>
-                    <TableCell>Trạng thái</TableCell>
-                    <TableCell align="center">Hành động</TableCell>
+                    <StyledTableCell>Tên phiên đấu giá</StyledTableCell>
+                    <StyledTableCell>Thời gian bắt đầu</StyledTableCell>
+                    <StyledTableCell>Thời gian kết thúc</StyledTableCell>
+                    <StyledTableCell>Giá khởi điểm</StyledTableCell>
+                    <StyledTableCell>Trạng thái</StyledTableCell>
+                    <StyledTableCell align="center">Hành động</StyledTableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -268,16 +279,21 @@ const AuctionSessions = () => {
           open={Boolean(anchorEl)}
           onClose={handleMenuClose}
         >
-          {selectedSession && (selectedSession.status === 'ONGOING' || selectedSession.status === 'UPCOMING') && (
-            <MenuItem onClick={handleViewDetails}>Xem chi tiết</MenuItem>
-          )}
-          {selectedSession && (selectedSession.status === 'ONGOING' || selectedSession.status === 'UPCOMING') && (
-            <MenuItem onClick={handleEdit}>Chỉnh sửa</MenuItem>
-          )}
-          {selectedSession && selectedSession.status === 'FINISHED' && (
-            <MenuItem onClick={handleDelete}>Xóa</MenuItem>
+          <MenuItem onClick={handleViewDetails}>Xem chi tiết</MenuItem>
+          {selectedSession?.status === 'AUCTION_FAILED' && (
+            <MenuItem onClick={() => {
+              handleOpenAuctionDialog()
+              handleMenuClose()
+            }}>Đấu giá lại</MenuItem>
           )}
         </Menu>
+
+        {/* <Reauction
+          open={isReauctionDialogOpen}
+          onClose={handleCloseAuctionDialog}
+          asset={selectedSession}
+          refresh={refetch}
+        /> */}
       </Box>
     </LocalizationProvider>
   );
