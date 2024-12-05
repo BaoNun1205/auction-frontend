@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Box, Button, Table, TableBody, TableCell, TableRow, Popover, CircularProgress, Typography, MenuItem as MuiMenuItem } from '@mui/material'
 import { Eye, SlidersHorizontal, Download, Trash2 } from 'lucide-react'
 import SelectComponent from '~/components/SelectComponent/SelectComponent'
@@ -32,13 +32,22 @@ const SessionList = () => {
   const [selectedItems, setSelectedItems] = useState([])
   const [showDeleteButton, setShowDeleteButton] = useState(false)
   const [status, setStatus] = useState('')
-  const [fromDate, setFromDate] = useState(null)
-  const [toDate, setToDate] = useState(null)
-  const [keyword, setKeyword] = useState('')
+  const [fromDate, setFromDate] = useState('2022-12-01')
+  const [toDate, setToDate] = useState('2025-12-31')
+  const [keyword, setKeyword] = useState()
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
   const [anchorEl, setAnchorEl] = useState(null)
   const navigate = useNavigate()
+
+  const publishMenuItems = [
+    { value: 'NOT_AUCTIONED', label: 'Chưa đấu giá' },
+    { value: 'ONGOING', label: 'Đang đấu giá' },
+    { value: 'AUCTION_SUCCESS', label: 'Đấu giá thành công' },
+    { value: 'AUCTION_FAILED', label: 'Đấu giá thất bại' }
+  ]
+  
+
 
   const handleOpenPopover = (event) => {
     setAnchorEl(event.currentTarget)
@@ -48,7 +57,7 @@ const SessionList = () => {
     setAnchorEl(null)
   }
 
-  const { data, error, isLoading, refetch } = useFilterSessions(status, fromDate, toDate, keyword, page, rowsPerPage)
+  const { data, error, isLoading, refetch } = useFilterSessions({ status, keyword })
   const items = Array.isArray(data?.data) ? data.data : []
 
   const handlePageChange = (newPage) => {
@@ -83,13 +92,17 @@ const SessionList = () => {
     console.log('Deleting selected auction sessions:', selectedItems)
   }
 
-  const publishMenuItems = [
-    { value: '0', label: 'Not Appoved' },
-    { value: '1', label: 'Approved' },
-    { value: '2', label: 'Rejected' }
-  ]
+  const columnNames = ['Tên phiên', 'Ngày bắt đầu', 'Ngày kết thúc', 'Giá khởi điểm', 'Bước nhảy', 'Trạng thái']
 
-  const columnNames = ['Name', 'Start Time', 'End Time', 'Start Bid', 'Increment', 'Status']
+  console.log('Selected status:', status)
+console.log('Fetched sessions:', data)
+
+useEffect(() => {
+  refetch(); // Trigger refetch when status changes
+}, [status, page])
+
+console.log('Payload:', { status, fromDate, toDate, keyword, page, rowsPerPage });
+
 
   return (
     <StyledContainer>
@@ -108,7 +121,10 @@ const SessionList = () => {
             <Box sx={{ display: 'flex', gap: 2 }}>
               <SelectComponent
                 value={status}
-                onChange={(event) => setStatus(event.target.value)}
+                onChange={(event) => {
+                  setStatus(event.target.value)
+                  setPage(0) // Reset về trang đầu tiên khi thay đổi bộ lọc
+                }}
                 defaultValue=""
                 displayEmpty
                 menuItems={publishMenuItems}
@@ -188,11 +204,11 @@ const SessionList = () => {
                             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                               <Box
                                 component="img"
-                                src={item.image}
+                                src={item.asset.mainImage}
                                 sx={{ width: 48, height: 48, borderRadius: 1, mr: 2 }}
                               />
                               <Box>
-                                <StyledSpan>{item.auctionSessionId}</StyledSpan>
+                                <StyledSpan>{item.name}</StyledSpan>
                               </Box>
                             </Box>
                           </TableCell>
@@ -211,27 +227,37 @@ const SessionList = () => {
                             <StyledSpan>${item.bidIncrement.toFixed(2)}</StyledSpan>
                           </TableCell>
                           <TableCell>
-                            <StyledStatusBox
-                              sx={(theme) => {
-                                if (item.status === '1') {
+                          <StyledStatusBox
+                              sx={() => {
+                                if (item.status === 'NOT_AUCTIONED') {
                                   return {
-                                    bgcolor: theme.palette.success.main,
-                                    color: theme.palette.success.contrastText
+                                    bgcolor: '#B0BEC5',  // Gray for inactive state (light gray)
+                                    color: '#000000'  // Black text
                                   }
-                                } else if (item.status === '2') {
+                                } else if (item.status === 'ONGOING') {
                                   return {
-                                    bgcolor: theme.palette.error.main,
-                                    color: theme.palette.error.contrastText
+                                    bgcolor: '#1E88E5',  // Blue for ongoing state
+                                    color: '#ffffff'  // White text
                                   }
-                                } else {
+                                } else if (item.status === 'AUCTION_FAILED') {
                                   return {
-                                    bgcolor: theme.palette.warning.main,
-                                    color: theme.palette.warning.contrastText
+                                    bgcolor: '#F44336',  // Red for failed auction
+                                    color: '#ffffff'  // White text
                                   }
+                                }
+                                return {
+                                  bgcolor: '#00C853',  // Green for successful auction
+                                  color: '#ffffff'  // White text
                                 }
                               }}
                             >
-                              {item.status === '1' ? 'Approved' : item.status === '2' ? 'Reject' : 'Not Approved'}
+                              {item.status === 'NOT_AUCTIONED'
+                                ? 'Chưa đấu giá'
+                                : item.status === 'ONGOING'
+                                  ? 'Đang đấu giá'
+                                  : item.status === 'AUCTION_SUCCESS'
+                                    ? 'Đấu giá thành công'
+                                    : 'Đấu giá thất bại'}
                             </StyledStatusBox>
                           </TableCell>
                           <TableCell>

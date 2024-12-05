@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Box, Button, Table, TableBody, TableCell, TableRow, CircularProgress, Typography, Popover, MenuItem as MuiMenuItem } from '@mui/material'
 import { Eye, SlidersHorizontal, Download, MoreVertical, Trash2 } from 'lucide-react'
 import SelectComponent from '~/components/SelectComponent/SelectComponent'
@@ -64,6 +64,7 @@ const AssetList = () => {
     size
   }
 
+
   const { data, error, isLoading, refetch } = useFilterAssets(payload)
   const assets = Array.isArray(data?.data) ? data.data : []
 
@@ -113,20 +114,26 @@ const AssetList = () => {
   ]
 
   const publishMenuItems = [
-    { value: 'published', label: 'Published' },
-    { value: 'draft', label: 'Draft' }
+    { value: 'NOT_AUCTIONED', label: 'Chưa đấu giá' },
+    { value: 'ONGOING', label: 'Đang đấu giá' },
+    { value: 'AUCTION_SUCCESS', label: 'Đấu giá thành công' },
+    { value: 'AUCTION_FAILED', label: 'Đấu giá thất bại' }
   ]
 
   const columnNames = ['Asset', 'Create At', 'Price', 'Status', 'Vendor', 'Inspector']
+
+  useEffect(() => {
+    refetch(); // Trigger refetch when status changes
+  }, [status, page, size])
 
   return (
     <StyledContainer>
       <StyledInnerBox>
         <StyledHeaderBox>
           <Box>
-            <StyledTitleBox>Asset List</StyledTitleBox>
+            <StyledTitleBox>Danh sách tài sản</StyledTitleBox>
             <StyledSubtitleBox>
-              Dashboard • asset • <Box component="span" sx={{ color: 'primary.disable' }}>List</Box>
+              Tài sản • <Box component="span" sx={{ color: 'primary.disable' }}>Danh sách</Box>
             </StyledSubtitleBox>
           </Box>
         </StyledHeaderBox>
@@ -135,10 +142,12 @@ const AssetList = () => {
           <StyledControlBox>
             <Box sx={{ display: 'flex', gap: 2 }}>
               <SelectComponent
-                defaultValue=""
+                value={status} 
+                onChange={(event) => setStatus(event.target.value)}
+                // defaultValue=""
                 displayEmpty
                 menuItems={publishMenuItems}
-                placeholder="Publish"
+                placeholder="Tất cả"
               />
               <SearchTextField
                 value={assetName}
@@ -230,27 +239,37 @@ const AssetList = () => {
                             <StyledSpan>${asset.assetPrice.toFixed(2)}</StyledSpan>
                           </TableCell>
                           <TableCell>
-                            <StyledStatusBox
-                              sx={(theme) => {
-                                if (asset.status === '1') {
+                          <StyledStatusBox
+                              sx={() => {
+                                if (asset.status === 'NOT_AUCTIONED') {
                                   return {
-                                    bgcolor: theme.palette.success.main,
-                                    color: theme.palette.success.contrastText
+                                    bgcolor: '#B0BEC5',  // Gray for inactive state (light gray)
+                                    color: '#000000'  // Black text
                                   }
-                                } else if (asset.status === '2') {
+                                } else if (asset.status === 'ONGOING') {
                                   return {
-                                    bgcolor: theme.palette.error.main,
-                                    color: theme.palette.error.contrastText
+                                    bgcolor: '#1E88E5',  // Blue for ongoing state
+                                    color: '#ffffff'  // White text
                                   }
-                                } else {
+                                } else if (asset.status === 'AUCTION_FAILED') {
                                   return {
-                                    bgcolor: theme.palette.warning.main,
-                                    color: theme.palette.warning.contrastText
+                                    bgcolor: '#F44336',  // Red for failed auction
+                                    color: '#ffffff'  // White text
                                   }
+                                }
+                                return {
+                                  bgcolor: '#00C853',  // Green for successful auction
+                                  color: '#ffffff'  // White text
                                 }
                               }}
                             >
-                              {asset.status === '0' ? 'Not yet auctioned' : asset.status === '1' ? 'Being auctioned' : 'Was auctioned'}
+                              {asset.status === 'NOT_AUCTIONED'
+                                ? 'Chưa đấu giá'
+                                : asset.status === 'ONGOING'
+                                  ? 'Đang đấu giá'
+                                  : asset.status === 'AUCTION_SUCCESS'
+                                    ? 'Đấu giá thành công'
+                                    : 'Đấu giá thất bại'}
                             </StyledStatusBox>
                           </TableCell>
                           <TableCell>

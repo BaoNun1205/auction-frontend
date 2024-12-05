@@ -118,9 +118,9 @@ const TypeList = () => {
       <StyledInnerBox>
         <StyledHeaderBox>
           <Box>
-            <StyledTitleBox>List</StyledTitleBox>
+            <StyledTitleBox>Danh sách loại tài sản</StyledTitleBox>
             <StyledSubtitleBox>
-              Dashboard • Type • <Box component="span" sx={{ color: 'primary.disable' }}>List</Box>
+            Bảng điều khiển • Loại tài sản • <Box component="span" sx={{ color: 'primary.disable' }}>Danh sách</Box>
             </StyledSubtitleBox>
           </Box>
           <ButtonComponent
@@ -129,7 +129,7 @@ const TypeList = () => {
             hoverBgcolor={(theme) => (theme.palette.primary.light)}
             onClick={handleOpenPopover}
           >
-            + NEW TYPE
+            + Loại tài sản mới
           </ButtonComponent>
           <Popover
             open={Boolean(anchorEl)}

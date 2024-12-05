@@ -48,12 +48,12 @@ const RequirementList = () => {
   const { mutate: rejectedRequirement } = useRejectedRequirement();
 
   const publishMenuItems = [
-    { value: '0', label: 'Not Approved' },
-    { value: '1', label: 'Approved' },
-    { value: '2', label: 'Rejected' }
+    { value: '0', label: 'Chưa được duyệt' },
+    { value: '1', label: 'Chấp nhận' },
+    { value: '2', label: 'Từ chối' }
   ];
 
-  const columnNames = ['Name', 'Created At', 'Expected Price', 'Status', 'Vendor', 'Inspector'];
+  const columnNames = ['Tên tài sản', 'Ngày tạo', 'Giá khởi điểm', 'Trạng thái', 'Người bán'];
   
 
   const handlePageChange = (newPage) => {
@@ -122,9 +122,10 @@ const RequirementList = () => {
           <Box>
             <StyledTitleBox>Yêu cầu bán đấu giá</StyledTitleBox>
             <StyledSubtitleBox>
-              Dashboard • Requirement • <Box component="span" sx={{ color: 'primary.disable' }}>List</Box>
+              Bảng điều khiển • Yêu cầu • <Box component="span" sx={{ color: 'primary.disable' }}>Danh sách</Box>
             </StyledSubtitleBox>
           </Box>
+ 
         </StyledHeaderBox>
 
         <StyledSecondaryBox bgcolor={(theme) => theme.palette.primary.secondary}>
@@ -208,7 +209,7 @@ const RequirementList = () => {
                             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                               <Box
                                 component="img"
-                                src={item.image}
+                                src={item.imageRequirements[0].image}
                                 sx={{ width: 48, height: 48, borderRadius: 1, mr: 2 }}
                               />
                               <Box>
@@ -240,9 +241,6 @@ const RequirementList = () => {
                           </TableCell>
                           <TableCell>
                             <StyledSpan>{item?.vendor?.username || 'N/A'}</StyledSpan>
-                          </TableCell>
-                          <TableCell>
-                            <StyledSpan>{item?.inspector?.username || 'N/A'}</StyledSpan>
                           </TableCell>
                           <TableCell>
                             <ActionMenu>

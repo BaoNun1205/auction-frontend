@@ -118,7 +118,7 @@ const CreateType = ({ onClose, onCreateSuccess }) => {
   return (
     <Box sx={{ p: 3, bgcolor: 'background.paper', borderRadius: 2, minWidth: 400 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h6">Create New Type</Typography>
+        <Typography variant="h6">Tạo loại tài sản mới</Typography>
         <IconButton onClick={onClose}>
           <CloseIcon />
         </IconButton>
@@ -126,7 +126,7 @@ const CreateType = ({ onClose, onCreateSuccess }) => {
       <form onSubmit={handleSubmit}>
         <TextField
           fullWidth
-          label="Type Name"
+          label="Tên loại tài sản"
           variant="outlined"
           value={name}
           onChange={handleNameChange}
@@ -152,7 +152,7 @@ const CreateType = ({ onClose, onCreateSuccess }) => {
         <StackSelectComponent
           options={categoryMenuItems}
           onChange={handleCategoryChange}
-          label="Category"
+          label="Danh mục"
           sx={{
             mx: 0,
             my: 1,
@@ -190,7 +190,7 @@ const CreateType = ({ onClose, onCreateSuccess }) => {
             sx={{ mt: 2 }}
             disabled={!!image}
           >
-            Upload Image
+            Tải ảnh lên
             <VisuallyHiddenInput
               type="file"
               accept="image/*"
@@ -228,7 +228,7 @@ const CreateType = ({ onClose, onCreateSuccess }) => {
           sx={{ mt: 2 }}
           disabled={isLoading} // Khóa nút khi đang gửi yêu cầu
         >
-          Create type
+          Tạo loại tài sản
         </Button>
       </form>
     </Box>

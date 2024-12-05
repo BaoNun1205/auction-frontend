@@ -94,7 +94,7 @@ const CategoryList = () => {
   }
 
   const handleDelete = () => {
-    console.log('Deleting selected assets:', selectedItems)
+    console.log('Đang xóa các mục đã chọn:', selectedItems)
   }
 
   const handlePageChange = (newPage) => {
@@ -107,20 +107,20 @@ const CategoryList = () => {
   };
 
   const publishMenuItems = [
-    { value: false, label: 'Active' },
-    { value: true, label: 'Inactive' }
+    { value: false, label: 'Hoạt động' },
+    { value: true, label: 'Không hoạt động' }
   ]
 
-  const columnNames = ['Name', 'Create At', 'Status']
+  const columnNames = ['Tên', 'Ngày tạo', 'Trạng thái']
 
   return (
     <StyledContainer>
       <StyledInnerBox>
         <StyledHeaderBox>
           <Box>
-            <StyledTitleBox>List</StyledTitleBox>
+            <StyledTitleBox>Danh sách danh mục</StyledTitleBox>
             <StyledSubtitleBox>
-              Dashboard • Category • <Box component="span" sx={{ color: 'primary.disable' }}>List</Box>
+              Bảng điều khiển • Danh mục • <Box component="span" sx={{ color: 'primary.disable' }}>Danh sách</Box>
             </StyledSubtitleBox>
           </Box>
           <ButtonComponent
@@ -129,7 +129,7 @@ const CategoryList = () => {
             hoverBgcolor={(theme) => (theme.palette.primary.light)}
             onClick={handleOpenPopover}
           >
-            + NEW CATEGORY
+            + DANH MỤC MỚI
           </ButtonComponent>
           <Popover
             open={Boolean(anchorEl)}
@@ -160,7 +160,7 @@ const CategoryList = () => {
                 defaultValue=""
                 displayEmpty
                 menuItems={publishMenuItems}
-                placeholder="Status"
+                placeholder="Trạng thái"
               />
               <SearchTextField
                 value={keyword}
@@ -174,12 +174,10 @@ const CategoryList = () => {
                   sx={{ color: 'error.main' }}
                   onClick={handleDelete}
                 >
-                  Delete ({selectedItems.length})
+                  Xóa ({selectedItems.length})
                 </Button>
               )}
-              <IconButtonComponent startIcon={<Eye size={20} />} disabled={items.length === 0}>Colums</IconButtonComponent>
-              <IconButtonComponent startIcon={<SlidersHorizontal size={20} />} disabled={items.length === 0}>Filters</IconButtonComponent>
-              <IconButtonComponent startIcon={<Download size={20} />} disabled={items.length === 0}>Export</IconButtonComponent>
+              <IconButtonComponent startIcon={<Download size={20} />} disabled={items.length === 0}>Xuất</IconButtonComponent>
             </Box>
           </StyledControlBox>
         </StyledSecondaryBox>
@@ -215,13 +213,13 @@ const CategoryList = () => {
                 ) : error ? (
                   <TableRow>
                     <TableCell colSpan={columnNames.length + 2}>
-                      <Typography color="error">Error fetching categories</Typography>
+                      <Typography color="error">Lỗi khi lấy danh mục</Typography>
                     </TableCell>
                   </TableRow>
                 ) : items.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={columnNames.length + 2}>
-                      <Typography color="error" align="center">List empty</Typography>
+                      <Typography color="error" align="center">Danh sách trống</Typography>
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -259,14 +257,14 @@ const CategoryList = () => {
                               color: item.delFlag === false ? theme.palette.success.contrastText : theme.palette.warning.contrastText
                             })}
                           >
-                            {item.delFlag === false ? 'Active' : 'Inactive'}
+                            {item.delFlag === false ? 'Hoạt động' : 'Không hoạt động'}
                           </StyledStatusBox>
                         </TableCell>
                         <TableCell>
                           <ActionMenu>
                             {item.delFlag === false ?
-                              (<MuiMenuItem onClick={() => handleDeleteClick(item)}>Delete</MuiMenuItem>)
-                              : (<MuiMenuItem onClick={() => handleRestoreClick(item)}>Restore</MuiMenuItem>)}
+                              (<MuiMenuItem onClick={() => handleDeleteClick(item)}>Xóa</MuiMenuItem>)
+                              : (<MuiMenuItem onClick={() => handleRestoreClick(item)}>Khôi phục</MuiMenuItem>)}
                           </ActionMenu>
                         </TableCell>
                       </StyledTableRow>
@@ -286,7 +284,7 @@ const CategoryList = () => {
         </StyledSecondaryBox>
         ) : (
           <StyledSecondaryBox>
-          <ListEmpty nameList="categories" />
+          <ListEmpty nameList="danh mục" />
             <PaginationControl
               page={page}
               rowsPerPage={rowsPerPage}
