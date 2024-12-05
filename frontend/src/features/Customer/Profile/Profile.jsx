@@ -12,10 +12,10 @@ import { useNavigate } from 'react-router-dom';
 import { useLogout } from '~/hooks/authHook';
 import AppModal from '~/components/Modal/Modal';
 import WonItems from './WonItems';
-import AuctionInfo from './AuctionInfo';
 import CustomerInformation from './CustomerInfomation';
 import AddressesInfomation from './AddressInfomation/AddressInfomation';
 import { ChevronRight } from 'lucide-react';
+import AuctionSessions from './AuctionSessions';
 
 const primaryColor = '#b41712';
 
@@ -226,7 +226,7 @@ const Profile = () => {
                 {tab === 1 && <CustomerInformation />}
                 {tab === 2 && <AddressesInfomation />}
                 {tab === 3 && <WonItems />}
-                {tab === 4 && <AuctionInfo />}
+                {tab === 4 && <AuctionSessions />}
                 {tab === 5 && navigate('/vendor')}
               </StyledPaper>
             </Grid>

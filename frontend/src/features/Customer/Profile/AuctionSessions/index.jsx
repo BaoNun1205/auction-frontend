@@ -9,9 +9,7 @@ import {
   CardContent, 
   Button, 
   Container,
-  styled,
   Grid,
-  Chip,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -35,62 +33,8 @@ import {
   HourglassEmpty, 
   Info
 } from '@mui/icons-material';
-import { useGetRegisteredSession } from '~/hooks/userHook';
 import { useAppStore } from '~/store/appStore';
-
-const StyledTab = styled(Tab)(({ theme }) => ({
-  fontSize: '1.1rem',
-  fontWeight: 'bold',
-  '&.Mui-selected': {
-    color: '#B7201B',
-  },
-  '&::after': {
-    content: '""',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    width: '100%',
-    height: '3px',
-    backgroundColor: '#B7201B',
-    transform: 'scaleX(0)',
-    transition: 'transform 0.3s ease',
-  },
-  '&.Mui-selected::after': {
-    transform: 'scaleX(1)',
-  },
-}));
-
-const StyledCard = styled(Card)(({ theme }) => ({
-  display: 'flex',
-  marginBottom: theme.spacing(3),
-  borderRadius: theme.spacing(2),
-  overflow: 'hidden',
-  transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-  '&:hover': {
-    transform: 'translateY(-4px)',
-    boxShadow: theme.shadows[4],
-  },
-  [theme.breakpoints.down('sm')]: {
-    flexDirection: 'column',
-  },
-}));
-
-const InfoChip = styled(Chip)(({ theme }) => ({
-  margin: theme.spacing(0.5),
-  '& .MuiChip-icon': {
-    color: 'inherit',
-  },
-}));
-
-const ActionButton = styled(Button)(({ theme }) => ({
-  backgroundColor: '#B7201B',
-  color: 'white',
-  padding: '8px 24px',
-  borderRadius: '25px',
-  '&:hover': {
-    backgroundColor: '#8B1815',
-  },
-}));
+import { StyledTab, StyledCard, InfoChip, ActionButton } from './style';
 
 const AuctionRegisteredItem = ({ auctionName, imgSrc, startTime, endTime, startingPrice, registrants }) => {
   return (
@@ -213,13 +157,10 @@ const AuctionParticipatedItem = ({ productName, imgSrc, auctionStartTime, auctio
   );
 };
 
-const AuctionInfo = () => {
+const AuctionSessions = () => {
   const [tab, setTab] = useState(0);
   const auctionImg = './src/assets/images/auctionItem.png';
   const { auth } = useAppStore();
-
-  const exRegisteredData1 = useGetRegisteredSession(auth.userId);
-  console.log('test: ', exRegisteredData1);
 
   const exRegisteredData = [
     {
@@ -347,4 +288,4 @@ const AuctionInfo = () => {
   );
 };
 
-export default AuctionInfo;
+export default AuctionSessions;

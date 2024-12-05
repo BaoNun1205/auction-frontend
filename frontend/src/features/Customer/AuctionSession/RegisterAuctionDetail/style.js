@@ -36,6 +36,8 @@ export const StyledButton = styled('button')(({ theme }) => ({
   border: 'none',
   cursor: 'pointer',
   transition: 'all 0.3s ease',
+  width: 'auto', 
+  alignSelf: 'flex-start',
   '&:hover': {
     background: 'linear-gradient(45deg, #8f1210 30%, #B41712 90%)',
     transform: 'translateY(-2px)',

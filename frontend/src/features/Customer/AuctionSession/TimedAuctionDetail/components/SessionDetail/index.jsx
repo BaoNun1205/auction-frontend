@@ -53,7 +53,7 @@ const SessionDetail = ({ item, refresh }) => {
   const [totalAuctionHistory, setTotalAuctionHistory] = useState(item?.auctionSessionInfo?.totalAuctionHistory)
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
   const { mutate: createAuctionHistory } = useCreateAuctionHistory()
-  const { mutate: createDeposit } = useCreateDeposit();
+  const { mutate: createDeposit } = useCreateDeposit()
   const { data: isDeposit, refetch: refetchIsDeposit, error: depositError, isLoading: depositLoading } = useCheckDeposit({ userId: auth.user.id, auctionSessionId: item.id })
 
   const placeholderImage = 'https://via.placeholder.com/150'
@@ -164,51 +164,54 @@ const SessionDetail = ({ item, refresh }) => {
     if (item.status !== 'AUCTION_SUCCESS' && item.status !== 'AUCTION_FAILED') return null
 
     return (
-      <Fade in={true} style={{ transitionDelay: '700ms' }}>
-        <Paper elevation={3} sx={{ p: 4, mt: 3, bgcolor: theme.palette.background.paper, borderRadius: 2 }}>
-          <Box display="flex" alignItems="center" justifyContent="center" flexDirection="column">
-            {item.status === 'AUCTION_FAILED' ? (
-              <Typography variant="h6" color="error" align="center">
+      <>
+        <Divider sx={{ my: 3 }} />
+        <Fade in={true} style={{ transitionDelay: '700ms' }}>
+          <Box sx={{ p: 2, mt: 3 }}>
+            <Box display="flex" alignItems="center" justifyContent="center" flexDirection="column">
+              {item.status === 'AUCTION_FAILED' ? (
+                <Typography variant="h6" color="error" align="center">
                 Chưa có người đấu giá
-              </Typography>
-            ) : (
-              <>
-                <Typography variant="h5" gutterBottom align="center" sx={{ fontWeight: 'bold' }}>
+                </Typography>
+              ) : (
+                <>
+                  <Typography variant="h5" gutterBottom align="center" sx={{ fontWeight: 'bold' }}>
                   Người Thắng Cuộc
-                </Typography>
-                <Avatar
-                  src={item.auctionSessionInfo.user.avatar || placeholderImage}
-                  alt="Winner Avatar"
-                  sx={{ width: 100, height: 100, mb: 2, border: `4px solid ${primaryColor}` }}
-                />
-                <Typography variant="h5" gutterBottom align="center" sx={{ fontWeight: 'bold' }}>
-                  {item.auctionSessionInfo.user.username}
-                </Typography>
-                <Typography variant="h6" align="center" sx={{ mb: 2 }} color="text.secondary">
+                  </Typography>
+                  <Avatar
+                    src={item.auctionSessionInfo.user.avatar || placeholderImage}
+                    alt="Winner Avatar"
+                    sx={{ width: 100, height: 100, mb: 2, border: `4px solid ${primaryColor}` }}
+                  />
+                  <Typography variant="h5" gutterBottom align="center" sx={{ fontWeight: 'bold' }}>
+                    {item.auctionSessionInfo.user.username}
+                  </Typography>
+                  <Typography variant="h6" align="center" sx={{ mb: 2 }} color="text.secondary">
                   Giá thắng: <span style={{ fontWeight: 'bold', color: primaryColor }}>{highestBid.toLocaleString('vi-VN')} VND</span>
-                </Typography>
-                <Grid container spacing={2} justifyContent="center">
-                  <Grid item>
-                    <Chip
-                      icon={<Whatshot />}
-                      label={`${totalBidder} người tham gia`}
-                      color="primary"
-                      variant="outlined"
-                    />
+                  </Typography>
+                  <Grid container spacing={2} justifyContent="center">
+                    <Grid item>
+                      <Chip
+                        icon={<Whatshot />}
+                        label={`${totalBidder} người tham gia`}
+                        color="primary"
+                        variant="outlined"
+                      />
+                    </Grid>
+                    <Grid item>
+                      <Chip
+                        icon={<AccessTime />}
+                        label={`${totalAuctionHistory} lượt đấu giá`}
+                        variant="outlined"
+                      />
+                    </Grid>
                   </Grid>
-                  <Grid item>
-                    <Chip
-                      icon={<AccessTime />}
-                      label={`${totalAuctionHistory} lượt đấu giá`}
-                      variant="outlined"
-                    />
-                  </Grid>
-                </Grid>
-              </>
-            )}
+                </>
+              )}
+            </Box>
           </Box>
-        </Paper>
-      </Fade>
+        </Fade>
+      </>
     )
   }
 
