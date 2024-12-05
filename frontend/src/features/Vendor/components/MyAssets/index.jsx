@@ -19,7 +19,8 @@ import {
   InputAdornment,
   Select,
   Tabs,
-  Tab
+  Tab,
+  TablePagination
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -27,9 +28,10 @@ import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { useFilterAssets } from '~/hooks/assetHook';
 import { useAppStore } from '~/store/appStore';
-import AuctionCreationDialog from './AuctionCreationDialog';
 import { StyledSpan } from '~/features/style';
-import AssetDetailDialog from './AssetDetailDialog';
+import AuctionCreationDialog from './component/AuctionCreationDialog';
+import AssetDetailDialog from './component/AssetDetailDialog';
+import AssetTable from './component/AssetsTable';
 
 const StyledPaper = styled(Paper)({
   padding: '24px',
@@ -141,6 +143,15 @@ const MyAssets = () => {
     });
   }, [assets, activeTab, searchTerm, priceFilter]);
 
+  const [page, setPage] = useState(0)
+  const [rowsPerPage] = useState(5)
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage)
+  }
+
+  const paginatedAssets = filteredAssets.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+
   return (
     <Box sx={{ maxWidth: 1200, margin: 'auto', padding: 3 }}>
       <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
@@ -175,7 +186,7 @@ const MyAssets = () => {
         <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
           <TextField
             fullWidth
-            placeholder="Tìm kiếm theo tên sản phẩm"
+            placeholder="Tìm kiếm theo tên vật phẩm"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             InputProps={{
@@ -204,49 +215,7 @@ const MyAssets = () => {
             <MenuItem value="10000000">Dưới 10.000.000₫</MenuItem>
           </Select>
         </Box>
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <StyledTableCell>Tài sản</StyledTableCell>
-                <StyledTableCell>Giá khởi điểm</StyledTableCell>
-                <StyledTableCell>Trạng thái</StyledTableCell>
-                <StyledTableCell align="center">Hành động</StyledTableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {filteredAssets.map((asset) => (
-                <TableRow key={asset.assetId} sx={{ '&:hover': { backgroundColor: '#f5f5f5' } }}>
-                  <TableCell>
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      <Box
-                        component="img"
-                        src={asset.mainImage}
-                        sx={{ width: 48, height: 48, borderRadius: 1, mr: 2 }}
-                      />
-                      <Box>
-                        <StyledSpan>{asset.assetName}</StyledSpan>
-                        <Box sx={{ color: '#637381' }}>{asset.type.typeName || 'N/A'}</Box>
-                      </Box>
-                    </Box>
-                  </TableCell>
-                  <TableCell sx={{ color: 'red', fontWeight: 'bold' }}>{asset.assetPrice.toLocaleString('vi-VN')} ₫</TableCell>
-                  <TableCell>
-                    <StyledChip
-                      label={getStatusLabel(asset.status)}
-                      status={asset.status}
-                    />
-                  </TableCell>
-                  <TableCell align="center">
-                    <IconButton onClick={(e) => handleMenuOpen(e, asset)}>
-                      <MoreVertIcon />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+        <AssetTable filteredAssets={filteredAssets} handleMenuOpen={handleMenuOpen} />
       </StyledPaper>
 
       <Menu
