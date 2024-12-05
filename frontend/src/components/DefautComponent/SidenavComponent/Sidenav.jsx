@@ -7,6 +7,7 @@ import { Home, Folder, ShoppingBag, FileText, Calendar } from 'react-feather';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'; // Nhập các icon để chuyển đổi
 import { useNavigate } from 'react-router-dom'; // Nhập useNavigate từ react-router-dom
 import { useLogout } from '~/hooks/authHook'; // Hook logout
+import { LogOut } from 'react-feather';
 
 // Độ rộng của Drawer
 const drawerWidth = 200;
@@ -155,7 +156,7 @@ const Sidenav = ({ children }) => {
         <Box sx={{ padding: '8px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           {open ? (
             <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#000' }}>
-              Admin
+              Manager
             </Typography>
           ) : (
             <Box sx={{ width: '100%' }} />
@@ -208,24 +209,46 @@ const Sidenav = ({ children }) => {
         </DragDropContext>
 
         {/* Nút Logout */}
-        <Box sx={{ padding: '8px 16px', position: 'absolute', bottom: '16px', width: '100%' }}>
-          <Button
-            fullWidth
-            variant="contained"
-            onClick={handleLogout}
-            sx={{
-              borderRadius: '8px',
-              textTransform: 'none',
-              backgroundColor: '#000', // Nền đen
-              color: '#fff', // Chữ trắng
-              '&:hover': {
-                backgroundColor: '#333', // Nền tối hơn khi hover
-              },
-            }}
-          >
-            {isLoggingOut ? 'Đang Đăng Xuất...' : 'Đăng Xuất'}
-          </Button>
-        </Box>
+        <Box
+  sx={{
+    padding: open ? '8px 16px' : '0', // Padding khi mở hoặc thu
+    position: 'absolute',
+    bottom: '16px',
+    width: '100%',
+    display: 'flex',
+    justifyContent: 'center', // Căn giữa khi thu nhỏ
+  }}
+>
+  <Button
+    fullWidth={open}
+    onClick={handleLogout}
+    sx={{
+      borderRadius: open ? '8px' : '50%', // Tròn khi thu nhỏ
+      textTransform: 'none',
+      backgroundColor: open ? '#000' : 'transparent', // Nền đen khi mở, không nền khi thu nhỏ
+      color: open ? '#fff' : '#000', // Màu icon đồng nhất
+      padding: open ? '8px 36px' : '12px', // Đảm bảo padding phù hợp
+      minHeight: '48px', // Chiều cao phù hợp
+      width: open ? 'auto' : '48px', // Độ rộng tự động hoặc vuông khi thu nhỏ
+      display: 'flex',
+      justifyContent: 'center', // Căn giữa nội dung
+      alignItems: 'center', // Đảm bảo căn giữa theo trục dọc
+      boxShadow: 'none', // Xóa khung
+      transition: 'all 0.3s ease', // Hiệu ứng mượt
+      '&:hover': {
+        backgroundColor: open ? '#333' : '#f0f0f0', // Nền khi hover
+      },
+    }}
+  >
+    {open ? (
+      'Đăng Xuất'
+    ) : (
+      <LogOut size={20} /> // Biểu tượng nằm giữa khi thu nhỏ
+    )}
+  </Button>
+</Box>
+
+
       </StyledDrawer>
 
       {/* Nội dung chính sẽ dịch chuyển sang phải khi sidebar mở */}

@@ -21,10 +21,10 @@ export default function ListEmpty({ nameList }) {
           }} 
         />
         <Typography variant="h6" component="h3" sx={{ mb: 1, fontWeight: 600 }}>
-          No {nameList} found
+          Không tìm thấy {nameList}
         </Typography>
         <Typography variant="body2" color="text.secondary" align="center" sx={{ maxWidth: 250 }}>
-          There are no {nameList} to display. Try creating a new category or adjusting your filters.
+          Hiện tại không có {nameList} để hiển thị. Hãy thử tạo {nameList} mới hoặc điều chỉnh bộ lọc của bạn.
         </Typography>
       </Box>
     </Box>
