@@ -2,7 +2,6 @@ import AssetListPage from '~/pages/Asset/AssetListPage'
 import CategoryListPage from '~/pages/Category/CategoryListPage'
 import HomePage from '~/pages/Home/HomePage'
 import ConfirmAccount from '~/pages/Authentication/comfirm'
-import AddAssetPage from '~/pages/Asset/AddAssetPage'
 import TypeListPage from '~/pages/Type/TypeListPage'
 import RequirementListPage from '~/pages/Requirement/RequirementListPage'
 import AddRequirementPage from '~/pages/Requirement/AddRequirementPage'
@@ -87,10 +86,6 @@ export const adminRoutes = [
   {
     path: `${BASE_PATHS.ASSET}`,
     page: AssetListPage
-  },
-  {
-    path: `${BASE_PATHS.ASSET}/create/:id`,
-    page: AddAssetPage
   },
   {
     path: `${BASE_PATHS.REQUIREMENT}`,

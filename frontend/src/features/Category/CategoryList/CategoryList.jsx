@@ -120,7 +120,7 @@ const CategoryList = () => {
           <Box>
             <StyledTitleBox>Danh sách danh mục</StyledTitleBox>
             <StyledSubtitleBox>
-              Bảng điều khiển • Danh mục • <Box component="span" sx={{ color: 'primary.disable' }}>Danh sách</Box>
+              Danh mục • <Box component="span" sx={{ color: 'primary.disable' }}>Danh sách</Box>
             </StyledSubtitleBox>
           </Box>
           <ButtonComponent
@@ -177,7 +177,6 @@ const CategoryList = () => {
                   Xóa ({selectedItems.length})
                 </Button>
               )}
-              <IconButtonComponent startIcon={<Download size={20} />} disabled={items.length === 0}>Xuất</IconButtonComponent>
             </Box>
           </StyledControlBox>
         </StyledSecondaryBox>

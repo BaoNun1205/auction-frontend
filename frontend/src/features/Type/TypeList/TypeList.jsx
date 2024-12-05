@@ -111,7 +111,7 @@ const TypeList = () => {
     { value: true, label: 'Inactive' }
   ]
 
-  const columnNames = ['Name', 'Create At', 'Status']
+  const columnNames = ['Tên loại', 'Ngày tạo', 'Trạng thái']
 
   return (
     <StyledContainer>
@@ -120,7 +120,7 @@ const TypeList = () => {
           <Box>
             <StyledTitleBox>Danh sách loại tài sản</StyledTitleBox>
             <StyledSubtitleBox>
-            Bảng điều khiển • Loại tài sản • <Box component="span" sx={{ color: 'primary.disable' }}>Danh sách</Box>
+            Loại tài sản • <Box component="span" sx={{ color: 'primary.disable' }}>Danh sách</Box>
             </StyledSubtitleBox>
           </Box>
           <ButtonComponent

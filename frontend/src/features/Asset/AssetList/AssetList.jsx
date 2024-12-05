@@ -80,10 +80,6 @@ const AssetList = () => {
     }
   }
 
-  const handleCreateAuctionSession = (item) => {
-    navigate(`/session/create/${item.assetId}`)
-  }
-
   const handleSelectAsset = (event, assetId) => {
     const newSelectedAssets = event.target.checked
       ? [...selectedAssets, assetId]
@@ -120,7 +116,7 @@ const AssetList = () => {
     { value: 'AUCTION_FAILED', label: 'Đấu giá thất bại' }
   ]
 
-  const columnNames = ['Asset', 'Create At', 'Price', 'Status', 'Vendor', 'Inspector']
+  const columnNames = ['Tên tài sản', 'Ngày tạo', 'Giá khởi điểm', 'Trạng thái', 'Người bán', 'Người kiếm duyệt']
 
   useEffect(() => {
     refetch(); // Trigger refetch when status changes
@@ -164,9 +160,6 @@ const AssetList = () => {
                   Delete ({selectedAssets.length})
                 </Button>
               )}
-              <IconButtonComponent startIcon={<Eye size={20} />}>Colums</IconButtonComponent>
-              <IconButtonComponent startIcon={<SlidersHorizontal size={20} />}>Filters</IconButtonComponent>
-              <IconButtonComponent startIcon={<Download size={20} />}>Export</IconButtonComponent>
             </Box>
           </StyledControlBox>
         </StyledSecondaryBox>
@@ -277,11 +270,6 @@ const AssetList = () => {
                           </TableCell>
                           <TableCell>
                             <StyledSpan>{asset.inspector.user.username || 'N/A'}</StyledSpan>
-                          </TableCell>
-                          <TableCell>
-                            <ActionMenu>
-                              {<MuiMenuItem onClick={() => handleCreateAuctionSession(asset)}>Create Auction Session</MuiMenuItem>}
-                            </ActionMenu>
                           </TableCell>
                         </StyledTableRow>
                       )

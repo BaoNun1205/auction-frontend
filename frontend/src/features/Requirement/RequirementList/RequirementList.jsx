@@ -33,7 +33,7 @@ import RequirementDetails from '~/features/Requirement/RequirementList/Requireme
 const RequirementList = () => {
   const [selectedItems, setSelectedItems] = useState([]);
   const [showDeleteButton, setShowDeleteButton] = useState(false);
-  const [status, setStatus] = useState(0);
+  const [status, setStatus] = useState('');
   const [keyword, setKeyword] = useState('');
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -48,6 +48,7 @@ const RequirementList = () => {
   const { mutate: rejectedRequirement } = useRejectedRequirement();
 
   const publishMenuItems = [
+    {value:'', label: 'Tất cả'},
     { value: '0', label: 'Chưa được duyệt' },
     { value: '1', label: 'Chấp nhận' },
     { value: '2', label: 'Từ chối' }
@@ -122,7 +123,7 @@ const RequirementList = () => {
           <Box>
             <StyledTitleBox>Yêu cầu bán đấu giá</StyledTitleBox>
             <StyledSubtitleBox>
-              Bảng điều khiển • Yêu cầu • <Box component="span" sx={{ color: 'primary.disable' }}>Danh sách</Box>
+              Yêu cầu • <Box component="span" sx={{ color: 'primary.disable' }}>Danh sách</Box>
             </StyledSubtitleBox>
           </Box>
  
@@ -151,9 +152,6 @@ const RequirementList = () => {
                   Delete ({selectedItems.length})
                 </Button>
               )}
-              <IconButtonComponent startIcon={<Eye size={20} />} disabled={items.length === 0}>Columns</IconButtonComponent>
-              <IconButtonComponent startIcon={<SlidersHorizontal size={20} />} disabled={items.length === 0}>Filters</IconButtonComponent>
-              <IconButtonComponent startIcon={<Download size={20} />} disabled={items.length === 0}>Export</IconButtonComponent>
             </Box>
           </StyledControlBox>
         </StyledSecondaryBox>
@@ -222,7 +220,10 @@ const RequirementList = () => {
                             <StyledSpan>{time}</StyledSpan>
                           </TableCell>
                           <TableCell>
-                            <StyledSpan>${item.assetPrice.toFixed(2)}</StyledSpan>
+                          <StyledSpan>
+                                {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.assetPrice)}
+                          </StyledSpan>
+
                           </TableCell>
                           <TableCell>
                             <StyledStatusBox
@@ -248,8 +249,6 @@ const RequirementList = () => {
                                 <>
                                   <MuiMenuItem onClick={() => handleViewDetails(item)}>Xem chi tiết</MuiMenuItem> {/* New menu item */}
                                 </>
-                              ) : item.status === '1' ? (
-                                <MuiMenuItem onClick={() => handleCreateAsset(item)}>Tạo sản phẩm</MuiMenuItem>
                               ) : null}
                             </ActionMenu>
                           </TableCell>
