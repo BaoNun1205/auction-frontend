@@ -1,23 +1,29 @@
 import { styled } from '@mui/material/styles';
-import { Card, CardMedia, Box } from '@mui/material';
+import { Card, CardMedia, Chip } from '@mui/material';
 
 export const StyledCard = styled(Card)(({ theme }) => ({
   height: '100%',
   display: 'flex',
   flexDirection: 'column',
-  transition: 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out',
+  transition: 'all 0.3s ease-in-out',
   '&:hover': {
     transform: 'translateY(-5px)',
-    boxShadow: theme.shadows[4],
+    boxShadow: theme.shadows[5],
   },
 }));
 
-export const StyledCardMedia = styled(CardMedia)({
-  paddingTop: '56.25%', // 16:9 aspect ratio
-});
-
-export const StyledBox = styled(Box)(({ theme }) => ({
-  position: 'relative',
-  display: 'flex',
-  gap: theme.spacing(3),
+export const StyledCardMedia = styled(CardMedia)(({ theme }) => ({
+  height: 200,
+  transition: 'transform 0.3s ease-in-out',
+  '&:hover': {
+    transform: 'scale(1.05)',
+  },
 }));
+
+export const StyledChip = styled(Chip)(({ theme }) => ({
+  position: 'absolute',
+  top: theme.spacing(1),
+  left: theme.spacing(1),
+  zIndex: 1,
+}));
+

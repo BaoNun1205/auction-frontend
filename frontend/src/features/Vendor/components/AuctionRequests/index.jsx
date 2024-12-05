@@ -91,17 +91,15 @@ const AuctionRequest = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setIsCreating(true) // Set loading state
+    setIsCreating(true)
 
     const formDataObj = new FormData()
     formDataObj.append('assetName', formData.name)
-    formDataObj.append('assetPrice', formData.startingPrice)
+    formDataObj.append('assetPrice', formData.startingPrice.replace(/\./g, ''))
     formDataObj.append('assetDescription', formData.description)
-    formDataObj.append('status', "0")
-    // Combine productImages and documentImages into a single array
+    formDataObj.append('status', '0')
     const allImages = [...formData.productImages, ...formData.documentImages]
 
-    // Append all non-empty images to the FormData
     allImages.forEach((image) => {
       if (image) {
         formDataObj.append('images', image)
@@ -110,11 +108,6 @@ const AuctionRequest = () => {
 
     try {
       if (currentRequirement) {
-        // setRequirements(requirements.map(req =>
-        //   req.requirementId === currentRequirement.requirementId ? { ...formData, status: "2" } : req
-        // ));
-        // setSnackbar({ open: true, message: 'Yêu cầu đã được cập nhật', severity: 'success' })
-
         updateRequirement({ requirementId: currentRequirement.requirementId, payload: formDataObj }, {
           onSuccess: (response) => {
             console.log('Success:', response)
@@ -131,7 +124,6 @@ const AuctionRequest = () => {
 
 
       } else {
-        // setRequirements([...requirements, { ...formData, requirementId: Date.now() }]);
         createRequirement(formDataObj, {
           onSuccess: (response) => {
             console.log('Success:', response)
@@ -146,7 +138,7 @@ const AuctionRequest = () => {
       }
       handleCloseDialog()
     } finally {
-      setIsCreating(false) // Reset loading state
+      setIsCreating(false)
     }
   }
 

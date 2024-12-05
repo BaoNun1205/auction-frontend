@@ -48,6 +48,10 @@ const validationSchema = Yup.object().shape({
     .max(Yup.ref('startingBid'), 'Giá cọc không được lớn hơn giá khởi điểm'),
 });
 
+const formatNumber = (value) => {
+  return value.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+};
+
 const AuctionCreationDialog = ({ open, onClose, asset, refresh }) => {
   const { mutate: createSession } = useCreateSession();
 
@@ -81,6 +85,12 @@ const AuctionCreationDialog = ({ open, onClose, asset, refresh }) => {
     }
   }, [asset]);
 
+  const handlePriceChange = (event, setFieldValue) => {
+    const { name, value } = event.target;
+    const formattedValue = formatNumber(value.replace(/\./g, ''));
+    setFieldValue(name, formattedValue);
+  };
+
   const handleSubmit = (values, { setSubmitting }) => {
     const sessionData = {
       name: values.name,
@@ -89,8 +99,8 @@ const AuctionCreationDialog = ({ open, onClose, asset, refresh }) => {
       assetId: values.assetId,
       userId: values.vendorId,
       startingBids: values.startingBid,
-      bidIncrement: values.bidIncrement,
-      depositAmount: values.depositPrice,
+      bidIncrement: values.bidIncrement.replace(/\./g, ''),
+      depositAmount: values.depositPrice.replace(/\./g, ''),
       startTime: values.startTime.toISOString(),
       endTime: values.endTime.toISOString(),
     };
@@ -145,7 +155,7 @@ const AuctionCreationDialog = ({ open, onClose, asset, refresh }) => {
                   <Grid item xs={12}>
                     <TextField
                       fullWidth
-                      label="Tên sản phẩm"
+                      label="Tên phiên đấu giá"
                       name="name"
                       required
                       variant="outlined"
@@ -234,14 +244,13 @@ const AuctionCreationDialog = ({ open, onClose, asset, refresh }) => {
                       name="startingBid"
                       label="Giá khởi điểm *"
                       fullWidth
-                      type="number"
-                      value={values.startingBid}
-                      onChange={handleChange}
+                      value={formatNumber(values.startingBid.toString())}
                       onBlur={handleBlur}
                       error={touched.startingBid && Boolean(errors.startingBid)}
                       helperText={touched.startingBid && errors.startingBid}
                       InputProps={{
                         startAdornment: <InputAdornment position="start">₫</InputAdornment>,
+                        readOnly: true
                       }}
                     />
                   </Grid>
@@ -250,9 +259,8 @@ const AuctionCreationDialog = ({ open, onClose, asset, refresh }) => {
                       name="bidIncrement"
                       label="Bước giá *"
                       fullWidth
-                      type="number"
                       value={values.bidIncrement}
-                      onChange={handleChange}
+                      onChange={(event) => handlePriceChange(event, setFieldValue)}
                       onBlur={handleBlur}
                       error={touched.bidIncrement && Boolean(errors.bidIncrement)}
                       helperText={touched.bidIncrement && errors.bidIncrement}
@@ -266,9 +274,8 @@ const AuctionCreationDialog = ({ open, onClose, asset, refresh }) => {
                       name="depositPrice"
                       label="Giá cọc *"
                       fullWidth
-                      type="number"
                       value={values.depositPrice}
-                      onChange={handleChange}
+                      onChange={(event) => handlePriceChange(event, setFieldValue)}
                       onBlur={handleBlur}
                       error={touched.depositPrice && Boolean(errors.depositPrice)}
                       helperText={touched.depositPrice && errors.depositPrice}

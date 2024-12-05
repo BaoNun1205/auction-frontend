@@ -288,12 +288,12 @@ const handleCloseAuctionDialog = () => {
           )}
         </Menu>
 
-        {/* <Reauction
+        <Reauction
           open={isReauctionDialogOpen}
           onClose={handleCloseAuctionDialog}
-          asset={selectedSession}
+          session={selectedSession}
           refresh={refetch}
-        /> */}
+        />
       </Box>
     </LocalizationProvider>
   );

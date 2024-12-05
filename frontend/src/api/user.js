@@ -12,15 +12,6 @@ export const getUserById = async (id) => {
   }
 };
 
-export const getRegisteredSession = async (id) => {
-  try {
-    const response = await GET({ url: `${USER_PATH}/registered_sessions/${id}` });
-    return response.result;
-  } catch (error) {
-    handleApiError(error);
-  }
-}
-
 export const updateUser = async (userId, payload) => {
   try {
     const response = await PUT({
