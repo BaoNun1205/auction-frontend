@@ -150,6 +150,7 @@ const SessionDetail = ({ item, refresh }) => {
 
   const renderCountdown = ({ days, hours, minutes, seconds, completed }) => {
     if (completed) {
+      refresh()
       return <span>Phiên đấu giá đã kết thúc</span>
     } else {
       return (

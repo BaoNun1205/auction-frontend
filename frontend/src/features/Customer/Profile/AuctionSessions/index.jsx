@@ -35,6 +35,7 @@ import {
 } from '@mui/icons-material';
 import { useAppStore } from '~/store/appStore';
 import { StyledTab, StyledCard, InfoChip, ActionButton } from './style';
+import { useGetRegistedSessionByUserId } from '~/hooks/sessionHook';
 
 const AuctionRegisteredItem = ({ auctionName, imgSrc, startTime, endTime, startingPrice, registrants }) => {
   return (
@@ -53,7 +54,7 @@ const AuctionRegisteredItem = ({ auctionName, imgSrc, startTime, endTime, starti
           <Box sx={{ display: 'flex', flexWrap: 'wrap', mb: 2 }}>
             <InfoChip icon={<CalendarToday />} label={`Bắt đầu: ${new Date(startTime).toLocaleString('vi-VN')}`} />
             <InfoChip icon={<HourglassEmpty />} label={`Kết thúc: ${new Date(endTime).toLocaleString('vi-VN')}`} />
-            <InfoChip icon={<People />} label={`Số người đăng ký: ${registrants}`}/>
+            <InfoChip icon={<People />} label={`Số người đăng ký: ${registrants}`} />
             <InfoChip icon={<MonetizationOn />} label={`Giá khởi điểm: ${startingPrice.toLocaleString('vi-VN')} VNĐ`} color="primary" />
           </Box>
         </CardContent>
@@ -159,80 +160,30 @@ const AuctionParticipatedItem = ({ productName, imgSrc, auctionStartTime, auctio
 
 const AuctionSessions = () => {
   const [tab, setTab] = useState(0);
-  const auctionImg = './src/assets/images/auctionItem.png';
   const { auth } = useAppStore();
-
-  const exRegisteredData = [
-    {
-      id: 1,
-      auctionName: 'Đồng hồ cổ thế kỷ 19',
-      imgSrc: auctionImg,
-      startTime: '2023-06-01T10:00:00',
-      endTime: '2023-06-10T18:00:00',
-      startingPrice: 50000000,
-      registrants: 8,
-    },
-    {
-      id: 2,
-      auctionName: 'Bộ sưu tập tem hiếm',
-      imgSrc: auctionImg,
-      startTime: '2023-06-15T09:00:00',
-      endTime: '2023-06-25T17:00:00',
-      startingPrice: 20000000,
-      registrants: 15,
-    },
-  ];
-
-  const exParticipatedData = [
-    {
-      id: 1,
-      productName: 'Tranh sơn dầu "Hoàng hôn trên biển"',
-      imgSrc: auctionImg,
-      auctionStartTime: '2023-05-15T14:00:00',
-      auctionEndTime: '2023-05-15T16:00:00',
-      participants: 30,
-      startingPrice: 5000000,
-      winningPrice: 7500000,
-      auctionHistory: [
-        { time: '2023-05-15T14:05:00', bidder: 'Nguyễn Văn A', price: 5200000 },
-        { time: '2023-05-15T14:10:00', bidder: 'Trần Thị B', price: 5500000 },
-        { time: '2023-05-15T14:15:00', bidder: 'Lê Văn C', price: 6000000 },
-        { time: '2023-05-15T14:20:00', bidder: 'Phạm Thị D', price: 7000000 },
-        { time: '2023-05-15T14:25:00', bidder: 'Hoàng Văn E', price: 7500000 },
-      ]
-    },
-    {
-      id: 2,
-      productName: 'Tượng đồng cổ "Nữ thần tự do"',
-      imgSrc: auctionImg,
-      auctionStartTime: '2023-05-20T10:00:00',
-      auctionEndTime: '2023-05-20T12:00:00',
-      participants: 25,
-      startingPrice: 10000000,
-      winningPrice: 15000000,
-      auctionHistory: [
-        { time: '2023-05-20T10:05:00', bidder: 'Đỗ Văn F', price: 10500000 },
-        { time: '2023-05-20T10:10:00', bidder: 'Ngô Thị G', price: 11000000 },
-        { time: '2023-05-20T10:15:00', bidder: 'Vũ Văn H', price: 12000000 },
-        { time: '2023-05-20T10:20:00', bidder: 'Bùi Thị I', price: 13500000 },
-        { time: '2023-05-20T10:25:00', bidder: 'Đặng Văn K', price: 15000000 },
-      ]
-    },
-  ];
+  const { data: registedSessions, isLoading, isError } = useGetRegistedSessionByUserId(auth.user.id);
 
   const handleChange = (event, newValue) => {
     setTab(newValue);
   };
 
+  if (isLoading) {
+    return <Typography>Loading...</Typography>;
+  }
+
+  if (isError) {
+    return <Typography>Error loading sessions</Typography>;
+  }
+
   return (
     <Container maxWidth="lg">
       <Box sx={{ py: 4 }}>
-      <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
-            Phiên đấu giá
-          </Typography>
-          <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-            Lưu trữ các phiên đấu giá đã đăng ký và tham gia
-          </Typography>
+        <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
+          Phiên đấu giá
+        </Typography>
+        <Typography variant="subtitle1" color="text.secondary" gutterBottom>
+          Lưu trữ các phiên đấu giá đã đăng ký và tham gia
+        </Typography>
         
         <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 4 }}>
           <Tabs 
@@ -253,33 +204,21 @@ const AuctionSessions = () => {
         <Box sx={{ mt: 3 }}>
           {tab === 0 ? (
             <Box>
-              {exRegisteredData.map((item) => (
+              {registedSessions.map((item) => (
                 <AuctionRegisteredItem
-                  key={item.id}
-                  auctionName={item.auctionName}
-                  imgSrc={item.imgSrc}
-                  startTime={item.startTime}
-                  endTime={item.endTime}
-                  startingPrice={item.startingPrice}
-                  registrants={item.registrants}
+                  key={item.auctionSession.auctionSessionId}
+                  auctionName={item.auctionSession.name}
+                  imgSrc={item.auctionSession.asset?.listImages?.[0]?.imageAsset || "/placeholder.svg?height=200&width=200"}
+                  startTime={item.auctionSession.startTime}
+                  endTime={item.auctionSession.endTime}
+                  startingPrice={item.auctionSession.startingBids}
+                  registrants={10} // Default value for registrants
                 />
               ))}
             </Box>
           ) : (
             <Box>
-              {exParticipatedData.map((item) => (
-                <AuctionParticipatedItem
-                  key={item.id}
-                  productName={item.productName}
-                  imgSrc={item.imgSrc}
-                  auctionStartTime={item.auctionStartTime}
-                  auctionEndTime={item.auctionEndTime}
-                  participants={item.participants}
-                  startingPrice={item.startingPrice}
-                  winningPrice={item.winningPrice}
-                  auctionHistory={item.auctionHistory}
-                />
-              ))}
+              {/* Replace with actual participated data when available */}
             </Box>
           )}
         </Box>

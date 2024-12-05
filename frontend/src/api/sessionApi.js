@@ -57,7 +57,7 @@ export const filterSessions = async (payload) => {
   }
 }
 
-export const getRegisteredSession = async (userId) => {
+export const getRegistedSession = async (userId) => {
   try {
     const response = await GET({ url: `${SESSION_PATH}/registered/${userId}`})
     return response.data.result

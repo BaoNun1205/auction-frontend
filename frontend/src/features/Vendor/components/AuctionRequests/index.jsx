@@ -35,6 +35,7 @@ import { useCreateRequirement, useDeleteRequirement, useRequirementsByVendorId, 
 import { useAppStore } from '~/store/appStore'
 import RequirementFormContent from './RequirementFormContent'
 import { AnimatedButton, StyledChip, StyledPaper, StyledTableCell } from './style'
+import RequirementsTable from './component/RequirementsTable'
 
 const primaryColor = '#b41712'
 
@@ -263,7 +264,7 @@ const AuctionRequest = () => {
         <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
           <TextField
             fullWidth
-            placeholder="Tìm kiếm theo tên sản phẩm"
+            placeholder="Tìm kiếm theo tên vật phẩm"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             InputProps={{
@@ -292,37 +293,7 @@ const AuctionRequest = () => {
             <MenuItem value="1000000">Dưới 1.000.000₫</MenuItem>
           </Select>
         </Box>
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <StyledTableCell>Tên Sản phẩm</StyledTableCell>
-                <StyledTableCell>Giá khởi điểm</StyledTableCell>
-                <StyledTableCell>Trạng thái</StyledTableCell>
-                <StyledTableCell align="center">Hành động</StyledTableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {filteredRequirements.map((req) => (
-                <TableRow key={req.requirementId}>
-                  <TableCell>{req.assetName}</TableCell>
-                  <TableCell sx={{ color: 'red', fontWeight: 'bold' }}>{`${req.assetPrice.toLocaleString('vi-VN')}`} ₫</TableCell>
-                  <TableCell>
-                    <StyledChip
-                      label={req.status === '0' ? 'Đang chờ duyệt' : req.status === '1' ? 'Đang xử lý' : 'Đã từ chối'}
-                      status={req.status}
-                    />
-                  </TableCell>
-                  <TableCell align="center">
-                    <IconButton onClick={(e) => handleMenuOpen(e, req)}>
-                      <MoreVertIcon />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+        <RequirementsTable filteredRequirements={filteredRequirements} handleMenuOpen={handleMenuOpen} />
       </StyledPaper>
 
       <Menu

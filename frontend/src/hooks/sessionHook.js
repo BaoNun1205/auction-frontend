@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { createSesion, getSessionById, filterSessions, getRelatedSessions, updateSesion, registerSesion, getRegisteredSession } from '~/api/sessionApi'
+import { createSesion, getSessionById, filterSessions, getRelatedSessions, updateSesion, registerSesion, getRegistedSession } from '~/api/sessionApi'
 
 export const useCreateSession = () => {
   const queryClient = useQueryClient()
@@ -57,10 +57,10 @@ export const useFilterSessions = (payload) => {
   })
 }
 
-export const getRegisteredSessionByUserId = (userId) => {
+export const useGetRegistedSessionByUserId = (userId) => {
   return useQuery({
     queryKey: ['registeredSessionByUserId', userId],
-    queryFn: () => getRegisteredSession(userId)
+    queryFn: () => getRegistedSession(userId)
   })
 }
 
