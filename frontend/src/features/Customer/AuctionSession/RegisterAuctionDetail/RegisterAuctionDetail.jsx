@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react'
 import {
   Box,
   Container,
@@ -11,69 +11,79 @@ import {
   Grid,
   useMediaQuery,
   useTheme,
-  Skeleton,
-} from '@mui/material';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import ShareIcon from '@mui/icons-material/Share';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import PersonIcon from '@mui/icons-material/Person';
-import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-import { StyledCard, ThumbnailImage, StyledButton, StyledIconButton } from './style';
+  Skeleton
+} from '@mui/material'
+import FavoriteIcon from '@mui/icons-material/Favorite'
+import ShareIcon from '@mui/icons-material/Share'
+import AccessTimeIcon from '@mui/icons-material/AccessTime'
+import PersonIcon from '@mui/icons-material/Person'
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew'
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
+import { StyledCard, ThumbnailImage, StyledButton, StyledIconButton } from './style'
+import { useGetSessionById } from '~/hooks/sessionHook'
+import { useParams } from 'react-router-dom'
 
 const RegisterAuctionDetail = () => {
-  const [selectedImage, setSelectedImage] = useState(0);
-  const [isFavorite, setIsFavorite] = useState(false);
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const [selectedImage, setSelectedImage] = useState(0)
+  const [isFavorite, setIsFavorite] = useState(false)
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+  const { id } = useParams()
+  const { data: session, refetch, isLoading, isError } = useGetSessionById(id);
 
-  const paintings = [
-    {
-      id: 1,
-      title: "Ethereal Whispers",
-      artist: "Aria Moonstone",
-      images: [
-        "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1547891654-e66ed7ebb968?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1549289524-06cf8837ace5?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?auto=format&fit=crop&w=800&q=80",
-      ],
-      estimatedPrice: "$18,000 - $25,000",
-      currentBid: "$19,500",
-      bidders: 12,
-      timeLeft: "1 day 6 hours",
-      description: "A mesmerizing collection that blends surrealism and nature, 'Ethereal Whispers' invites viewers into a dreamlike realm where reality and imagination intertwine. Each piece is a window into a world where flora and fauna take on mystical qualities, evoking a sense of wonder and introspection.",
-    },
-  ];
+  if (isLoading) {
+    return <Typography>Loading...</Typography>;
+  }
+
+  if (isError) {
+    return <Typography>Error loading session</Typography>;
+  }
+
+  const listImages = Array.isArray(session.asset.listImages) ? session.asset.listImages : []
 
   const handleThumbnailClick = (index) => {
-    setSelectedImage(index);
-  };
+    setSelectedImage(index)
+  }
 
   const handlePrevClick = () => {
     setSelectedImage((prevSelected) =>
-      prevSelected > 0 ? prevSelected - 1 : paintings[0].images.length - 1
-    );
-  };
+      prevSelected > 0 ? prevSelected - 1 : listImages.length - 1
+    )
+  }
 
   const handleNextClick = () => {
     setSelectedImage((prevSelected) =>
-      prevSelected < paintings[0].images.length - 1 ? prevSelected + 1 : 0
-    );
+      prevSelected < listImages.length - 1 ? prevSelected + 1 : 0
+    )
+  }
+
+  const formatDateTime = (dateTimeString) => {
+    const date = new Date(dateTimeString);
+    return date.toLocaleString('vi-VN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    }).replace(',', '');
+  };
+
+  const handleRegisterClick = () => {
+    // Add your registration logic here
   };
 
   return (
     <Container maxWidth="lg" sx={{ py: 6 }}>
-      <Grid container spacing={6}>
+      <Grid container spacing={{ xs: 2, md: 6 }}>
         <Grid item xs={12} md={6}>
           <StyledCard>
             <Box
               component="img"
-              src={paintings[0].images[selectedImage]}
-              alt={`${paintings[0].title} - Image ${selectedImage + 1}`}
+              src={session.asset.listImages[selectedImage].imageAsset}
+              alt={`${session.name} - Image ${selectedImage + 1}`}
               sx={{
                 width: '100%',
-                height: { xs: 400, md: 600 },
+                height: { xs: 300, sm: 400, md: 500, lg: 600 },
                 objectFit: 'cover',
                 transition: 'all 0.3s ease',
               }}
@@ -82,18 +92,18 @@ const RegisterAuctionDetail = () => {
 
           <Stack
             direction="row"
-            spacing={2}
-            sx={{ mt: 4 }}
+            spacing={{ xs: 1, sm: 2 }}
+            sx={{ mt: { xs: 2, sm: 4 } }}
             alignItems="center"
             justifyContent="center"
           >
             <StyledIconButton onClick={handlePrevClick} aria-label="Previous image">
               <ArrowBackIosNewIcon />
             </StyledIconButton>
-            {paintings[0].images.map((image, index) => (
+            {session.asset.listImages.map((image, index) => (
               <ThumbnailImage
                 key={index}
-                src={image}
+                src={image.imageAsset}
                 alt={`Thumbnail ${index + 1}`}
                 onClick={() => handleThumbnailClick(index)}
                 selected={selectedImage === index}
@@ -109,15 +119,15 @@ const RegisterAuctionDetail = () => {
         <Grid item xs={12} md={6}>
           <Box sx={{ pl: { md: 4 } }}>
             <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-              <Typography variant="h4" fontWeight="bold" gutterBottom>
-                {paintings[0].title}
+              <Typography variant="h4" fontWeight="bold" gutterBottom sx={{ fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' } }}>
+                {session.name}
               </Typography>
               <Stack direction="row" spacing={1}>
-                <Tooltip title={isFavorite ? "Remove from favorites" : "Add to favorites"}>
+                <Tooltip title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}>
                   <IconButton
                     onClick={() => setIsFavorite(!isFavorite)}
-                    sx={{ color: isFavorite ? "#B41712" : "inherit" }}
-                    aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+                    sx={{ color: isFavorite ? '#B41712' : 'inherit' }}
+                    aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
                   >
                     <FavoriteIcon />
                   </IconButton>
@@ -131,60 +141,76 @@ const RegisterAuctionDetail = () => {
             </Stack>
 
             <Stack direction="row" alignItems="center" spacing={2} mb={3}>
+              <Box
+                component="img"
+                src={session.asset.vendor.avatar || '/placeholder-avatar.jpg'}
+                alt={session.asset.vendor.username}
+                sx={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: '50%',
+                  objectFit: 'cover'
+                }}
+              />
               <Typography variant="h6" color="text.secondary">
-                by {paintings[0].artist}
+                {session.asset.vendor.username}
               </Typography>
               <Chip
-                label="Verified Artist"
-                sx={{ backgroundColor: "#B41712", color: "white" }}
+                label="Đã kiểm duyệt"
+                sx={{ backgroundColor: '#B41712', color: 'white' }}
                 size="small"
               />
             </Stack>
 
-            <Typography variant="body1" color="text.secondary" paragraph>
-              {paintings[0].description}
-            </Typography>
+            <Typography 
+              variant="body1" 
+              color="text.secondary" 
+              paragraph 
+              dangerouslySetInnerHTML={{ __html: session.description }}
+            />
 
             <Divider sx={{ my: 4 }} />
 
             <Stack spacing={3}>
               <Box>
                 <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-                  Estimated Price
+                  Giá cọc
                 </Typography>
                 <Typography variant="h5" fontWeight="medium">
-                  {paintings[0].estimatedPrice}
+                  {session.depositAmount.toLocaleString('vi-VN')} ₫
                 </Typography>
               </Box>
 
               <Box>
                 <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-                  Current Bid
+                  Giá khởi điểm
                 </Typography>
-                <Typography variant="h4" sx={{ color: "#B41712" }} fontWeight="bold">
-                  {paintings[0].currentBid}
+                <Typography variant="h4" sx={{ color: '#B41712' }} fontWeight="bold">
+                  {session.startingBids.toLocaleString('vi-VN')} ₫
                 </Typography>
               </Box>
 
-              <Stack direction="row" spacing={4} sx={{ mt: 2 }}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 2, sm: 4 }} sx={{ mt: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <PersonIcon />
-                  <Typography variant="h6">{paintings[0].bidders} bidders</Typography>
+                  <Typography variant="h6">{session.biddersCount || 8} bidders</Typography>
                 </Box>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <AccessTimeIcon />
-                  <Typography variant="h6">{paintings[0].timeLeft} left</Typography>
+                  <Typography variant="h6">{formatDateTime(session.endTime)}</Typography>
                 </Box>
               </Stack>
 
-              <StyledButton>Đăng ký đấu giá</StyledButton>
+              <StyledButton onClick={handleRegisterClick} sx={{ width: { xs: '100%', sm: 'auto' }, padding: '8px 16px', fontSize: '0.875rem', alignSelf: 'flex-start' }}>
+                Đăng ký
+              </StyledButton>
             </Stack>
           </Box>
         </Grid>
       </Grid>
     </Container>
-  );
-};
+  )
+}
 
-export default RegisterAuctionDetail;
+export default RegisterAuctionDetail
 

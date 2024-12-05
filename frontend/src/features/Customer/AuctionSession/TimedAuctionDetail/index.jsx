@@ -24,7 +24,7 @@ const TimedAuctionDetail = () => {
       <Container maxWidth="lg">
         <Box py={4}>
           <SessionDetail item={data} refresh={refetch}/>
-          <RelatedPaintings />
+          <RelatedPaintings id={id}/>
           <RelatedSearches />
         </Box>
       </Container>

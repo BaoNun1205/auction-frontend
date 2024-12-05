@@ -1,93 +1,148 @@
-import React, { useState } from 'react'
-import { Box, Typography, IconButton, useTheme, useMediaQuery, CardContent, Grid } from '@mui/material'
+import React, { useEffect, useState } from 'react'
+import { Box, Typography, IconButton, useTheme, useMediaQuery, CardContent, Grid, CardActionArea } from '@mui/material'
 import { ArrowBackIos, ArrowForwardIos } from '@mui/icons-material'
 import { motion } from 'framer-motion'
-import { StyledCard, StyledCardMedia } from './style'
+import { StyledCard, StyledCardMedia, StyledChip } from './style'
+import { useGetRelatedSessions } from '~/hooks/sessionHook'
 
-const auctionData = [
-  {
-    image: 'https://source.unsplash.com/random/400x300?painting,impressionist',
-    title: 'Impressionist Landscape',
-    description: 'A serene countryside scene.'
-  },
-  {
-    image: 'https://source.unsplash.com/random/400x300?painting,abstract',
-    title: 'Abstract Composition',
-    description: 'Bold colors and geometric shapes.'
-  },
-  {
-    image: 'https://source.unsplash.com/random/400x300?painting,portrait',
-    title: 'Portrait Study',
-    description: 'Capturing human emotion on canvas.'
-  },
-  {
-    image: 'https://source.unsplash.com/random/400x300?painting,stilllife',
-    title: 'Still Life with Fruits',
-    description: 'Classic arrangement with vibrant colors.'
-  },
-  {
-    image: 'https://source.unsplash.com/random/400x300?painting,cityscape',
-    title: 'Urban Cityscape',
-    description: 'Modern architecture in oil paint.'
+const getStatusColor = (status) => {
+  switch (status) {
+    case 'UPCOMING':
+      return 'info'
+    case 'ONGOING':
+      return 'warning'
+    case 'AUCTION_SUCCESS':
+      return 'success'
+    case 'AUCTION_FAILED':
+      return 'error'
+    default:
+      return 'default'
   }
-]
+}
 
-const RelatedPaintings = () => {
+const getStatusLabel = (status) => {
+  switch (status) {
+    case 'UPCOMING':
+      return 'Sắp diễn ra'
+    case 'ONGOING':
+      return 'Đang diễn ra'
+    case 'AUCTION_SUCCESS':
+      return 'Đấu giá thành công'
+    case 'AUCTION_FAILED':
+      return 'Đấu giá thất bại'
+    default:
+      return status
+  }
+}
+
+const RelatedPaintings = ({ id }) => {
   const [currentIndex, setCurrentIndex] = useState(0)
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+  const { data, refetch, isError } = useGetRelatedSessions(id)
+
+  useEffect(() => {
+    if (isError) {
+      console.error('Error fetching auction sessions');
+    }
+  }, [isError]);
+
+  useEffect(() => {
+    console.log('Fetching auction sessions');
+    refetch();
+  }, [refetch]);
+
+  const relatedSessions = Array.isArray(data?.data) ? data?.data : []
+  console.log('Related sessions:', relatedSessions)
 
   const handleNext = () => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % (auctionData.length - 2))
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % Math.max(relatedSessions.length - 2, 1))
   }
 
   const handlePrev = () => {
-    setCurrentIndex((prevIndex) => (prevIndex - 1 + auctionData.length - 2) % (auctionData.length - 2))
+    setCurrentIndex((prevIndex) => (prevIndex - 1 + Math.max(relatedSessions.length - 2, 1)) % Math.max(relatedSessions.length - 2, 1))
+  }
+
+  if (!relatedSessions || relatedSessions.length === 0) {
+    return null
   }
 
   return (
     <Box my={6}>
-      <Typography variant="h5" gutterBottom>
-          Có thể bạn quan tâm
+      <Typography variant="h5" gutterBottom fontWeight="bold" mb={3}>
+        Có thể bạn quan tâm
       </Typography>
       <Box position="relative">
         <Grid container spacing={3}>
-          {auctionData.slice(currentIndex, currentIndex + 3).map((item, index) => (
-            <Grid item xs={12} sm={6} md={4} key={index}>
+          {relatedSessions.slice(currentIndex, currentIndex + 3).map((session, index) => (
+            <Grid item xs={12} sm={6} md={4} key={session.auctionSessionId}>
               <motion.div
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
                 <StyledCard>
-                  <StyledCardMedia
-                    image={item.image}
-                    title={item.title}
-                  />
-                  <CardContent>
-                    <Typography gutterBottom variant="h6" component="div">
-                      {item.title}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {item.description}
-                    </Typography>
-                  </CardContent>
+                  <CardActionArea>
+                    <Box position="relative">
+                      <StyledCardMedia
+                        image={session.asset.mainImage || 'https://via.placeholder.com/400x300'}
+                        title={session.asset.assetName}
+                      />
+                      <StyledChip
+                        label={getStatusLabel(session.status)}
+                        color={getStatusColor(session.status)}
+                        size="small"
+                      />
+                    </Box>
+                    <CardContent>
+                      <Typography gutterBottom variant="h6" component="div" noWrap>
+                        {session.asset.assetName}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary" gutterBottom noWrap>
+                        {session.name}
+                      </Typography>
+                      <Box mt={2}>
+                        <Typography variant="body2" fontWeight="bold">
+                          Giá khởi điểm: {session.startingBids.toLocaleString('vi-VN')} ₫
+                        </Typography>
+                        {session.auctionSessionInfo && (
+                          <Typography variant="body2" color="primary" mt={1} fontWeight="bold">
+                            Giá cao nhất: {session.auctionSessionInfo.highestBid.toLocaleString('vi-VN')} ₫
+                          </Typography>
+                        )}
+                      </Box>
+                    </CardContent>
+                  </CardActionArea>
                 </StyledCard>
               </motion.div>
             </Grid>
           ))}
         </Grid>
-        {!isMobile && (
+        {!isMobile && relatedSessions.length > 3 && (
           <>
             <IconButton
               onClick={handlePrev}
-              sx={{ position: 'absolute', left: -20, top: '50%', transform: 'translateY(-50%)' }}
+              sx={{
+                position: 'absolute',
+                left: -20,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                bgcolor: 'background.paper',
+                '&:hover': { bgcolor: 'background.default' },
+              }}
             >
               <ArrowBackIos />
             </IconButton>
             <IconButton
               onClick={handleNext}
-              sx={{ position: 'absolute', right: -20, top: '50%', transform: 'translateY(-50%)' }}
+              sx={{
+                position: 'absolute',
+                right: -20,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                bgcolor: 'background.paper',
+                '&:hover': { bgcolor: 'background.default' },
+              }}
             >
               <ArrowForwardIos />
             </IconButton>
@@ -99,3 +154,4 @@ const RelatedPaintings = () => {
 }
 
 export default RelatedPaintings
+
