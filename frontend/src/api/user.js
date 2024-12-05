@@ -12,11 +12,17 @@ export const getUserById = async (id) => {
   }
 };
 
-export const getRegisteredSession = async (id) => {
+export const updateUser = async (userId, payload) => {
   try {
-    const response = await GET({ url: `${USER_PATH}/registered_sessions/${id}` });
-    return response.result;
+    const response = await PUT({
+      url: `${USER_PATH}/${userId}`,
+      payload: payload,
+      headers: { 
+        'Content-Type': 'multipart/form-data' 
+      }
+    });
+    return response.data;
   } catch (error) {
     handleApiError(error);
   }
-}
+};

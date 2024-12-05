@@ -19,7 +19,8 @@ import {
   InputAdornment,
   Select,
   Tabs,
-  Tab
+  Tab,
+  TablePagination
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -27,9 +28,10 @@ import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { useFilterAssets } from '~/hooks/assetHook';
 import { useAppStore } from '~/store/appStore';
-import AuctionCreationDialog from './AuctionCreationDialog';
 import { StyledSpan } from '~/features/style';
-import AssetDetailDialog from './AssetDetailDialog';
+import AuctionCreationDialog from './component/AuctionCreationDialog';
+import AssetDetailDialog from './component/AssetDetailDialog';
+import AssetTable from './component/AssetsTable';
 
 const StyledPaper = styled(Paper)({
   padding: '24px',
@@ -49,14 +51,16 @@ const StyledChip = styled(Chip)(({ theme, status }) => ({
   minWidth: 120,
   color: theme.palette.getContrastText(
     status === 'ONGOING' ? theme.palette.warning.main :
-      status === 'FINISHED' ? theme.palette.success.main :
-        theme.palette.error.main
+      status === 'AUCTION_SUCCESS' ? theme.palette.success.main :
+        status === 'AUCTION_FAILED' ? theme.palette.error.main :
+          theme.palette.info.main
   ),
   backgroundColor:
     status === 'ONGOING' ? theme.palette.warning.main :
-      status === 'FINISHED' ? theme.palette.success.main :
-        theme.palette.error.main
-}))
+      status === 'AUCTION_SUCCESS' ? theme.palette.success.main :
+        status === 'AUCTION_FAILED' ? theme.palette.error.main :
+          theme.palette.info.main
+}));
 
 const MyAssets = () => {
   const [openDialog, setOpenDialog] = useState(false);
@@ -118,8 +122,10 @@ const MyAssets = () => {
         return 'Chưa đấu giá';
       case 'ONGOING':
         return 'Đang đấu giá';
-      case 'FINISHED':
+      case 'AUCTION_SUCCESS':
         return 'Đã đấu giá thành công';
+      case 'AUCTION_FAILED':
+        return 'Đấu giá thất bại';
       default:
         return status;
     }
@@ -128,7 +134,7 @@ const MyAssets = () => {
   const filteredAssets = useMemo(() => {
     return assets.filter(asset => {
       const matchesTab = activeTab === 0 ||
-        (activeTab === 1 && asset.status === 'FINISHED') ||
+        (activeTab === 1 && asset.status === 'AUCTION_SUCCESS') ||
         (activeTab === 2 && asset.status === 'ONGOING') ||
         (activeTab === 3 && asset.status === 'NOT_AUCTIONED');
       const matchesSearch = asset.assetName.toLowerCase().includes(searchTerm.toLowerCase());
@@ -136,6 +142,15 @@ const MyAssets = () => {
       return matchesTab && matchesSearch && matchesPrice;
     });
   }, [assets, activeTab, searchTerm, priceFilter]);
+
+  const [page, setPage] = useState(0)
+  const [rowsPerPage] = useState(5)
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage)
+  }
+
+  const paginatedAssets = filteredAssets.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
 
   return (
     <Box sx={{ maxWidth: 1200, margin: 'auto', padding: 3 }}>
@@ -171,7 +186,7 @@ const MyAssets = () => {
         <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
           <TextField
             fullWidth
-            placeholder="Tìm kiếm theo tên sản phẩm"
+            placeholder="Tìm kiếm theo tên vật phẩm"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             InputProps={{
@@ -200,49 +215,7 @@ const MyAssets = () => {
             <MenuItem value="10000000">Dưới 10.000.000₫</MenuItem>
           </Select>
         </Box>
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <StyledTableCell>Tài sản</StyledTableCell>
-                <StyledTableCell>Giá khởi điểm</StyledTableCell>
-                <StyledTableCell>Trạng thái</StyledTableCell>
-                <StyledTableCell align="center">Hành động</StyledTableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {filteredAssets.map((asset) => (
-                <TableRow key={asset.assetId} sx={{ '&:hover': { backgroundColor: '#f5f5f5' } }}>
-                  <TableCell>
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      <Box
-                        component="img"
-                        src={asset.mainImage}
-                        sx={{ width: 48, height: 48, borderRadius: 1, mr: 2 }}
-                      />
-                      <Box>
-                        <StyledSpan>{asset.assetName}</StyledSpan>
-                        <Box sx={{ color: '#637381' }}>{asset.type.typeName || 'N/A'}</Box>
-                      </Box>
-                    </Box>
-                  </TableCell>
-                  <TableCell>{asset.assetPrice.toLocaleString('vi-VN')}₫</TableCell>
-                  <TableCell>
-                    <StyledChip
-                      label={getStatusLabel(asset.status)}
-                      status={asset.status}
-                    />
-                  </TableCell>
-                  <TableCell align="center">
-                    <IconButton onClick={(e) => handleMenuOpen(e, asset)}>
-                      <MoreVertIcon />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+        <AssetTable filteredAssets={filteredAssets} handleMenuOpen={handleMenuOpen} />
       </StyledPaper>
 
       <Menu
@@ -253,17 +226,19 @@ const MyAssets = () => {
         <MenuItem onClick={handleViewDetails}>
           Xem chi tiết
         </MenuItem>
-        {selectedAsset?.status === '0' && [
-          <MenuItem key="delete" onClick={handleMenuClose}>
+        {selectedAsset?.status === 'AUCTION_SUCCESS' && (
+          <MenuItem onClick={handleMenuClose}>
             Xóa
-          </MenuItem>,
-          <MenuItem key="create-auction" onClick={() => {
+          </MenuItem>
+        )}
+        {(selectedAsset?.status === 'NOT_AUCTIONED') && (
+          <MenuItem onClick={() => {
             handleOpenAuctionDialog();
             handleMenuClose();
           }}>
             Tạo phiên đấu giá
           </MenuItem>
-        ]}
+        )}
       </Menu>
 
       <AuctionCreationDialog

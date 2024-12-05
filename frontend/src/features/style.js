@@ -54,11 +54,14 @@ export const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
   },
   '&::-webkit-scrollbar-thumb': {
     backgroundColor: 'darkgrey',
-    borderRadius: '4px'
   },
   '&::-webkit-scrollbar-track': {
     backgroundColor: theme.palette.primary.buttonHover
-  }
+  },
+
+  border: '1px solid rgba(0, 0, 0, 0.1)',
+  boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+  overflow: 'hidden'
 }))
 
 export const StyledTableHead = styled(TableHead)(({ theme }) => ({

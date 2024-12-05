@@ -24,8 +24,8 @@ const UpcomingAuctionItem = ({ item }) => {
         <Typography variant="subtitle1" color="textPrimary" fontWeight="bold" gutterBottom>
           {item.asset.assetName}
         </Typography>
-        <Typography variant="body2" color="textSecondary">Start Date: <b>{date}</b></Typography>
-        <Typography variant="body2" color="textSecondary">End Date: <b>{time}</b></Typography>
+        <Typography variant="body2" color="textSecondary">Thời gian bắt đầu: {item.startTime}</Typography>
+        <Typography variant="body2" color="textSecondary">Giá khởi điểm: {item.startingBids}</Typography>
         <StyledButton onClick={handleRegisterClick}>
           Đăng ký
         </StyledButton>

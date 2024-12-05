@@ -7,6 +7,7 @@ import { Home, Folder, ShoppingBag, FileText, Calendar } from 'react-feather';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'; // Nhập các icon để chuyển đổi
 import { useNavigate } from 'react-router-dom'; // Nhập useNavigate từ react-router-dom
 import { useLogout } from '~/hooks/authHook'; // Hook logout
+import { LogOut } from 'react-feather';
 
 // Độ rộng của Drawer
 const drawerWidth = 200;
@@ -22,27 +23,21 @@ const CategoryItem = {
     { name: 'Loại', path: '/category/type' }
   ]
 };
-const AssetItem = { icon: <ShoppingBag />, name: 'Tài Sản', subItems: [{ name: 'Danh Sách', path: '/asset' }] };
+const AssetItem = { icon: <ShoppingBag />, name: 'Tài Sản', path: '/asset' };
 const RequirementItem = {
   icon: <FileText />,
   name: 'Yêu Cầu',
-  subItems: [
-    { name: 'Danh Sách', path: '/requirement' },
-    { name: 'Tạo Mới', path: '/requirement/create' }
-  ]
+  path: '/requirement'
+
 };
 const SessionItem = {
   icon: <Calendar />,
   name: 'Phiên',
-  subItems: [
-    { name: 'Danh Sách', path: '/session' },
-    { name: 'Tạo Mới', path: '/session/create' }
-  ]
+  path: '/session',
 };
 
 const menuItems = [HomeItem, CategoryItem, AssetItem, RequirementItem, SessionItem];
 
-// Drawer đã được tùy chỉnh với nền trắng và văn bản đen
 const StyledDrawer = styled('div')(({ open }) => ({
   width: open ? drawerWidth : drawerCollapsedWidth,
   flexShrink: 0,
@@ -54,46 +49,46 @@ const StyledDrawer = styled('div')(({ open }) => ({
   borderRight: '1px solid #ccc',
   backgroundColor: '#fff',
   boxShadow: '2px 0 5px rgba(0, 0, 0, 0.1)',
-  transition: 'width 0.4s ease',  // Hiệu ứng chuyển đổi khi mở/đóng drawer
+  transition: 'width 0.4s ease',  
 }));
 
 const ListItemStyled = styled(ListItem)(({ isActive, open }) => ({
   backgroundColor: isActive ? '#f0f0f0' : 'transparent',
   '&:hover': { backgroundColor: '#e0e0e0' },
   borderRadius: '8px',
-  transition: 'all 0.3s ease',  // Hiệu ứng chuyển đổi trạng thái item
+  transition: 'all 0.3s ease',  
   padding: open ? '8px 12px' : '12px 0',
   marginBottom: '8px',
 }));
 
 const Sidenav = ({ children }) => {
-  const open = useAppStore((state) => state.dopen); // Truy cập state dopen từ Zustand
-  const setDopen = useAppStore((state) => state.updateOpen); // Cập nhật state dopen
-  const [activeSubItem, setActiveSubItem] = useState(''); // Theo dõi sub-item đang hoạt động (kết hợp khóa)
-  const [expandedItems, setExpandedItems] = useState({}); // Quản lý trạng thái mở rộng như một đối tượng
+  const open = useAppStore((state) => state.dopen); 
+  const setDopen = useAppStore((state) => state.updateOpen); 
+  const [activeSubItem, setActiveSubItem] = useState(''); 
+  const [expandedItems, setExpandedItems] = useState({}); 
   const navigate = useNavigate();
 
-  const { mutate: logout, isLoading: isLoggingOut } = useLogout(); // Sử dụng hook useLogout
+  const { mutate: logout, isLoading: isLoggingOut } = useLogout(); 
 
-  // Đặt trạng thái mặc định trước khi tải từ localStorage
+
   const [loading, setLoading] = useState(true);
 
-  // Effect để tải trạng thái từ localStorage khi component được mount
+
   useEffect(() => {
     const savedExpandedItems = JSON.parse(localStorage.getItem('expandedItems')) || {};
-    const savedActiveSubItem = localStorage.getItem('activeSubItem') || ''; // Lấy sub-item đang hoạt động đã lưu
+    const savedActiveSubItem = localStorage.getItem('activeSubItem') || '';
     setExpandedItems(savedExpandedItems);
     setActiveSubItem(savedActiveSubItem);
-    setLoading(false); // Đặt loading thành false sau khi tải hoàn tất
+    setLoading(false); 
   }, []);
 
-  // Hàm để cập nhật localStorage mỗi khi expandedItems hoặc activeSubItem thay đổi
+
   const updateLocalStorage = (newExpandedItems, newActiveSubItem) => {
     localStorage.setItem('expandedItems', JSON.stringify(newExpandedItems));
-    localStorage.setItem('activeSubItem', newActiveSubItem); // Lưu trạng thái active sub-item vào localStorage
+    localStorage.setItem('activeSubItem', newActiveSubItem); 
   };
 
-  // Chuyển đổi trạng thái mở rộng của các mục cha (bao gồm cả sub-items của chúng)
+
   const handleItemClick = (itemId, path) => {
     const item = menuItems.find((item) => item.name === itemId);
 
@@ -101,33 +96,32 @@ const Sidenav = ({ children }) => {
       setExpandedItems((prevExpandedItems) => {
         const updatedExpandedItems = {
           ...prevExpandedItems,
-          [itemId]: !prevExpandedItems[itemId], // Chuyển đổi trạng thái mở rộng của mục được chọn
+          [itemId]: !prevExpandedItems[itemId], 
         };
-        updateLocalStorage(updatedExpandedItems, activeSubItem); // Lưu trạng thái vào localStorage
+        updateLocalStorage(updatedExpandedItems, activeSubItem); 
         return updatedExpandedItems;
       });
     }
 
-    navigate(path); // Chuyển hướng đến path
+    navigate(path); 
   };
 
   const handleSubItemClick = (subItemId, path, parentItemId) => {
-    // Tạo khóa duy nhất bằng cách sử dụng cả tên mục cha và tên sub-item
     const newActiveSubItem = `${parentItemId}-${subItemId}`;
     setActiveSubItem(newActiveSubItem);
 
     setExpandedItems((prevExpandedItems) => ({
       ...prevExpandedItems,
-      [parentItemId]: true, // Giữ mục cha luôn mở rộng
+      [parentItemId]: true, 
     }));
 
-    updateLocalStorage(expandedItems, newActiveSubItem); // Lưu trạng thái active sub-item vào localStorage
+    updateLocalStorage(expandedItems, newActiveSubItem); 
 
-    navigate(path); // Chuyển hướng đến path của sub-item
+    navigate(path); 
   };
 
   const handleDrawerToggle = () => {
-    setDopen(!open); // Chuyển đổi trạng thái dopen để mở/đóng drawer
+    setDopen(!open);
   };
 
   const handleDragEnd = (result) => {
@@ -146,7 +140,7 @@ const Sidenav = ({ children }) => {
   };
 
   if (loading) {
-    return null; // Không render gì khi đang tải
+    return null; 
   }
 
   return (
@@ -155,13 +149,13 @@ const Sidenav = ({ children }) => {
         <Box sx={{ padding: '8px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           {open ? (
             <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#000' }}>
-              Admin
+              Manager
             </Typography>
           ) : (
             <Box sx={{ width: '100%' }} />
           )}
           <IconButton onClick={handleDrawerToggle} sx={{ padding: 0, display: 'flex', justifyContent: 'center' }}>
-            {open ? <FiChevronLeft /> : <FiChevronRight />} {/* Hiển thị icon tương ứng */}
+            {open ? <FiChevronLeft /> : <FiChevronRight />} 
           </IconButton>
         </Box>
 
@@ -178,7 +172,7 @@ const Sidenav = ({ children }) => {
                         <ListItemStyled
                           button
                           onClick={() => handleItemClick(item.name, item.path)}
-                          isActive={false} // Các mục cha không nên được đánh dấu là đang hoạt động
+                          isActive={false}
                           open={open}
                         >
                           <ListItemIcon sx={{ minWidth: '32px', marginRight: '4px' }}>
@@ -208,24 +202,46 @@ const Sidenav = ({ children }) => {
         </DragDropContext>
 
         {/* Nút Logout */}
-        <Box sx={{ padding: '8px 16px', position: 'absolute', bottom: '16px', width: '100%' }}>
-          <Button
-            fullWidth
-            variant="contained"
-            onClick={handleLogout}
-            sx={{
-              borderRadius: '8px',
-              textTransform: 'none',
-              backgroundColor: '#000', // Nền đen
-              color: '#fff', // Chữ trắng
-              '&:hover': {
-                backgroundColor: '#333', // Nền tối hơn khi hover
-              },
-            }}
-          >
-            {isLoggingOut ? 'Đang Đăng Xuất...' : 'Đăng Xuất'}
-          </Button>
-        </Box>
+        <Box
+  sx={{
+    padding: open ? '8px 16px' : '0', 
+    position: 'absolute',
+    bottom: '16px',
+    width: '100%',
+    display: 'flex',
+    justifyContent: 'center', // Căn giữa khi thu nhỏ
+  }}
+>
+  <Button
+    fullWidth={open}
+    onClick={handleLogout}
+    sx={{
+      borderRadius: open ? '8px' : '50%', // Tròn khi thu nhỏ
+      textTransform: 'none',
+      backgroundColor: open ? '#000' : 'transparent', // Nền đen khi mở, không nền khi thu nhỏ
+      color: open ? '#fff' : '#000', // Màu icon đồng nhất
+      padding: open ? '8px 36px' : '12px', // Đảm bảo padding phù hợp
+      minHeight: '48px', // Chiều cao phù hợp
+      width: open ? 'auto' : '48px', // Độ rộng tự động hoặc vuông khi thu nhỏ
+      display: 'flex',
+      justifyContent: 'center', // Căn giữa nội dung
+      alignItems: 'center', // Đảm bảo căn giữa theo trục dọc
+      boxShadow: 'none', // Xóa khung
+      transition: 'all 0.3s ease', // Hiệu ứng mượt
+      '&:hover': {
+        backgroundColor: open ? '#333' : '#f0f0f0', // Nền khi hover
+      },
+    }}
+  >
+    {open ? (
+      'Đăng Xuất'
+    ) : (
+      <LogOut size={20} /> // Biểu tượng nằm giữa khi thu nhỏ
+    )}
+  </Button>
+</Box>
+
+
       </StyledDrawer>
 
       {/* Nội dung chính sẽ dịch chuyển sang phải khi sidebar mở */}

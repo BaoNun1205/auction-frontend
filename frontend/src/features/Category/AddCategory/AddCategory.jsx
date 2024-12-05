@@ -32,7 +32,7 @@ const CreateCategory = ({ onClose, onCreateSuccess }) => {
 
   const handleNameChange = (event) => {
     setName(event.target.value)
-    console.log('Name:', name)
+    console.log('Tên:', name)
   }
 
   const handleImageChange = (event) => {
@@ -45,7 +45,7 @@ const CreateCategory = ({ onClose, onCreateSuccess }) => {
       }
       reader.readAsDataURL(file)
     }
-    console.log('Image:', file)
+    console.log('Ảnh:', file)
   }
 
   const handleDeleteImage = () => {
@@ -56,12 +56,12 @@ const CreateCategory = ({ onClose, onCreateSuccess }) => {
   const handleSubmit = (event) => {
     event.preventDefault()
 
-    // Tạo FormData và thêm file ảnh và tên category
+    // Tạo FormData và thêm file ảnh và tên danh mục
     const formData = new FormData()
-    formData.append('categoryName', name) // Thêm tên category
+    formData.append('categoryName', name) // Thêm tên danh mục
     formData.append('image', image) // Thêm file ảnh
 
-    console.log('Submitted:', { name, image })
+    console.log('Đã gửi:', { name, image })
 
     // Gửi FormData
     createCategory(
@@ -69,14 +69,14 @@ const CreateCategory = ({ onClose, onCreateSuccess }) => {
       {
         onSuccess: (response) => {
           onCreateSuccess()
-          console.log('Category created successfully:', response)
+          console.log('Danh mục đã được tạo thành công:', response)
           setName('')
           setImage(null)
           setImagePreview(null)
           onClose()
         },
         onError: (error) => {
-          console.error('Error creating category:', error)
+          console.error('Lỗi khi tạo danh mục:', error)
         }
       }
     )
@@ -85,7 +85,7 @@ const CreateCategory = ({ onClose, onCreateSuccess }) => {
   return (
     <Box sx={{ p: 3, bgcolor: 'background.paper', borderRadius: 2, minWidth: 400 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h6">Create New Category</Typography>
+        <Typography variant="h6">Tạo Danh Mục Mới</Typography>
         <IconButton onClick={onClose}>
           <CloseIcon />
         </IconButton>
@@ -93,7 +93,7 @@ const CreateCategory = ({ onClose, onCreateSuccess }) => {
       <form onSubmit={handleSubmit}>
         <TextField
           fullWidth
-          label="Category Name"
+          label="Tên Danh Mục"
           variant="outlined"
           value={name}
           onChange={handleNameChange}
@@ -121,7 +121,7 @@ const CreateCategory = ({ onClose, onCreateSuccess }) => {
             sx={{ mt: 2 }}
             disabled={!!image}
           >
-            Upload Image
+            Tải Lên Ảnh
             <VisuallyHiddenInput
               type="file"
               accept="image/*"
@@ -133,11 +133,11 @@ const CreateCategory = ({ onClose, onCreateSuccess }) => {
           <Box sx={{ mt: 2, mb: 2, position: 'relative' }}>
             <img
               src={imagePreview}
-              alt="Preview"
+              alt="Xem trước"
               style={{ maxWidth: '100%', maxHeight: 200, objectFit: 'contain' }}
             />
             <IconButton
-              aria-label="delete image"
+              aria-label="xóa ảnh"
               onClick={handleDeleteImage}
               sx={{
                 position: 'absolute',
@@ -159,7 +159,7 @@ const CreateCategory = ({ onClose, onCreateSuccess }) => {
           sx={{ mt: 2 }}
           disabled={isLoading} // Khóa nút khi đang gửi yêu cầu
         >
-          Create Category
+          Tạo Danh Mục
         </Button>
       </form>
     </Box>

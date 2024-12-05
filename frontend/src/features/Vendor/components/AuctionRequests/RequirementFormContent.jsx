@@ -13,6 +13,10 @@ import { ImagePreview, ImageUploadButton } from './style';
 
 const primaryColor = '#b41712';
 
+const formatNumber = (value) => {
+  return value.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+};
+
 const RequirementFormContent = ({
   formData,
   handleInputChange,
@@ -22,13 +26,24 @@ const RequirementFormContent = ({
   canEdit,
   currentRequirement
 }) => {
+  const handlePriceChange = (event) => {
+    const { name, value } = event.target;
+    const formattedValue = formatNumber(value.replace(/\./g, ''));
+    handleInputChange({
+      target: {
+        name,
+        value: formattedValue,
+      },
+    });
+  };
+
   return (
     <form>
       <Grid container spacing={3}>
         <Grid item xs={12} sm={6}>
           <TextField
             fullWidth
-            label="Tên sản phẩm"
+            label="Tên vật phẩm"
             name="name"
             value={formData.name}
             onChange={handleInputChange}
@@ -42,9 +57,8 @@ const RequirementFormContent = ({
             fullWidth
             label="Giá khởi điểm"
             name="startingPrice"
-            type="number"
             value={formData.startingPrice}
-            onChange={handleInputChange}
+            onChange={handlePriceChange}
             required
             variant="outlined"
             InputProps={{
@@ -67,7 +81,7 @@ const RequirementFormContent = ({
         </Grid>
         <Grid item xs={12}>
           <Typography variant="h6" gutterBottom color={primaryColor}>
-            Hình ảnh sản phẩm
+            Hình ảnh vật phẩm
           </Typography>
           <Grid container spacing={2}>
             {formData.productImages.map((image, index) => (

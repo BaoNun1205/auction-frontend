@@ -22,7 +22,7 @@ import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import { isAfter, addHours } from 'date-fns';
 import CloseIcon from '@mui/icons-material/Close';
-import { useCreateSession } from '~/hooks/sessionHook';
+import { useCreateSession, useUpdateSession } from '~/hooks/sessionHook';
 import { StyledDialog, StyledFormControl, primaryColor } from './style';
 import ReactQuill from 'react-quill';
 
@@ -48,14 +48,18 @@ const validationSchema = Yup.object().shape({
     .max(Yup.ref('startingBid'), 'Giá cọc không được lớn hơn giá khởi điểm'),
 });
 
-const AuctionCreationDialog = ({ open, onClose, asset, refresh }) => {
+const formatNumber = (value) => {
+  return value.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+};
+
+const Reauction = ({ open, onClose, session, refresh }) => {
   const { mutate: createSession } = useCreateSession();
+  const { mutate: updateSession } = useUpdateSession();
 
   const [initialValues, setInitialValues] = useState({
+    id: '',
     name: '',
     description: '',
-    assetId: '',
-    vendorId: '',
     type: '',
     startTime: addHours(new Date(), 1),
     endTime: addHours(new Date(), 25),
@@ -65,38 +69,40 @@ const AuctionCreationDialog = ({ open, onClose, asset, refresh }) => {
   });
 
   useEffect(() => {
-    if (asset) {
+    if (session) {
       setInitialValues({
-        name: '',
-        description: '',
-        assetId: asset.assetId,
-        vendorId: asset.vendor.userId,
-        type: '',
+        id: session.auctionSessionId,
+        name: session.name,
+        description: session.description,
+        type: session.typeSession,
         startTime: addHours(new Date(), 1),
         endTime: addHours(new Date(), 25),
-        startingBid: asset.assetPrice || '',
-        bidIncrement: '',
-        depositPrice: '',
+        startingBid: session.startingBids || '',
+        bidIncrement: formatNumber(session.bidIncrement.toString()) || '',
+        depositPrice: formatNumber(session.depositAmount.toString()) || '',
       });
     }
-  }, [asset]);
+  }, [session]);
+
+  const handlePriceChange = (event, setFieldValue) => {
+    const { name, value } = event.target;
+    const formattedValue = formatNumber(value.replace(/\./g, ''));
+    setFieldValue(name, formattedValue);
+  };
 
   const handleSubmit = (values, { setSubmitting }) => {
-
     const sessionData = {
       name: values.name,
-      description: values.description,
-      typeSession: values.type,
-      assetId: values.assetId,
-      userId: values.vendorId,
-      startingBids: values.startingBid,
-      bidIncrement: values.bidIncrement,
-      depositAmount: values.depositPrice,
-      startTime: values.startTime,
-      endTime: values.endTime,
+      description: values?.description,
+      typeSession: values?.type,
+      bidIncrement: values.bidIncrement.replace(/\./g, ''),
+      depositAmount: values.depositPrice.replace(/\./g, ''),
+      startTime: values.startTime.toISOString(),
+      endTime: values.endTime.toISOString(),
+      status: 'UPCOMING',
     };
 
-    createSession(sessionData, {
+    updateSession({ id: values.id, payload: sessionData }, {
       onSuccess: () => {
         setSubmitting(false);
         refresh();
@@ -146,7 +152,7 @@ const AuctionCreationDialog = ({ open, onClose, asset, refresh }) => {
                   <Grid item xs={12}>
                     <TextField
                       fullWidth
-                      label="Tên sản phẩm"
+                      label="Tên phiên đấu giá"
                       name="name"
                       required
                       variant="outlined"
@@ -235,14 +241,13 @@ const AuctionCreationDialog = ({ open, onClose, asset, refresh }) => {
                       name="startingBid"
                       label="Giá khởi điểm *"
                       fullWidth
-                      type="number"
-                      value={values.startingBid}
-                      onChange={handleChange}
+                      value={formatNumber(values.startingBid.toString())}
                       onBlur={handleBlur}
                       error={touched.startingBid && Boolean(errors.startingBid)}
                       helperText={touched.startingBid && errors.startingBid}
                       InputProps={{
                         startAdornment: <InputAdornment position="start">₫</InputAdornment>,
+                        readOnly: true,
                       }}
                     />
                   </Grid>
@@ -251,9 +256,8 @@ const AuctionCreationDialog = ({ open, onClose, asset, refresh }) => {
                       name="bidIncrement"
                       label="Bước giá *"
                       fullWidth
-                      type="number"
                       value={values.bidIncrement}
-                      onChange={handleChange}
+                      onChange={(event) => handlePriceChange(event, setFieldValue)}
                       onBlur={handleBlur}
                       error={touched.bidIncrement && Boolean(errors.bidIncrement)}
                       helperText={touched.bidIncrement && errors.bidIncrement}
@@ -267,9 +271,8 @@ const AuctionCreationDialog = ({ open, onClose, asset, refresh }) => {
                       name="depositPrice"
                       label="Giá cọc *"
                       fullWidth
-                      type="number"
                       value={values.depositPrice}
-                      onChange={handleChange}
+                      onChange={(event) => handlePriceChange(event, setFieldValue)}
                       onBlur={handleBlur}
                       error={touched.depositPrice && Boolean(errors.depositPrice)}
                       helperText={touched.depositPrice && errors.depositPrice}
@@ -295,7 +298,7 @@ const AuctionCreationDialog = ({ open, onClose, asset, refresh }) => {
                     },
                   }}
                 >
-                  Tạo Phiên Đấu Giá
+                  Đấu giá lại
                 </Button>
               </DialogActions>
             </Form>
@@ -306,4 +309,4 @@ const AuctionCreationDialog = ({ open, onClose, asset, refresh }) => {
   );
 };
 
-export default AuctionCreationDialog;
+export default Reauction;

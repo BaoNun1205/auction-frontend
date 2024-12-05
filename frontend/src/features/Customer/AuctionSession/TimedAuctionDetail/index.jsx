@@ -8,7 +8,7 @@ import SessionDetail from './components/SessionDetail';
 
 const TimedAuctionDetail = () => {
   const { id } = useParams();
-  const { data, isLoading, isError } = useGetSessionById(id);
+  const { data, refetch, isLoading, isError } = useGetSessionById(id);
   console.log('Session: ', data);
 
   if (isLoading) {
@@ -23,8 +23,8 @@ const TimedAuctionDetail = () => {
     <Box sx={{ bgcolor: 'background.default', minHeight: '100vh' }}>
       <Container maxWidth="lg">
         <Box py={4}>
-          <SessionDetail item={data}/>
-          <RelatedPaintings />
+          <SessionDetail item={data} refresh={refetch}/>
+          <RelatedPaintings id={id}/>
           <RelatedSearches />
         </Box>
       </Container>

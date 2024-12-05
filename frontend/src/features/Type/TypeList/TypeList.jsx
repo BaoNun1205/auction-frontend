@@ -111,16 +111,16 @@ const TypeList = () => {
     { value: true, label: 'Inactive' }
   ]
 
-  const columnNames = ['Name', 'Create At', 'Status']
+  const columnNames = ['Tên loại', 'Ngày tạo', 'Trạng thái']
 
   return (
     <StyledContainer>
       <StyledInnerBox>
         <StyledHeaderBox>
           <Box>
-            <StyledTitleBox>List</StyledTitleBox>
+            <StyledTitleBox>Danh sách loại tài sản</StyledTitleBox>
             <StyledSubtitleBox>
-              Dashboard • Type • <Box component="span" sx={{ color: 'primary.disable' }}>List</Box>
+            Loại tài sản • <Box component="span" sx={{ color: 'primary.disable' }}>Danh sách</Box>
             </StyledSubtitleBox>
           </Box>
           <ButtonComponent
@@ -129,7 +129,7 @@ const TypeList = () => {
             hoverBgcolor={(theme) => (theme.palette.primary.light)}
             onClick={handleOpenPopover}
           >
-            + NEW TYPE
+            + Loại tài sản mới
           </ButtonComponent>
           <Popover
             open={Boolean(anchorEl)}

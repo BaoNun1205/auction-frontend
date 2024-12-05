@@ -90,8 +90,8 @@ const Main = () => {
   };
 
   const menuItems = [
-    { text: 'Tài sản', icon: <ShoppingBag />, value: 1 },
-    { text: 'Yêu cầu', icon: <FileText />, value: 2 },
+    { text: 'Yêu cầu', icon: <ShoppingBag />, value: 1 },
+    { text: 'Tài sản', icon: <FileText />, value: 2 },
     { text: 'Phiên đấu giá', icon: <Calendar />, value: 3 }
   ];
 
@@ -182,8 +182,8 @@ const Main = () => {
               Bán đấu giá
             </Typography>
             <Typography color="text.primary">
-              {tab === 1 && 'Tài sản'}
-              {tab === 2 && 'Yêu cầu'}
+              {tab === 1 && 'Yêu cầu'}
+              {tab === 2 && 'Tài sản'}
               {tab === 3 && 'Phiên đấu giá'}
             </Typography>
           </Breadcrumbs>
@@ -223,8 +223,8 @@ const Main = () => {
           </Grid>
           <Grid item xs={12} sm={8} md={9} lg={9}>
             <StyledPaper elevation={3}>
-              {tab === 1 && <MyAssets />}
-              {tab === 2 && <AuctionRequest />}
+              {tab === 1 && <AuctionRequest />}
+              {tab === 2 && <MyAssets />}
               {tab === 3 && <AuctionSessions />}
             </StyledPaper>
           </Grid>

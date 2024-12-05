@@ -1,4 +1,4 @@
-import { GET, POST } from './config/axiosMethods'
+import { GET, POST, PUT } from './config/axiosMethods'
 import handleApiError from './config/handldeApiError'
 
 export const SESSION_PATH = '/session'
@@ -7,6 +7,30 @@ export const createSesion = async (payload) => {
   try {
     const response = await POST({
       url: SESSION_PATH,
+      payload: payload
+    })
+    return response.data
+  } catch (error) {
+    handleApiError(error)
+  }
+}
+
+export const registerSesion = async (payload) => {
+  try {
+    const response = await POST({
+      url: `${SESSION_PATH}/register`,
+      payload: payload
+    })
+    return response.data
+  } catch (error) {
+    handleApiError(error)
+  }
+}
+
+export const updateSesion = async (id, payload) => {
+  try {
+    const response = await PUT({
+      url: `${SESSION_PATH}/${id}`,
       payload: payload
     })
     return response.data
@@ -27,6 +51,24 @@ export const getSessionById = async (sessionId) => {
 export const filterSessions = async (payload) => {
   try {
     const response = await GET({ url: `${SESSION_PATH}`, payload })
+    return response.data.result
+  } catch (error) {
+    handleApiError(error)
+  }
+}
+
+export const getRegistedSession = async (userId) => {
+  try {
+    const response = await GET({ url: `${SESSION_PATH}/registered/${userId}`})
+    return response.data.result
+  } catch (error) {
+    handleApiError(error)
+  }
+}
+
+export const getRelatedSessions = async (id) => {
+  try {
+    const response = await GET({ url: `${SESSION_PATH}/related/${id}` })
     return response.data.result
   } catch (error) {
     handleApiError(error)

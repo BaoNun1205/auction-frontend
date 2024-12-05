@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { createSesion, getSessionById, filterSessions } from '~/api/sessionApi'
+import { createSesion, getSessionById, filterSessions, getRelatedSessions, updateSesion, registerSesion, getRegistedSession } from '~/api/sessionApi'
 
 export const useCreateSession = () => {
   const queryClient = useQueryClient()
@@ -9,13 +9,43 @@ export const useCreateSession = () => {
     onSuccess: (data) => {
       console.log('Session created successfully:', data)
       // Invalidate queries or perform other actions
-      // queryClient.invalidateQueries(['session'])
+      queryClient.invalidateQueries(['filteredSessions'])
     },
     onError: (error) => {
       console.error('Error creating session:', error)
     }
   })
 }
+
+export const useRegisterSession = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: registerSesion,
+    onSuccess: (data) => {
+      console.log('Session registered successfully:', data);
+      queryClient.invalidateQueries(['filteredSessions']);
+    },
+    onError: (error) => {
+      console.error('Error registering session:', error);
+    },
+  });
+};
+
+export const useUpdateSession = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, payload }) => updateSesion(id, payload),
+    onSuccess: (data) => {
+      console.log('Session updated successfully:', data);
+      queryClient.invalidateQueries(['filteredSessions'])
+    },
+    onError: (error) => {
+      console.error('Error updating session:', error);
+    },
+  });
+};
 
 export const useFilterSessions = (payload) => {
   return useQuery({
@@ -27,9 +57,26 @@ export const useFilterSessions = (payload) => {
   })
 }
 
+export const useGetRegistedSessionByUserId = (userId) => {
+  return useQuery({
+    queryKey: ['registeredSessionByUserId', userId],
+    queryFn: () => getRegistedSession(userId)
+  })
+}
+
 export const useGetSessionById = (sessionId) => {
   return useQuery({
     queryKey: ['session', sessionId],
     queryFn: () => getSessionById(sessionId)
   })
 }
+
+export const useGetRelatedSessions = (id) => {
+  return useQuery({
+    queryKey: ['relatedSessions', id],
+    queryFn: () => getRelatedSessions(id),
+    onError: (error) => {
+      console.error('Error fetching related sessions:', error);
+    },
+  });
+};

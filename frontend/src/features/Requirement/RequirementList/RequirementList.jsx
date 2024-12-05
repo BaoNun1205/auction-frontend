@@ -33,7 +33,7 @@ import RequirementDetails from '~/features/Requirement/RequirementList/Requireme
 const RequirementList = () => {
   const [selectedItems, setSelectedItems] = useState([]);
   const [showDeleteButton, setShowDeleteButton] = useState(false);
-  const [status, setStatus] = useState(0);
+  const [status, setStatus] = useState('');
   const [keyword, setKeyword] = useState('');
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -48,12 +48,13 @@ const RequirementList = () => {
   const { mutate: rejectedRequirement } = useRejectedRequirement();
 
   const publishMenuItems = [
-    { value: '0', label: 'Not Approved' },
-    { value: '1', label: 'Approved' },
-    { value: '2', label: 'Rejected' }
+    {value:'', label: 'Tất cả'},
+    { value: '0', label: 'Chưa được duyệt' },
+    { value: '1', label: 'Chấp nhận' },
+    { value: '2', label: 'Từ chối' }
   ];
 
-  const columnNames = ['Name', 'Created At', 'Expected Price', 'Status', 'Vendor', 'Inspector'];
+  const columnNames = ['Tên tài sản', 'Ngày tạo', 'Giá khởi điểm', 'Trạng thái', 'Người bán'];
   
 
   const handlePageChange = (newPage) => {
@@ -122,9 +123,10 @@ const RequirementList = () => {
           <Box>
             <StyledTitleBox>Yêu cầu bán đấu giá</StyledTitleBox>
             <StyledSubtitleBox>
-              Dashboard • Requirement • <Box component="span" sx={{ color: 'primary.disable' }}>List</Box>
+              Yêu cầu • <Box component="span" sx={{ color: 'primary.disable' }}>Danh sách</Box>
             </StyledSubtitleBox>
           </Box>
+ 
         </StyledHeaderBox>
 
         <StyledSecondaryBox bgcolor={(theme) => theme.palette.primary.secondary}>
@@ -150,9 +152,6 @@ const RequirementList = () => {
                   Delete ({selectedItems.length})
                 </Button>
               )}
-              <IconButtonComponent startIcon={<Eye size={20} />} disabled={items.length === 0}>Columns</IconButtonComponent>
-              <IconButtonComponent startIcon={<SlidersHorizontal size={20} />} disabled={items.length === 0}>Filters</IconButtonComponent>
-              <IconButtonComponent startIcon={<Download size={20} />} disabled={items.length === 0}>Export</IconButtonComponent>
             </Box>
           </StyledControlBox>
         </StyledSecondaryBox>
@@ -208,7 +207,7 @@ const RequirementList = () => {
                             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                               <Box
                                 component="img"
-                                src={item.image}
+                                src={item.imageRequirements[0].image}
                                 sx={{ width: 48, height: 48, borderRadius: 1, mr: 2 }}
                               />
                               <Box>
@@ -221,7 +220,10 @@ const RequirementList = () => {
                             <StyledSpan>{time}</StyledSpan>
                           </TableCell>
                           <TableCell>
-                            <StyledSpan>${item.assetPrice.toFixed(2)}</StyledSpan>
+                          <StyledSpan>
+                                {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.assetPrice)}
+                          </StyledSpan>
+
                           </TableCell>
                           <TableCell>
                             <StyledStatusBox
@@ -242,16 +244,11 @@ const RequirementList = () => {
                             <StyledSpan>{item?.vendor?.username || 'N/A'}</StyledSpan>
                           </TableCell>
                           <TableCell>
-                            <StyledSpan>{item?.inspector?.username || 'N/A'}</StyledSpan>
-                          </TableCell>
-                          <TableCell>
                             <ActionMenu>
                               {item.status === '0' ? (
                                 <>
                                   <MuiMenuItem onClick={() => handleViewDetails(item)}>Xem chi tiết</MuiMenuItem> {/* New menu item */}
                                 </>
-                              ) : item.status === '1' ? (
-                                <MuiMenuItem onClick={() => handleCreateAsset(item)}>Tạo sản phẩm</MuiMenuItem>
                               ) : null}
                             </ActionMenu>
                           </TableCell>
