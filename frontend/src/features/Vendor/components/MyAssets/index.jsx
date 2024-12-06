@@ -109,6 +109,7 @@ const MyAssets = () => {
   const handleMenuOpen = (event, asset) => {
     setAnchorEl(event.currentTarget);
     setSelectedAsset(asset);
+    console.log('Selected asset:', asset);
   };
 
   const handleMenuClose = () => {
