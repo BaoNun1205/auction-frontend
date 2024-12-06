@@ -11,11 +11,11 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useLogout } from '~/hooks/authHook';
 import AppModal from '~/components/Modal/Modal';
-import WonItems from './WonItems';
 import CustomerInformation from './CustomerInfomation';
 import AddressesInfomation from './AddressInfomation/AddressInfomation';
 import { ChevronRight } from 'lucide-react';
 import AuctionSessions from './AuctionSessions';
+import WonItems from './WonItems';
 
 const primaryColor = '#b41712';
 
