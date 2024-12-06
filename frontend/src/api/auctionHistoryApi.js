@@ -15,6 +15,17 @@ export const createAuctionHistory = async (payload) => {
   }
 }
 
+export const getAuctionHistoriesByAuctionSessionId = async (id) => {
+  try {
+    const response = await GET({
+      url: `${AUCTION_HISTORY_PATH}/${id}`,
+    })
+    return response.data.result
+  } catch (error) {
+    handleApiError(error)
+  }
+}
+
 export const checkDeposit = async (payload) => {
   try {
     const response = await GET({

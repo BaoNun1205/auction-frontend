@@ -11,7 +11,9 @@ import {
   Grid,
   useMediaQuery,
   useTheme,
-  Skeleton
+  Skeleton,
+  Snackbar,
+  Alert
 } from '@mui/material'
 import FavoriteIcon from '@mui/icons-material/Favorite'
 import ShareIcon from '@mui/icons-material/Share'
@@ -20,24 +22,32 @@ import PersonIcon from '@mui/icons-material/Person'
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew'
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import { StyledCard, ThumbnailImage, StyledButton, StyledIconButton } from './style'
-import { useGetSessionById } from '~/hooks/sessionHook'
+import { useGetSessionById, useGetUsersRegisted, useRegisterSession } from '~/hooks/sessionHook'
 import { useParams } from 'react-router-dom'
+import { useAppStore } from '~/store/appStore'
 
 const RegisterAuctionDetail = () => {
   const [selectedImage, setSelectedImage] = useState(0)
   const [isFavorite, setIsFavorite] = useState(false)
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+  const { auth } = useAppStore()
   const { id } = useParams()
-  const { data: session, refetch, isLoading, isError } = useGetSessionById(id);
+  const { data: session, refetch, isLoading, isError } = useGetSessionById(id)
+  const { data: usersRegisted } = useGetUsersRegisted(id)
+  const { mutate: registerSession } = useRegisterSession()
 
   if (isLoading) {
-    return <Typography>Loading...</Typography>;
+    return <Typography>Loading...</Typography>
   }
 
   if (isError) {
-    return <Typography>Error loading session</Typography>;
+    return <Typography>Error loading session</Typography>
   }
+
+  const listUser = Array.isArray(usersRegisted?.data) ? usersRegisted.data : []
+  console.log('listUser:', listUser)
 
   const listImages = Array.isArray(session.asset.listImages) ? session.asset.listImages : []
 
@@ -58,19 +68,35 @@ const RegisterAuctionDetail = () => {
   }
 
   const formatDateTime = (dateTimeString) => {
-    const date = new Date(dateTimeString);
+    const date = new Date(dateTimeString)
     return date.toLocaleString('vi-VN', {
       hour: '2-digit',
       minute: '2-digit',
       day: '2-digit',
       month: '2-digit',
-      year: 'numeric',
-    }).replace(',', '');
-  };
+      year: 'numeric'
+    }).replace(',', '')
+  }
 
   const handleRegisterClick = () => {
-    // Add your registration logic here
-  };
+    registerSession({ userId: auth.user.id, auctionSessionId: session.id }, {
+      onSuccess: () => {
+        refetch()
+        setSnackbar({ open: true, message: 'Đăng ký phiên đấu giá thành công', severity: 'success' })
+      },
+      onError: (error) => {
+        console.error('Error registering session:', error)
+        setSnackbar({ open: true, message: 'Đăng ký phiên đấu giá thất bại', severity: 'error' })
+      }
+    })
+  }
+
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === 'clickaway') {
+      return
+    }
+    setSnackbar({ ...snackbar, open: false })
+  }
 
   return (
     <Container maxWidth="lg" sx={{ py: 6 }}>
@@ -85,7 +111,7 @@ const RegisterAuctionDetail = () => {
                 width: '100%',
                 height: { xs: 300, sm: 400, md: 500, lg: 600 },
                 objectFit: 'cover',
-                transition: 'all 0.3s ease',
+                transition: 'all 0.3s ease'
               }}
             />
           </StyledCard>
@@ -162,10 +188,10 @@ const RegisterAuctionDetail = () => {
               />
             </Stack>
 
-            <Typography 
-              variant="body1" 
-              color="text.secondary" 
-              paragraph 
+            <Typography
+              variant="body1"
+              color="text.secondary"
+              paragraph
               dangerouslySetInnerHTML={{ __html: session.description }}
             />
 
@@ -201,9 +227,19 @@ const RegisterAuctionDetail = () => {
                 </Box>
               </Stack>
 
-              <StyledButton onClick={handleRegisterClick} sx={{ width: { xs: '100%', sm: 'auto' }, padding: '8px 16px', fontSize: '0.875rem', alignSelf: 'flex-start' }}>
+              <StyledButton onClick={handleRegisterClick} sx={{ width: { xs: '100%', sm: 'auto' }, alignSelf: 'flex-start' }}>
                 Đăng ký
               </StyledButton>
+              <Snackbar
+                open={snackbar.open}
+                autoHideDuration={6000}
+                onClose={handleCloseSnackbar}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+              >
+                <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
+                  {snackbar.message}
+                </Alert>
+              </Snackbar>
             </Stack>
           </Box>
         </Grid>

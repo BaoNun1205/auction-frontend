@@ -27,6 +27,29 @@ export const registerSesion = async (payload) => {
   }
 }
 
+export const checkRegisted = async (payload) => {
+  try {
+    const response = await GET({
+      url: `${SESSION_PATH}/check-register`,
+      payload
+    })
+    return response.data.result
+  } catch (error) {
+    handleApiError(error)
+  }
+}
+
+export const getUsersRegisted = async (id) => {
+  try {
+    const response = await GET({
+      url: `${SESSION_PATH}/user-registered/${id}`,
+    })
+    return response.data.result
+  } catch (error) {
+    handleApiError(error)
+  }
+}
+
 export const updateSesion = async (id, payload) => {
   try {
     const response = await PUT({
@@ -69,6 +92,15 @@ export const getRegistedSession = async (userId) => {
 export const getRelatedSessions = async (id) => {
   try {
     const response = await GET({ url: `${SESSION_PATH}/related/${id}` })
+    return response.data.result
+  } catch (error) {
+    handleApiError(error)
+  }
+}
+
+export const getWinSessionsByUserId = async (id) => {
+  try {
+    const response = await GET({ url: `${SESSION_PATH}/win-sessions/${id}` })
     return response.data.result
   } catch (error) {
     handleApiError(error)

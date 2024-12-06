@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { createSesion, getSessionById, filterSessions, getRelatedSessions, updateSesion, registerSesion, getRegistedSession } from '~/api/sessionApi'
+import { createSesion, getSessionById, filterSessions, getRelatedSessions, updateSesion, registerSesion, getRegistedSession, checkRegisted, getUsersRegisted, getWinSessionsByUserId } from '~/api/sessionApi'
 
 export const useCreateSession = () => {
   const queryClient = useQueryClient()
@@ -28,6 +28,22 @@ export const useRegisterSession = () => {
     },
     onError: (error) => {
       console.error('Error registering session:', error);
+    },
+  });
+};
+
+export const useCheckRegisted = (payload) => {
+  return useQuery(['checkRegisted', payload], () => checkRegisted(payload), {
+    onError: (error) => {
+      console.error('Error checking registration status:', error);
+    },
+  });
+};
+
+export const useGetUsersRegisted = (id) => {
+  return useQuery(['getUsersRegisted', id], () => getUsersRegisted(id), {
+    onError: (error) => {
+      console.error('Error fetching registered users:', error);
     },
   });
 };
@@ -77,6 +93,16 @@ export const useGetRelatedSessions = (id) => {
     queryFn: () => getRelatedSessions(id),
     onError: (error) => {
       console.error('Error fetching related sessions:', error);
+    },
+  });
+};
+
+export const useGetWinSessionsByUserId = (id) => {
+  return useQuery({
+    queryKey: ['getWinSessionsByUserId', id],
+    queryFn: () => getWinSessionsByUserId(id),
+    onError: (error) => {
+      console.error('Error fetching winning sessions:', error);
     },
   });
 };

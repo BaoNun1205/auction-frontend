@@ -25,7 +25,7 @@ import { useAppStore } from '~/store/appStore'
 import LoginForm from '~/features/Authentication/components/AuthLogin/Login'
 import { useNavigate } from 'react-router-dom'
 import { StyledCardMedia, StyledCard, primaryColor } from './style'
-import { useCheckDeposit, useCreateAuctionHistory } from '~/hooks/auctionHistoryHook'
+import { useCheckDeposit, useCreateAuctionHistory, useGetAuctionHistoriesByAuctionSessionId } from '~/hooks/auctionHistoryHook'
 import AppModal from '~/components/Modal/Modal'
 import PlaceBidForm from './components/PlaceBidForm'
 import VendorInformation from '../VendorInfomation'
@@ -33,6 +33,7 @@ import { connectWebSocket, disconnectWebSocket, sendMessage } from '~/service/we
 import Countdown from 'react-countdown'
 import PlaceDepositForm from './components/PlaceDepositForm'
 import { useCreateDeposit } from '~/hooks/depositHook'
+import AuctionHistoryDialog from './components/AuctionHistoryDialog'
 
 const customTheme = createTheme({
   palette: {
@@ -50,11 +51,15 @@ const SessionDetail = ({ item, refresh }) => {
   const [mainImage, setMainImage] = useState(item.asset?.mainImage || 'https://via.placeholder.com/400')
   const [highestBid, setHighestBid] = useState(item?.auctionSessionInfo?.highestBid)
   const [totalBidder, setTotalBidder] = useState(item?.auctionSessionInfo?.totalBidder)
+  const [historyDialogOpen, setHistoryDialogOpen] = useState(false)
   const [totalAuctionHistory, setTotalAuctionHistory] = useState(item?.auctionSessionInfo?.totalAuctionHistory)
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
   const { mutate: createAuctionHistory } = useCreateAuctionHistory()
   const { mutate: createDeposit } = useCreateDeposit()
   const { data: isDeposit, refetch: refetchIsDeposit, error: depositError, isLoading: depositLoading } = useCheckDeposit({ userId: auth.user.id, auctionSessionId: item.id })
+  const { data, refetch: refreshHistory } = useGetAuctionHistoriesByAuctionSessionId(item.id)
+  const auctionHistory = Array.isArray(data) ? data : []
+
 
   const placeholderImage = 'https://via.placeholder.com/150'
 
@@ -64,6 +69,14 @@ const SessionDetail = ({ item, refresh }) => {
 
   const handleNavigate = (path) => {
     navigate(path)
+  }
+
+  const handleOpenHistoryDialog = () => {
+    setHistoryDialogOpen(true)
+  }
+
+  const handleCloseHistoryDialog = () => {
+    setHistoryDialogOpen(false)
   }
 
   const onMessage = useCallback((message) => {
@@ -108,6 +121,7 @@ const SessionDetail = ({ item, refresh }) => {
       onSuccess: () => {
         handleBidPrice()
         refresh()
+        refreshHistory()
       },
       onError: (error) => {
         console.error('Error submitting auction history:', error)
@@ -291,6 +305,18 @@ const SessionDetail = ({ item, refresh }) => {
                       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                         <Typography variant="body1">
                           Giá hiện tại ({totalAuctionHistory} lượt)
+                          <Typography
+                            component="span"
+                            sx={{
+                              ml: 1,
+                              color: primaryColor,
+                              cursor: 'pointer',
+                              textDecoration: 'underline'
+                            }}
+                            onClick={handleOpenHistoryDialog}
+                          >
+                            Xem
+                          </Typography>
                         </Typography>
                         <Chip
                           icon={<Lock fontSize="small" />}
@@ -334,6 +360,13 @@ const SessionDetail = ({ item, refresh }) => {
                           <LoginForm />
                         )}
                       </AppModal>
+
+                      <AuctionHistoryDialog
+                        auctionHistory={auctionHistory}
+                        open={historyDialogOpen}
+                        onClose={handleCloseHistoryDialog}
+                        auctionSessionId={item.id}
+                      />
                       <Box display="flex" alignItems="center">
                         <Chip
                           icon={<Whatshot />}

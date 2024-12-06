@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { checkDeposit, createAuctionHistory } from '~/api/auctionHistoryApi';
+import { checkDeposit, createAuctionHistory, getAuctionHistoriesByAuctionSessionId } from '~/api/auctionHistoryApi';
 
 export const useCreateAuctionHistory = () => {
   return useMutation({
@@ -9,6 +9,16 @@ export const useCreateAuctionHistory = () => {
     },
     onError: (error) => {
       console.error('Error creating auction history:', error);
+    },
+  });
+};
+
+export const useGetAuctionHistoriesByAuctionSessionId = (id) => {
+  return useQuery({
+    queryKey: ['getAuctionHistoriesByAuctionSessionId', id],
+    queryFn: () => getAuctionHistoriesByAuctionSessionId(id),
+    onError: (error) => {
+      console.error('Error fetching auction histories:', error);
     },
   });
 };

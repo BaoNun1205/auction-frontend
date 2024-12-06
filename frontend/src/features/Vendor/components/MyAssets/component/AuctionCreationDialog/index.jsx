@@ -11,7 +11,6 @@ import {
   Grid,
   Typography,
   IconButton,
-  Box,
   InputAdornment,
 } from '@mui/material';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
@@ -26,6 +25,17 @@ import { useCreateSession } from '~/hooks/sessionHook';
 import { StyledDialog, StyledFormControl, primaryColor } from './style';
 import ReactQuill from 'react-quill';
 
+// Custom validation method for depositPrice and bidIncrement
+Yup.addMethod(Yup.string, 'lessThanOrEqualTo', function (ref, message) {
+  return this.test('lessThanOrEqualTo', message, function (value) {
+    const { path, createError } = this;
+    return (
+      !value || parseInt(value.replace(/\./g, ''), 10) <= this.resolve(ref) ||
+      createError({ path, message })
+    );
+  });
+});
+
 const validationSchema = Yup.object().shape({
   name: Yup.string().required('Tên sản phẩm là bắt buộc'),
   description: Yup.string().required('Mô tả là bắt buộc'),
@@ -39,13 +49,12 @@ const validationSchema = Yup.object().shape({
   startingBid: Yup.number()
     .required('Giá khởi điểm là bắt buộc')
     .positive('Giá khởi điểm phải là số dương'),
-  bidIncrement: Yup.number()
+  bidIncrement: Yup.string()
     .required('Bước giá là bắt buộc')
-    .positive('Bước giá phải là số dương'),
-  depositPrice: Yup.number()
+    .lessThanOrEqualTo(Yup.ref('startingBid'), 'Bước giá không được lớn hơn giá khởi điểm'),
+  depositPrice: Yup.string()
     .required('Giá cọc là bắt buộc')
-    .positive('Giá cọc phải là số dương')
-    .max(Yup.ref('startingBid'), 'Giá cọc không được lớn hơn giá khởi điểm'),
+    .lessThanOrEqualTo(Yup.ref('startingBid'), 'Giá cọc không được lớn hơn giá khởi điểm'),
 });
 
 const formatNumber = (value) => {
@@ -92,6 +101,7 @@ const AuctionCreationDialog = ({ open, onClose, asset, refresh }) => {
   };
 
   const handleSubmit = (values, { setSubmitting }) => {
+    console.log('values:', values);
     const sessionData = {
       name: values.name,
       description: values.description,

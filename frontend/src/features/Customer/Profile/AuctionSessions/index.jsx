@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
-import { 
-  Box, 
-  Typography, 
-  Tabs, 
-  Tab, 
-  Card, 
-  CardMedia, 
-  CardContent, 
-  Button, 
+import React, { useState } from 'react'
+import {
+  Box,
+  Typography,
+  Tabs,
+  Tab,
+  Card,
+  CardMedia,
+  CardContent,
+  Button,
   Container,
   Grid,
   Dialog,
@@ -23,19 +23,19 @@ import {
   Paper,
   Tooltip,
   IconButton
-} from '@mui/material';
-import { 
-  AccessTime, 
-  People, 
-  MonetizationOn, 
-  Gavel, 
-  CalendarToday, 
-  HourglassEmpty, 
+} from '@mui/material'
+import {
+  AccessTime,
+  People,
+  MonetizationOn,
+  Gavel,
+  CalendarToday,
+  HourglassEmpty,
   Info
-} from '@mui/icons-material';
-import { useAppStore } from '~/store/appStore';
-import { StyledTab, StyledCard, InfoChip, ActionButton } from './style';
-import { useGetRegistedSessionByUserId } from '~/hooks/sessionHook';
+} from '@mui/icons-material'
+import { useAppStore } from '~/store/appStore'
+import { StyledTab, StyledCard, InfoChip, ActionButton } from './style'
+import { useGetRegistedSessionByUserId } from '~/hooks/sessionHook'
 
 const AuctionRegisteredItem = ({ auctionName, imgSrc, startTime, endTime, startingPrice, registrants }) => {
   return (
@@ -43,7 +43,7 @@ const AuctionRegisteredItem = ({ auctionName, imgSrc, startTime, endTime, starti
       <CardMedia
         component="img"
         sx={{ width: { xs: '100%', sm: 300 }, height: { xs: 200, sm: 'auto' } }}
-        image={imgSrc || "/placeholder.svg?height=200&width=200"}
+        image={imgSrc || '/placeholder.svg?height=200&width=200'}
         alt={auctionName}
       />
       <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, p: 3 }}>
@@ -70,26 +70,26 @@ const AuctionRegisteredItem = ({ auctionName, imgSrc, startTime, endTime, starti
         </Box>
       </Box>
     </StyledCard>
-  );
-};
+  )
+}
 
 const AuctionParticipatedItem = ({ productName, imgSrc, auctionStartTime, auctionEndTime, participants, startingPrice, winningPrice, auctionHistory }) => {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false)
 
   const handleClickOpen = () => {
-    setOpen(true);
-  };
+    setOpen(true)
+  }
 
   const handleClose = () => {
-    setOpen(false);
-  };
+    setOpen(false)
+  }
 
   return (
     <StyledCard>
       <CardMedia
         component="img"
         sx={{ width: { xs: '100%', sm: 300 }, height: { xs: 200, sm: 'auto' } }}
-        image={imgSrc || "/placeholder.svg?height=200&width=200"}
+        image={imgSrc || '/placeholder.svg?height=200&width=200'}
         alt={productName}
       />
       <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, p: 3 }}>
@@ -133,7 +133,7 @@ const AuctionParticipatedItem = ({ productName, imgSrc, auctionStartTime, auctio
               </TableHead>
               <TableBody>
                 {auctionHistory.map((historyItem, index) => (
-                  <TableRow 
+                  <TableRow
                     key={index}
                     sx={{ '&:last-child td, &:last-child th': { border: 0 }, '&:nth-of-type(odd)': { bgcolor: '#fafafa' } }}
                   >
@@ -155,25 +155,27 @@ const AuctionParticipatedItem = ({ productName, imgSrc, auctionStartTime, auctio
         </DialogActions>
       </Dialog>
     </StyledCard>
-  );
-};
+  )
+}
 
 const AuctionSessions = () => {
-  const [tab, setTab] = useState(0);
-  const { auth } = useAppStore();
-  const { data: registedSessions, isLoading, isError } = useGetRegistedSessionByUserId(auth.user.id);
+  const [tab, setTab] = useState(0)
+  const { auth } = useAppStore()
+  const { data: registedSessions, isLoading, isError } = useGetRegistedSessionByUserId(auth.user.id)
 
   const handleChange = (event, newValue) => {
-    setTab(newValue);
-  };
+    setTab(newValue)
+  }
 
   if (isLoading) {
-    return <Typography>Loading...</Typography>;
+    return <Typography>Loading...</Typography>
   }
 
   if (isError) {
-    return <Typography>Error loading sessions</Typography>;
+    return <Typography>Error loading sessions</Typography>
   }
+
+  const upcomingSessions = registedSessions.filter(session => session.auctionSession.status === 'UPCOMING')
 
   return (
     <Container maxWidth="lg">
@@ -184,15 +186,15 @@ const AuctionSessions = () => {
         <Typography variant="subtitle1" color="text.secondary" gutterBottom>
           Lưu trữ các phiên đấu giá đã đăng ký và tham gia
         </Typography>
-        
+
         <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 4 }}>
-          <Tabs 
-            value={tab} 
-            onChange={handleChange} 
+          <Tabs
+            value={tab}
+            onChange={handleChange}
             centered
             TabIndicatorProps={{
               style: {
-                backgroundColor: '#B7201B',
+                backgroundColor: '#B7201B'
               }
             }}
           >
@@ -201,30 +203,39 @@ const AuctionSessions = () => {
           </Tabs>
         </Box>
 
-        <Box sx={{ mt: 3 }}>
+        <Box>
           {tab === 0 ? (
             <Box>
-              {registedSessions.map((item) => (
-                <AuctionRegisteredItem
-                  key={item.auctionSession.auctionSessionId}
-                  auctionName={item.auctionSession.name}
-                  imgSrc={item.auctionSession.asset?.listImages?.[0]?.imageAsset || "/placeholder.svg?height=200&width=200"}
-                  startTime={item.auctionSession.startTime}
-                  endTime={item.auctionSession.endTime}
-                  startingPrice={item.auctionSession.startingBids}
-                  registrants={10} // Default value for registrants
-                />
-              ))}
+              {upcomingSessions.length > 0 ? (
+                upcomingSessions.map((item) => (
+                  <AuctionRegisteredItem
+                    key={item.auctionSession.auctionSessionId}
+                    auctionName={item.auctionSession.name}
+                    imgSrc={item.auctionSession.asset?.listImages?.[0]?.imageAsset || '/placeholder.svg?height=200&width=200'}
+                    startTime={item.auctionSession.startTime}
+                    endTime={item.auctionSession.endTime}
+                    startingPrice={item.auctionSession.startingBids}
+                    registrants={10} // Default value for registrants
+                  />
+                ))
+              ) : (
+                <Typography variant="h6" align="center" sx={{ mt: 4 }}>
+              Chưa có phiên đấu giá sắp diễn ra nào được đăng ký.
+                </Typography>
+              )}
             </Box>
           ) : (
             <Box>
               {/* Replace with actual participated data when available */}
+              <Typography variant="h6" align="center" sx={{ mt: 4 }}>
+            Chưa có phiên đấu giá nào đã tham gia.
+              </Typography>
             </Box>
           )}
         </Box>
       </Box>
     </Container>
-  );
-};
+  )
+}
 
-export default AuctionSessions;
+export default AuctionSessions

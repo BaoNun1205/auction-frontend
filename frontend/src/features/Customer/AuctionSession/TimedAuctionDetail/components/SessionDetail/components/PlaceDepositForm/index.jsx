@@ -37,7 +37,7 @@ const PlaceDepositForm = ({ item, onSubmit }) => {
         Đặt cọc
       </Typography>
       <Typography variant="body1" sx={{ mb: 3 }}>
-        Đây là số tiền cọc mà người bán đặt ra.
+        Đây là số tiền cọc mà người bán đặt ra. Hãy đặt cọc để tham gia phiên đấu giá.
       </Typography>
       <Paper elevation={1} sx={{ p: 2, mb: 3 }}>
         <Typography variant="body2" sx={{ mb: 1, textAlign: 'left' }}>
