@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Box, Typography, CardMedia,
   Button, Modal, Grid, Paper,
@@ -13,19 +13,29 @@ import {
   Phone
 } from '@mui/icons-material';
 import { InfoChip } from './style';
+import { useGetSessionByAssetId } from '~/hooks/sessionHook';
+import { useGetAddressDefaultByUserId } from '~/hooks/addressHook';
 
-const AssetSuccessModal = ({ open, handleClose, item }) => {
+const AssetSuccessModal = ({ open, handleClose, asset }) => {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  const { data: session, refetch: refetchSession } = useGetSessionByAssetId(asset?.assetId);
+  const userId = session?.auctionSessionInfo?.user?.userId;
+  const { data: address, refetch: refetchAddress } = useGetAddressDefaultByUserId(userId);
 
-  if (!item) return null;
+  useEffect(() => {
+    if (open && asset?.assetId) {
+      refetchSession();
+    }
+  }, [open, asset, refetchSession]);
 
-  const user = {
-    name: 'Nguyễn Văn A',
-    address: '123 Đường ABC, Quận XYZ, TP. Hồ Chí Minh',
-    phone: '0123456789',
-    avatar: '/placeholder.svg?height=100&width=100'
-  };
+  useEffect(() => {
+    if (open && userId) {
+      refetchAddress();
+    }
+  }, [open, userId, refetchAddress]);
+
+  if (!open || !asset || !session || !address) return null;
 
   return (
     <Modal
@@ -59,25 +69,25 @@ const AssetSuccessModal = ({ open, handleClose, item }) => {
             <CardMedia
               component="img"
               height="310"
-              image={item.auctionSession.asset.mainImage || '/placeholder.svg?height=300&width=300'}
-              alt={item.auctionSession.asset.assetName}
+              image={asset.mainImage || '/placeholder.svg?height=300&width=300'}
+              alt={asset.assetName}
               sx={{ borderRadius: 2, objectFit: 'cover' }}
             />
             <Typography variant="h6" gutterBottom fontWeight="bold" sx={{ mt: 2 }}>
-              {item.auctionSession.asset.assetName}
+              {asset.assetName}
             </Typography>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
               <Typography variant="body1" color="text.secondary">
                 Giá thắng:
               </Typography>
               <Typography variant="h6" color="#b41712" fontWeight="bold">
-                {item.price.toLocaleString('vi-VN')} VNĐ
+                {session?.auctionSessionInfo?.highestBid?.toLocaleString('vi-VN')} VNĐ
               </Typography>
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
               <Timer color="action" fontSize="small" />
               <Typography variant="body2" color="text.secondary">
-                Thời gian kết thúc: {new Date(item.victoryTime).toLocaleString('vi-VN')}
+                Thời gian kết thúc: {new Date(session?.endTime).toLocaleString('vi-VN')}
               </Typography>
             </Box>
             <InfoChip
@@ -93,10 +103,10 @@ const AssetSuccessModal = ({ open, handleClose, item }) => {
                 Thông tin người nhận
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <Avatar src={user.avatar} sx={{ width: 60, height: 60, mr: 2 }} />
+                <Avatar src={session?.auctionSessionInfo?.user?.avatar} sx={{ width: 60, height: 60, mr: 2 }} />
                 <Box>
                   <Typography variant="subtitle1" fontWeight="bold">
-                    {user.name}
+                    {session?.auctionSessionInfo?.user?.name || session?.auctionSessionInfo?.user?.username}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     Người thắng đấu giá
@@ -106,15 +116,15 @@ const AssetSuccessModal = ({ open, handleClose, item }) => {
               <Divider sx={{ my: 2 }} />
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <Person sx={{ mr: 2, color: '#b41712' }} />
-                <Typography variant="body1">{user.name}</Typography>
+                <Typography variant="body1">{address.recipientName}</Typography>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <Home sx={{ mr: 2, color: '#b41712' }} />
-                <Typography variant="body1">{user.address}</Typography>
+                <Typography variant="body1">{address?.addressDetail}</Typography>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Phone sx={{ mr: 2, color: '#b41712' }} />
-                <Typography variant="body1">{user.phone}</Typography>
+                <Typography variant="body1">{address.phone}</Typography>
               </Box>
             </Paper>
           </Grid>
@@ -123,7 +133,7 @@ const AssetSuccessModal = ({ open, handleClose, item }) => {
           <Typography variant="h6" gutterBottom fontWeight="bold">
             Thông tin vật phẩm
           </Typography>
-          <Typography variant="body2" color="text.secondary" paragraph dangerouslySetInnerHTML={{ __html: item.auctionSession.asset.assetDescription || 'Không có thông tin chi tiết.' }} />
+          <Typography variant="body2" color="text.secondary" paragraph dangerouslySetInnerHTML={{ __html: asset.assetDescription || 'Không có thông tin chi tiết.' }} />
         </Box>
       </Box>
     </Modal>
@@ -131,3 +141,4 @@ const AssetSuccessModal = ({ open, handleClose, item }) => {
 };
 
 export default AssetSuccessModal;
+

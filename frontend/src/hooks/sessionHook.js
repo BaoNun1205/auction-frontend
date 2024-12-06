@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { createSesion, getSessionById, filterSessions, getRelatedSessions, updateSesion, registerSesion, getRegistedSession, checkRegisted, getUsersRegisted, getWinSessionsByUserId } from '~/api/sessionApi'
+import { createSesion, getSessionById, filterSessions, getRelatedSessions, updateSesion, registerSesion, getRegistedSession, checkRegisted, getUsersRegisted, getWinSessionsByUserId, getSessionByAssetId } from '~/api/sessionApi'
 
 export const useCreateSession = () => {
   const queryClient = useQueryClient()
@@ -86,6 +86,16 @@ export const useGetSessionById = (sessionId) => {
     queryFn: () => getSessionById(sessionId)
   })
 }
+
+export const useGetSessionByAssetId = (assetId) => {
+  return useQuery({
+    queryKey: ['sessionByAssetId', assetId],
+    queryFn: () => getSessionByAssetId(assetId),
+    onError: (error) => {
+      console.error('Error fetching session by asset ID:', error);
+    },
+  });
+};
 
 export const useGetRelatedSessions = (id) => {
   return useQuery({

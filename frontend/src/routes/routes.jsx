@@ -15,6 +15,7 @@ import LoginPage from '~/pages/Authentication/LoginPage'
 import SearchResultPage from '~/pages/Customer/SearchResultPage'
 import ProfilePage from '~/pages/Customer/ProfilePage'
 import VendorPage from '~/pages/Vendor/VendorPage'
+import AddAssetPage from '~/pages/Asset/AddAssetPage'
 
 export const BASE_PATHS = {
   HOME: '/',
@@ -102,5 +103,9 @@ export const adminRoutes = [
   {
     path: `${BASE_PATHS.SESSION}/create/:id`,
     page: AddSessionPage
+  },
+  {
+    path: `${BASE_PATHS.ASSET}/create/:id`,
+    page: AddAssetPage
   },
 ]

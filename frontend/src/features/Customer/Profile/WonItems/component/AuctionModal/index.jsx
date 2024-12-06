@@ -1,72 +1,65 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
-  Box, Typography, CardMedia, IconButton, Modal, Grid, Paper,
+  Box, Typography, CardMedia, IconButton, Grid, Paper,
   useMediaQuery, Divider, List, ListItem, ListItemText,
-  ListItemAvatar, Avatar, Chip
+  ListItemAvatar, Avatar, Button
 } from '@mui/material';
 import {
-  Close, AccessTime, MonetizationOn, EmojiEvents, Person,
-  Gavel
+  Close, AccessTime, EmojiEvents, Person,
+  Gavel, ArrowBackIos, ArrowForwardIos
 } from '@mui/icons-material';
-import { styled, ThemeProvider, createTheme } from '@mui/material/styles';
+import { ThemeProvider } from '@mui/material/styles';
 import { useGetAuctionHistoriesByAuctionSessionId } from '~/hooks/auctionHistoryHook';
+import { theme, StyledModal, ModalContent, InfoChip } from './style';
 
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#b41712',
-    },
-  },
-});
+const ImageCarousel = ({ images }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-const StyledModal = styled(Modal)(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-}));
+  const handlePrev = () => {
+    setCurrentIndex((prevIndex) => (prevIndex > 0 ? prevIndex - 1 : images.length - 1));
+  };
 
-const ModalContent = styled(Paper)(({ theme }) => ({
-  backgroundColor: theme.palette.background.paper,
-  borderRadius: theme.shape.borderRadius,
-  boxShadow: theme.shadows[24],
-  padding: theme.spacing(4),
-  maxWidth: 800,
-  maxHeight: '90vh',
-  overflowY: 'auto',
-  [theme.breakpoints.down('sm')]: {
-    width: '100%',
-    height: '100%',
-    maxHeight: '100vh',
-    borderRadius: 0,
-  },
-}));
+  const handleNext = () => {
+    setCurrentIndex((prevIndex) => (prevIndex < images.length - 1 ? prevIndex + 1 : 0));
+  };
 
-const InfoChip = styled(Chip)(({ theme }) => ({
-  backgroundColor: theme.palette.primary.main,
-  color: theme.palette.primary.contrastText,
-  fontWeight: 'bold',
-  '& .MuiChip-icon': {
-    color: 'inherit',
-  },
-}));
+  return (
+    <Box sx={{ position: 'relative', width: 300, height: 300, mb: 2 }}>
+      <CardMedia
+        component="img"
+        height="300"
+        image={images[currentIndex].imageAsset || '/placeholder.svg?height=300&width=300'}
+        alt={`Image ${currentIndex + 1}`}
+        sx={{ borderRadius: 2, objectFit: 'cover' }}
+      />
+      <IconButton
+        sx={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)' }}
+        onClick={handlePrev}
+      >
+        <ArrowBackIos />
+      </IconButton>
+      <IconButton
+        sx={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)' }}
+        onClick={handleNext}
+      >
+        <ArrowForwardIos />
+      </IconButton>
+      <Box sx={{ position: 'absolute', bottom: 8, left: '50%', transform: 'translateX(-50%)' }}>
+        <Typography variant="caption" sx={{ bgcolor: 'rgba(0, 0, 0, 0.6)', color: 'white', px: 1, py: 0.5, borderRadius: 1 }}>
+          {currentIndex + 1} / {images.length}
+        </Typography>
+      </Box>
+    </Box>
+  );
+};
 
 const AuctionModal = ({ open, handleClose, item }) => {
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const { data, refetch: refreshHistory } = useGetAuctionHistoriesByAuctionSessionId(item?.auctionSession?.auctionSessionId);
-  console.log(item?.auctionSession?.auctionSessionId);
-  const auctionHistories = Array.isArray(data) ? data : []
+  const auctionHistories = Array.isArray(data) ? data : [];
+  const images = Array.isArray(item?.auctionSession?.asset?.listImages) ? item.auctionSession.asset.listImages : [item?.auctionSession?.asset?.mainImage];
 
   if (!item) return null;
-
-  const biddingHistory = [
-    { id: 1, name: 'Nguyễn Văn A', time: '2023-06-10T14:00:00', price: 5000000 },
-    { id: 2, name: 'Trần Thị B', time: '2023-06-10T14:15:00', price: 5500000 },
-    { id: 3, name: 'Lê Văn C', time: '2023-06-10T14:30:00', price: 6000000 },
-    { id: 4, name: 'Phạm Thị D', time: '2023-06-10T14:45:00', price: 6500000 },
-    { id: 5, name: 'Hoàng Văn E', time: '2023-06-10T15:00:00', price: 7000000 },
-  ];
-
-  const winner = biddingHistory[biddingHistory.length - 1];
 
   return (
     <ThemeProvider theme={theme}>
@@ -78,7 +71,7 @@ const AuctionModal = ({ open, handleClose, item }) => {
         <ModalContent elevation={24}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
             <Typography variant="h5" component="h2" color="primary" fontWeight="bold">
-              Chi tiết phiên đấu giá
+              Thông tin vật phẩm đấu giá
             </Typography>
             <IconButton onClick={handleClose} size="large" edge="end">
               <Close />
@@ -87,13 +80,7 @@ const AuctionModal = ({ open, handleClose, item }) => {
 
           <Grid container spacing={4}>
             <Grid item xs={12} md={6}>
-              <CardMedia
-                component="img"
-                height="300"
-                image={item.auctionSession.asset.mainImage || '/placeholder.svg?height=300&width=300'}
-                alt={item.auctionSession.asset.assetName}
-                sx={{ borderRadius: 2, objectFit: 'cover', mb: 2 }}
-              />
+              <ImageCarousel images={images} />
               <Typography variant="h6" gutterBottom fontWeight="bold">
                 {item.auctionSession.asset.assetName}
               </Typography>
@@ -167,7 +154,7 @@ const AuctionModal = ({ open, handleClose, item }) => {
                       <ListItem alignItems="flex-start" disableGutters>
                         <ListItemAvatar>
                           <Avatar sx={{ bgcolor: index === 0 ? 'primary.main' : 'grey.400' }}>
-                            {bid.user.name}
+                            {bid.user.name?.charAt(0) || bid.user.username[0]}
                           </Avatar>
                         </ListItemAvatar>
                         <ListItemText
@@ -188,7 +175,7 @@ const AuctionModal = ({ open, handleClose, item }) => {
                           }
                         />
                       </ListItem>
-                      {index < biddingHistory.length - 1 && <Divider variant="inset" component="li" />}
+                      {index < auctionHistories.length - 1 && <Divider variant="inset" component="li" />}
                     </React.Fragment>
                   ))}
                 </List>
@@ -214,4 +201,3 @@ const AuctionModal = ({ open, handleClose, item }) => {
 };
 
 export default AuctionModal;
-

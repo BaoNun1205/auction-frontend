@@ -71,6 +71,15 @@ export const getSessionById = async (sessionId) => {
   }
 }
 
+export const getSessionByAssetId = async (assetId) => {
+  try {
+    const response = await GET({ url: `${SESSION_PATH}/asset/${assetId}` })
+    return response.data.result
+  } catch (error) {
+    handleApiError(error)
+  }
+}
+
 export const filterSessions = async (payload) => {
   try {
     const response = await GET({ url: `${SESSION_PATH}`, payload })

@@ -1,132 +1,204 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
-  Box, Typography, CardMedia,
-  Button, Modal, Grid, Paper,
-  useTheme, useMediaQuery,
-  Avatar,
-  Divider
+  Box, Typography, CardMedia, IconButton, Grid, Paper,
+  useMediaQuery, Divider, List, ListItem, ListItemText,
+  ListItemAvatar, Avatar, Button
 } from '@mui/material';
 import {
-  Timer, Gavel, Close,
-  Person,
-  Home,
-  Phone
+  Close, AccessTime, EmojiEvents, Person,
+  Gavel, ArrowBackIos, ArrowForwardIos
 } from '@mui/icons-material';
-import { InfoChip } from '../../style';
+import { ThemeProvider } from '@mui/material/styles';
+import { useGetAuctionHistoriesByAuctionSessionId } from '~/hooks/auctionHistoryHook';
+import { theme, StyledModal, ModalContent, InfoChip } from './style';
+import { useGetSessionById } from '~/hooks/sessionHook';
 
-const AuctionModal = ({ open, handleClose, item }) => {
-  const theme = useTheme();
-  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+const ImageCarousel = ({ images }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  if (!item) return null;
+  const handlePrev = () => {
+    setCurrentIndex((prevIndex) => (prevIndex > 0 ? prevIndex - 1 : images.length - 1));
+  };
 
-  const user = {
-    name: 'Nguyễn Văn A',
-    address: '123 Đường ABC, Quận XYZ, TP. Hồ Chí Minh',
-    phone: '0123456789',
-    avatar: '/placeholder.svg?height=100&width=100'
+  const handleNext = () => {
+    setCurrentIndex((prevIndex) => (prevIndex < images.length - 1 ? prevIndex + 1 : 0));
   };
 
   return (
-    <Modal
-      open={open}
-      onClose={handleClose}
-      aria-labelledby="auction-details-modal"
-    >
-      <Box sx={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: fullScreen ? '100%' : 800,
-        maxHeight: '90vh',
-        overflowY: 'auto',
-        bgcolor: 'background.paper',
-        borderRadius: 2,
-        boxShadow: 24,
-        p: 4
-      }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Typography variant="h5" component="h2" color="#b41712" fontWeight="bold">
-            Chi tiết đấu giá
-          </Typography>
-          <Button onClick={handleClose} sx={{ minWidth: 'auto', p: 0.5 }}>
-            <Close />
-          </Button>
-        </Box>
-        <Grid container spacing={4}>
-          <Grid item xs={12} md={6}>
-            <CardMedia
-              component="img"
-              height="310"
-              image={item.auctionSession.asset.mainImage || '/placeholder.svg?height=300&width=300'}
-              alt={item.auctionSession.asset.assetName}
-              sx={{ borderRadius: 2, objectFit: 'cover' }}
-            />
-            <Typography variant="h6" gutterBottom fontWeight="bold" sx={{ mt: 2 }}>
-              {item.auctionSession.asset.assetName}
+    <Box sx={{ position: 'relative', width: 300, height: 300, mb: 2 }}>
+      <CardMedia
+        component="img"
+        height="300"
+        image={images[currentIndex].imageAsset || '/placeholder.svg?height=300&width=300'}
+        alt={`Image ${currentIndex + 1}`}
+        sx={{ borderRadius: 2, objectFit: 'cover' }}
+      />
+      <IconButton
+        sx={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)' }}
+        onClick={handlePrev}
+      >
+        <ArrowBackIos />
+      </IconButton>
+      <IconButton
+        sx={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)' }}
+        onClick={handleNext}
+      >
+        <ArrowForwardIos />
+      </IconButton>
+      <Box sx={{ position: 'absolute', bottom: 8, left: '50%', transform: 'translateX(-50%)' }}>
+        <Typography variant="caption" sx={{ bgcolor: 'rgba(0, 0, 0, 0.6)', color: 'white', px: 1, py: 0.5, borderRadius: 1 }}>
+          {currentIndex + 1} / {images.length}
+        </Typography>
+      </Box>
+    </Box>
+  );
+};
+
+const AuctionModal = ({ open, handleClose, item }) => {
+  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  const { data: session } = useGetSessionById(item?.auctionSessionId);
+  const { data, refetch: refreshHistory } = useGetAuctionHistoriesByAuctionSessionId(item?.auctionSessionId);
+  const auctionHistories = Array.isArray(data) ? data : [];
+  const images = Array.isArray(session?.asset?.listImages) ? session.asset.listImages : [session?.asset?.mainImage];
+
+  if (!item) return null;
+
+  return (
+    <ThemeProvider theme={theme}>
+      <StyledModal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="auction-details-modal"
+      >
+        <ModalContent elevation={24}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+            <Typography variant="h5" component="h2" color="primary" fontWeight="bold">
+              Thông tin phiên đấu giá
             </Typography>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-              <Typography variant="body1" color="text.secondary">
-                Giá thắng:
-              </Typography>
-              <Typography variant="h6" color="#b41712" fontWeight="bold">
-                {item.price.toLocaleString('vi-VN')} VNĐ
-              </Typography>
-            </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-              <Timer color="action" fontSize="small" />
-              <Typography variant="body2" color="text.secondary">
-                Thời gian kết thúc: {new Date(item.victoryTime).toLocaleString('vi-VN')}
-              </Typography>
-            </Box>
-            <InfoChip
-              icon={<Gavel />}
-              label="Đã thắng đấu giá"
-              color="success"
-              sx={{ mb: 2 }}
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
+            <IconButton onClick={handleClose} size="large" edge="end">
+              <Close />
+            </IconButton>
+          </Box>
+
+          <Grid container spacing={4}>
+            <Grid item xs={12} md={6}>
+              <ImageCarousel images={images} />
               <Typography variant="h6" gutterBottom fontWeight="bold">
-                Thông tin người nhận
+                {item.name}
               </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <Avatar src={user.avatar} sx={{ width: 60, height: 60, mr: 2 }} />
-                <Box>
-                  <Typography variant="subtitle1" fontWeight="bold">
-                    {user.name}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Người thắng đấu giá
-                  </Typography>
-                </Box>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Typography variant="body1" color="text.secondary">
+                  Giá khởi điểm:
+                </Typography>
+                <Typography variant="h6" color="primary" fontWeight="bold">
+                  {item.startingBids.toLocaleString('vi-VN')} VNĐ
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Typography variant="body1" color="text.secondary">
+                  Giá cọc:
+                </Typography>
+                <Typography variant="body1" fontWeight="medium">
+                  {item.depositAmount.toLocaleString('vi-VN')} VNĐ
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Typography variant="body1" color="text.secondary">
+                  Bước nhảy:
+                </Typography>
+                <Typography variant="body1" fontWeight="medium">
+                  {item.bidIncrement.toLocaleString('vi-VN')} VNĐ
+                </Typography>
               </Box>
               <Divider sx={{ my: 2 }} />
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <Person sx={{ mr: 2, color: '#b41712' }} />
-                <Typography variant="body1">{user.name}</Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                <AccessTime color="action" />
+                <Typography variant="body2" color="text.secondary">
+                  Kết thúc: {new Date(item.endTime).toLocaleString('vi-VN')}
+                </Typography>
               </Box>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <Home sx={{ mr: 2, color: '#b41712' }} />
-                <Typography variant="body1">{user.address}</Typography>
-              </Box>
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Phone sx={{ mr: 2, color: '#b41712' }} />
-                <Typography variant="body1">{user.phone}</Typography>
-              </Box>
-            </Paper>
+              <InfoChip icon={<EmojiEvents />} label="Đã kết thúc" />
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+              <Paper elevation={3} sx={{ p: 3, borderRadius: 2, mb: 3 }}>
+                <Typography variant="h6" gutterBottom fontWeight="bold">
+                  Người thắng cuộc
+                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <Avatar sx={{ bgcolor: 'primary.main', mr: 2 }}>
+                    <Person />
+                  </Avatar>
+                  <Box>
+                    <Typography variant="subtitle1" fontWeight="bold">
+                      {item.auctionSessionInfo.user.name || item.auctionSessionInfo.user.username}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Thời gian: {new Date(item.endTime).toLocaleString('vi-VN')}
+                    </Typography>
+                  </Box>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Gavel color="primary" />
+                  <Typography variant="body1" fontWeight="bold">
+                    Giá thắng: {item.auctionSessionInfo.highestBid.toLocaleString('vi-VN')} VNĐ
+                  </Typography>
+                </Box>
+              </Paper>
+
+              <Paper elevation={3} sx={{ p: 3, borderRadius: 2, maxHeight: 300, overflowY: 'auto' }}>
+                <Typography variant="h6" gutterBottom fontWeight="bold">
+                  Lịch sử đấu giá
+                </Typography>
+                <List>
+                  {auctionHistories.map((bid, index) => (
+                    <React.Fragment key={bid.id}>
+                      <ListItem alignItems="flex-start" disableGutters>
+                        <ListItemAvatar>
+                          <Avatar sx={{ bgcolor: index === 0 ? 'primary.main' : 'grey.400' }}>
+                            {bid.user.name?.charAt(0) || bid.user.username[0]}
+                          </Avatar>
+                        </ListItemAvatar>
+                        <ListItemText
+                          primary={
+                            <Typography variant="subtitle2" fontWeight="bold">
+                              {bid.user.name || bid.user.username}
+                            </Typography>
+                          }
+                          secondary={
+                            <React.Fragment>
+                              <Typography variant="body2" color="text.secondary" component="span">
+                                {new Date(bid.bidTime).toLocaleString('vi-VN')}
+                              </Typography>
+                              <Typography variant="body2" color="primary" fontWeight="bold" component="div">
+                                {bid.bidPrice.toLocaleString('vi-VN')} VNĐ
+                              </Typography>
+                            </React.Fragment>
+                          }
+                        />
+                      </ListItem>
+                      {index < auctionHistories.length - 1 && <Divider variant="inset" component="li" />}
+                    </React.Fragment>
+                  ))}
+                </List>
+              </Paper>
+            </Grid>
           </Grid>
-        </Grid>
-        <Box sx={{ mt: 4 }}>
-          <Typography variant="h6" gutterBottom fontWeight="bold">
-            Thông tin vật phẩm
-          </Typography>
-          <Typography variant="body2" color="text.secondary" paragraph dangerouslySetInnerHTML={{ __html: item.auctionSession.asset.assetDescription || 'Không có thông tin chi tiết.' }} />
-        </Box>
-      </Box>
-    </Modal>
+
+          <Box sx={{ mt: 4 }}>
+            <Typography variant="h6" gutterBottom fontWeight="bold">
+              Thông tin phiên
+            </Typography>
+            <Typography 
+              variant="body2" 
+              color="text.secondary" 
+              paragraph 
+              dangerouslySetInnerHTML={{ __html: item.description || 'Không có thông tin chi tiết.' }} 
+            />
+          </Box>
+        </ModalContent>
+      </StyledModal>
+    </ThemeProvider>
   );
 };
 

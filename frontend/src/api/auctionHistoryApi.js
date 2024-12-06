@@ -25,15 +25,3 @@ export const getAuctionHistoriesByAuctionSessionId = async (id) => {
     handleApiError(error)
   }
 }
-
-export const checkDeposit = async (payload) => {
-  try {
-    const response = await GET({
-      url: `${AUCTION_HISTORY_PATH}/check-deposit`,
-      payload: payload
-    })
-    return response.data.result
-  } catch (error) {
-    handleApiError(error)
-  }
-}

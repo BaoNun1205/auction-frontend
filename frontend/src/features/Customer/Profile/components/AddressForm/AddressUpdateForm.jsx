@@ -185,7 +185,7 @@ const AddressUpdateForm = ({ address, refresh, handleClose }) => {
 
   return (
     <StyledBox component="form" sx={{ maxWidth: 600, margin: '0 auto', padding: 3 }}>
-      <Typography variant="h5" sx={{ mb: 3, textAlign: 'center' }}>
+      <Typography variant="h5" sx={{ mb: 3 }}>
         Cập nhật địa chỉ mới
       </Typography>
 

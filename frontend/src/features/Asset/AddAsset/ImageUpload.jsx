@@ -63,8 +63,8 @@ const ImageUploadAndReview = ({ initialImages = [] }) => {
           }}
         >
           <UploadIllustration />
-          <p>Drop or select file</p>
-          <p style={{ fontSize: '0.8rem', color: 'gray' }}>Drop files here or click to browse through your machine.</p>
+          <p>Thả hoặc chọn tập tin</p>
+          <p style={{ fontSize: '0.8rem', color: 'gray' }}>Thả tập tin vào đây hoặc nhấp để duyệt tệp tin trên máy</p>
         </Box>
       </label>
 
@@ -98,8 +98,8 @@ const ImageUploadAndReview = ({ initialImages = [] }) => {
       </ImageList>
 
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-        <Button variant="contained" onClick={handleRemoveAll} sx={{ mr: 2 }}>Remove all</Button>
-        <Button variant="contained" startIcon={<CloudUploadIcon />} onClick={handleUpload} disabled={selectedImages.length === 0}>Upload</Button>
+        <Button variant="contained" onClick={handleRemoveAll} sx={{ mr: 2 }}>Xóa tất cả</Button>
+        <Button variant="contained" startIcon={<CloudUploadIcon />} onClick={handleUpload} disabled={selectedImages.length === 0}>Tải lên</Button>
       </Box>
     </Box>
   );
