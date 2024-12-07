@@ -16,3 +16,10 @@ export const StyledChip = styled(Chip)(({ theme, status }) => ({
           status === '0' ? theme.palette.error.main :
             theme.palette.warning.main
 }))
+
+export const InfoChip = styled(Chip)(({ theme }) => ({
+  margin: theme.spacing(0.5),
+  '& .MuiChip-icon': {
+    color: 'inherit'
+  }
+}));

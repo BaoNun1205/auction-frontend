@@ -3,7 +3,6 @@ import Carousel from 'react-material-ui-carousel';
 import { useNavigate } from 'react-router-dom';
 import { Typography } from '@mui/material';
 import { TruncatedTypography, StyledCard, StyledCardMedia, StyledCardContent, StyledButton, StyledBox } from './style';
-import splitDateTime from '~/utils/SplitDateTime';
 
 export default function Component({ items = [] }) {
   const navigate = useNavigate();
@@ -36,14 +35,18 @@ export default function Component({ items = [] }) {
       {groupedItems.map((group, index) => (
         <StyledBox key={index}>
           {group.map((item, itemIndex) => {
-            const { date, time } = splitDateTime(item.endTime);
+            const formattedDateTime = new Date(item.endTime).toLocaleString('vi-VN', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: false
+            });
             return (
               <StyledCard key={itemIndex}>
-                <Typography variant="subtitle2" textAlign="center">
-                  {item.typeSession}
-                </Typography>
                 <Typography variant="body2" textAlign="center" fontWeight="bold">
-                  {date} - {time}
+                  {formattedDateTime}
                 </Typography>
                 <StyledCardMedia
                   component="img"

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Box,
   Typography,
@@ -18,21 +18,22 @@ import {
   createTheme,
   ThemeProvider,
   Container
-} from '@mui/material'
-import { AccessTime, ChevronRight, EmojiEvents, Lock, Whatshot } from '@mui/icons-material'
-import { useTheme, useMediaQuery } from '@mui/material'
-import { useAppStore } from '~/store/appStore'
-import LoginForm from '~/features/Authentication/components/AuthLogin/Login'
-import { useNavigate } from 'react-router-dom'
-import { StyledCardMedia, StyledCard, primaryColor } from './style'
-import { useCheckDeposit, useCreateAuctionHistory } from '~/hooks/auctionHistoryHook'
-import AppModal from '~/components/Modal/Modal'
-import PlaceBidForm from './components/PlaceBidForm'
-import VendorInformation from '../VendorInfomation'
-import { connectWebSocket, disconnectWebSocket, sendMessage } from '~/service/webSocketService'
-import Countdown from 'react-countdown'
-import PlaceDepositForm from './components/PlaceDepositForm'
-import { useCreateDeposit } from '~/hooks/depositHook'
+} from '@mui/material';
+import { AccessTime, ChevronRight, EmojiEvents, Lock, Whatshot } from '@mui/icons-material';
+import { useTheme, useMediaQuery } from '@mui/material';
+import { useAppStore } from '~/store/appStore';
+import LoginForm from '~/features/Authentication/components/AuthLogin/Login';
+import { useNavigate } from 'react-router-dom';
+import { StyledCardMedia, StyledCard, primaryColor } from './style';
+import { useCreateAuctionHistory, useGetAuctionHistoriesByAuctionSessionId } from '~/hooks/auctionHistoryHook';
+import AppModal from '~/components/Modal/Modal';
+import PlaceBidForm from './components/PlaceBidForm';
+import VendorInformation from '../VendorInfomation';
+import { connectWebSocket, disconnectWebSocket, sendMessage } from '~/service/webSocketService';
+import Countdown from 'react-countdown';
+import PlaceDepositForm from './components/PlaceDepositForm';
+import AuctionHistoryDialog from './components/AuctionHistoryDialog';
+import { useCheckDeposit, useCreateDeposit } from '~/hooks/depositHook';
 
 const customTheme = createTheme({
   palette: {
@@ -40,62 +41,75 @@ const customTheme = createTheme({
       main: primaryColor
     }
   }
-})
+});
 
 const SessionDetail = ({ item, refresh }) => {
-  const theme = useTheme()
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
-  const { auth } = useAppStore()
-  const navigate = useNavigate()
-  const [mainImage, setMainImage] = useState(item.asset?.mainImage || 'https://via.placeholder.com/400')
-  const [highestBid, setHighestBid] = useState(item?.auctionSessionInfo?.highestBid)
-  const [totalBidder, setTotalBidder] = useState(item?.auctionSessionInfo?.totalBidder)
-  const [totalAuctionHistory, setTotalAuctionHistory] = useState(item?.auctionSessionInfo?.totalAuctionHistory)
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
-  const { mutate: createAuctionHistory } = useCreateAuctionHistory()
-  const { mutate: createDeposit } = useCreateDeposit()
-  const { data: isDeposit, refetch: refetchIsDeposit, error: depositError, isLoading: depositLoading } = useCheckDeposit({ userId: auth.user.id, auctionSessionId: item.id })
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const { auth } = useAppStore();
+  const navigate = useNavigate();
+  const [mainImage, setMainImage] = useState(item.asset?.mainImage || 'https://via.placeholder.com/400');
+  const [highestBid, setHighestBid] = useState(item?.auctionSessionInfo?.highestBid);
+  const [totalBidder, setTotalBidder] = useState(item?.auctionSessionInfo?.totalBidder);
+  const [historyDialogOpen, setHistoryDialogOpen] = useState(false);
+  const [totalAuctionHistory, setTotalAuctionHistory] = useState(item?.auctionSessionInfo?.totalAuctionHistory);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const { mutate: createAuctionHistory } = useCreateAuctionHistory();
+  const { mutate: createDeposit } = useCreateDeposit();
+  const { data: isDeposit, refetch: refetchIsDeposit, error: depositError, isLoading: depositLoading } = useCheckDeposit({ userId: auth.user.id, auctionSessionId: item.id });
+  const { data, refetch: refreshHistory } = useGetAuctionHistoriesByAuctionSessionId(item.id);
+  const auctionHistory = Array.isArray(data) ? data : [];
 
-  const placeholderImage = 'https://via.placeholder.com/150'
+  const isVendor = item.asset.vendor.userId === auth.user.id;
+
+  const placeholderImage = 'https://via.placeholder.com/150';
 
   const handleThumbnailClick = (image) => {
-    setMainImage(image)
-  }
+    setMainImage(image);
+  };
 
   const handleNavigate = (path) => {
-    navigate(path)
-  }
+    navigate(path);
+  };
+
+  const handleOpenHistoryDialog = () => {
+    setHistoryDialogOpen(true);
+  };
+
+  const handleCloseHistoryDialog = () => {
+    setHistoryDialogOpen(false);
+  };
 
   const onMessage = useCallback((message) => {
-    const response = JSON.parse(message.body)
+    const response = JSON.parse(message.body);
     if (response.code === 200 && response.result) {
-      const { auctionSessionInfo } = response.result
-      setTotalBidder(auctionSessionInfo.totalBidder)
-      setTotalAuctionHistory(auctionSessionInfo.totalAuctionHistory)
-      setHighestBid(auctionSessionInfo.highestBid)
+      const { auctionSessionInfo } = response.result;
+      setTotalBidder(auctionSessionInfo.totalBidder);
+      setTotalAuctionHistory(auctionSessionInfo.totalAuctionHistory);
+      setHighestBid(auctionSessionInfo.highestBid);
 
       setSnackbar({
         open: true,
         message: `New bid: ${auctionSessionInfo.highestBid.toLocaleString('vi-VN')} VND`,
         severity: 'info'
-      })
+      });
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
     if (item.status === 'ONGOING') {
-      const destination = `/rt-product/bidPrice-update/${item.id}`
-      connectWebSocket(auth.token, destination, onMessage)
+      const destination = `/rt-product/bidPrice-update/${item.id}`;
+      connectWebSocket(auth.token, destination, onMessage);
 
       return () => {
-        disconnectWebSocket()
-      }
+        disconnectWebSocket();
+      };
     }
-  }, [auth.token, item.id, onMessage])
+  }, [auth.token, item.id, onMessage]);
 
   const handleBidPrice = () => {
-    sendMessage(`/app/rt-auction/placeBid/${item.id}`, {})
-  }
+    sendMessage(`/app/rt-auction/placeBid/${item.id}`, {});
+  };
 
   const handleSubmitPrice = (bidPrice) => {
     const auctionHistory = {
@@ -103,66 +117,67 @@ const SessionDetail = ({ item, refresh }) => {
       userId: auth.user.id,
       bidPrice: bidPrice,
       bidTime: new Date().toISOString()
-    }
+    };
     createAuctionHistory(auctionHistory, {
       onSuccess: () => {
-        handleBidPrice()
-        refresh()
+        handleBidPrice();
+        refresh();
+        refreshHistory();
       },
       onError: (error) => {
-        console.error('Error submitting auction history:', error)
+        console.error('Error submitting auction history:', error);
         setSnackbar({
           open: true,
           message: 'Error placing bid. Please try again.',
           severity: 'error'
-        })
+        });
       }
-    })
-  }
+    });
+  };
 
   const handleSubmitDeposit = () => {
     const depositAuction = {
       auctionSessionId: item.id,
       userId: auth.user.id,
       depositPrice: item.depositAmount
-    }
+    };
     createDeposit(depositAuction, {
       onSuccess: () => {
-        refetchIsDeposit()
+        refetchIsDeposit();
       },
       onError: (error) => {
-        console.error('Error submitting auction history:', error)
+        console.error('Error submitting auction history:', error);
         setSnackbar({
           open: true,
           message: 'Error placing bid. Please try again.',
           severity: 'error'
-        })
+        });
       }
-    })
-  }
+    });
+  };
 
   const handleCloseSnackbar = (event, reason) => {
     if (reason === 'clickaway') {
-      return
+      return;
     }
-    setSnackbar({ ...snackbar, open: false })
-  }
+    setSnackbar({ ...snackbar, open: false });
+  };
 
   const renderCountdown = ({ days, hours, minutes, seconds, completed }) => {
     if (completed) {
-      refresh()
-      return <span>Phiên đấu giá đã kết thúc</span>
+      refresh();
+      return <span>Phiên đấu giá đã kết thúc</span>;
     } else {
       return (
         <span>
           {days} ngày {hours} giờ {minutes} phút {seconds} giây
         </span>
-      )
+      );
     }
-  }
+  };
 
   const renderWinnerSection = () => {
-    if (item.status !== 'AUCTION_SUCCESS' && item.status !== 'AUCTION_FAILED') return null
+    if (item.status !== 'AUCTION_SUCCESS' && item.status !== 'AUCTION_FAILED') return null;
 
     return (
       <>
@@ -172,12 +187,12 @@ const SessionDetail = ({ item, refresh }) => {
             <Box display="flex" alignItems="center" justifyContent="center" flexDirection="column">
               {item.status === 'AUCTION_FAILED' ? (
                 <Typography variant="h6" color="error" align="center">
-                Chưa có người đấu giá
+                  Chưa có người đấu giá
                 </Typography>
               ) : (
                 <>
                   <Typography variant="h5" gutterBottom align="center" sx={{ fontWeight: 'bold' }}>
-                  Người Thắng Cuộc
+                    Người Thắng Cuộc
                   </Typography>
                   <Avatar
                     src={item.auctionSessionInfo.user.avatar || placeholderImage}
@@ -188,7 +203,7 @@ const SessionDetail = ({ item, refresh }) => {
                     {item.auctionSessionInfo.user.username}
                   </Typography>
                   <Typography variant="h6" align="center" sx={{ mb: 2 }} color="text.secondary">
-                  Giá thắng: <span style={{ fontWeight: 'bold', color: primaryColor }}>{highestBid.toLocaleString('vi-VN')} VND</span>
+                    Giá thắng: <span style={{ fontWeight: 'bold', color: primaryColor }}>{highestBid.toLocaleString('vi-VN')} VND</span>
                   </Typography>
                   <Grid container spacing={2} justifyContent="center">
                     <Grid item>
@@ -204,6 +219,7 @@ const SessionDetail = ({ item, refresh }) => {
                         icon={<AccessTime />}
                         label={`${totalAuctionHistory} lượt đấu giá`}
                         variant="outlined"
+                        onClick={isDeposit || isVendor ? handleOpenHistoryDialog : undefined}
                       />
                     </Grid>
                   </Grid>
@@ -213,8 +229,8 @@ const SessionDetail = ({ item, refresh }) => {
           </Box>
         </Fade>
       </>
-    )
-  }
+    );
+  };
 
   return (
     <ThemeProvider theme={customTheme}>
@@ -291,6 +307,19 @@ const SessionDetail = ({ item, refresh }) => {
                       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                         <Typography variant="body1">
                           Giá hiện tại ({totalAuctionHistory} lượt)
+                          <Typography
+                            component="span"
+                            sx={{
+                              ml: 1,
+                              color: isDeposit || isVendor ? primaryColor : 'gray',
+                              cursor: isDeposit || isVendor ? 'pointer' : 'default',
+                              textDecoration: 'underline',
+                              opacity: isDeposit || isVendor ? 1 : 0.5
+                            }}
+                            onClick={isDeposit || isVendor ? handleOpenHistoryDialog : undefined}
+                          >
+                            Xem
+                          </Typography>
                         </Typography>
                         <Chip
                           icon={<Lock fontSize="small" />}
@@ -303,37 +332,45 @@ const SessionDetail = ({ item, refresh }) => {
                       <Typography variant="h4" component="div" gutterBottom>
                         {highestBid.toLocaleString('vi-VN')} VND
                       </Typography>
-                      <AppModal trigger={
-                        <Button
-                          variant="contained"
-                          fullWidth
-                          size="large"
-                          sx={{
-                            mt: 2,
-                            mb: 2,
-                            transition: 'all 0.3s ease-in-out',
-                            bgcolor: primaryColor,
-                            color: 'white',
-                            '&:hover': {
-                              bgcolor: '#8B0000',
-                              transform: 'translateY(-3px)',
-                              boxShadow: theme.shadows[4]
-                            }
-                          }}
-                        >
-                          Đặt giá
-                        </Button>
-                      }>
-                        {auth.isAuth ? (
-                          isDeposit === false ? (
-                            <PlaceDepositForm item={item} onSubmit={handleSubmitDeposit} />
+                      {!isVendor && (
+                        <AppModal trigger={
+                          <Button
+                            variant="contained"
+                            fullWidth
+                            size="large"
+                            sx={{
+                              mt: 2,
+                              mb: 2,
+                              transition: 'all 0.3s ease-in-out',
+                              bgcolor: primaryColor,
+                              color: 'white',
+                              '&:hover': {
+                                bgcolor: '#8B0000',
+                                transform: 'translateY(-3px)',
+                                boxShadow: theme.shadows[4]
+                              }
+                            }}
+                          >
+                            Đặt giá
+                          </Button>
+                        }>
+                          {auth.isAuth ? (
+                            !isDeposit ? (
+                              <PlaceDepositForm item={item} onSubmit={handleSubmitDeposit} />
+                            ) : (
+                              <PlaceBidForm item={item} onSubmit={handleSubmitPrice} />
+                            )
                           ) : (
-                            <PlaceBidForm item={item} onSubmit={handleSubmitPrice} />
-                          )
-                        ) : (
-                          <LoginForm />
-                        )}
-                      </AppModal>
+                            <LoginForm />
+                          )}
+                        </AppModal>
+                      )}
+
+                      <AuctionHistoryDialog
+                        auctionHistory={auctionHistory}
+                        open={historyDialogOpen}
+                        onClose={handleCloseHistoryDialog}
+                      />
                       <Box display="flex" alignItems="center">
                         <Chip
                           icon={<Whatshot />}
@@ -376,20 +413,21 @@ const SessionDetail = ({ item, refresh }) => {
           </Grid>
           <Divider sx={{ my: 6 }} />
           <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold' }}>
-            Thông tin chi tiết
+            Mô tả
           </Typography>
-          <Paper elevation={3} sx={{ p: 3, mb: 3, borderRadius: 2 }}>
-            <Typography variant="h6" gutterBottom>
-              Mô tả
+          <Box sx={{ p: 3, mb: 1, borderRadius: 2 }}>
+            <Typography variant="h6">
+              Thông tin phiên
             </Typography>
             <Typography paragraph dangerouslySetInnerHTML={{ __html: item.description }} />
-          </Paper>
-          <Paper elevation={3} sx={{ p: 3, mb: 6, borderRadius: 2 }}>
-            <Typography variant="h6" gutterBottom>
-              Thông tin giá cọc
+          </Box>
+          <Divider sx={{ my: 1 }} />
+          <Box sx={{ p: 3, mb: 3, borderRadius: 2 }}>
+            <Typography variant="h6">
+              Thông tin vật phẩm
             </Typography>
-            <Typography>{item.deposit}</Typography>
-          </Paper>
+            <Typography paragraph dangerouslySetInnerHTML={{ __html: item.asset.assetDescription }} />
+          </Box>
 
           <VendorInformation />
           <Snackbar
@@ -405,7 +443,7 @@ const SessionDetail = ({ item, refresh }) => {
         </Box>
       </Container>
     </ThemeProvider>
-  )
-}
+  );
+};
 
-export default SessionDetail
+export default SessionDetail;

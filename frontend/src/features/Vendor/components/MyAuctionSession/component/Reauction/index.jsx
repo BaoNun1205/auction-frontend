@@ -39,12 +39,10 @@ const validationSchema = Yup.object().shape({
   startingBid: Yup.number()
     .required('Giá khởi điểm là bắt buộc')
     .positive('Giá khởi điểm phải là số dương'),
-  bidIncrement: Yup.number()
-    .required('Bước giá là bắt buộc')
-    .positive('Bước giá phải là số dương'),
-  depositPrice: Yup.number()
+  bidIncrement: Yup.string()
+    .required('Bước giá là bắt buộc'),
+  depositPrice: Yup.string()
     .required('Giá cọc là bắt buộc')
-    .positive('Giá cọc phải là số dương')
     .max(Yup.ref('startingBid'), 'Giá cọc không được lớn hơn giá khởi điểm'),
 });
 

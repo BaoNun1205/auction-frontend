@@ -13,6 +13,15 @@ const UpcomingAuctionItem = ({ item }) => {
 
   const { date, time } = splitDateTime(item.startTime);
 
+  const formattedDateTime = new Date(item.startTime).toLocaleString('vi-VN', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  });
+
   return (
     <StyledCard>
       <StyledCardMedia
@@ -24,8 +33,12 @@ const UpcomingAuctionItem = ({ item }) => {
         <Typography variant="subtitle1" color="textPrimary" fontWeight="bold" gutterBottom>
           {item.asset.assetName}
         </Typography>
-        <Typography variant="body2" color="textSecondary">Thời gian bắt đầu: {item.startTime}</Typography>
-        <Typography variant="body2" color="textSecondary">Giá khởi điểm: {item.startingBids}</Typography>
+        <Typography variant="body2" color="textSecondary">
+          Thời gian bắt đầu: {formattedDateTime}
+        </Typography>
+        <Typography variant="body2" color="textSecondary">
+          Giá khởi điểm: {item.startingBids.toLocaleString('vi-VN')} ₫
+        </Typography>
         <StyledButton onClick={handleRegisterClick}>
           Đăng ký
         </StyledButton>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'
 import {
   Box,
   Typography,
@@ -16,7 +16,7 @@ import {
   Paper,
   Link,
   InputAdornment
-} from '@mui/material';
+} from '@mui/material'
 import {
   StyledBox,
   StyledTextField,
@@ -24,25 +24,25 @@ import {
   StyledButton,
   StyledTabs,
   StyledPopover,
-  StyledListItem,
-} from './style';
+  StyledListItem
+} from './style'
 
-import { styled } from '@mui/material/styles';
-import { useGetUserById, useUpdateUser } from '~/hooks/userHook';
-import { useAppStore } from '~/store/appStore';
+import { styled } from '@mui/material/styles'
+import { useGetUserById, useUpdateUser } from '~/hooks/userHook'
+import { useAppStore } from '~/store/appStore'
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
   maxWidth: 1200,
   margin: '0 auto',
-  marginTop: theme.spacing(4),
-}));
+  marginTop: theme.spacing(4)
+}))
 
 const StyledFormLabel = styled(FormLabel)(({ theme }) => ({
   fontWeight: 'bold',
   fontSize: '1rem',
-  color: theme.palette.text.primary,
-}));
+  color: theme.palette.text.primary
+}))
 
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
@@ -53,123 +53,123 @@ const VisuallyHiddenInput = styled('input')({
   bottom: 0,
   left: 0,
   whiteSpace: 'nowrap',
-  width: 1,
-});
+  width: 1
+})
 
 const StyledSelect = styled(Select)(({ theme }) => ({
   bgcolor: theme.palette.primary.secondary,
   color: theme.palette.text.secondary,
   minWidth: 120,
   '& .MuiOutlinedInput-notchedOutline': {
-    borderColor: theme.palette.primary.border,
+    borderColor: theme.palette.primary.border
   },
   '&:hover .MuiOutlinedInput-notchedOutline': {
-    borderColor: theme.palette.primary.borderHover,
+    borderColor: theme.palette.primary.borderHover
   },
   '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-    borderColor: theme.palette.primary.borderFocus,
-  },
-}));
+    borderColor: theme.palette.primary.borderFocus
+  }
+}))
 
 const StyledFormControlLabel = styled(FormControlLabel)(({ theme }) => ({
   '& .MuiRadio-root': {
     '&.Mui-checked': {
-      color: '#b41712',
-    },
-  },
-}));
+      color: '#b41712'
+    }
+  }
+}))
 
 const maskEmail = (email) => {
-  if (!email) return '';
-  const [name, domain] = email.split('@');
-  const maskedName = name.slice(0, 2) + '*'.repeat(name.length - 2);
-  return `${maskedName}@${domain}`;
-};
+  if (!email) return ''
+  const [name, domain] = email.split('@')
+  const maskedName = name.slice(0, 2) + '*'.repeat(name.length - 2)
+  return `${maskedName}@${domain}`
+}
 
 const maskPhone = (phone) => {
-  if (!phone) return '';
-  return phone.slice(0, 2) + '*'.repeat(phone.length - 4) + phone.slice(-2);
-};
+  if (!phone) return ''
+  return phone.slice(0, 2) + '*'.repeat(phone.length - 4) + phone.slice(-2)
+}
 
 const CustomerInformation = () => {
-  const [gender, setGender] = useState('');
-  const [avatarUrl, setAvatarUrl] = useState('/placeholder.svg?height=180&width=180');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [gender, setGender] = useState('')
+  const [avatarUrl, setAvatarUrl] = useState('/placeholder.svg?height=180&width=180')
+  const [errorMessage, setErrorMessage] = useState('')
   const [dateOfBirth, setDateOfBirth] = useState({
     day: '',
     month: '',
-    year: '',
-  });
-  const [name, setName] = useState('');
-  const { auth } = useAppStore();
-  const { data: user } = useGetUserById(auth?.user?.id);
+    year: ''
+  })
+  const [name, setName] = useState('')
+  const { auth } = useAppStore()
+  const { data: user } = useGetUserById(auth?.user?.id)
 
   // Update user data hook
-  const { mutate: updateUser } = useUpdateUser();
+  const { mutate: updateUser } = useUpdateUser()
 
   // Set the gender, avatar, name, and date of birth values based on the API data
   useEffect(() => {
     if (user?.gender) {
-      setGender(user.gender);
+      setGender(user.gender)
     }
     if (user?.dateOfBirth) {
-      const [year, month, day] = user.dateOfBirth.split('-');
-      setDateOfBirth({ day, month, year });
+      const [year, month, day] = user.dateOfBirth.split('-')
+      setDateOfBirth({ day, month, year })
     }
     if (user?.avatar) {
-      setAvatarUrl(user.avatar);
+      setAvatarUrl(user.avatar)
     } else {
-      setAvatarUrl('/placeholder.svg?height=180&width=180');
+      setAvatarUrl('/placeholder.svg?height=180&width=180')
     }
     if (user?.name) {
-      setName(user.name);  // Load user name into state
+      setName(user.name) // Load user name into state
     }
-  }, [user]);
+  }, [user])
 
   // Generate arrays for day, month, year options
-  const days = Array.from({ length: 31 }, (_, i) => i + 1);
-  const months = Array.from({ length: 12 }, (_, i) => i + 1);
-  const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 100 }, (_, i) => currentYear - i);
+  const days = Array.from({ length: 31 }, (_, i) => i + 1)
+  const months = Array.from({ length: 12 }, (_, i) => i + 1)
+  const currentYear = new Date().getFullYear()
+  const years = Array.from({ length: 100 }, (_, i) => currentYear - i)
 
   const handleImageUpload = (event) => {
-    const file = event.target.files?.[0];
+    const file = event.target.files?.[0]
     if (file) {
       if (file.size > 1024 * 1024) {
-        setErrorMessage('Kích thước file vượt quá 1MB');
-        return;
+        setErrorMessage('Kích thước file vượt quá 1MB')
+        return
       }
       if (!['image/jpeg', 'image/png'].includes(file.type)) {
-        setErrorMessage('Chỉ chấp nhận file JPEG hoặc PNG');
-        return;
+        setErrorMessage('Chỉ chấp nhận file JPEG hoặc PNG')
+        return
       }
-      setErrorMessage('');
-      const reader = new FileReader();
+      setErrorMessage('')
+      const reader = new FileReader()
       reader.onload = (e) => {
-        setAvatarUrl(e.target.result);
-      };
-      reader.readAsDataURL(file);
+        setAvatarUrl(e.target.result)
+      }
+      reader.readAsDataURL(file)
     }
-  };
+  }
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value } = e.target
     if (name === 'name') {
-      setName(value);  // Update name when input changes
+      setName(value) // Update name when input changes
     }
-  };
+  }
 
   const handleSave = () => {
     const payload = {
       name,
       gender,
-      dateOfBirth: `${dateOfBirth.year}-${dateOfBirth.month}-${dateOfBirth.day}`,
+      dateOfBirth: `${dateOfBirth.year}-${dateOfBirth.month}-${dateOfBirth.day}`
       // avatar: avatarUrl,
-    };
+    }
 
     // Call the updateUser function from the hook
-    updateUser({ userId: auth?.user?.id, payload });
-  };
+    updateUser({ userId: auth?.user?.id, payload })
+  }
 
   return (
     <StyledPaper elevation={0}>
@@ -191,7 +191,7 @@ const CustomerInformation = () => {
                   name="username"
                   value={user?.username}
                   InputLabelProps={{
-                    shrink: true,
+                    shrink: true
                   }}
                 />
               </Grid>
@@ -200,8 +200,8 @@ const CustomerInformation = () => {
                 <StyledTextField
                   fullWidth
                   label="Họ và tên"
-                  value={name}  // Use 'name' state for editing
-                  onChange={handleChange}  // Handle change to update 'name'
+                  value={name} // Use 'name' state for editing
+                  onChange={handleChange} // Handle change to update 'name'
                   name="name"
                 />
               </Grid>
@@ -219,7 +219,7 @@ const CustomerInformation = () => {
                           Thay Đổi
                         </Link>
                       </InputAdornment>
-                    ),
+                    )
                   }}
                 />
               </Grid>
@@ -237,7 +237,7 @@ const CustomerInformation = () => {
                           Thay Đổi
                         </Link>
                       </InputAdornment>
-                    ),
+                    )
                   }}
                 />
               </Grid>
@@ -338,8 +338,8 @@ const CustomerInformation = () => {
                 color: 'white',
                 px: 4,
                 '&:hover': {
-                  bgcolor: '#8B0000',
-                },
+                  bgcolor: '#8B0000'
+                }
               }}
               onClick={handleSave} // Trigger save on button click
             >
@@ -349,7 +349,7 @@ const CustomerInformation = () => {
         </Grid>
       </Grid>
     </StyledPaper>
-  );
-};
+  )
+}
 
-export default CustomerInformation;
+export default CustomerInformation

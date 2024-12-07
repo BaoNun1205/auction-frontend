@@ -123,14 +123,6 @@ const SessionsTable = ({ filteredSessions, handleMenuOpen }) => {
             </TableBody>
           </Table>
         </TableContainer>
-        <TablePagination
-          component="div"
-          count={filteredSessions.length}
-          page={page}
-          onPageChange={handleChangePage}
-          rowsPerPage={rowsPerPage}
-          rowsPerPageOptions={[5]}
-        />
       </Box>
     </LocalizationProvider>
   )

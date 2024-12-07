@@ -1,5 +1,5 @@
 import { styled } from '@mui/material/styles';
-import { Box, IconButton } from '@mui/material';
+import { Box, Button, IconButton } from '@mui/material';
 
 export const StyledCard = styled(Box)(({ theme }) => ({
   borderRadius: theme.shape.borderRadius * 3,
@@ -25,31 +25,27 @@ export const ThumbnailImage = styled('img')(({ theme, selected }) => ({
   },
 }));
 
-export const StyledButton = styled('button')(({ theme }) => ({
-  borderRadius: theme.shape.borderRadius * 1.5,
-  textTransform: 'none',
-  fontSize: '1.1rem',
+export const StyledButton = styled(Button)(({ theme }) => ({
+  marginTop: theme.spacing(2),
+  marginBottom: theme.spacing(2),
+  transition: 'all 0.3s ease-in-out',
+  backgroundColor: '#b41712', // Gray color
   color: 'white',
-  padding: '12px 32px',
-  background: 'linear-gradient(45deg, #B41712 30%, #d84f4b 90%)',
-  boxShadow: '0 4px 16px rgba(180, 23, 18, 0.3)',
-  border: 'none',
-  cursor: 'pointer',
-  transition: 'all 0.3s ease',
-  width: 'auto', 
-  alignSelf: 'flex-start',
   '&:hover': {
-    background: 'linear-gradient(45deg, #8f1210 30%, #B41712 90%)',
-    transform: 'translateY(-2px)',
-    boxShadow: '0 6px 20px rgba(180, 23, 18, 0.4)',
+    backgroundColor: '#b41712',
+    transform: 'translateY(-3px)',
+    boxShadow: theme.shadows[4],
+  },
+  '&:disabled': {
+    backgroundColor: '#adb5bd',
+    color: '#6c757d',
   },
 }));
 
 export const StyledIconButton = styled(IconButton)(({ theme }) => ({
-  color: '#B41712',
+  color: '#6c757d', // Gray color
   backgroundColor: 'rgba(255, 255, 255, 0.8)',
   '&:hover': {
     backgroundColor: 'rgba(255, 255, 255, 1)',
   },
 }));
-

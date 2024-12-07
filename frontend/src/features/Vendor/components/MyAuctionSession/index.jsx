@@ -34,6 +34,8 @@ import { useFilterSessions } from '~/hooks/sessionHook'
 import { useAppStore } from '~/store/appStore'
 import Reauction from './component/Reauction'
 import SessionsTable from './component/SessionsTable'
+import AuctionModal from './component/AuctionModal'
+import { useNavigate } from 'react-router-dom'
 
 const primaryColor = '#b41712'
 
@@ -52,8 +54,10 @@ const AuctionSessions = () => {
   const [isReauctionDialogOpen, setReauctionDialogOpen] = useState(false)
   const [anchorEl, setAnchorEl] = useState(null)
   const [selectedSession, setSelectedSession] = useState(null)
+  const [isAuctionModalOpen, setAuctionModalOpen] = useState(false)
   const { auth } = useAppStore()
   const { data, isLoading, isError, refetch } = useFilterSessions({ userId: auth.user.id })
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (isError) {
@@ -69,29 +73,31 @@ const AuctionSessions = () => {
   const auctionSessions = Array.isArray(data?.data) ? data.data : []
 
   const filteredSessions = useMemo(() => {
-    return auctionSessions.filter(session => {
+    return auctionSessions.filter((session) => {
       const matchesSearch = session.name.toLowerCase().includes(searchTerm.toLowerCase())
-      const matchesTab = activeTab === 0 ||
+      const matchesTab =
+        activeTab === 0 ||
         (activeTab === 1 && session.status === 'ONGOING') ||
         (activeTab === 2 && session.status === 'UPCOMING') ||
         (activeTab === 3 && session.status === 'AUCTION_SUCCESS') ||
         (activeTab === 4 && session.status === 'AUCTION_FAILED')
       const matchesPrice = !priceFilter || session.startingBids <= parseInt(priceFilter)
-      const matchesDateRange = (!startDate || new Date(session.startTime) >= startDate) &&
+      const matchesDateRange =
+        (!startDate || new Date(session.startTime) >= startDate) &&
         (!endDate || new Date(session.endTime) <= endDate)
 
       return matchesSearch && matchesTab && matchesPrice && matchesDateRange
     })
   }, [searchTerm, activeTab, priceFilter, startDate, endDate, auctionSessions])
 
-  const [page, setPage] = useState(0);
-  const [rowsPerPage] = useState(5);
+  const [page, setPage] = useState(0)
+  const [rowsPerPage] = useState(5)
 
   const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
+    setPage(newPage)
+  }
 
-  const paginatedSessions = filteredSessions.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  const paginatedSessions = filteredSessions.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -126,6 +132,7 @@ const AuctionSessions = () => {
   const handleMenuOpen = (event, session) => {
     setAnchorEl(event.currentTarget)
     setSelectedSession(session)
+    console.log('Selected session:', session)
   }
 
   const handleMenuClose = () => {
@@ -142,8 +149,19 @@ const AuctionSessions = () => {
   }
 
   const handleViewDetails = () => {
-    console.log('View details for session:', selectedSession)
+    if (selectedSession?.status === 'AUCTION_SUCCESS') {
+      setAuctionModalOpen(true)
+    } else if (selectedSession?.status === 'ONGOING') {
+      navigate(`/session/${selectedSession.auctionSessionId}`)
+      console.log('selectedSession:', selectedSession)
+    } else {
+      setReauctionDialogOpen(true)
+    }
     handleMenuClose()
+  }
+
+  const handleCloseAuctionModal = () => {
+    setAuctionModalOpen(false)
   }
 
   const handleReauction = () => {
@@ -234,109 +252,7 @@ const AuctionSessions = () => {
                 minDate={startDate}
               />
             </Box>
-
-            {/* <TableContainer>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <StyledTableCell>Tên phiên đấu giá</StyledTableCell>
-                    <StyledTableCell>Thời gian bắt đầu</StyledTableCell>
-                    <StyledTableCell>Thời gian kết thúc</StyledTableCell>
-                    <StyledTableCell>Giá khởi điểm</StyledTableCell>
-                    <StyledTableCell>Trạng thái</StyledTableCell>
-                    <StyledTableCell align="center">Hành động</StyledTableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {filteredSessions.map((session) => (
-                    <TableRow key={session.auctionSessionId}>
-                      <TableCell>{session.name}</TableCell>
-                      <TableCell>
-                        {format(new Date(session.startTime), 'dd/MM/yyyy HH:mm', { locale: vi })}
-                      </TableCell>
-                      <TableCell>
-                        {format(new Date(session.endTime), 'dd/MM/yyyy HH:mm', { locale: vi })}
-                      </TableCell>
-                      <TableCell sx={{ color: 'red', fontWeight: 'bold' }}>
-                        {session.startingBids.toLocaleString('vi-VN')} ₫
-                      </TableCell>
-                      <TableCell>
-                        <Chip
-                          label={getStatusText(session.status)}
-                          color={getStatusColor(session.status)}
-                          sx={{
-                            '& .MuiChip-label': {
-                              fontWeight: 500
-                            },
-                            minWidth: 120
-                          }}
-                        />
-                      </TableCell>
-                      <TableCell align="center">
-                        <IconButton onClick={(e) => handleMenuOpen(e, session)}>
-                          <MoreVertIcon />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer> */}
-            {/* <TableContainer>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <StyledTableCell>Tên phiên đấu giá</StyledTableCell>
-                    <StyledTableCell>Thời gian bắt đầu</StyledTableCell>
-                    <StyledTableCell>Thời gian kết thúc</StyledTableCell>
-                    <StyledTableCell>Giá khởi điểm</StyledTableCell>
-                    <StyledTableCell>Trạng thái</StyledTableCell>
-                    <StyledTableCell align="center">Hành động</StyledTableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {paginatedSessions.length > 0 ? (
-                    paginatedSessions.map((session) => (
-                      <TableRow key={session.auctionSessionId}>
-                        <TableCell>{session.name}</TableCell>
-                        <TableCell>
-                          {format(new Date(session.startTime), 'dd/MM/yyyy HH:mm', { locale: vi })}
-                        </TableCell>
-                        <TableCell>
-                          {format(new Date(session.endTime), 'dd/MM/yyyy HH:mm', { locale: vi })}
-                        </TableCell>
-                        <TableCell sx={{ color: 'red', fontWeight: 'bold' }}>
-                          {session.startingBids.toLocaleString('vi-VN')} ₫
-                        </TableCell>
-                        <TableCell>
-                          <Chip
-                            label={getStatusText(session.status)}
-                            color={getStatusColor(session.status)}
-                            sx={{
-                              '& .MuiChip-label': {
-                                fontWeight: 500
-                              },
-                              minWidth: 120
-                            }}
-                          />
-                        </TableCell>
-                        <TableCell align="center">
-                          <IconButton onClick={(e) => handleMenuOpen(e, session)}>
-                            <MoreVertIcon />
-                          </IconButton>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={6} align="center">
-                        <Typography variant="body1">Không có phiên đấu giá nào</Typography>
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
+            <SessionsTable filteredSessions={paginatedSessions} handleMenuOpen={handleMenuOpen} />
             <TablePagination
               component="div"
               count={filteredSessions.length}
@@ -344,31 +260,38 @@ const AuctionSessions = () => {
               onPageChange={handleChangePage}
               rowsPerPage={rowsPerPage}
               rowsPerPageOptions={[5]}
-            /> */}
-            <SessionsTable filteredSessions={filteredSessions} handleMenuOpen={handleMenuClose} />
+            />
           </Box>
         </Paper>
 
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={handleMenuClose}
-        >
+        <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
           <MenuItem onClick={handleViewDetails}>Xem chi tiết</MenuItem>
           {selectedSession?.status === 'AUCTION_FAILED' && (
-            <MenuItem onClick={() => {
-              handleOpenAuctionDialog()
-              handleMenuClose()
-            }}>Đấu giá lại</MenuItem>
+            <MenuItem
+              onClick={() => {
+                handleOpenAuctionDialog()
+                handleMenuClose()
+              }}
+            >
+              Đấu giá lại
+            </MenuItem>
           )}
         </Menu>
 
-        <Reauction
-          open={isReauctionDialogOpen}
-          onClose={handleCloseAuctionDialog}
-          session={selectedSession}
-          refresh={refetch}
-        />
+        <Reauction open={isReauctionDialogOpen} onClose={handleCloseAuctionDialog} session={selectedSession} refresh={refetch} />
+
+        {selectedSession?.status === 'AUCTION_SUCCESS' && (
+          <AuctionModal
+            open={isAuctionModalOpen}
+            handleClose={handleCloseAuctionModal}
+            item={selectedSession}
+          />
+        )}
+        {/* <AuctionModal
+          open={isAuctionModalOpen}
+          handleClose={handleCloseAuctionModal}
+          item={selectedSession}
+        /> */}
       </Box>
     </LocalizationProvider>
   )

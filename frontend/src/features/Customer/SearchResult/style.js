@@ -24,15 +24,35 @@ export const StyledCardMedia = styled(CardMedia)(({ theme }) => ({
   },
 }));
 
-export const StatusChip = styled(Chip)(({ status, theme }) => ({
-  position: 'absolute',
-  top: 16,
-  left: 16,
-  backgroundColor: status === 'NOT_AUCTIONED' ? 'rgba(0, 0, 0, 0.8)' : theme.palette.error.main,
-  color: theme.palette.common.white,
-  fontWeight: 600,
-  zIndex: 1,
-}));
+export const StatusChip = styled(Chip)(({ status, theme }) => {
+  let backgroundColor;
+  switch (status) {
+    case 'UPCOMING':
+      backgroundColor = theme.palette.info.main;
+      break;
+    case 'ONGOING':
+      backgroundColor = theme.palette.warning.main;
+      break;
+    case 'AUCTION_SUCCESS':
+      backgroundColor = theme.palette.success.main;
+      break;
+    case 'NOT_AUCTIONED':
+      backgroundColor = 'rgba(0, 0, 0, 0.8)';
+      break;
+    default:
+      backgroundColor = theme.palette.error.main;
+  }
+
+  return {
+    position: 'absolute',
+    top: 16,
+    left: 16,
+    backgroundColor,
+    color: theme.palette.common.white,
+    fontWeight: 600,
+    zIndex: 1,
+  };
+});
 
 export const AnimatedButton = styled(motion.button)(({ theme }) => ({
   backgroundColor: theme.palette.error.main,

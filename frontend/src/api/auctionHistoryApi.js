@@ -15,11 +15,10 @@ export const createAuctionHistory = async (payload) => {
   }
 }
 
-export const checkDeposit = async (payload) => {
+export const getAuctionHistoriesByAuctionSessionId = async (id) => {
   try {
     const response = await GET({
-      url: `${AUCTION_HISTORY_PATH}/check-deposit`,
-      payload: payload
+      url: `${AUCTION_HISTORY_PATH}/${id}`,
     })
     return response.data.result
   } catch (error) {
