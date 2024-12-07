@@ -309,11 +309,12 @@ const SessionDetail = ({ item, refresh }) => {
                             component="span"
                             sx={{
                               ml: 1,
-                              color: primaryColor,
-                              cursor: 'pointer',
-                              textDecoration: 'underline'
+                              color: isDeposit ? primaryColor : 'gray',
+                              cursor: isDeposit ? 'pointer' : 'default',
+                              textDecoration: 'underline',
+                              opacity: isDeposit ? 1 : 0.5
                             }}
-                            onClick={handleOpenHistoryDialog}
+                            onClick={isDeposit ? handleOpenHistoryDialog : undefined}
                           >
                             Xem
                           </Typography>
@@ -351,7 +352,7 @@ const SessionDetail = ({ item, refresh }) => {
                         </Button>
                       }>
                         {auth.isAuth ? (
-                          isDeposit === false ? (
+                          !isDeposit ? (
                             <PlaceDepositForm item={item} onSubmit={handleSubmitDeposit} />
                           ) : (
                             <PlaceBidForm item={item} onSubmit={handleSubmitPrice} />

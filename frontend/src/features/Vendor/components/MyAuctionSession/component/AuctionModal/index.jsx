@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box, Typography, CardMedia, IconButton, Grid, Paper,
   useMediaQuery, Divider, List, ListItem, ListItemText,
@@ -55,9 +55,24 @@ const ImageCarousel = ({ images }) => {
 };
 
 const AuctionModal = ({ open, handleClose, item }) => {
+  console.log('item', item);
+  console.log('open', open);
+  const [localOpen, setLocalOpen] = useState(open);
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const { data: session } = useGetSessionById(item?.auctionSessionId);
   const { data, refetch: refreshHistory } = useGetAuctionHistoriesByAuctionSessionId(item?.auctionSessionId);
+
+  useEffect(() => {
+    setLocalOpen(open);
+    console.log('Modal open state:', open);
+  }, [open]);
+
+  useEffect(() => {
+    if (item) {
+      console.log('Modal item:', item);
+    }
+  }, [item]);
+
   const auctionHistories = Array.isArray(data) ? data : [];
   const images = Array.isArray(session?.asset?.listImages) ? session.asset.listImages : [session?.asset?.mainImage];
 
@@ -66,7 +81,7 @@ const AuctionModal = ({ open, handleClose, item }) => {
   return (
     <ThemeProvider theme={theme}>
       <StyledModal
-        open={open}
+        open={localOpen}
         onClose={handleClose}
         aria-labelledby="auction-details-modal"
       >

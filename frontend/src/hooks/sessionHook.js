@@ -33,7 +33,9 @@ export const useRegisterSession = () => {
 };
 
 export const useCheckRegisted = (payload) => {
-  return useQuery(['checkRegisted', payload], () => checkRegisted(payload), {
+  return useQuery({
+    queryKey: ['checkRegisted', payload],
+    queryFn: () => checkRegisted(payload),
     onError: (error) => {
       console.error('Error checking registration status:', error);
     },
@@ -41,7 +43,9 @@ export const useCheckRegisted = (payload) => {
 };
 
 export const useGetUsersRegisted = (id) => {
-  return useQuery(['getUsersRegisted', id], () => getUsersRegisted(id), {
+  return useQuery({
+    queryKey: ['getUsersRegisted', id],
+    queryFn: () => getUsersRegisted(id),
     onError: (error) => {
       console.error('Error fetching registered users:', error);
     },
