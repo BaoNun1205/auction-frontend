@@ -51,8 +51,8 @@ const AuctionRequest = () => {
   const [priceFilter, setPriceFilter] = useState('')
   const [isCreating, setIsCreating] = useState(false)
   const { mutate: deleteRequirement } = useDeleteRequirement()
-  const { mutate: createRequirement } = useCreateRequirement()
-  const { mutate: updateRequirement } = useupdateRequirement()
+  const { mutate: createRequirement, isPending: isPendingCreate } = useCreateRequirement()
+  const { mutate: updateRequirement, isPending: isPendingUpdate } = useupdateRequirement()
   const { auth } = useAppStore()
   const { data, refetch } = useRequirementsByVendorId(auth.user.id)
   const requirements = Array.isArray(data) ? data : []
@@ -130,14 +130,15 @@ const AuctionRequest = () => {
             console.log('Success:', response)
             setSnackbar({ open: true, message: 'Yêu cầu mới đã được tạo', severity: 'success' })
             refetch()
+            handleCloseDialog()
           },
           onError: (error) => {
             console.error('Error:', error)
             setSnackbar({ open: true, message: 'Có lỗi xảy ra khi thêm yêu cầu', severity: 'error' })
+            handleCloseDialog()
           }
         })
       }
-      handleCloseDialog()
     } finally {
       setIsCreating(false)
     }
@@ -357,10 +358,10 @@ const AuctionRequest = () => {
               <Button
                 onClick={handleSubmit}
                 variant="contained"
-                disabled={isCreating}
+                disabled={isPendingCreate}
                 sx={{ bgcolor: primaryColor, '&:hover': { bgcolor: '#8B110E' } }}
               >
-                {isCreating ? (
+                {isPendingCreate ? (
                   <CircularProgress size={24} color="inherit" />
                 ) : (
                   currentRequirement ? 'Gửi lại' : 'Tạo Yêu cầu'

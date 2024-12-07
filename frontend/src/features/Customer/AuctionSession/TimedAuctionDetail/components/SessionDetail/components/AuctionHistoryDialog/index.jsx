@@ -79,7 +79,7 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   padding: theme.spacing(2),
 }));
 
-const AuctionHistoryDialog = ({  auctionHistory, open, onClose, auctionSessionId }) => {
+const AuctionHistoryDialog = ({ auctionHistory, open, onClose }) => {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -102,56 +102,62 @@ const AuctionHistoryDialog = ({  auctionHistory, open, onClose, auctionSessionId
         </IconButton>
       </StyledDialogTitle>
       <DialogContent>
-        <StyledTableContainer component={Paper}>
-          <Table stickyHeader>
-            <TableHead>
-              <TableRow>
-                <StyledTableCell>
-                  <Box display="flex" alignItems="center">
-                    <AccessTimeIcon fontSize="small" sx={{ mr: 1 }} />
-                    Thời gian
-                  </Box>
-                </StyledTableCell>
-                <StyledTableCell>
-                  <Box display="flex" alignItems="center">
-                    <PersonIcon fontSize="small" sx={{ mr: 1 }} />
-                    Người đấu giá
-                  </Box>
-                </StyledTableCell>
-                <StyledTableCell align="right">
-                  <Box display="flex" alignItems="center" justifyContent="flex-end">
-                    <MonetizationOnIcon fontSize="small" sx={{ mr: 1 }} />
-                    Số tiền đấu giá
-                  </Box>
-                </StyledTableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {auctionHistory.map((history, index) => (
-                <Fade in={true} key={index} style={{ transitionDelay: `${index * 50}ms` }}>
-                  <StyledTableRow>
-                    <StyledTableCell>
-                      {new Date(history.bidTime).toLocaleString('vi-VN')}
-                    </StyledTableCell>
-                    <StyledTableCell>
-                      <Box display="flex" alignItems="center">
-                        <Avatar src={history.user.avatar} alt={history.user.username} sx={{ mr: 2 }} />
-                        <Typography>{history.user.username}</Typography>
-                      </Box>
-                    </StyledTableCell>
-                    <StyledTableCell align="right">
-                      <Chip
-                        label={`${history.bidPrice.toLocaleString('vi-VN')} VND`}
-                        color="primary"
-                        variant="outlined"
-                      />
-                    </StyledTableCell>
-                  </StyledTableRow>
-                </Fade>
-              ))}
-            </TableBody>
-          </Table>
-        </StyledTableContainer>
+        {auctionHistory.length === 0 ? (
+          <Typography variant="h6" align="center" sx={{ my: 2 }}>
+            Chưa có người đặt giá
+          </Typography>
+        ) : (
+          <StyledTableContainer component={Paper}>
+            <Table stickyHeader>
+              <TableHead>
+                <TableRow>
+                  <StyledTableCell>
+                    <Box display="flex" alignItems="center">
+                      <AccessTimeIcon fontSize="small" sx={{ mr: 1 }} />
+                      Thời gian
+                    </Box>
+                  </StyledTableCell>
+                  <StyledTableCell>
+                    <Box display="flex" alignItems="center">
+                      <PersonIcon fontSize="small" sx={{ mr: 1 }} />
+                      Người đấu giá
+                    </Box>
+                  </StyledTableCell>
+                  <StyledTableCell align="right">
+                    <Box display="flex" alignItems="center" justifyContent="flex-end">
+                      <MonetizationOnIcon fontSize="small" sx={{ mr: 1 }} />
+                      Số tiền đấu giá
+                    </Box>
+                  </StyledTableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {auctionHistory.map((history, index) => (
+                  <Fade in={true} key={index} style={{ transitionDelay: `${index * 50}ms` }}>
+                    <StyledTableRow>
+                      <StyledTableCell>
+                        {new Date(history.bidTime).toLocaleString('vi-VN')}
+                      </StyledTableCell>
+                      <StyledTableCell>
+                        <Box display="flex" alignItems="center">
+                          <Avatar src={history.user.avatar} alt={history.user.username} sx={{ mr: 2 }} />
+                          <Typography>{history.user.username}</Typography>
+                        </Box>
+                      </StyledTableCell>
+                      <StyledTableCell align="right">
+                        <Chip
+                          label={`${history.bidPrice.toLocaleString('vi-VN')} VND`}
+                          color="primary"
+                          variant="outlined"
+                        />
+                      </StyledTableCell>
+                    </StyledTableRow>
+                  </Fade>
+                ))}
+              </TableBody>
+            </Table>
+          </StyledTableContainer>
+        )}
       </DialogContent>
     </StyledDialog>
   );

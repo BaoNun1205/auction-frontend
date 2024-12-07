@@ -36,6 +36,8 @@ import {
 import { useAppStore } from '~/store/appStore'
 import { StyledTab, StyledCard, InfoChip, ActionButton } from './style'
 import { useGetRegistedSessionByUserId } from '~/hooks/sessionHook'
+import { useGetJoinedSessions } from '~/hooks/depositHook'
+import { useNavigate } from 'react-router-dom'
 
 const AuctionRegisteredItem = ({ auctionName, imgSrc, startTime, endTime, startingPrice, registrants }) => {
   return (
@@ -73,8 +75,9 @@ const AuctionRegisteredItem = ({ auctionName, imgSrc, startTime, endTime, starti
   )
 }
 
-const AuctionParticipatedItem = ({ productName, imgSrc, auctionStartTime, auctionEndTime, participants, startingPrice, winningPrice, auctionHistory }) => {
+const AuctionParticipatedItem = ({ id, productName, imgSrc, auctionStartTime, auctionEndTime, participants, startingPrice, winningPrice, auctionHistory }) => {
   const [open, setOpen] = useState(false)
+  const navigate = useNavigate()
 
   const handleClickOpen = () => {
     setOpen(true)
@@ -106,7 +109,7 @@ const AuctionParticipatedItem = ({ productName, imgSrc, auctionStartTime, auctio
           </Box>
         </CardContent>
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-          <ActionButton onClick={handleClickOpen}>
+          <ActionButton onClick={() => navigate(`/session/${id}`)}>
             Xem chi tiết
           </ActionButton>
         </Box>
@@ -162,6 +165,7 @@ const AuctionSessions = () => {
   const [tab, setTab] = useState(0)
   const { auth } = useAppStore()
   const { data: registedSessions, isLoading, isError } = useGetRegistedSessionByUserId(auth.user.id)
+  const { data: joinedSessions } = useGetJoinedSessions(auth.user.id)
 
   const handleChange = (event, newValue) => {
     setTab(newValue)
@@ -209,6 +213,7 @@ const AuctionSessions = () => {
               {upcomingSessions.length > 0 ? (
                 upcomingSessions.map((item) => (
                   <AuctionRegisteredItem
+                    
                     key={item.auctionSession.auctionSessionId}
                     auctionName={item.auctionSession.name}
                     imgSrc={item.auctionSession.asset?.listImages?.[0]?.imageAsset || '/placeholder.svg?height=200&width=200'}
@@ -226,10 +231,26 @@ const AuctionSessions = () => {
             </Box>
           ) : (
             <Box>
-              {/* Replace with actual participated data when available */}
-              <Typography variant="h6" align="center" sx={{ mt: 4 }}>
-            Chưa có phiên đấu giá nào đã tham gia.
-              </Typography>
+              {joinedSessions.length > 0 ? (
+                joinedSessions.map((item) => (
+                  <AuctionParticipatedItem
+                    id={item.sessionId}
+                    key={item.sessionId}
+                    productName={item.auctionSession.asset.assetName}
+                    imgSrc={item.auctionSession.asset.mainImage || '/placeholder.svg?height=200&width=200'}
+                    auctionStartTime={item.auctionSession.startTime}
+                    auctionEndTime={item.auctionSession.endTime}
+                    participants={10} // Default value for participants
+                    startingPrice={item.auctionSession.startingBids}
+                    winningPrice={item.auctionSession.asset.assetPrice}
+                    auctionHistory={[]} // Replace with actual auction history data
+                  />
+                ))
+              ) : (
+                <Typography variant="h6" align="center" sx={{ mt: 4 }}>
+                  Chưa có phiên đấu giá nào đã tham gia.
+                </Typography>
+              )}
             </Box>
           )}
         </Box>

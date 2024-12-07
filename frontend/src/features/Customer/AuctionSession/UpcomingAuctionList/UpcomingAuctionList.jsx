@@ -1,30 +1,28 @@
-import React from 'react'
-import { ImHammer2 } from 'react-icons/im'
-import { PiArrowRightFill } from 'react-icons/pi'
-import { Link } from 'react-router-dom'
-import { useEffect, useState } from 'react'
-import { Box, Typography, Grid, Divider, Button } from '@mui/material'
-import UpcomingAuctionItem from '../components/UpcomingAuctionItem/UpcomingAuctionItem'
-import AuctionImg from '~/assets/images/auctionItem.png'
-import { useFilterSessions } from '~/hooks/sessionHook'
-import splitDateTime from '~/utils/SplitDateTime'
+import React from 'react';
+import { ImHammer2 } from 'react-icons/im';
+import { PiArrowRightFill } from 'react-icons/pi';
+import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Box, Typography, Grid, Divider, Button } from '@mui/material';
+import UpcomingAuctionItem from '../components/UpcomingAuctionItem/UpcomingAuctionItem';
+import { useFilterSessions } from '~/hooks/sessionHook';
 
 function UpcomingAuctions() {
-  const [upcomingData, setUpcomingData] = useState([])
+  const [upcomingData, setUpcomingData] = useState([]);
+  const navigate = useNavigate();
 
-
-  const { data, isLoading, isError } = useFilterSessions({ status: 'UPCOMING' })
-  console.log('Data:', data)
+  const { data, isLoading, isError } = useFilterSessions({ status: 'UPCOMING' });
+  console.log('Data:', data);
 
   if (isLoading) {
-    return <Typography>Loading...</Typography>
+    return <Typography>Loading...</Typography>;
   }
 
   if (isError) {
-    return <Typography>Error loading sessions</Typography>
+    return <Typography>Error loading sessions</Typography>;
   }
 
-  const { data: items, total: totalPages } = data
+  const { data: items, total: totalPages } = data;
 
   return (
     <Box mx={5}>
@@ -39,19 +37,17 @@ function UpcomingAuctions() {
       <Grid container spacing={3}>
         {items.map((item, index) => (
           <Grid item xs={12} sm={6} lg={4} key={index}>
-            <UpcomingAuctionItem
-              item={item}
-            />
+            <UpcomingAuctionItem item={item} />
           </Grid>
         ))}
       </Grid>
       <Box display="flex" justifyContent="center" my={3}>
-        <Button component={Link} to={''} variant="contained" color="#b41712" endIcon={<PiArrowRightFill />}>
-          View More
+        <Button onClick={() => navigate('/search')} variant="contained" sx={{ bgcolor: '#b41712', '&:hover': { bgcolor: '#8B0000' } }} endIcon={<PiArrowRightFill />}>
+          Xem thêm
         </Button>
       </Box>
     </Box>
-  )
+  );
 }
 
-export default UpcomingAuctions
+export default UpcomingAuctions;

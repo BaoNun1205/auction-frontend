@@ -15,12 +15,22 @@ export const createDeposit = async (payload) => {
   }
 }
 
-
 export const checkDeposit = async (payload) => {
   try {
     const response = await GET({
       url: `${DEPOSIT_PATH}/check-deposit`,
       payload: payload
+    })
+    return response.data.result
+  } catch (error) {
+    handleApiError(error)
+  }
+}
+
+export const getJoinedSessions = async (userId) => {
+  try {
+    const response = await GET({
+      url: `${DEPOSIT_PATH}/sessions-join/${userId} `
     })
     return response.data.result
   } catch (error) {

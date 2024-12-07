@@ -29,15 +29,15 @@ export const StyledButton = styled(Button)(({ theme }) => ({
   marginTop: theme.spacing(2),
   marginBottom: theme.spacing(2),
   transition: 'all 0.3s ease-in-out',
-  backgroundColor: '#6c757d', // Gray color
+  backgroundColor: '#b41712', // Gray color
   color: 'white',
   '&:hover': {
-    backgroundColor: '#5a6268', // Darker gray color
+    backgroundColor: '#b41712',
     transform: 'translateY(-3px)',
     boxShadow: theme.shadows[4],
   },
   '&:disabled': {
-    backgroundColor: '#adb5bd', // Light gray color for disabled state
+    backgroundColor: '#adb5bd',
     color: '#6c757d',
   },
 }));
