@@ -91,7 +91,7 @@ const Main = () => {
 
   const menuItems = [
     { text: 'Yêu cầu', icon: <ShoppingBag />, value: 1 },
-    { text: 'Tài sản', icon: <FileText />, value: 2 },
+    { text: 'Vật phẩm', icon: <FileText />, value: 2 },
     { text: 'Phiên đấu giá', icon: <Calendar />, value: 3 }
   ];
 
@@ -183,7 +183,7 @@ const Main = () => {
             </Typography>
             <Typography color="text.primary">
               {tab === 1 && 'Yêu cầu'}
-              {tab === 2 && 'Tài sản'}
+              {tab === 2 && 'Vật phẩm'}
               {tab === 3 && 'Phiên đấu giá'}
             </Typography>
           </Breadcrumbs>
