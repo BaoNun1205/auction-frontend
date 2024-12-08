@@ -110,7 +110,7 @@ const AssetTable = ({ filteredAssets, handleMenuOpen }) => {
             ) : (
               <TableRow>
                 <TableCell colSpan={4} align="center">
-                  <Typography variant="body1">Không có tài sản nào</Typography>
+                  <Typography variant="body1">Không có vật phẩm nào</Typography>
                 </TableCell>
               </TableRow>
             )}

@@ -107,8 +107,8 @@ const TypeList = () => {
   };
 
   const publishMenuItems = [
-    { value: false, label: 'Active' },
-    { value: true, label: 'Inactive' }
+    { value: false, label: 'Hoạt động' },
+    { value: true, label: 'Không hoạt động' }
   ]
 
   const columnNames = ['Tên loại', 'Ngày tạo', 'Trạng thái']
@@ -118,9 +118,9 @@ const TypeList = () => {
       <StyledInnerBox>
         <StyledHeaderBox>
           <Box>
-            <StyledTitleBox>Danh sách loại tài sản</StyledTitleBox>
+            <StyledTitleBox>Danh sách loại vật phẩm</StyledTitleBox>
             <StyledSubtitleBox>
-            Loại tài sản • <Box component="span" sx={{ color: 'primary.disable' }}>Danh sách</Box>
+            Loại vật phẩm • <Box component="span" sx={{ color: 'primary.disable' }}>Danh sách</Box>
             </StyledSubtitleBox>
           </Box>
           <ButtonComponent
@@ -129,7 +129,7 @@ const TypeList = () => {
             hoverBgcolor={(theme) => (theme.palette.primary.light)}
             onClick={handleOpenPopover}
           >
-            + Loại tài sản mới
+            + Loại vật phẩm mới
           </ButtonComponent>
           <Popover
             open={Boolean(anchorEl)}
@@ -177,9 +177,6 @@ const TypeList = () => {
                   Delete ({selectedItems.length})
                 </Button>
               )}
-              <IconButtonComponent startIcon={<Eye size={20} />} disabled={items.length === 0}>Colums</IconButtonComponent>
-              <IconButtonComponent startIcon={<SlidersHorizontal size={20} />} disabled={items.length === 0}>Filters</IconButtonComponent>
-              <IconButtonComponent startIcon={<Download size={20} />} disabled={items.length === 0}>Export</IconButtonComponent>
             </Box>
           </StyledControlBox>
         </StyledSecondaryBox>
@@ -255,7 +252,7 @@ const TypeList = () => {
                               color: item.delFlag === false ? theme.palette.success.contrastText : theme.palette.warning.contrastText
                             })}
                           >
-                            {item.delFlag === false ? 'Active' : 'Inactive'}
+                            {item.delFlag === false ? 'Hoạt động' : 'Không hoạt động'}
                           </StyledStatusBox>
                         </TableCell>
                         <TableCell>
@@ -282,7 +279,7 @@ const TypeList = () => {
         </StyledSecondaryBox>
         ) : (
           <StyledSecondaryBox>
-          <ListEmpty nameList="types" />
+          <ListEmpty nameList="loại vật phẩm" />
             <PaginationControl
               page={page}
               rowsPerPage={rowsPerPage}
