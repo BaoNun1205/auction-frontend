@@ -36,6 +36,7 @@ const RegisterAuctionDetail = () => {
   const { data: session, refetch, isLoading, isError } = useGetSessionById(id);
   const { data: usersRegisted } = useGetUsersRegisted(id);
   const { mutate: registerSession } = useRegisterSession();
+  // const { mutate: unregisterSession } = useUnregisterSession();
   const { data: isChecked } = useCheckRegisted({ auctionSessionId: id, userId: auth.user.id });
 
   if (isLoading) {
@@ -92,6 +93,22 @@ const RegisterAuctionDetail = () => {
         },
       }
     );
+  };
+
+  const handleUnregisterClick = () => {
+    // unregisterSession(
+    //   { userId: auth.user.id, auctionSessionId: session.id },
+    //   {
+    //     onSuccess: () => {
+    //       refetch();
+    //       setSnackbar({ open: true, message: 'Hủy đăng ký phiên đấu giá thành công', severity: 'success' });
+    //     },
+    //     onError: (error) => {
+    //       console.error('Error unregistering session:', error);
+    //       setSnackbar({ open: true, message: 'Hủy đăng ký phiên đấu giá thất bại', severity: 'error' });
+    //     },
+    //   }
+    // );
   };
 
   const handleCloseSnackbar = (event, reason) => {
@@ -222,7 +239,7 @@ const RegisterAuctionDetail = () => {
               <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 2, sm: 4 }} sx={{ mt: 2 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <PersonIcon />
-                  <Typography variant="h6">{listUser.length} bidders</Typography>
+                  <Typography variant="h6">{listUser.length} người đăng ký</Typography>
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <AccessTimeIcon />
@@ -231,11 +248,10 @@ const RegisterAuctionDetail = () => {
               </Stack>
 
               <StyledButton
-                onClick={handleRegisterClick}
+                onClick={isChecked ? handleUnregisterClick : handleRegisterClick}
                 sx={{ width: { xs: '100%', sm: 'auto' }, alignSelf: 'flex-start' }}
-                disabled={isChecked}
               >
-                {isChecked ? 'Đã đăng ký' : 'Đăng ký'}
+                {isChecked ? 'Hủy đăng ký' : 'Đăng ký'}
               </StyledButton>
 
               <Snackbar

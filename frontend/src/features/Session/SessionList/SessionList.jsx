@@ -109,9 +109,9 @@ console.log('Payload:', { status, fromDate, toDate, keyword, page, rowsPerPage }
       <StyledInnerBox>
         <StyledHeaderBox>
           <Box>
-            <StyledTitleBox>Session List</StyledTitleBox>
+            <StyledTitleBox>Danh sách phiên đấu giá</StyledTitleBox>
             <StyledSubtitleBox>
-              Dashboard • Session • <Box component="span" sx={{ color: 'primary.disable' }}>List</Box>
+              Phiên đấu giá • <Box component="span" sx={{ color: 'primary.disable' }}>Danh sách</Box>
             </StyledSubtitleBox>
           </Box>
         </StyledHeaderBox>

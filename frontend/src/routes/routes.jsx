@@ -16,6 +16,7 @@ import SearchResultPage from '~/pages/Customer/SearchResultPage'
 import ProfilePage from '~/pages/Customer/ProfilePage'
 import VendorPage from '~/pages/Vendor/VendorPage'
 import AddAssetPage from '~/pages/Asset/AddAssetPage'
+import SellerPage from '~/pages/Customer/SellerPage'
 
 export const BASE_PATHS = {
   HOME: '/',
@@ -26,7 +27,8 @@ export const BASE_PATHS = {
   USERS: '/users',
   CUSTOMER: 'customer',
   SESSION: '/session',
-  VENDOR: 'vendor'
+  VENDOR: 'vendor',
+  SELLER: 'store'
 }
 
 export const publicRoutes = [
@@ -55,12 +57,16 @@ export const publicRoutes = [
     page: RegisterAuctionDetailPage
   },
   {
-    path: `/search`,
+    path: '/search',
     page: SearchResultPage
   },
   {
     path: '/vendor',
     page: VendorPage
+  },
+  {
+    path: `${BASE_PATHS.SELLER}`,
+    page: SellerPage
   }
 ]
 

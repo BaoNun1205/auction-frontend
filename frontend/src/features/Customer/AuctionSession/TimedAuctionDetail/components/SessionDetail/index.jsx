@@ -321,13 +321,13 @@ const SessionDetail = ({ item, refresh }) => {
                             Xem
                           </Typography>
                         </Typography>
-                        <Chip
+                        {/* <Chip
                           icon={<Lock fontSize="small" />}
                           label="SECURE"
                           color="success"
                           variant="outlined"
                           size="small"
-                        />
+                        /> */}
                       </Box>
                       <Typography variant="h4" component="div" gutterBottom>
                         {highestBid.toLocaleString('vi-VN')} VND
