@@ -103,12 +103,6 @@ const AssetList = () => {
     setPage(0)
   }
 
-  const stockMenuItems = [
-    { value: 'in_stock', label: 'In Stock' },
-    { value: 'out_of_stock', label: 'Out of Stock' },
-    { value: 'low_stock', label: 'Low Stock' }
-  ]
-
   const publishMenuItems = [
     { value: 'NOT_AUCTIONED', label: 'Chưa đấu giá' },
     { value: 'ONGOING', label: 'Đang đấu giá' },
@@ -116,7 +110,7 @@ const AssetList = () => {
     { value: 'AUCTION_FAILED', label: 'Đấu giá thất bại' }
   ]
 
-  const columnNames = ['Tên tài sản', 'Ngày tạo', 'Giá khởi điểm', 'Trạng thái', 'Người bán', 'Người kiếm duyệt']
+  const columnNames = ['Tên vật phẩm', 'Ngày tạo', 'Giá khởi điểm', 'Trạng thái', 'Người bán', 'Người kiếm duyệt']
 
   useEffect(() => {
     refetch(); // Trigger refetch when status changes
@@ -127,9 +121,9 @@ const AssetList = () => {
       <StyledInnerBox>
         <StyledHeaderBox>
           <Box>
-            <StyledTitleBox>Danh sách tài sản</StyledTitleBox>
+            <StyledTitleBox>Danh sách vật phẩm</StyledTitleBox>
             <StyledSubtitleBox>
-              Tài sản • <Box component="span" sx={{ color: 'primary.disable' }}>Danh sách</Box>
+              Vật phẩm • <Box component="span" sx={{ color: 'primary.disable' }}>Danh sách</Box>
             </StyledSubtitleBox>
           </Box>
         </StyledHeaderBox>
@@ -229,7 +223,9 @@ const AssetList = () => {
                             <StyledSpan>{time}</StyledSpan>
                           </TableCell>
                           <TableCell>
-                            <StyledSpan>${asset.assetPrice.toFixed(2)}</StyledSpan>
+                            <StyledSpan>
+                              {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(asset.assetPrice)}
+                            </StyledSpan>
                           </TableCell>
                           <TableCell>
                           <StyledStatusBox
@@ -288,7 +284,7 @@ const AssetList = () => {
           </StyledSecondaryBox>
         ) : (
           <StyledSecondaryBox>
-            <ListEmpty nameList="assets" />
+            <ListEmpty nameList="vật phẩm" />
             <PaginationControl
               page={page}
               rowsPerPage={size}

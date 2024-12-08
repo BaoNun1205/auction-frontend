@@ -7,31 +7,31 @@ import { useGetRelatedSessions } from '~/hooks/sessionHook'
 
 const getStatusColor = (status) => {
   switch (status) {
-    case 'UPCOMING':
-      return 'info'
-    case 'ONGOING':
-      return 'warning'
-    case 'AUCTION_SUCCESS':
-      return 'success'
-    case 'AUCTION_FAILED':
-      return 'error'
-    default:
-      return 'default'
+  case 'UPCOMING':
+    return 'info'
+  case 'ONGOING':
+    return 'warning'
+  case 'AUCTION_SUCCESS':
+    return 'success'
+  case 'AUCTION_FAILED':
+    return 'error'
+  default:
+    return 'default'
   }
 }
 
 const getStatusLabel = (status) => {
   switch (status) {
-    case 'UPCOMING':
-      return 'Sắp diễn ra'
-    case 'ONGOING':
-      return 'Đang diễn ra'
-    case 'AUCTION_SUCCESS':
-      return 'Đấu giá thành công'
-    case 'AUCTION_FAILED':
-      return 'Đấu giá thất bại'
-    default:
-      return status
+  case 'UPCOMING':
+    return 'Sắp diễn ra'
+  case 'ONGOING':
+    return 'Đang diễn ra'
+  case 'AUCTION_SUCCESS':
+    return 'Đấu giá thành công'
+  case 'AUCTION_FAILED':
+    return 'Đấu giá thất bại'
+  default:
+    return status
   }
 }
 
@@ -43,14 +43,14 @@ const RelatedPaintings = ({ id }) => {
 
   useEffect(() => {
     if (isError) {
-      console.error('Error fetching auction sessions');
+      console.error('Error fetching auction sessions')
     }
-  }, [isError]);
+  }, [isError])
 
   useEffect(() => {
-    console.log('Fetching auction sessions');
-    refetch();
-  }, [refetch]);
+    console.log('Fetching auction sessions')
+    refetch()
+  }, [refetch])
 
   const relatedSessions = Array.isArray(data?.data) ? data?.data : []
   console.log('Related sessions:', relatedSessions)
@@ -128,7 +128,7 @@ const RelatedPaintings = ({ id }) => {
                 top: '50%',
                 transform: 'translateY(-50%)',
                 bgcolor: 'background.paper',
-                '&:hover': { bgcolor: 'background.default' },
+                '&:hover': { bgcolor: 'background.default' }
               }}
             >
               <ArrowBackIos />
@@ -141,7 +141,7 @@ const RelatedPaintings = ({ id }) => {
                 top: '50%',
                 transform: 'translateY(-50%)',
                 bgcolor: 'background.paper',
-                '&:hover': { bgcolor: 'background.default' },
+                '&:hover': { bgcolor: 'background.default' }
               }}
             >
               <ArrowForwardIos />

@@ -109,9 +109,9 @@ console.log('Payload:', { status, fromDate, toDate, keyword, page, rowsPerPage }
       <StyledInnerBox>
         <StyledHeaderBox>
           <Box>
-            <StyledTitleBox>Session List</StyledTitleBox>
+            <StyledTitleBox>Danh sách phiên đấu giá</StyledTitleBox>
             <StyledSubtitleBox>
-              Dashboard • Session • <Box component="span" sx={{ color: 'primary.disable' }}>List</Box>
+              Phiên đấu giá • <Box component="span" sx={{ color: 'primary.disable' }}>Danh sách</Box>
             </StyledSubtitleBox>
           </Box>
         </StyledHeaderBox>
@@ -145,9 +145,6 @@ console.log('Payload:', { status, fromDate, toDate, keyword, page, rowsPerPage }
                   Delete ({selectedItems.length})
                 </Button>
               )}
-              <IconButtonComponent startIcon={<Eye size={20} />} disabled={items.length === 0}>Colums</IconButtonComponent>
-              <IconButtonComponent startIcon={<SlidersHorizontal size={20} />} disabled={items.length === 0}>Filters</IconButtonComponent>
-              <IconButtonComponent startIcon={<Download size={20} />} disabled={items.length === 0}>Export</IconButtonComponent>
             </Box>
           </StyledControlBox>
         </StyledSecondaryBox>
@@ -290,7 +287,7 @@ console.log('Payload:', { status, fromDate, toDate, keyword, page, rowsPerPage }
           </StyledSecondaryBox>
         ) : (
           <StyledSecondaryBox>
-            <ListEmpty nameList="sessions" />
+            <ListEmpty nameList="phiên đấu giá" />
             <PaginationControl
               page={page}
               rowsPerPage={rowsPerPage}

@@ -53,7 +53,7 @@ const RequirementList = () => {
     { value: '2', label: 'Từ chối' }
   ];
 
-  const columnNames = ['Tên tài sản', 'Ngày tạo', 'Giá khởi điểm', 'Trạng thái', 'Người bán'];
+  const columnNames = ['Tên vật phẩm', 'Ngày tạo', 'Giá khởi điểm', 'Trạng thái', 'Người bán'];
   
 
   const handlePageChange = (newPage) => {
@@ -122,7 +122,7 @@ const RequirementList = () => {
           <Box>
             <StyledTitleBox>Yêu cầu bán đấu giá</StyledTitleBox>
             <StyledSubtitleBox>
-              Bảng điều khiển • Yêu cầu • <Box component="span" sx={{ color: 'primary.disable' }}>Danh sách</Box>
+              Yêu cầu • <Box component="span" sx={{ color: 'primary.disable' }}>Danh sách</Box>
             </StyledSubtitleBox>
           </Box>
  
@@ -151,9 +151,6 @@ const RequirementList = () => {
                   Delete ({selectedItems.length})
                 </Button>
               )}
-              <IconButtonComponent startIcon={<Eye size={20} />} disabled={items.length === 0}>Columns</IconButtonComponent>
-              <IconButtonComponent startIcon={<SlidersHorizontal size={20} />} disabled={items.length === 0}>Filters</IconButtonComponent>
-              <IconButtonComponent startIcon={<Download size={20} />} disabled={items.length === 0}>Export</IconButtonComponent>
             </Box>
           </StyledControlBox>
         </StyledSecondaryBox>
@@ -222,7 +219,7 @@ const RequirementList = () => {
                             <StyledSpan>{time}</StyledSpan>
                           </TableCell>
                           <TableCell>
-                            <StyledSpan>${item.assetPrice.toFixed(2)}</StyledSpan>
+                            <StyledSpan>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.assetPrice)}</StyledSpan>
                           </TableCell>
                           <TableCell>
                             <StyledStatusBox
@@ -270,7 +267,7 @@ const RequirementList = () => {
           </StyledSecondaryBox>
         ) : (
           <StyledSecondaryBox>
-            <ListEmpty nameList="requirements" />
+            <ListEmpty nameList="yêu cầu bán đấu giá" />
             <PaginationControl
               page={page}
               rowsPerPage={rowsPerPage}

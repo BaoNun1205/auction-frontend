@@ -62,16 +62,16 @@ const AssetDetailDialog = ({ open, onClose, asset }) => {
               alignItems: 'center',       
             }}
           >
-            Chi tiết tài sản
+            Chi tiết vật phẩm
           </Typography>
           <Grid container spacing={2}>
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
-                label="Tên tài sản"
+                label="Tên vật phẩm"
                 value={initialValues.assetName}
                 InputProps={{ readOnly: true }}
-                aria-label="Tên tài sản"
+                aria-label="Tên vật phẩm"
               />
             </Grid>
 
@@ -99,10 +99,10 @@ const AssetDetailDialog = ({ open, onClose, asset }) => {
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
-                label="Loại tài sản"
+                label="Loại vật phẩm"
                 value={initialValues.type.typeName}
                 InputProps={{ readOnly: true }}
-                aria-label="Loại tài sản"
+                aria-label="Loại vật phẩm"
               />
             </Grid>
 
@@ -115,7 +115,7 @@ const AssetDetailDialog = ({ open, onClose, asset }) => {
 
             <Grid item xs={12}>
               <Typography variant="h6" gutterBottom>
-                Hình ảnh tài sản
+                Hình ảnh vật phẩm
               </Typography>
               <Grid container spacing={1}>
                 {initialValues.images.length > 0 ? initialValues.images.map((image, index) => (

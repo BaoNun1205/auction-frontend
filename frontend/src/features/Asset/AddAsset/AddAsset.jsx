@@ -106,9 +106,9 @@ const AddAsset = () => {
       <StyledInnerBox>
         <StyledHeaderBox>
           <Box>
-            <StyledTitleBox>Tạo tài sản</StyledTitleBox>
+            <StyledTitleBox>Tạo vật phẩm</StyledTitleBox>
             <StyledSubtitleBox>
-              Tài sản • <Box component="span" sx={{ color: 'primary.disable' }}>Tạo</Box>
+              Vật phẩm • <Box component="span" sx={{ color: 'primary.disable' }}>Tạo</Box>
             </StyledSubtitleBox>
           </Box>
         </StyledHeaderBox>
@@ -122,7 +122,7 @@ const AddAsset = () => {
             borderColor: theme.palette.primary.disable
           })}>
             <Typography component="h6" variant='h6' sx={(theme) => ({ color: theme.palette.primary.textMain })}>
-              Chi tiết tài sản
+              Chi tiết vật phẩm
             </Typography>
             <Typography sx={(theme) => ({ color: theme.palette.primary.disable })}>
               Tiêu đề, mô tả ngắn, hình ảnh...
@@ -141,7 +141,7 @@ const AddAsset = () => {
                     <Field
                       name="assetName"
                       as={TextFieldComponent}
-                      label="Tên tài sản"
+                      label="Tên vật phẩm"
                       value={values.assetName}
                       onChange={handleChange}
                       onBlur={handleBlur}
@@ -167,7 +167,7 @@ const AddAsset = () => {
                     <StackSelectComponent
                       options={types.map(type => ({ label: type.typeName, value: type.typeId }))}
                       value={types.find(type => type.typeId === values.type)?.typeName}
-                      label='Loại tài sản'
+                      label='Loại vật phẩm'
                       onChange={(event, newValue) => setFieldValue('type', newValue?.value || '')}
                       sx={{ m: 1, width: '50%' }}
                       error={touched.type && Boolean(errors.type)}
@@ -225,7 +225,7 @@ const AddAsset = () => {
                       disabled={isSubmitting || !values.type}
                       sx={{ width: '70%' }}
                     >
-                      Tạo tài sản
+                      Tạo vật phẩm
                     </Button>
                   </Box>
                 </Form>

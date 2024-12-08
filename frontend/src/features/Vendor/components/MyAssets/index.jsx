@@ -136,10 +136,10 @@ const MyAssets = () => {
   return (
     <Box sx={{ maxWidth: 1200, margin: 'auto', padding: 3 }}>
       <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
-          Tài sản của tôi
+          Vật phẩm của tôi
       </Typography>
       <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-          Quản lý thông tin tài sản của bạn
+          Quản lý thông tin vật phẩm của bạn
       </Typography>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Tabs

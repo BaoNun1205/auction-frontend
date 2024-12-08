@@ -123,7 +123,7 @@ const RequirementDetails = ({ open, onClose, requirement, onApprove, onReject })
                 <StyledImage
                   key={currentImageIndex}
                   src={images[currentImageIndex]?.image}
-                  alt={`Ảnh tài sản ${currentImageIndex + 1}`}
+                  alt={`Ảnh vật phẩm ${currentImageIndex + 1}`}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}

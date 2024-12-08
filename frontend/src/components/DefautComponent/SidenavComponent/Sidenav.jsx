@@ -23,7 +23,7 @@ const CategoryItem = {
     { name: 'Loại', path: '/category/type' }
   ]
 };
-const AssetItem = { icon: <ShoppingBag />, name: 'Tài Sản', path: '/asset' };
+const AssetItem = { icon: <ShoppingBag />, name: 'Vật phẩm', path: '/asset' };
 const RequirementItem = {
   icon: <FileText />,
   name: 'Yêu Cầu',

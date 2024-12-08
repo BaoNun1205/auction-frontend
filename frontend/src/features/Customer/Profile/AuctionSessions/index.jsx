@@ -39,7 +39,8 @@ import { useGetRegistedSessionByUserId } from '~/hooks/sessionHook'
 import { useGetJoinedSessions } from '~/hooks/depositHook'
 import { useNavigate } from 'react-router-dom'
 
-const AuctionRegisteredItem = ({ auctionName, imgSrc, startTime, endTime, startingPrice, registrants }) => {
+const AuctionRegisteredItem = ({ id, auctionName, imgSrc, startTime, endTime, startingPrice, registrants }) => {
+  const navigate = useNavigate()
   return (
     <StyledCard>
       <CardMedia
@@ -61,7 +62,7 @@ const AuctionRegisteredItem = ({ auctionName, imgSrc, startTime, endTime, starti
           </Box>
         </CardContent>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
-          <Tooltip title="Xem thông tin chi tiết về phiên đấu giá">
+          <Tooltip title="Xem thông tin chi tiết về phiên đấu giá" onClick={() => navigate(`/session/${id}`)}>
             <IconButton color="primary">
               <Info />
             </IconButton>
@@ -213,7 +214,7 @@ const AuctionSessions = () => {
               {upcomingSessions.length > 0 ? (
                 upcomingSessions.map((item) => (
                   <AuctionRegisteredItem
-                    
+                    id={item.auctionSession.auctionSessionId}
                     key={item.auctionSession.auctionSessionId}
                     auctionName={item.auctionSession.name}
                     imgSrc={item.auctionSession.asset?.listImages?.[0]?.imageAsset || '/placeholder.svg?height=200&width=200'}

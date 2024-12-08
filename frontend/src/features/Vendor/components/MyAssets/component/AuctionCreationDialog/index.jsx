@@ -37,7 +37,7 @@ Yup.addMethod(Yup.string, 'lessThanOrEqualTo', function (ref, message) {
 });
 
 const validationSchema = Yup.object().shape({
-  name: Yup.string().required('Tên sản phẩm là bắt buộc'),
+  name: Yup.string().required('Tên phiên đấu giá là bắt buộc'),
   description: Yup.string().required('Mô tả là bắt buộc'),
   type: Yup.string().required('Loại phiên đấu giá là bắt buộc'),
   startTime: Yup.date()

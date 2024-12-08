@@ -118,7 +118,7 @@ const CreateType = ({ onClose, onCreateSuccess }) => {
   return (
     <Box sx={{ p: 3, bgcolor: 'background.paper', borderRadius: 2, minWidth: 400 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h6">Tạo loại tài sản mới</Typography>
+        <Typography variant="h6">Tạo loại vật phẩm mới</Typography>
         <IconButton onClick={onClose}>
           <CloseIcon />
         </IconButton>
@@ -126,7 +126,7 @@ const CreateType = ({ onClose, onCreateSuccess }) => {
       <form onSubmit={handleSubmit}>
         <TextField
           fullWidth
-          label="Tên loại tài sản"
+          label="Tên loại vật phẩm"
           variant="outlined"
           value={name}
           onChange={handleNameChange}
@@ -228,7 +228,7 @@ const CreateType = ({ onClose, onCreateSuccess }) => {
           sx={{ mt: 2 }}
           disabled={isLoading} // Khóa nút khi đang gửi yêu cầu
         >
-          Tạo loại tài sản
+          Tạo loại vật phẩm
         </Button>
       </form>
     </Box>
