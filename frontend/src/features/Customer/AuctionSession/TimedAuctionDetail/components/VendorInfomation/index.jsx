@@ -7,8 +7,10 @@ import {
 } from '@mui/material'
 import { Message } from '@mui/icons-material'
 import { Store } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
-const VendorInformation = () => {
+const VendorInformation = ({ vendorId, isView = true }) => {
+  const navigate = useNavigate()
   const sellerStats = [
     { label: 'Đánh Giá', value: '2,2tr' },
     { label: 'Tỉ Lệ Phản Hồi', value: '100%' },
@@ -91,29 +93,32 @@ const VendorInformation = () => {
                   transition: 'all 0.2s ease-in-out'
                 }}
               >
-            CHAT
+                CHAT
               </Button>
-              <Button
-                variant="outlined"
-                startIcon={<Store />}
-                sx={{
-                  borderColor: 'rgba(0,0,0,0.12)',
-                  color: 'text.primary',
-                  px: 3,
-                  py: 1,
-                  fontSize: '0.95rem',
-                  fontWeight: 500,
-                  '&:hover': {
-                    borderColor: 'rgba(0,0,0,0.24)',
-                    bgcolor: 'rgba(0,0,0,0.04)',
-                    transform: 'translateY(-1px)',
-                    boxShadow: '0 4px 8px rgba(0,0,0,0.06)'
-                  },
-                  transition: 'all 0.2s ease-in-out'
-                }}
-              >
-            XEM
-              </Button>
+              {isView && (
+                <Button
+                  variant="outlined"
+                  startIcon={<Store />}
+                  sx={{
+                    borderColor: 'rgba(0,0,0,0.12)',
+                    color: 'text.primary',
+                    px: 3,
+                    py: 1,
+                    fontSize: '0.95rem',
+                    fontWeight: 500,
+                    '&:hover': {
+                      borderColor: 'rgba(0,0,0,0.24)',
+                      bgcolor: 'rgba(0,0,0,0.04)',
+                      transform: 'translateY(-1px)',
+                      boxShadow: '0 4px 8px rgba(0,0,0,0.06)'
+                    },
+                    transition: 'all 0.2s ease-in-out'
+                  }}
+                  onClick={() => navigate(`/store/${vendorId}`)}
+                >
+                XEM
+                </Button>
+              )}
             </Box>
           </Box>
         </Box>
