@@ -1,4 +1,4 @@
-import { GET, POST, PUT } from './config/axiosMethods'
+import { DELETE, GET, POST, PUT } from './config/axiosMethods'
 import handleApiError from './config/handldeApiError'
 
 export const SESSION_PATH = '/session'
@@ -20,6 +20,18 @@ export const registerSesion = async (payload) => {
     const response = await POST({
       url: `${SESSION_PATH}/register`,
       payload: payload
+    })
+    return response.data
+  } catch (error) {
+    handleApiError(error)
+  }
+}
+
+export const unRegisterSesion = async (payload) => {
+  try {
+    const response = await POST({
+      url: `${SESSION_PATH}/un-register`,
+      payload
     })
     return response.data
   } catch (error) {

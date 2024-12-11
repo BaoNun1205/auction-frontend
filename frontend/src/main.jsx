@@ -27,7 +27,7 @@ const RootComponent = () => {
           <App />
         </>
       )}
-      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
+      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 };
