@@ -1,58 +1,64 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react';
 import {
   AppBar, Toolbar, Typography, Box,
   useMediaQuery, useTheme, Menu, MenuItem, Fade, IconButton,
   Badge, Avatar, Link
-} from '@mui/material'
+} from '@mui/material';
 import {
   Menu as MenuIcon, Favorite as FavoriteIcon,
   Notifications as NotificationsIcon, AccountCircle as SignInIcon,
   Search as SearchIcon, AccountCircle as ProfileIcon,
   Close as CloseIcon
-} from '@mui/icons-material'
+} from '@mui/icons-material';
 import Logo from '~/assets/images/logo/logo.png';
-import AppModal from '~/components/Modal/Modal'
-import Login from '~/features/Authentication/components/AuthLogin/Login'
-import { useAppStore } from '~/store/appStore'
-import { useNavigate } from 'react-router-dom'
-import { StyledAppBar, NavLink, Search, SearchIconWrapper, StyledInputBase, IconButtonWithBadge, LogoContainer } from './style'
+import AppModal from '~/components/Modal/Modal';
+import Login from '~/features/Authentication/components/AuthLogin/Login';
+import { useAppStore } from '~/store/appStore';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { StyledAppBar, NavLink, Search, SearchIconWrapper, StyledInputBase, IconButtonWithBadge, LogoContainer } from './style';
+import { useGetUserById } from '~/hooks/userHook';
 
 const Header = () => {
-  const theme = useTheme()
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'))
-  const [anchorEl, setAnchorEl] = useState(null)
-  const [searchOpen, setSearchOpen] = useState(false)
-  const [searchKeyword, setSearchKeyword] = useState('')
-  const navigate = useNavigate()
-
-  const { auth } = useAppStore()
+  const theme = useTheme();
+  const { auth } = useAppStore();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchKeyword, setSearchKeyword] = useState('');
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { data: user } = useGetUserById(auth?.user?.id);
 
   const menuItems = [
     { label: 'Trang chủ', path: '/' },
     { label: 'Giới thiệu', path: '/introduction' },
     { label: 'Tin tức', path: '/news' },
     { label: 'Liên hệ', path: '/contact' }
-  ]
+  ];
 
-  const handleMenuOpen = (event) => setAnchorEl(event.currentTarget)
-  const handleMenuClose = () => setAnchorEl(null)
-  const handleProfileClick = () => navigate('/profile')
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const keyword = searchParams.get('keyword') || '';
+    setSearchKeyword(keyword);
+  }, [location.search]);
+
+  const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
+  const handleMenuClose = () => setAnchorEl(null);
+  const handleProfileClick = () => navigate('/profile');
   const handleMenuItemClick = (path) => {
-    navigate(path)
-    handleMenuClose()
-  }
-  const toggleSearch = () => setSearchOpen(!searchOpen)
+    navigate(path);
+    handleMenuClose();
+  };
+  const toggleSearch = () => setSearchOpen(!searchOpen);
 
   const handleSearchChange = (event) => {
-    setSearchKeyword(event.target.value)
-  }
+    setSearchKeyword(event.target.value);
+  };
 
   const handleSearchSubmit = (event) => {
-    event.preventDefault()
-    if (searchKeyword.trim()) {
-      navigate(`/search?keyword=${searchKeyword.trim()}`)
-    }
-  }
+    event.preventDefault();
+    navigate(`/search?keyword=${searchKeyword.trim()}`);
+  };
 
   return (
     <StyledAppBar position="static">
@@ -135,7 +141,7 @@ const Header = () => {
           </IconButtonWithBadge>
           {auth.isAuth ? (
             <IconButton color="inherit" onClick={handleProfileClick}>
-              <Avatar alt={auth.user.username} src="/path-to-avatar.jpg" sx={{ width: 32, height: 32 }} />
+              <Avatar alt={user.username} src={user?.avatar} sx={{ width: 32, height: 32 }} />
             </IconButton>
           ) : (
             <AppModal
@@ -169,7 +175,7 @@ const Header = () => {
         </Box>
       )}
     </StyledAppBar>
-  )
-}
+  );
+};
 
-export default Header
+export default Header;

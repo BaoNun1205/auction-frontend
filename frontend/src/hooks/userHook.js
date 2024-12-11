@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getUserById, updateUser } from '~/api/user'
+import { getUserById, updateAvatar, updateUser } from '~/api/user'
 
 export const useGetUserById = (id) => {
   return useQuery({
@@ -20,6 +20,22 @@ export const useUpdateUser = () => {
     },
     onError: (error) => {
       console.error('Error updating user:', error);
+    }
+  });
+};
+
+export const useUpdateAvatar = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ userId, payload }) => updateAvatar(userId, payload), // Update the avatar with userId and avatarFile
+    onSuccess: (data) => {
+      console.log('Avatar updated successfully:', data);
+      // Invalidate queries to refetch the updated user data or relevant data
+      queryClient.invalidateQueries(['user', data.id]); // Ensure you're invalidating the correct query
+    },
+    onError: (error) => {
+      console.error('Error updating avatar:', error);
     }
   });
 };
