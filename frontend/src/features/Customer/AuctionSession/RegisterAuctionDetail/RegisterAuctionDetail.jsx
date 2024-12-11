@@ -21,7 +21,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import { StyledCard, ThumbnailImage, StyledButton, StyledIconButton } from './style';
-import { useCheckRegisted, useGetSessionById, useGetUsersRegisted, useRegisterSession } from '~/hooks/sessionHook';
+import { useCheckRegisted, useGetSessionById, useGetUsersRegisted, useRegisterSession, useUnregisterSession } from '~/hooks/sessionHook';
 import { useParams } from 'react-router-dom';
 import { useAppStore } from '~/store/appStore';
 
@@ -36,7 +36,7 @@ const RegisterAuctionDetail = () => {
   const { data: session, refetch, isLoading, isError } = useGetSessionById(id);
   const { data: usersRegisted } = useGetUsersRegisted(id);
   const { mutate: registerSession } = useRegisterSession();
-  // const { mutate: unregisterSession } = useUnregisterSession();
+  const { mutate: unregisterSession } = useUnregisterSession();
   const { data: isChecked } = useCheckRegisted({ auctionSessionId: id, userId: auth.user.id });
 
   if (isLoading) {
@@ -96,19 +96,19 @@ const RegisterAuctionDetail = () => {
   };
 
   const handleUnregisterClick = () => {
-    // unregisterSession(
-    //   { userId: auth.user.id, auctionSessionId: session.id },
-    //   {
-    //     onSuccess: () => {
-    //       refetch();
-    //       setSnackbar({ open: true, message: 'Hủy đăng ký phiên đấu giá thành công', severity: 'success' });
-    //     },
-    //     onError: (error) => {
-    //       console.error('Error unregistering session:', error);
-    //       setSnackbar({ open: true, message: 'Hủy đăng ký phiên đấu giá thất bại', severity: 'error' });
-    //     },
-    //   }
-    // );
+    unregisterSession(
+      { userId: auth.user.id, auctionSessionId: session.id },
+      {
+        onSuccess: () => {
+          refetch();
+          setSnackbar({ open: true, message: 'Hủy đăng ký phiên đấu giá thành công', severity: 'success' });
+        },
+        onError: (error) => {
+          console.error('Error unregistering session:', error);
+          setSnackbar({ open: true, message: 'Hủy đăng ký phiên đấu giá thất bại', severity: 'error' });
+        },
+      }
+    );
   };
 
   const handleCloseSnackbar = (event, reason) => {

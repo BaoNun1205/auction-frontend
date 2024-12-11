@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import {
   Box,
   Typography,
@@ -22,8 +22,10 @@ import {
   TableRow,
   Paper,
   Tooltip,
-  IconButton
-} from '@mui/material'
+  IconButton,
+  Snackbar,
+  Alert
+} from '@mui/material';
 import {
   AccessTime,
   People,
@@ -32,15 +34,41 @@ import {
   CalendarToday,
   HourglassEmpty,
   Info
-} from '@mui/icons-material'
-import { useAppStore } from '~/store/appStore'
-import { StyledTab, StyledCard, InfoChip, ActionButton } from './style'
-import { useGetRegistedSessionByUserId } from '~/hooks/sessionHook'
-import { useGetJoinedSessions } from '~/hooks/depositHook'
-import { useNavigate } from 'react-router-dom'
+} from '@mui/icons-material';
+import { useAppStore } from '~/store/appStore';
+import { StyledTab, StyledCard, InfoChip, ActionButton } from './style';
+import { useGetRegistedSessionByUserId, useUnregisterSession } from '~/hooks/sessionHook';
+import { useGetJoinedSessions } from '~/hooks/depositHook';
+import { useNavigate } from 'react-router-dom';
 
 const AuctionRegisteredItem = ({ id, auctionName, imgSrc, startTime, endTime, startingPrice, registrants }) => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const { mutate: unregisterSession } = useUnregisterSession();
+  const { auth } = useAppStore();
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+
+  const handleUnregisterClick = () => {
+    unregisterSession(
+      { userId: auth.user.id, auctionSessionId: id },
+      {
+        onSuccess: () => {
+          setSnackbar({ open: true, message: 'Hủy đăng ký phiên đấu giá thành công', severity: 'success' });
+        },
+        onError: (error) => {
+          console.error('Error unregistering session:', error);
+          setSnackbar({ open: true, message: 'Hủy đăng ký phiên đấu giá thất bại', severity: 'error' });
+        },
+      }
+    );
+  };
+
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbar({ ...snackbar, open: false });
+  };
+
   return (
     <StyledCard>
       <CardMedia
@@ -67,26 +95,31 @@ const AuctionRegisteredItem = ({ id, auctionName, imgSrc, startTime, endTime, st
               <Info />
             </IconButton>
           </Tooltip>
-          <ActionButton variant="contained">
+          <ActionButton variant="contained" onClick={handleUnregisterClick}>
             Hủy đăng ký
           </ActionButton>
         </Box>
       </Box>
+      <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={handleCloseSnackbar}>
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </StyledCard>
-  )
-}
+  );
+};
 
 const AuctionParticipatedItem = ({ id, productName, imgSrc, auctionStartTime, auctionEndTime, participants, startingPrice, winningPrice, auctionHistory }) => {
-  const [open, setOpen] = useState(false)
-  const navigate = useNavigate()
+  const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handleClickOpen = () => {
-    setOpen(true)
-  }
+    setOpen(true);
+  };
 
   const handleClose = () => {
-    setOpen(false)
-  }
+    setOpen(false);
+  };
 
   return (
     <StyledCard>
@@ -159,28 +192,28 @@ const AuctionParticipatedItem = ({ id, productName, imgSrc, auctionStartTime, au
         </DialogActions>
       </Dialog>
     </StyledCard>
-  )
-}
+  );
+};
 
 const AuctionSessions = () => {
-  const [tab, setTab] = useState(0)
-  const { auth } = useAppStore()
-  const { data: registedSessions, isLoading, isError } = useGetRegistedSessionByUserId(auth.user.id)
-  const { data: joinedSessions } = useGetJoinedSessions(auth.user.id)
+  const [tab, setTab] = useState(0);
+  const { auth } = useAppStore();
+  const { data: registedSessions, isLoading, isError } = useGetRegistedSessionByUserId(auth.user.id);
+  const { data: joinedSessions } = useGetJoinedSessions(auth.user.id);
 
   const handleChange = (event, newValue) => {
-    setTab(newValue)
-  }
+    setTab(newValue);
+  };
 
   if (isLoading) {
-    return <Typography>Loading...</Typography>
+    return <Typography>Loading...</Typography>;
   }
 
   if (isError) {
-    return <Typography>Error loading sessions</Typography>
+    return <Typography>Error loading sessions</Typography>;
   }
 
-  const upcomingSessions = registedSessions.filter(session => session.auctionSession.status === 'UPCOMING')
+  const upcomingSessions = registedSessions.filter(session => session.auctionSession.status === 'UPCOMING');
 
   return (
     <Container maxWidth="lg">
@@ -226,7 +259,7 @@ const AuctionSessions = () => {
                 ))
               ) : (
                 <Typography variant="h6" align="center" sx={{ mt: 4 }}>
-              Chưa có phiên đấu giá sắp diễn ra nào được đăng ký.
+                  Chưa có phiên đấu giá sắp diễn ra nào được đăng ký.
                 </Typography>
               )}
             </Box>
@@ -257,7 +290,7 @@ const AuctionSessions = () => {
         </Box>
       </Box>
     </Container>
-  )
-}
+  );
+};
 
-export default AuctionSessions
+export default AuctionSessions;

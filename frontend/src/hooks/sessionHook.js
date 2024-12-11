@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { createSesion, getSessionById, filterSessions, getRelatedSessions, updateSesion, registerSesion, getRegistedSession, checkRegisted, getUsersRegisted, getWinSessionsByUserId, getSessionByAssetId } from '~/api/sessionApi'
+import { createSesion, getSessionById, filterSessions, getRelatedSessions, updateSesion, registerSesion, getRegistedSession, checkRegisted, getUsersRegisted, getWinSessionsByUserId, getSessionByAssetId, unRegisterSesion } from '~/api/sessionApi'
 
 export const useCreateSession = () => {
   const queryClient = useQueryClient()
@@ -28,6 +28,22 @@ export const useRegisterSession = () => {
     },
     onError: (error) => {
       console.error('Error registering session:', error);
+    },
+  });
+};
+
+export const useUnregisterSession = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: unRegisterSesion,
+    onSuccess: () => {
+      queryClient.invalidateQueries(['getUsersRegisted']);
+      queryClient.invalidateQueries(['checkRegisted']);
+      queryClient.invalidateQueries(['getRegistedSessionByUserId']);
+    },
+    onError: (error) => {
+      console.error('Error unregistering session:', error);
     },
   });
 };
