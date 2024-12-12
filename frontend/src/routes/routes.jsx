@@ -5,7 +5,6 @@ import ConfirmAccount from '~/pages/Authentication/comfirm'
 import TypeListPage from '~/pages/Type/TypeListPage'
 import RequirementListPage from '~/pages/Requirement/RequirementListPage'
 import AddRequirementPage from '~/pages/Requirement/AddRequirementPage'
-import Register from '~/pages/Authentication/Register'
 import CustomerHomePage from '~/pages/Customer/Home'
 import AddSessionPage from '~/pages/Session/AddSessionPage'
 import TimedAuctionDetailPage from '~/pages/Customer/TimedAuctionDetailPage'
@@ -35,10 +34,6 @@ export const publicRoutes = [
   {
     path: '/login',
     page: LoginPage
-  },
-  {
-    path: '/register',
-    page: Register
   },
   {
     path: BASE_PATHS.CONFIRM_ACCOUNT,
