@@ -22,7 +22,6 @@ import {
 import { AccessTime, ChevronRight, EmojiEvents, Lock, Whatshot } from '@mui/icons-material';
 import { useTheme, useMediaQuery } from '@mui/material';
 import { useAppStore } from '~/store/appStore';
-import LoginForm from '~/features/Authentication/components/AuthLogin/Login';
 import { useNavigate } from 'react-router-dom';
 import { StyledCardMedia, StyledCard, primaryColor } from './style';
 import { useCreateAuctionHistory, useGetAuctionHistoriesByAuctionSessionId } from '~/hooks/auctionHistoryHook';
@@ -34,6 +33,7 @@ import Countdown from 'react-countdown';
 import PlaceDepositForm from './components/PlaceDepositForm';
 import AuctionHistoryDialog from './components/AuctionHistoryDialog';
 import { useCheckDeposit, useCreateDeposit } from '~/hooks/depositHook';
+import Authentication from '~/features/Authentication';
 
 const customTheme = createTheme({
   palette: {
@@ -361,7 +361,7 @@ const SessionDetail = ({ item, refresh }) => {
                               <PlaceBidForm item={item} onSubmit={handleSubmitPrice} />
                             )
                           ) : (
-                            <LoginForm />
+                            <Authentication />
                           )}
                         </AppModal>
                       )}
