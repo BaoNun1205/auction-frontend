@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
   Box, Container, Typography, Grid, Paper, List, ListItem, ListItemText,
   ListItemIcon, Button, styled, useTheme, useMediaQuery, IconButton, Drawer,
-  Collapse, Breadcrumbs
+  Collapse, Breadcrumbs, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle
 } from '@mui/material';
 import {
   Person, EmojiEvents, Gavel, Store, ExitToApp, LocationOn, Menu as MenuIcon,
@@ -10,7 +10,6 @@ import {
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useLogout } from '~/hooks/authHook';
-import AppModal from '~/components/Modal/Modal';
 import CustomerInformation from './CustomerInfomation';
 import AddressesInfomation from './AddressInfomation/AddressInfomation';
 import { ChevronRight } from 'lucide-react';
@@ -50,7 +49,7 @@ const StyledListItem = styled(ListItem)(({ theme, active }) => ({
 const Profile = () => {
   const [tab, setTab] = useState(1);
   const [subTab, setSubTab] = useState(null);
-  const [logoutModalOpen, setLogoutModalOpen] = useState(false);
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [sellerMenuOpen, setSellerMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -63,7 +62,7 @@ const Profile = () => {
   };
 
   const handleLogout = () => {
-    setLogoutModalOpen(true);
+    setLogoutDialogOpen(true);
   };
 
   const handleConfirmLogout = () => {
@@ -75,11 +74,11 @@ const Profile = () => {
         console.error('Error logging out:', error);
       }
     });
-    setLogoutModalOpen(false);
+    setLogoutDialogOpen(false);
   };
 
-  const handleCloseLogoutModal = () => {
-    setLogoutModalOpen(false);
+  const handleCloseLogoutDialog = () => {
+    setLogoutDialogOpen(false);
   };
 
   const handleDrawerToggle = () => {
@@ -232,33 +231,34 @@ const Profile = () => {
             </Grid>
           </Grid>
 
-          <AppModal
-            open={logoutModalOpen}
-            onClose={handleCloseLogoutModal}
-            fullScreen
+          <Dialog
+            open={logoutDialogOpen}
+            onClose={handleCloseLogoutDialog}
+            aria-labelledby="logout-dialog-title"
+            aria-describedby="logout-dialog-description"
           >
-            <Box sx={{ p: 3, borderRadius: theme.shape.borderRadius * 2 }}>
-              <Typography id="logout-modal-title" variant="h6" component="h2" color={primaryColor} gutterBottom>
-                Xác nhận đăng xuất
-              </Typography>
-              <Typography id="logout-modal-description" sx={{ mt: 2 }}>
+            <DialogTitle id="logout-dialog-title" color={primaryColor}>
+              Xác nhận đăng xuất
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText id="logout-dialog-description">
                 Bạn có chắc chắn muốn đăng xuất không?
-              </Typography>
-              <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
-                <Button onClick={handleCloseLogoutModal} sx={{ mr: 2 }}>
-                  Hủy
-                </Button>
-                <Button
-                  variant="contained"
-                  sx={{ backgroundColor: primaryColor, '&:hover': { backgroundColor: '#8B0000' } }}
-                  onClick={handleConfirmLogout}
-                  disabled={isLoggingOut}
-                >
-                  {isLoggingOut ? 'Đang đăng xuất...' : 'Đăng xuất'}
-                </Button>
-              </Box>
-            </Box>
-          </AppModal>
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleCloseLogoutDialog} sx={{ mr: 2 }}>
+                Hủy
+              </Button>
+              <Button
+                variant="contained"
+                sx={{ backgroundColor: primaryColor, '&:hover': { backgroundColor: '#8B0000' } }}
+                onClick={handleConfirmLogout}
+                disabled={isLoggingOut}
+              >
+                {isLoggingOut ? 'Đang đăng xuất...' : 'Đăng xuất'}
+              </Button>
+            </DialogActions>
+          </Dialog>
         </Box>
       </Container>
     </>

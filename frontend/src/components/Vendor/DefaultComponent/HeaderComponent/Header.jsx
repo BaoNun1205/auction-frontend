@@ -12,11 +12,11 @@ import {
 } from '@mui/icons-material';
 import Logo from '~/assets/images/logo/logo.png';
 import AppModal from '~/components/Modal/Modal';
-import Login from '~/features/Authentication/components/AuthLogin/Login';
 import { useAppStore } from '~/store/appStore';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { StyledAppBar, NavLink, Search, SearchIconWrapper, StyledInputBase, IconButtonWithBadge, LogoContainer } from './style';
 import { useGetUserById } from '~/hooks/userHook';
+import Authentication from '~/features/Authentication';
 
 const Header = () => {
   const theme = useTheme();
@@ -141,7 +141,7 @@ const Header = () => {
           </IconButtonWithBadge>
           {auth.isAuth ? (
             <IconButton color="inherit" onClick={handleProfileClick}>
-              <Avatar alt={user.username} src={user?.avatar} sx={{ width: 32, height: 32 }} />
+              <Avatar alt={user?.username} src={user?.avatar} sx={{ width: 32, height: 32 }} />
             </IconButton>
           ) : (
             <AppModal
@@ -151,7 +151,7 @@ const Header = () => {
                 </IconButton>
               }
             >
-              <Login />
+              <Authentication />
             </AppModal>
           )}
         </Box>
