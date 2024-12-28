@@ -42,6 +42,7 @@ const AssetList = () => {
   const [status, setStatus] = useState('')
   const [page, setPage] = useState(0)
   const [size, setSize] = useState(10)
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const navigate = useNavigate();
 
   const handleOpenPopover = (event) => {
@@ -110,7 +111,7 @@ const AssetList = () => {
     { value: 'AUCTION_FAILED', label: 'Đấu giá thất bại' }
   ]
 
-  const columnNames = ['Tên vật phẩm', 'Ngày tạo', 'Giá khởi điểm', 'Trạng thái', 'Người bán', 'Người kiếm duyệt']
+  const columnNames = ['Tên vật phẩm', 'Ngày tạo', 'Giá khởi điểm', 'Trạng thái', 'Người bán', 'Người kiểm duyệt']
 
   useEffect(() => {
     refetch(); // Trigger refetch when status changes
@@ -160,8 +161,8 @@ const AssetList = () => {
 
         {assets.length > 0 ? (
           <StyledSecondaryBox bgcolor={(theme) => (theme.palette.primary.secondary)}>
-            <StyledTableContainer>
-              <Table>
+            <StyledTableContainer sx={{ maxHeight: rowsPerPage === 5 ? 500 : 'auto', overflowY: rowsPerPage === 5 ? 'auto' : 'visible',}}>
+              <Table stickyHeader>
                 <StyledTableHead sx={(theme) => ({ bgcolor: theme.palette.primary.buttonHover })}>
                   <TableRow>
                     <TableCell padding="checkbox">

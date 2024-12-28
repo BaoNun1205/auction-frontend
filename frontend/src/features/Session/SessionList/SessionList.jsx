@@ -57,7 +57,14 @@ const SessionList = () => {
     setAnchorEl(null)
   }
 
-  const { data, error, isLoading, refetch } = useFilterSessions({ status, keyword })
+  const payload = {
+    status,
+    keyword,
+    page,
+    size: rowsPerPage
+  }
+
+  const { data, error, isLoading, refetch } = useFilterSessions(payload)
   const items = Array.isArray(data?.data) ? data.data : []
 
   const handlePageChange = (newPage) => {
@@ -151,8 +158,8 @@ console.log('Payload:', { status, fromDate, toDate, keyword, page, rowsPerPage }
 
         {items.length > 0 ? (
           <StyledSecondaryBox bgcolor={(theme) => (theme.palette.primary.secondary)}>
-            <StyledTableContainer>
-              <Table>
+            <StyledTableContainer sx={{ maxHeight: rowsPerPage === 5 ? 500 : 'auto', overflowY: rowsPerPage === 5 ? 'auto' : 'visible',}}>
+              <Table stickyHeader>
                 <StyledTableHead sx={(theme) => ({ bgcolor: theme.palette.primary.buttonHover })}>
                   <TableRow>
                     <TableCell padding="checkbox">

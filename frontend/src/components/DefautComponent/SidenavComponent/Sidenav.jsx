@@ -52,14 +52,14 @@ const StyledDrawer = styled('div')(({ open }) => ({
   transition: 'width 0.4s ease',  
 }));
 
-const ListItemStyled = styled(ListItem)(({ isActive, open }) => ({
-  backgroundColor: isActive ? '#f0f0f0' : 'transparent',
+const ListItemStyled = styled(ListItem)(({ open }) => ({
   '&:hover': { backgroundColor: '#e0e0e0' },
   borderRadius: '8px',
   transition: 'all 0.3s ease',  
   padding: open ? '8px 12px' : '12px 0',
   marginBottom: '8px',
 }));
+
 
 const Sidenav = ({ children }) => {
   const open = useAppStore((state) => state.dopen); 
@@ -172,7 +172,6 @@ const Sidenav = ({ children }) => {
                         <ListItemStyled
                           button
                           onClick={() => handleItemClick(item.name, item.path)}
-                          isActive={false}
                           open={open}
                         >
                           <ListItemIcon sx={{ minWidth: '32px', marginRight: '4px' }}>
@@ -216,27 +215,27 @@ const Sidenav = ({ children }) => {
     fullWidth={open}
     onClick={handleLogout}
     sx={{
-      borderRadius: open ? '8px' : '50%', // Tròn khi thu nhỏ
+      borderRadius: open ? '8px' : '50%',
       textTransform: 'none',
-      backgroundColor: open ? '#000' : 'transparent', // Nền đen khi mở, không nền khi thu nhỏ
-      color: open ? '#fff' : '#000', // Màu icon đồng nhất
-      padding: open ? '8px 36px' : '12px', // Đảm bảo padding phù hợp
-      minHeight: '48px', // Chiều cao phù hợp
-      width: open ? 'auto' : '48px', // Độ rộng tự động hoặc vuông khi thu nhỏ
+      backgroundColor: open ? '#000' : 'transparent', 
+      color: open ? '#fff' : '#000', 
+      padding: open ? '8px 36px' : '12px', 
+      minHeight: '48px', 
+      width: open ? 'auto' : '48px', 
       display: 'flex',
-      justifyContent: 'center', // Căn giữa nội dung
-      alignItems: 'center', // Đảm bảo căn giữa theo trục dọc
-      boxShadow: 'none', // Xóa khung
-      transition: 'all 0.3s ease', // Hiệu ứng mượt
+      justifyContent: 'center', 
+      alignItems: 'center', 
+      boxShadow: 'none', 
+      transition: 'all 0.3s ease', 
       '&:hover': {
-        backgroundColor: open ? '#333' : '#f0f0f0', // Nền khi hover
+        backgroundColor: open ? '#333' : '#f0f0f0', 
       },
     }}
   >
     {open ? (
       'Đăng Xuất'
     ) : (
-      <LogOut size={20} /> // Biểu tượng nằm giữa khi thu nhỏ
+      <LogOut size={20} /> 
     )}
   </Button>
 </Box>
@@ -244,12 +243,11 @@ const Sidenav = ({ children }) => {
 
       </StyledDrawer>
 
-      {/* Nội dung chính sẽ dịch chuyển sang phải khi sidebar mở */}
       <Box
         sx={{
           flexGrow: 1,
-          marginLeft: open ? `${drawerWidth}px` : `${drawerWidth}px`, // Bắt đầu với drawer ở độ rộng đầy đủ
-          transition: 'margin-left 0.4s ease', // Hiệu ứng khi drawer chuyển đổi
+          marginLeft: open ? `${drawerWidth}px` : `${drawerWidth}px`, 
+          transition: 'margin-left 0.4s ease', 
         }}
       >
         {children}
