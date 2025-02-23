@@ -229,16 +229,16 @@ const CustomerInformation = () => {
                   fullWidth
                   label="Email"
                   value={maskEmail(user?.email)}
-                  InputProps={{
-                    readOnly: true,
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <Link underline="none" href="/" sx={{ ml: 1, color: '#b41712' }}>
-                          Thay Đổi
-                        </Link>
-                      </InputAdornment>
-                    )
-                  }}
+                  // InputProps={{
+                  //   readOnly: true,
+                  //   endAdornment: (
+                  //     <InputAdornment position="end">
+                  //       <Link underline="none" href="/" sx={{ ml: 1, color: '#b41712' }}>
+                  //         Thay Đổi
+                  //       </Link>
+                  //     </InputAdornment>
+                  //   )
+                  // }}
                 />
               </Grid>
 
@@ -247,16 +247,16 @@ const CustomerInformation = () => {
                   fullWidth
                   label="Số điện thoại"
                   value={maskPhone(user?.phone)}
-                  InputProps={{
-                    readOnly: true,
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <Link href="#" underline="none" sx={{ ml: 1, color: '#b41712' }}>
-                          Thay Đổi
-                        </Link>
-                      </InputAdornment>
-                    )
-                  }}
+                  // InputProps={{
+                  //   readOnly: true,
+                  //   endAdornment: (
+                  //     <InputAdornment position="end">
+                  //       <Link href="#" underline="none" sx={{ ml: 1, color: '#b41712' }}>
+                  //         Thay Đổi
+                  //       </Link>
+                  //     </InputAdornment>
+                  //   )
+                  // }}
                 />
               </Grid>
 
