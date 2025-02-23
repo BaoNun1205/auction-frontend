@@ -44,7 +44,7 @@ export default function SearchResults() {
   const [keyword, setKeyword] = useState('')
   const [typeId, setTypeId] = useState('')
   const [page, setPage] = useState(0)
-  const [rowsPerPage, setRowsPerPage] = useState(10)
+  const [rowsPerPage, setRowsPerPage] = useState(6)
   const [priceFilter, setPriceFilter] = useState('all')
 
   const location = useLocation()
@@ -120,8 +120,9 @@ export default function SearchResults() {
     setExpandedCategory(expandedCategory === category ? '' : category)
   }
 
-  const handleTypeClick = (typeId) => {
+  const handleTypeClick = (typeId, category) => {
     setTypeId(typeId)
+    setExpandedCategory(category)
   }
 
   const handlePageChange = (event, newPage) => {
@@ -228,7 +229,16 @@ export default function SearchResults() {
                 <Collapse in={expandedCategory === category.categoryName} timeout="auto" unmountOnExit>
                   <List component="div" disablePadding>
                     {category.types.map((subcategory) => (
-                      <ListItem button key={subcategory.typeId} sx={{ pl: 4 }} onClick={() => handleTypeClick(subcategory.typeId)}>
+                      <ListItem
+                        button
+                        key={subcategory.typeId}
+                        sx={{
+                          pl: 4,
+                          borderLeft: typeId === subcategory.typeId ? '4px solid #b41712' : 'none'
+                        }}
+                        onClick={() => handleTypeClick(subcategory.typeId, category.categoryName)}
+                        selected={typeId === subcategory.typeId}
+                      >
                         <ListItemText primary={subcategory.typeName} />
                       </ListItem>
                     ))}
@@ -401,7 +411,7 @@ export default function SearchResults() {
           )}
           <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
             <Pagination
-              count={Math.ceil(totalResults / rowsPerPage)}
+              count={Math.max(1, Math.ceil(totalResults / rowsPerPage))}
               page={page + 1}
               onChange={handlePageChange}
             />

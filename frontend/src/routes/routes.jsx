@@ -60,7 +60,7 @@ export const publicRoutes = [
     page: VendorPage
   },
   {
-    path: `${BASE_PATHS.SELLER}`,
+    path: `${BASE_PATHS.SELLER}/:id`,
     page: SellerPage
   }
 ]

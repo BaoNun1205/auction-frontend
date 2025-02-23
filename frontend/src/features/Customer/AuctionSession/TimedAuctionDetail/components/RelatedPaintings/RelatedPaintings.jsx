@@ -4,6 +4,7 @@ import { ArrowBackIos, ArrowForwardIos } from '@mui/icons-material'
 import { motion } from 'framer-motion'
 import { StyledCard, StyledCardMedia, StyledChip } from './style'
 import { useGetRelatedSessions } from '~/hooks/sessionHook'
+import { useNavigate } from 'react-router-dom'
 
 const getStatusColor = (status) => {
   switch (status) {
@@ -40,6 +41,7 @@ const RelatedPaintings = ({ id }) => {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const { data, refetch, isError } = useGetRelatedSessions(id)
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (isError) {
@@ -82,7 +84,7 @@ const RelatedPaintings = ({ id }) => {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
                 <StyledCard>
-                  <CardActionArea>
+                  <CardActionArea onClick={() => navigate(`/session/${session.auctionSessionId}`)}>
                     <Box position="relative">
                       <StyledCardMedia
                         image={session.asset.mainImage || 'https://via.placeholder.com/400x300'}
@@ -154,4 +156,3 @@ const RelatedPaintings = ({ id }) => {
 }
 
 export default RelatedPaintings
-

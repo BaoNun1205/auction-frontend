@@ -429,7 +429,7 @@ const SessionDetail = ({ item, refresh }) => {
             <Typography paragraph dangerouslySetInnerHTML={{ __html: item.asset.assetDescription }} />
           </Box>
 
-          <VendorInformation />
+          <VendorInformation vendorId={item.asset.vendor.userId}/>
           <Snackbar
             open={snackbar.open}
             autoHideDuration={6000}

@@ -157,8 +157,8 @@ const RequirementList = () => {
 
         {items.length > 0 ? (
           <StyledSecondaryBox bgcolor={(theme) => theme.palette.primary.secondary}>
-            <StyledTableContainer>
-              <Table>
+            <StyledTableContainer sx={{ maxHeight: rowsPerPage === 5 ? 500 : 'auto', overflowY: rowsPerPage === 5 ? 'auto' : 'visible',}}>
+              <Table stickyHeader>
                 <StyledTableHead sx={(theme) => ({ bgcolor: theme.palette.primary.buttonHover })}>
                   <TableRow>
                     <TableCell padding="checkbox">
