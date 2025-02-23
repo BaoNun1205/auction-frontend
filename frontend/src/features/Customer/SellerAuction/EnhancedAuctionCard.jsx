@@ -39,7 +39,7 @@ const EnhancedAuctionCard = ({
   };
 
   return (
-    <Card sx={{ maxWidth: 345, height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <Card sx={{ maxWidth: 345, height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>
       <CardMedia
         component="img"
         height="140"
