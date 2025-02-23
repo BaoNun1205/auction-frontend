@@ -1,71 +1,52 @@
-import React, { useState } from 'react';
-import { Container, Typography, Tabs, Tab, Grid } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Container, Typography, Tabs, Tab, Box, Pagination } from '@mui/material';
 import EnhancedAuctionCard from './EnhancedAuctionCard';
 import VendorInformation from '../AuctionSession/TimedAuctionDetail/components/VendorInfomation';
+import { useFilterSessions } from '~/hooks/sessionHook';
 
-// Mock data for auction sessions
-const auctionSessions = [
-  {
-    id: 1,
-    title: 'Vintage Watch Collection',
-    image: 'https://example.com/watch.jpg',
-    startingBid: 1000000,
-    currentBid: 1500000,
-    startTime: '2023-06-29T10:00:00',
-    endTime: '2023-06-30T15:00:00',
-    status: 'active'
-  },
-  {
-    id: 2,
-    title: 'Rare Coin Set',
-    image: 'https://example.com/coins.jpg',
-    startingBid: 3000000,
-    currentBid: 5000000,
-    startTime: '2023-07-04T09:00:00',
-    endTime: '2023-07-05T18:00:00',
-    status: 'active'
-  },
-  {
-    id: 3,
-    title: 'Antique Furniture',
-    image: 'https://example.com/furniture.jpg',
-    startingBid: 8000000,
-    currentBid: 10000000,
-    startTime: '2023-07-01T08:00:00',
-    endTime: '2023-07-02T12:00:00',
-    status: 'active'
-  },
-  {
-    id: 4,
-    title: 'Modern Art Painting',
-    image: 'https://example.com/painting.jpg',
-    startingBid: 20000000,
-    currentBid: 25000000,
-    startTime: '2023-06-27T10:00:00',
-    endTime: '2023-06-28T20:00:00',
-    status: 'ended'
-  },
-  {
-    id: 5,
-    title: 'Luxury Handbag',
-    image: 'https://example.com/handbag.jpg',
-    startingBid: 5000000,
-    currentBid: 8000000,
-    startTime: '2023-07-09T09:00:00',
-    endTime: '2023-07-10T14:00:00',
-    status: 'upcoming'
-  }
-];
-
-const SellerAuction = () => {
+const SellerAuction = ({ vendorId }) => {
   const [tabValue, setTabValue] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1); // State để quản lý trang hiện tại
+  const itemsPerPage = 6; // Số sản phẩm hiển thị trên mỗi trang
+  const { data, isLoading, isError, refetch } = useFilterSessions({ userId: vendorId });
+
+  useEffect(() => {
+    if (isError) {
+      console.error('Error fetching auction sessions');
+    }
+  }, [isError]);
+
+  useEffect(() => {
+    console.log('Fetching auction sessions');
+    refetch();
+  }, [refetch]);
+
+  const auctionSessions = Array.isArray(data?.data) ? data.data : [];
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
+    setCurrentPage(1); // Reset về trang đầu tiên khi chuyển tab
   };
 
   const filterAuctions = (status) => {
     return auctionSessions.filter(session => session.status === status);
+  };
+
+  const filteredSessions = tabValue === 0 ? filterAuctions('ONGOING') :
+    tabValue === 1 ? filterAuctions('UPCOMING') :
+    filterAuctions('AUCTION_SUCCESS');
+
+  // Tính toán số trang
+  const totalPages = Math.ceil(filteredSessions.length / itemsPerPage);
+
+  // Lấy danh sách sản phẩm cho trang hiện tại
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentSessions = filteredSessions.slice(startIndex, endIndex);
+
+  // Xử lý thay đổi trang
+  const handlePageChange = (event, page) => {
+    setCurrentPage(page);
   };
 
   return (
@@ -87,18 +68,66 @@ const SellerAuction = () => {
         <Tab label="Đã Kết Thúc" />
       </Tabs>
 
-      <Grid container spacing={3}>
-        {(tabValue === 0 ? filterAuctions('active') :
-          tabValue === 1 ? filterAuctions('upcoming') :
-            filterAuctions('ended')).map((auction) => (
-          <Grid item xs={12} sm={6} md={4} key={auction.id}>
-            <EnhancedAuctionCard {...auction} />
-          </Grid>
-        ))}
-      </Grid>
+      <Box
+        sx={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: 3,
+          justifyContent: currentSessions.length > 0 ? 'flex-start' : 'center',
+          '@media (max-width: 900px)': {
+            justifyContent: 'center'
+          },
+        }}
+      >
+        {currentSessions.length > 0 ? (
+          currentSessions.map((session) => (
+            <Box
+              key={session.auctionSessionId}
+              sx={{
+                flex: '1 1 calc(33.333% - 24px)', // Mỗi card chiếm 1/3 chiều rộng (trừ đi khoảng cách)
+                maxWidth: 'calc(33.333% - 24px)', // Giới hạn chiều rộng tối đa
+                '@media (max-width: 900px)': { // Breakpoint cho màn hình nhỏ hơn 900px
+                  flex: '1 1 calc(50% - 24px)', // Mỗi card chiếm 1/2 chiều rộng
+                  maxWidth: 'calc(50% - 24px)',
+                },
+                '@media (max-width: 600px)': {
+                  flex: '1 1 100%',
+                  maxWidth: '100%',
+                },
+              }}
+            >
+              <EnhancedAuctionCard session={session} />
+            </Box>
+          ))
+        ) : (
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: '100%',
+              width: '100%',
+            }}
+          >
+            <Typography variant="h6" color="text.secondary">
+              Không có phiên đấu giá nào
+            </Typography>
+          </Box>
+        )}
+      </Box>
+
+      {totalPages > 1 && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+          <Pagination
+            count={totalPages}
+            page={currentPage}
+            onChange={handlePageChange}
+            color="primary"
+          />
+        </Box>
+      )}
     </Container>
   );
 };
 
 export default SellerAuction;
-

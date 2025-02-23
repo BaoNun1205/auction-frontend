@@ -7,7 +7,6 @@ const FooterWrapper = styled(Box)(({ theme }) => ({
   color: "#ffffff",
   paddingTop: theme.spacing(6),
   paddingBottom: theme.spacing(3),
-  position: "fixed",
   bottom: 0,
   width: "100%",
   zIndex: 1000
