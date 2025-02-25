@@ -6,6 +6,7 @@ import Login from './pages/Authentication/LoginPage'
 import { useAppStore } from './store/appStore'
 import { introspect } from './api/authApi'
 import { useRefreshToken } from './hooks/authHook'
+import ChatButton from './features/Chat'
 
 function App() {
   const [routes, setRoutes] = useState([...privateRoutes, ...publicRoutes]);
@@ -85,6 +86,7 @@ function App() {
           })}
         </Route>
       </Routes>
+      <ChatButton />
     </Router>
   )
 

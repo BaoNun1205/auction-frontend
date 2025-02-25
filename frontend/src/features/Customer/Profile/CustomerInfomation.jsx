@@ -161,8 +161,15 @@ const CustomerInformation = () => {
     formData.append('password', user?.password);
     formData.append('phone', user?.phone);
     formData.append('email', user?.email);
-    formData.append('gender', gender);
-    formData.append('dateOfBirth', `${dateOfBirth.year}-${String(dateOfBirth.month).padStart(2, '0')}-${String(dateOfBirth.day).padStart(2, '0')}`);
+
+    if (gender) {
+      formData.append('gender', gender);
+    }
+
+    if (dateOfBirth.year && dateOfBirth.month && dateOfBirth.day) {
+      formData.append('dateOfBirth', `${dateOfBirth.year}-${String(dateOfBirth.month).padStart(2, '0')}-${String(dateOfBirth.day).padStart(2, '0')}`);
+    }
+
     if (avatarFile) {
       formData.append('avatar', avatarFile);
     }
