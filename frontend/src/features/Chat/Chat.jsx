@@ -1,52 +1,57 @@
-import React, { useEffect, useState } from 'react';
-import { connectWebSocket, disconnectWebSocket, sendMessage } from '~/service/webSocketService';
-import { useGetConversations, useGetMessages, useSendMessage } from '~/hooks/chatHook';
-import { Box, TextField, IconButton, List, ListItem, Avatar, Badge, Paper, Stack, Typography } from '@mui/material';
-import { Search, InsertEmoticon, AttachFile, Image, NoteAdd, Send } from '@mui/icons-material';
-import { useAppStore } from '~/store/appStore';
+import React, { useEffect, useState, useCallback } from 'react'
+import { connectWebSocket, disconnectWebSocket, sendMessage } from '~/service/webSocketService'
+import { useGetConversations, useGetMessages, useSendMessage } from '~/hooks/chatHook'
+import { Box, TextField, IconButton, List, ListItem, Avatar, Badge, Paper, Stack, Typography } from '@mui/material'
+import { Search, InsertEmoticon, AttachFile, Image, NoteAdd, Send } from '@mui/icons-material'
+import { useAppStore } from '~/store/appStore'
 
 export default function ChatInterface() {
-  const [selectedConversation, setSelectedConversation] = useState(null);
-  const [newMessage, setNewMessage] = useState('');
-  const currentUserId = '5819bac8-d2f5-4879-a37a-dd15680909b2';
-  const token = useAppStore((state) => state.auth.token);
+  const [selectedConversation, setSelectedConversation] = useState(null)
+  const [newMessage, setNewMessage] = useState('')
+  const [liveMessages, setLiveMessages] = useState([])
+  const currentUserId = '5819bac8-d2f5-4879-a37a-dd15680909b2'
+  const token = useAppStore((state) => state.auth.token)
 
   // React Query hooks
-  const { data: conversations = [] } = useGetConversations(currentUserId);
-  const { data: messages = [] } = useGetMessages(selectedConversation);
-  const sortedMessages = [...messages].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-  const sendMessageMutation = useSendMessage();
+  const { data: conversations = [] } = useGetConversations(currentUserId)
+  const { data: messages = [] } = useGetMessages(selectedConversation)
+  const sortedMessages = [...messages, ...liveMessages].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
+  const sendMessageMutation = useSendMessage()
+
+  const onMessage = useCallback((message) => {
+    const response = JSON.parse(message.body)
+    console.log('Received message:', response) // Log để kiểm tra dữ liệu nhận được
+    if (response.code === 200 && response.result) {
+      const messageData = response.result // Lấy đối tượng Message từ result
+      if (messageData.content && messageData.senderId && messageData.timestamp) {
+        setLiveMessages((prev) => [...prev, messageData])
+      }
+    }
+  }, [])
 
   useEffect(() => {
     if (selectedConversation) {
-      const destination = `/rt-chat/conversations/${selectedConversation}`;
-      connectWebSocket(token, destination, (message) => {
-        const response = JSON.parse(message.body);
-        sendMessageMutation.mutate({
-          conversationId: selectedConversation,
-          messageData: response.result
-        });
-      });
+      const destination = `/rt-chat/conversations/${selectedConversation}`
+      connectWebSocket(token, destination, onMessage)
     }
-
     return () => {
-      disconnectWebSocket();
-    };
-  }, [selectedConversation, token]);
+      disconnectWebSocket()
+    }
+  }, [selectedConversation, token, onMessage])
 
   const handleSendMessage = () => {
-    if (!newMessage.trim() || !selectedConversation) return;
+    if (!newMessage.trim() || !selectedConversation) return
 
     const messageData = {
       content: newMessage,
       senderId: currentUserId,
       timestamp: new Date().toISOString()
-    };
+    }
 
-    sendMessage(`/app/chat/${selectedConversation}`, messageData);
-    sendMessageMutation.mutate({ conversationId: selectedConversation, messageData });
-    setNewMessage('');
-  };
+    sendMessage(`/app/rt-auction/conversations/${selectedConversation}`, messageData)
+    setLiveMessages((prev) => [...prev, messageData])
+    setNewMessage('')
+  }
 
   return (
     <Box sx={{ display: 'flex', height: '100vh', bgcolor: '#f5f5f5' }}>
@@ -67,13 +72,15 @@ export default function ChatInterface() {
             size="small"
           />
         </Box>
-
         <List>
           {conversations.map((chat) => (
             <ListItem
               key={chat.id}
               button
-              onClick={() => setSelectedConversation(chat.id)}
+              onClick={() => {
+                setSelectedConversation(chat.id)
+                setLiveMessages([])
+              }}
               sx={{ '&:hover': { bgcolor: '#f5f5f5' }, py: 1 }}
             >
               <Avatar src={chat.avatar} />
@@ -119,5 +126,5 @@ export default function ChatInterface() {
         </Paper>
       </Box>
     </Box>
-  );
+  )
 }

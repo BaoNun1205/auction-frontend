@@ -3,23 +3,24 @@ import { Client } from '@stomp/stompjs'
 let stompClient = null
 
 export const connectWebSocket = (authToken, destination, onMessage) => {
+  console.log('Connecting with token:', authToken);
   stompClient = new Client({
     brokerURL: 'ws://localhost:8080/rt-auction',
     connectHeaders: {
       Authorization: `Bearer ${authToken}`
     },
     onConnect: () => {
-      console.log('Connected to WebSocket')
-      stompClient.subscribe(destination, onMessage)
+      console.log('Connected to WebSocket');
+      stompClient.subscribe(destination, onMessage);
+      console.log('Subscribed to:', destination);
     },
     onStompError: (frame) => {
-      console.error('Broker reported error: ' + frame.headers['message'])
-      console.error('Additional details: ' + frame.body)
+      console.error('Broker reported error: ' + frame.headers['message']);
+      console.error('Additional details: ' + frame.body);
     }
-  })
-
-  stompClient.activate()
-}
+  });
+  stompClient.activate();
+};
 
 export const disconnectWebSocket = () => {
   if (stompClient) {
