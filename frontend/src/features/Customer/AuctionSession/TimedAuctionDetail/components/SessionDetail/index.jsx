@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react'
 import {
   Box,
   Typography,
@@ -14,26 +14,28 @@ import {
   Snackbar,
   Alert,
   Avatar,
-  Paper,
   createTheme,
   ThemeProvider,
   Container
-} from '@mui/material';
-import { AccessTime, ChevronRight, EmojiEvents, Lock, Whatshot } from '@mui/icons-material';
-import { useTheme, useMediaQuery } from '@mui/material';
-import { useAppStore } from '~/store/appStore';
-import { useNavigate } from 'react-router-dom';
-import { StyledCardMedia, StyledCard, primaryColor } from './style';
-import { useCreateAuctionHistory, useGetAuctionHistoriesByAuctionSessionId } from '~/hooks/auctionHistoryHook';
-import AppModal from '~/components/Modal/Modal';
-import PlaceBidForm from './components/PlaceBidForm';
-import VendorInformation from '../VendorInfomation';
-import { connectWebSocket, disconnectWebSocket, sendMessage } from '~/service/webSocketService';
-import Countdown from 'react-countdown';
-import PlaceDepositForm from './components/PlaceDepositForm';
-import AuctionHistoryDialog from './components/AuctionHistoryDialog';
-import { useCheckDeposit, useCreateDeposit } from '~/hooks/depositHook';
-import Authentication from '~/features/Authentication';
+} from '@mui/material'
+import { AccessTime, ChevronRight, Whatshot } from '@mui/icons-material'
+import { useTheme } from '@mui/material'
+import { useAppStore } from '~/store/appStore'
+import { useNavigate } from 'react-router-dom'
+import { StyledCardMedia, StyledCard, primaryColor } from './style'
+import { useCreateAuctionHistory, useGetAuctionHistoriesByAuctionSessionId } from '~/hooks/auctionHistoryHook'
+import AppModal from '~/components/Modal/Modal'
+import PlaceBidForm from './components/PlaceBidForm'
+import VendorInformation from '../VendorInfomation'
+import { connectWebSocket, disconnectWebSocket, sendMessage } from '~/service/webSocketService'
+import Countdown from 'react-countdown'
+import PlaceDepositForm from './components/PlaceDepositForm'
+import AuctionHistoryDialog from './components/AuctionHistoryDialog'
+import { useCheckDeposit, useCreateDeposit } from '~/hooks/depositHook'
+import Authentication from '~/features/Authentication'
+import AutoBidForm from './components/AutoBidForm'
+import { useCreateAutoBid, useCheckAutoBid, useGetAutoBid, useUpdateAutoBid } from '~/hooks/autoBidHook'
+import AutoBidDialog from './components/AutoBidDialog'
 
 const customTheme = createTheme({
   palette: {
@@ -41,75 +43,93 @@ const customTheme = createTheme({
       main: primaryColor
     }
   }
-});
+})
 
 const SessionDetail = ({ item, refresh }) => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const { auth } = useAppStore();
-  const navigate = useNavigate();
-  const [mainImage, setMainImage] = useState(item.asset?.mainImage || 'https://via.placeholder.com/400');
-  const [highestBid, setHighestBid] = useState(item?.auctionSessionInfo?.highestBid);
-  const [totalBidder, setTotalBidder] = useState(item?.auctionSessionInfo?.totalBidder);
-  const [historyDialogOpen, setHistoryDialogOpen] = useState(false);
-  const [totalAuctionHistory, setTotalAuctionHistory] = useState(item?.auctionSessionInfo?.totalAuctionHistory);
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
-  const { mutate: createAuctionHistory } = useCreateAuctionHistory();
-  const { mutate: createDeposit } = useCreateDeposit();
-  const { data: isDeposit, refetch: refetchIsDeposit, error: depositError, isLoading: depositLoading } = useCheckDeposit({ userId: auth.user.id, auctionSessionId: item.id });
-  const { data, refetch: refreshHistory } = useGetAuctionHistoriesByAuctionSessionId(item.id);
-  const auctionHistory = Array.isArray(data) ? data : [];
+  const theme = useTheme()
+  const { auth } = useAppStore()
+  const navigate = useNavigate()
+  const [mainImage, setMainImage] = useState(item.asset?.mainImage || 'https://via.placeholder.com/400')
+  const [highestBid, setHighestBid] = useState(item?.auctionSessionInfo?.highestBid)
+  const [totalBidder, setTotalBidder] = useState(item?.auctionSessionInfo?.totalBidder)
+  const [historyDialogOpen, setHistoryDialogOpen] = useState(false)
+  const [autoBidDialogOpen, setAutoBidDialogOpen] = useState(false)
+  const [totalAuctionHistory, setTotalAuctionHistory] = useState(item?.auctionSessionInfo?.totalAuctionHistory)
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
+  const { mutate: createAuctionHistory } = useCreateAuctionHistory()
+  const { mutate: createDeposit } = useCreateDeposit()
+  const { mutate: createAutoBid } = useCreateAutoBid()
+  const { mutate: updateAutoBid } = useUpdateAutoBid()
+  const { data: isDeposit, refetch: refetchIsDeposit, error: depositError, isLoading: depositLoading } = useCheckDeposit({ userId: auth.user.id, auctionSessionId: item.id })
+  const { data: isAutoBid, refetch: refetchAutoBid, error: autoBidError, isLoading: autoBidLoading } = useCheckAutoBid({ userId: auth.user.id, auctionSessionId: item.id })
+  const { data: autoBidData, refetch: refetchAutoBidData } = useGetAutoBid({ userId: auth.user.id, auctionSessionId: item.id })
 
-  const isVendor = item.asset.vendor.userId === auth.user.id;
+  const { data, refetch: refreshHistory } = useGetAuctionHistoriesByAuctionSessionId(item.id)
+  const auctionHistory = Array.isArray(data) ? data : []
 
-  const placeholderImage = 'https://via.placeholder.com/150';
+  const isVendor = item.asset.vendor.userId === auth.user.id
+  const [openModal, setOpenModal] = React.useState(false)
+
+  const handleOpenModal = () => setOpenModal(true)
+  const handleCloseModal = () => setOpenModal(false)
+
+  const placeholderImage = 'https://via.placeholder.com/150'
 
   const handleThumbnailClick = (image) => {
-    setMainImage(image);
-  };
+    setMainImage(image)
+  }
 
   const handleNavigate = (path) => {
-    navigate(path);
-  };
+    navigate(path)
+  }
 
   const handleOpenHistoryDialog = () => {
-    setHistoryDialogOpen(true);
-  };
+    setHistoryDialogOpen(true)
+  }
 
   const handleCloseHistoryDialog = () => {
-    setHistoryDialogOpen(false);
-  };
+    setHistoryDialogOpen(false)
+  }
+
+  const handleOpenAutoBidDialog = () => {
+    setAutoBidDialogOpen(true)
+  }
+
+  const handleCloseAutoBidDialog = () => {
+    setAutoBidDialogOpen(false)
+  }
 
   const onMessage = useCallback((message) => {
-    const response = JSON.parse(message.body);
+    const response = JSON.parse(message.body)
     if (response.code === 200 && response.result) {
-      const { auctionSessionInfo } = response.result;
-      setTotalBidder(auctionSessionInfo.totalBidder);
-      setTotalAuctionHistory(auctionSessionInfo.totalAuctionHistory);
-      setHighestBid(auctionSessionInfo.highestBid);
+      const { auctionSessionInfo } = response.result
+      setTotalBidder(auctionSessionInfo.totalBidder)
+      setTotalAuctionHistory(auctionSessionInfo.totalAuctionHistory)
+      setHighestBid(auctionSessionInfo.highestBid)
 
       setSnackbar({
         open: true,
         message: `New bid: ${auctionSessionInfo.highestBid.toLocaleString('vi-VN')} VND`,
         severity: 'info'
-      });
+      })
     }
-  }, []);
+  }, [])
 
   useEffect(() => {
     if (item.status === 'ONGOING') {
-      const destination = `/rt-product/bidPrice-update/${item.id}`;
-      connectWebSocket(auth.token, destination, onMessage);
+      const destination = `/rt-product/bidPrice-update/${item.id}`
+      connectWebSocket(auth.token, destination, onMessage)
 
       return () => {
-        disconnectWebSocket();
-      };
+        disconnectWebSocket()
+      }
     }
-  }, [auth.token, item.id, onMessage]);
+    console.log('test data:', autoBidData)
+  }, [auth.token, item.id, onMessage])
 
   const handleBidPrice = () => {
-    sendMessage(`/app/rt-auction/placeBid/${item.id}`, {});
-  };
+    sendMessage(`/app/rt-auction/placeBid/${item.id}`, {})
+  }
 
   const handleSubmitPrice = (bidPrice) => {
     const auctionHistory = {
@@ -117,67 +137,123 @@ const SessionDetail = ({ item, refresh }) => {
       userId: auth.user.id,
       bidPrice: bidPrice,
       bidTime: new Date().toISOString()
-    };
+    }
     createAuctionHistory(auctionHistory, {
-      onSuccess: () => {
-        handleBidPrice();
-        refresh();
-        refreshHistory();
+      onSuccess: (data) => {
+        if (data?.code === 400) { // Kiểm tra lỗi API
+          setSnackbar({
+            open: true,
+            message: data.message,
+            severity: 'error'
+          })
+          return
+        };
+
+        handleBidPrice()
+        refresh()
+        refreshHistory()
       },
       onError: (error) => {
-        console.error('Error submitting auction history:', error);
         setSnackbar({
           open: true,
-          message: 'Error placing bid. Please try again.',
+          message: error.message,
           severity: 'error'
-        });
+        })
       }
-    });
-  };
+    })
+  }
 
   const handleSubmitDeposit = () => {
     const depositAuction = {
       auctionSessionId: item.id,
       userId: auth.user.id,
       depositPrice: item.depositAmount
-    };
+    }
     createDeposit(depositAuction, {
       onSuccess: () => {
-        refetchIsDeposit();
+        refetchIsDeposit()
       },
       onError: (error) => {
-        console.error('Error submitting auction history:', error);
         setSnackbar({
           open: true,
           message: 'Error placing bid. Please try again.',
           severity: 'error'
-        });
+        })
       }
-    });
-  };
+    })
+  }
 
   const handleCloseSnackbar = (event, reason) => {
     if (reason === 'clickaway') {
-      return;
+      return
     }
-    setSnackbar({ ...snackbar, open: false });
-  };
+    setSnackbar({ ...snackbar, open: false })
+  }
 
   const renderCountdown = ({ days, hours, minutes, seconds, completed }) => {
     if (completed) {
-      refresh();
-      return <span>Phiên đấu giá đã kết thúc</span>;
+      refresh()
+      return <span>Phiên đấu giá đã kết thúc</span>
     } else {
       return (
         <span>
           {days} ngày {hours} giờ {minutes} phút {seconds} giây
         </span>
-      );
+      )
     }
-  };
+  }
+
+  const handleSubmitAutoBid = (maxBid, bidIncre) => {
+    var autoBid = {
+      auctionSessionId: item.id,
+      userId: auth.user.id,
+      maxBidPrice: maxBid,
+      bidIncrement: bidIncre
+    }
+    createAutoBid(autoBid, {
+      onSuccess: () => {
+        setSnackbar({
+          open: true,
+          message: 'Create auto bid successfully.',
+          severity: 'info'
+        })
+      },
+      onError: (error) => {
+        setSnackbar({
+          open: true,
+          message: 'Error create auto bid. Please try again.',
+          severity: 'error'
+        })
+      }
+    })
+  }
+
+  const handleUpdateAutoBid = (maxBid, bidIncre, status) => {
+    var autoBid = {
+      maxBidPrice: maxBid,
+      bidIncrement: bidIncre,
+      status: status
+    }
+    updateAutoBid({ id: autoBidData.autoBidId, payload: autoBid }, {
+      onSuccess: () => {
+        setSnackbar({
+          open: true,
+          message: 'Update auto bid successfully.',
+          severity: 'info'
+        })
+      },
+      onError: (error) => {
+        setSnackbar({
+          open: true,
+          message: 'Error update auto bid. Please try again.',
+          severity: 'error'
+        })
+      }
+    })
+  }
 
   const renderWinnerSection = () => {
-    if (item.status !== 'AUCTION_SUCCESS' && item.status !== 'AUCTION_FAILED') return null;
+    if (item.status !== 'AUCTION_SUCCESS' && item.status !== 'AUCTION_FAILED') return null
 
     return (
       <>
@@ -229,8 +305,8 @@ const SessionDetail = ({ item, refresh }) => {
           </Box>
         </Fade>
       </>
-    );
-  };
+    )
+  }
 
   return (
     <ThemeProvider theme={customTheme}>
@@ -333,14 +409,83 @@ const SessionDetail = ({ item, refresh }) => {
                         {highestBid.toLocaleString('vi-VN')} VND
                       </Typography>
                       {!isVendor && (
-                        <AppModal trigger={
+                        <Box sx={{ display: 'flex', gap: 2, mt: 2, mb: 2 }}>
+                          <AppModal trigger={
+                            <Button
+                              variant="contained"
+                              fullWidth
+                              size="medium"
+                              sx={{
+                                width: '100px',
+                                transition: 'all 0.3s ease-in-out',
+                                bgcolor: primaryColor,
+                                color: 'white',
+                                '&:hover': {
+                                  bgcolor: '#8B0000',
+                                  transform: 'translateY(-3px)',
+                                  boxShadow: theme.shadows[4]
+                                }
+                              }}
+                            >
+                              Đặt giá
+                            </Button>
+                          }>
+                            {auth.isAuth ? (
+                              !isDeposit ? (
+                                <PlaceDepositForm item={item} onSubmit={handleSubmitDeposit} />
+                              ) : (
+                                <PlaceBidForm item={item} onSubmit={handleSubmitPrice} />
+                              )
+                            ) : (
+                              <Authentication />
+                            )}
+                          </AppModal>
+                          <AppModal open={openModal} onClose={handleCloseModal} trigger={
+                            <Button
+                              variant="contained"
+                              fullWidth
+                              size="medium"
+                              disabled={isAutoBid}
+                              onClick={handleOpenModal}
+                              sx={{
+                                width: '100px',
+                                transition: 'all 0.3s ease-in-out',
+                                bgcolor: primaryColor,
+                                color: 'white',
+                                '&:hover': {
+                                  bgcolor: '#8B0000',
+                                  transform: 'translateY(-3px)',
+                                  boxShadow: theme.shadows[4]
+                                }
+                              }}
+                            >
+                              Auto Bid
+                            </Button>
+                          }>
+                            {auth.isAuth ? (
+                              !isDeposit ? (
+                                <PlaceDepositForm item={item} onSubmit={handleSubmitDeposit} />
+                              ) : (
+                                <AutoBidForm
+                                  item={item}
+                                  onSubmit={handleSubmitAutoBid}
+                                  onCloseSession={() => handleCloseModal(false)}
+                                  flagEdit={false}
+                                />
+
+                              )
+                            ) : (
+                              <Authentication />
+                            )}
+                          </AppModal>
                           <Button
                             variant="contained"
                             fullWidth
-                            size="large"
+                            size="medium"
+                            disabled={!isAutoBid}
+                            onClick={() => handleOpenAutoBidDialog()}
                             sx={{
-                              mt: 2,
-                              mb: 2,
+                              width: '110px',
                               transition: 'all 0.3s ease-in-out',
                               bgcolor: primaryColor,
                               color: 'white',
@@ -351,19 +496,10 @@ const SessionDetail = ({ item, refresh }) => {
                               }
                             }}
                           >
-                            Đặt giá
+                            Info Auto
                           </Button>
-                        }>
-                          {auth.isAuth ? (
-                            !isDeposit ? (
-                              <PlaceDepositForm item={item} onSubmit={handleSubmitDeposit} />
-                            ) : (
-                              <PlaceBidForm item={item} onSubmit={handleSubmitPrice} />
-                            )
-                          ) : (
-                            <Authentication />
-                          )}
-                        </AppModal>
+
+                        </Box>
                       )}
 
                       <AuctionHistoryDialog
@@ -371,6 +507,15 @@ const SessionDetail = ({ item, refresh }) => {
                         open={historyDialogOpen}
                         onClose={handleCloseHistoryDialog}
                       />
+
+                      {autoBidData && (
+                        <AutoBidDialog
+                          autoBid={autoBidData}
+                          open={autoBidDialogOpen}
+                          onClose={handleCloseAutoBidDialog}
+                          onEdit={handleUpdateAutoBid}
+                        />
+                      )}
                       <Box display="flex" alignItems="center">
                         <Chip
                           icon={<Whatshot />}
@@ -443,7 +588,7 @@ const SessionDetail = ({ item, refresh }) => {
         </Box>
       </Container>
     </ThemeProvider>
-  );
-};
+  )
+}
 
-export default SessionDetail;
+export default SessionDetail

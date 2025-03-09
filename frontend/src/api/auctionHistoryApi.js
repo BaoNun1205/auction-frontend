@@ -9,9 +9,9 @@ export const createAuctionHistory = async (payload) => {
       url: AUCTION_HISTORY_PATH,
       payload: payload
     })
-    return response.data
+    return response
   } catch (error) {
-    handleApiError(error)
+    return error.response.data
   }
 }
 
