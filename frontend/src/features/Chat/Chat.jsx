@@ -9,7 +9,7 @@ export default function ChatInterface() {
   const [selectedConversation, setSelectedConversation] = useState(null)
   const [newMessage, setNewMessage] = useState('')
   const [liveMessages, setLiveMessages] = useState([])
-  const currentUserId = '5819bac8-d2f5-4879-a37a-dd15680909b2'
+  const currentUserId = '2ce6e4cd-d36d-4eba-a39c-b4783459bde7'
   const token = useAppStore((state) => state.auth.token)
 
   // React Query hooks
@@ -78,8 +78,8 @@ export default function ChatInterface() {
               key={chat.id}
               button
               onClick={() => {
-                setSelectedConversation(chat.id)
-                setLiveMessages([])
+                setSelectedConversation(chat.conversationId);
+                setLiveMessages([]);
               }}
               sx={{ '&:hover': { bgcolor: '#f5f5f5' }, py: 1 }}
             >
