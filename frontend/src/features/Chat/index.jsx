@@ -1,18 +1,18 @@
-import React, { useState } from 'react';
-import { Box, IconButton, Paper } from '@mui/material';
-import { Chat as ChatIcon, Close as CloseIcon } from '@mui/icons-material';
-import ChatInterface from './Chat'; // Import giao diện chat
+import React, { useState } from 'react'
+import { Box, IconButton, Paper, Typography, Badge } from '@mui/material'
+import { Chat as ChatIcon, OpenInNew, KeyboardArrowDown } from '@mui/icons-material'
+import ChatInterface from './Chat' // Import giao diện chat
 
 const ChatButton = () => {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false)
 
   const handleClickOpen = () => {
-    setOpen(true);
-  };
+    setOpen(true)
+  }
 
   const handleClose = () => {
-    setOpen(false);
-  };
+    setOpen(false)
+  }
 
   return (
     <Box>
@@ -23,12 +23,12 @@ const ChatButton = () => {
           position: 'fixed',
           bottom: 16,
           right: 16,
-          bgcolor: 'primary.main',
+          bgcolor: '#b41712',
           color: 'white',
           zIndex: 1000,
           '&:hover': {
-            bgcolor: 'primary.dark',
-          },
+            bgcolor: '#9c1410'
+          }
         }}
       >
         <ChatIcon />
@@ -41,14 +41,15 @@ const ChatButton = () => {
             position: 'fixed',
             bottom: 16,
             right: 16,
-            width: 900,
-            height: 600,
+            width: 600,
+            height: 500,
             bgcolor: 'white',
             boxShadow: 3,
             borderRadius: 2,
             display: 'flex',
             flexDirection: 'column',
             zIndex: 1000,
+            overflow: 'hidden'
           }}
         >
           {/* Header */}
@@ -57,27 +58,59 @@ const ChatButton = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              p: 1,
-              bgcolor: 'primary.main',
-              color: 'white',
-              borderTopLeftRadius: 8,
-              borderTopRightRadius: 8,
+              p: 1.5,
+              borderBottom: '1px solid #f0f0f0',
+              bgcolor: 'white'
             }}
           >
-            <Box fontWeight="bold">Chat với người bán</Box>
-            <IconButton size="small" onClick={handleClose} sx={{ color: 'white' }}>
-              <CloseIcon />
-            </IconButton>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 'bold',
+                  color: '#b41712',
+                  fontSize: '1.25rem',
+                  mr: 2
+                }}
+              >
+                Chat
+              </Typography>
+              <Badge
+                badgeContent="25"
+                color="error"
+                sx={{
+                  ml: 0.5,
+                  '& .MuiBadge-badge': {
+                    bgcolor: '#b41712',
+                    color: 'white',
+                    fontWeight: 'normal',
+                    fontSize: '0.75rem',
+                    minWidth: '20px',
+                    height: '20px',
+                    borderRadius: '10px',
+                    padding: '0 6px'
+                  }
+                }}
+              />
+            </Box>
+            <Box>
+              <IconButton size="small" sx={{ color: '#757575' }}>
+                <OpenInNew fontSize="small" />
+              </IconButton>
+              <IconButton size="small" onClick={handleClose} sx={{ color: '#757575' }}>
+                <KeyboardArrowDown fontSize="small" />
+              </IconButton>
+            </Box>
           </Box>
 
           {/* Nội dung Chat */}
-          <Box sx={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
+          <Box sx={{ flex: 1, overflow: 'hidden' }}>
             <ChatInterface />
           </Box>
         </Paper>
       )}
     </Box>
-  );
-};
+  )
+}
 
-export default ChatButton;
+export default ChatButton
