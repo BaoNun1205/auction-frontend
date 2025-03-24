@@ -1,4 +1,4 @@
-import { GET, POST } from './config/axiosMethods';
+import { GET, POST, PUT } from './config/axiosMethods';
 import handleApiError from './config/handldeApiError';
 
 export const CHAT_PATH = '/conversations';
@@ -26,6 +26,18 @@ export const sendMessage = async ({ conversationId, messageData }) => {
     const response = await POST({
       url: `${CHAT_PATH}/messages/${conversationId}`,
       payload: messageData
+    });
+    return response.data;
+  } catch (error) {
+    handleApiError(error);
+  }
+};
+
+export const updateUnread = async (conversationId, unreadCount) => {
+  try {
+    const response = await PUT({
+      url: `${CHAT_PATH}/unread/${conversationId}`,
+      params: { unreadCount }
     });
     return response.data;
   } catch (error) {
