@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getConversations, getMessages, sendMessage } from '~/api/chatApi';
+import { getConversations, getMessages, sendMessage, updateUnread } from '~/api/chatApi';
 
 export const useGetConversations = (userId) => {
   return useQuery({
@@ -27,6 +27,22 @@ export const useSendMessage = () => {
     },
     onError: (error) => {
       console.error('Error sending message:', error);
+    },
+  });
+};
+
+export const useUpdateUnread = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ conversationId, unreadCount }) => updateUnread(conversationId, unreadCount),
+    onSuccess: (data, variables) => {
+      // Cập nhật lại danh sách conversations sau khi cập nhật unread
+      queryClient.invalidateQueries(['conversations']);
+      console.log(`Successfully updated unread count for conversation ${variables.conversationId}`);
+    },
+    onError: (error) => {
+      console.error('Error updating unread count:', error);
     },
   });
 };
