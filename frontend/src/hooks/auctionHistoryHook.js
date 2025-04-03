@@ -5,13 +5,20 @@ export const useCreateAuctionHistory = () => {
   return useMutation({
     mutationFn: createAuctionHistory,
     onSuccess: (data) => {
-      console.log('Auction history created successfully:', data)
+      if (data.code === 400) {
+        console.error(data.message)
+        return
+      }
+      else {
+        console.log('Auction history created successfully:', data)
+      }
     },
     onError: (error) => {
-      console.error('Error creating auction history:', error)
+      console.error('Request failed:', error)
     }
   })
 }
+
 
 export const useGetAuctionHistoriesByAuctionSessionId = (id) => {
   return useQuery({
