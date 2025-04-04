@@ -8,7 +8,6 @@ export default function ChatMessages({
   currentUserId,
   targetUser,
   user,
-  formatCustomDate,
   isTyping,
   messagesEndRef
 }) {
@@ -62,7 +61,7 @@ export default function ChatMessages({
                     variant="caption"
                     sx={{ color: 'rgba(0, 0, 0, 0.6)', fontSize: '0.7rem', fontWeight: 400, alignSelf: 'flex-end' }}
                   >
-                    {formatCustomDate(msg.timestamp)}
+                    {(new Date(msg.timestamp)).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}
                   </Typography>
                 </Box>
               </Stack>

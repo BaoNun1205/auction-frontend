@@ -765,7 +765,6 @@ export default function Chat() {
               currentUserId={currentUserId}
               targetUser={targetUser}
               user={user}
-              formatCustomDate={formatCustomDate}
               isTyping={isTyping}
               messagesEndRef={messagesEndRef}
             />
