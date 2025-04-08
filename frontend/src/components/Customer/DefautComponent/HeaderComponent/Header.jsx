@@ -1,84 +1,97 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'
 import {
-  AppBar, Toolbar, Typography, Box,
-  useMediaQuery, useTheme, Menu, MenuItem, Fade, IconButton,
-  Badge, Avatar, Link
-} from '@mui/material';
+  Toolbar,
+  Typography,
+  Box,
+  useMediaQuery,
+  useTheme,
+  Menu,
+  MenuItem,
+  Fade,
+  IconButton,
+  Badge,
+  Avatar,
+  Link
+} from '@mui/material'
 import {
-  Menu as MenuIcon, Favorite as FavoriteIcon,
-  Notifications as NotificationsIcon, AccountCircle as SignInIcon,
-  Search as SearchIcon, AccountCircle as ProfileIcon,
+  Menu as MenuIcon,
+  Favorite as FavoriteIcon,
+  AccountCircle as SignInIcon,
+  Search as SearchIcon,
   Close as CloseIcon
-} from '@mui/icons-material';
-import Logo from '~/assets/images/logo/logo.png';
-import AppModal from '~/components/Modal/Modal';
-import { useAppStore } from '~/store/appStore';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { StyledAppBar, NavLink, Search, SearchIconWrapper, StyledInputBase, IconButtonWithBadge, LogoContainer } from './style';
-import { useGetUserById } from '~/hooks/userHook';
-import Authentication from '~/features/Authentication';
+} from '@mui/icons-material'
+import Logo from '~/assets/images/logo/logo.png'
+import AppModal from '~/components/Modal/Modal'
+import { useAppStore } from '~/store/appStore'
+import { useNavigate, useLocation } from 'react-router-dom'
+import {
+  StyledAppBar,
+  NavLink,
+  Search,
+  SearchIconWrapper,
+  StyledInputBase,
+  IconButtonWithBadge,
+  LogoContainer
+} from './style'
+import { useGetUserById } from '~/hooks/userHook'
+import { useGetNotificationsByReceiverId } from '~/hooks/notificationHook'
+import Authentication from '~/features/Authentication'
+import Notification from './Notification' // Import component Notification đã sửa
 
 const Header = () => {
-  const theme = useTheme();
-  const { auth } = useAppStore();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [searchKeyword, setSearchKeyword] = useState('');
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { data: user } = useGetUserById(auth?.user?.id);
+  const theme = useTheme()
+  const { auth } = useAppStore() // Lấy thông tin auth từ store
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'))
+  const [anchorEl, setAnchorEl] = useState(null)
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [searchKeyword, setSearchKeyword] = useState('')
+  const navigate = useNavigate()
+  const location = useLocation()
+  const { data: user } = useGetUserById(auth?.user?.id)
+
+  // Lấy danh sách thông báo của người dùng
+  const { data: notifications = [], isLoading } = useGetNotificationsByReceiverId(auth?.user?.id)
 
   const menuItems = [
     { label: 'Trang chủ', path: '/' },
     { label: 'Giới thiệu', path: '/introduction' },
     { label: 'Tin tức', path: '/news' },
     { label: 'Liên hệ', path: '/contact' }
-  ];
+  ]
 
   useEffect(() => {
-    const searchParams = new URLSearchParams(location.search);
-    const keyword = searchParams.get('keyword') || '';
-    setSearchKeyword(keyword);
-  }, [location.search]);
+    const searchParams = new URLSearchParams(location.search)
+    const keyword = searchParams.get('keyword') || ''
+    setSearchKeyword(keyword)
+  }, [location.search])
 
-  const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
-  const handleMenuClose = () => setAnchorEl(null);
-  const handleProfileClick = () => navigate('/profile');
+  const handleMenuOpen = (event) => setAnchorEl(event.currentTarget)
+  const handleMenuClose = () => setAnchorEl(null)
+  const handleProfileClick = () => navigate('/profile')
   const handleMenuItemClick = (path) => {
-    navigate(path);
-    handleMenuClose();
-  };
-  const toggleSearch = () => setSearchOpen(!searchOpen);
+    navigate(path)
+    handleMenuClose()
+  }
+  const toggleSearch = () => setSearchOpen(!searchOpen)
 
   const handleSearchChange = (event) => {
-    setSearchKeyword(event.target.value);
-  };
+    setSearchKeyword(event.target.value)
+  }
 
   const handleSearchSubmit = (event) => {
-    event.preventDefault();
-    navigate(`/search?keyword=${searchKeyword.trim()}`);
-  };
+    event.preventDefault()
+    navigate(`/search?keyword=${searchKeyword.trim()}`)
+  }
 
   return (
     <StyledAppBar position="static">
       <Toolbar>
         {isMobile && (
           <>
-            <IconButton
-              edge="start"
-              color="inherit"
-              aria-label="menu"
-              onClick={handleMenuOpen}
-            >
+            <IconButton edge="start" color="inherit" aria-label="menu" onClick={handleMenuOpen}>
               <MenuIcon />
             </IconButton>
-            <Menu
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
-              onClose={handleMenuClose}
-              TransitionComponent={Fade}
-            >
+            <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose} TransitionComponent={Fade}>
               {menuItems.map((item) => (
                 <MenuItem key={item.label} onClick={() => handleMenuItemClick(item.path)}>
                   {item.label}
@@ -134,11 +147,14 @@ const Header = () => {
               <FavoriteIcon />
             </Badge>
           </IconButtonWithBadge>
-          <IconButtonWithBadge color="inherit" aria-label="notifications">
-            <Badge badgeContent={17} color="error">
-              <NotificationsIcon />
-            </Badge>
-          </IconButtonWithBadge>
+          {/* Sử dụng component Notification với userId và authToken */}
+          {auth.isAuth && (
+            <Notification
+              userId={auth?.user?.id} // Truyền userId từ auth
+              authToken={auth?.token} // Truyền accessToken từ auth
+              initialNotifications={notifications} // Truyền danh sách thông báo ban đầu
+            />
+          )}
           {auth.isAuth ? (
             <IconButton color="inherit" onClick={handleProfileClick}>
               <Avatar alt={user?.username} src={user?.avatar} sx={{ width: 32, height: 32 }} />
@@ -175,7 +191,7 @@ const Header = () => {
         </Box>
       )}
     </StyledAppBar>
-  );
-};
+  )
+}
 
-export default Header;
+export default Header

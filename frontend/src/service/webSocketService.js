@@ -55,12 +55,10 @@ export const connectWebSocket = (authToken, destinations, onMessage) => {
           console.log('Subscribed to:', destination)
         }
       })
-    } else {
-      if (!subscriptions.some(sub => sub.destination === destinations)) {
-        const subscription = stompClient.subscribe(destinations, onMessage)
-        subscriptions.push({ destination: destinations, subscription })
-        console.log('Subscribed to:', destinations)
-      }
+    } else if (!subscriptions.some(sub => sub.destination === destinations)) {
+      const subscription = stompClient.subscribe(destinations, onMessage)
+      subscriptions.push({ destination: destinations, subscription })
+      console.log('Subscribed to:', destinations)
     }
     return () => {} // Trả về hàm cleanup rỗng nếu đã kết nối
   }
