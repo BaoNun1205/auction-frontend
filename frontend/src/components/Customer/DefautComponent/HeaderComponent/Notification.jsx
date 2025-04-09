@@ -62,7 +62,7 @@ const Notification = ({ userId, authToken, initialNotifications = [] }) => {
     return () => {
       console.log('Cleaning up WebSocket connection')
       cleanup()
-      disconnectWebSocket()
+      // disconnectWebSocket()  
     }
   }, [userId, authToken])
 
