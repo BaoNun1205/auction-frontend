@@ -10,28 +10,29 @@ import {
 import { Notifications as NotificationsIcon } from '@mui/icons-material'
 import { IconButtonWithBadge } from './style'
 import { connectWebSocket, disconnectWebSocket } from '~/service/webSocketService'
+import { useCountUnreadNotifications, useMarkNotificationAsRead } from '~/hooks/notificationHook'
 
 const Notification = ({ userId, authToken, initialNotifications = [] }) => {
   const [notifications, setNotifications] = useState(initialNotifications) // Khởi tạo với danh sách từ API
   const [notificationsAnchorEl, setNotificationsAnchorEl] = useState(null)
 
   // Hàm xử lý thông báo mới từ WebSocket
-  const handleNewNotification = (message) => {
-    console.log('Received WebSocket message:', message) // Log toàn bộ message nhận được
-    if (message.code === 200) {
-      const newNotification = message.result // Lấy NotificationResponse từ ApiResponse
-      console.log('New notification:', newNotification) // Log thông báo mới
+  const handleNewNotification = (frame) => {
+    try {
+      const binaryBody = frame.binaryBody || frame._binaryBody
+      const jsonString = new TextDecoder().decode(binaryBody)
+      const notification = JSON.parse(jsonString)
+
+      console.log('Parsed notification:', notification)
+
       setNotifications((prev) => {
-        // Kiểm tra xem thông báo đã tồn tại chưa để tránh trùng lặp
-        if (!prev.some((n) => n.id === newNotification.id)) {
-          console.log('Adding new notification to list:', newNotification)
-          return [newNotification, ...prev]
+        if (!prev.some((n) => n.id === notification.id)) {
+          return [notification, ...prev]
         }
-        console.log('Notification already exists:', newNotification.id)
         return prev
       })
-    } else {
-      console.error('Error from server:', message.message)
+    } catch (error) {
+      console.error('Failed to parse WebSocket message:', error)
     }
   }
 
@@ -51,7 +52,7 @@ const Notification = ({ userId, authToken, initialNotifications = [] }) => {
     console.log('Connecting WebSocket with userId:', userId, 'and authToken:', authToken)
     const destinations = [
       `/rt-notification/new-message/user/${userId}`, // Thông báo tin nhắn
-      `/rt-notification/new-register/owner/${userId}`, // Thông báo đăng ký mới (nếu user là owner)
+      `/rt-notification/new-register/owner/${userId}` // Thông báo đăng ký mới (nếu user là owner)
       // Nếu cần subscribe topic session, thêm `/rt-notification/new-bid/session/{sessionId}`
     ]
     console.log('Subscribing to destinations:', destinations)
@@ -62,7 +63,7 @@ const Notification = ({ userId, authToken, initialNotifications = [] }) => {
     return () => {
       console.log('Cleaning up WebSocket connection')
       cleanup()
-      // disconnectWebSocket()  
+      // disconnectWebSocket()
     }
   }, [userId, authToken])
 
@@ -95,6 +96,19 @@ const Notification = ({ userId, authToken, initialNotifications = [] }) => {
     setNotificationsAnchorEl(notificationsAnchorEl ? null : event.currentTarget)
   }
 
+  const { mutate: markAsRead } = useMarkNotificationAsRead()
+
+  const handleNotificationClick = (notificationId) => {
+    markAsRead(notificationId, {
+      onSuccess: () => {
+        setNotificationsAnchorEl(null)
+      },
+      onError: (err) => {
+        console.error('Failed to mark as read:', err)
+      }
+    })
+  }
+
   return (
     <>
       <IconButtonWithBadge
@@ -102,7 +116,10 @@ const Notification = ({ userId, authToken, initialNotifications = [] }) => {
         aria-label="notifications"
         onClick={handleIconClick}
       >
-        <Badge badgeContent={notifications.length} color="error">
+        <Badge
+          badgeContent={notifications.filter((n) => !n.read).length}
+          color="error"
+        >
           <NotificationsIcon />
         </Badge>
       </IconButtonWithBadge>
@@ -182,15 +199,15 @@ const Notification = ({ userId, authToken, initialNotifications = [] }) => {
             notifications.map((notification) => (
               <MenuItem
                 key={notification.id}
-                onClick={() => setNotificationsAnchorEl(null)}
+                onClick={() => handleNotificationClick(notification.id)}
                 sx={{
                   py: 2,
                   px: 2,
                   borderBottom: '1px solid',
                   borderColor: 'divider',
-                  backgroundColor: notification.isRead ? 'inherit' : 'rgba(231, 229, 229, 0.75)',
+                  backgroundColor: notification.read ? 'inherit' : 'rgba(231, 229, 229, 0.75)',
                   '&:hover': {
-                    backgroundColor: notification.isRead
+                    backgroundColor: notification.read
                       ? 'rgba(0, 0, 0, 0.04)'
                       : 'rgba(189, 189, 189, 0.5)'
                   }

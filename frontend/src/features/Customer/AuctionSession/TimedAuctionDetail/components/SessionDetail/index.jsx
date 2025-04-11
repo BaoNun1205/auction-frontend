@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState, useRef } from 'react'
 import {
   Box,
   Typography,
@@ -99,6 +99,8 @@ const SessionDetail = ({ item, refresh }) => {
     setAutoBidDialogOpen(false)
   }
 
+  const cleanupRef = useRef(null)
+
   const onMessage = useCallback((message) => {
     const response = JSON.parse(message.body)
     if (response.code === 200 && response.result) {
@@ -116,19 +118,38 @@ const SessionDetail = ({ item, refresh }) => {
   }, [])
 
   useEffect(() => {
-    if (item.status === 'ONGOING') {
-      const destination = `/rt-product/bidPrice-update/${item.id}`
-      connectWebSocket(auth.token, destination, onMessage)
+    if (item.status !== 'ONGOING') {
+      // Cleanup nếu không còn ONGOING
+      if (cleanupRef.current) {
+        cleanupRef.current()
+        cleanupRef.current = null
+      }
+      return
+    }
 
-      return () => {
-        disconnectWebSocket()
+    const destination = `/rt-product/bidPrice-update/${item.id}`
+
+    // Cleanup kết nối trước đó nếu có
+    if (cleanupRef.current) {
+      cleanupRef.current()
+    }
+
+    // Kết nối mới
+    cleanupRef.current = connectWebSocket(auth.token, destination, onMessage)
+
+    // Cleanup khi component unmount hoặc dependencies thay đổi
+    return () => {
+      if (cleanupRef.current) {
+        cleanupRef.current()
+        cleanupRef.current = null
       }
     }
-    console.log('test data:', autoBidData)
-  }, [auth.token, item.id, onMessage])
+  }, [auth.token, item.id, item.status, onMessage])
 
   const handleBidPrice = () => {
-    sendMessage(`/app/rt-auction/placeBid/${item.id}`, {})
+    if (item.status === 'ONGOING') {
+      sendMessage(`/app/rt-auction/placeBid/${item.id}`, {})
+    }
   }
 
   const handleSubmitPrice = (bidPrice) => {

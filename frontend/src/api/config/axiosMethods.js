@@ -13,8 +13,8 @@ export const POST = ({ url, payload, headers }) => new Promise(async (resolve, r
     .catch(reject)
 })
 
-export const PUT = ({ url, headers, payload }) => new Promise(async (resolve, reject) => {
-  axiosClient.put(url, payload, { headers })
+export const PUT = ({ url, headers, payload = null, params }) => new Promise(async (resolve, reject) => {
+  axiosClient.put(url, payload, { headers, params })
     .then(resolve)
     .catch(reject)
 })
