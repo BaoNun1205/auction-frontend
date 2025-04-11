@@ -1,22 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'
 import {
   Box, Container, Typography, Grid, Paper, List, ListItem, ListItemText,
   ListItemIcon, Button, styled, useTheme, useMediaQuery, IconButton, Drawer,
   Collapse, Breadcrumbs, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle
-} from '@mui/material';
+} from '@mui/material'
 import {
   Person, EmojiEvents, Gavel, Store, ExitToApp, LocationOn, Menu as MenuIcon,
-  ExpandLess, ExpandMore
-} from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
-import { useLogout } from '~/hooks/authHook';
-import CustomerInformation from './CustomerInfomation';
-import AddressesInfomation from './AddressInfomation/AddressInfomation';
-import { ChevronRight } from 'lucide-react';
-import AuctionSessions from './AuctionSessions';
-import WonItems from './WonItems';
+  ExpandLess, ExpandMore,
+  Wallet
+} from '@mui/icons-material'
+import { useNavigate } from 'react-router-dom'
+import { useLogout } from '~/hooks/authHook'
+import CustomerInformation from './CustomerInfomation'
+import AddressesInfomation from './AddressInfomation/AddressInfomation'
+import { ChevronRight } from 'lucide-react'
+import AuctionSessions from './AuctionSessions'
+import WonItems from './WonItems'
+import MyWallet from './MyWallet'
 
-const primaryColor = '#b41712';
+const primaryColor = '#b41712'
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -27,7 +29,7 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
   '&:hover': {
     boxShadow: '0 6px 10px 4px rgba(0, 0, 0, .07)'
   }
-}));
+}))
 
 const StyledListItem = styled(ListItem)(({ theme, active }) => ({
   borderRadius: theme.shape.borderRadius,
@@ -44,50 +46,50 @@ const StyledListItem = styled(ListItem)(({ theme, active }) => ({
       backgroundColor: '#8B0000'
     }
   })
-}));
+}))
 
 const Profile = () => {
-  const [tab, setTab] = useState(1);
-  const [subTab, setSubTab] = useState(null);
-  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [sellerMenuOpen, setSellerMenuOpen] = useState(false);
-  const navigate = useNavigate();
-  const { mutate: logout, isLoading: isLoggingOut } = useLogout();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const [tab, setTab] = useState(1)
+  const [subTab, setSubTab] = useState(null)
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const [sellerMenuOpen, setSellerMenuOpen] = useState(false)
+  const navigate = useNavigate()
+  const { mutate: logout, isLoading: isLoggingOut } = useLogout()
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
 
   const handleNavigate = (path) => {
-    navigate(path);
-  };
+    navigate(path)
+  }
 
   const handleLogout = () => {
-    setLogoutDialogOpen(true);
-  };
+    setLogoutDialogOpen(true)
+  }
 
   const handleConfirmLogout = () => {
     logout(null, {
       onSuccess: () => {
-        navigate('/');
+        navigate('/')
       },
       onError: (error) => {
-        console.error('Error logging out:', error);
+        console.error('Error logging out:', error)
       }
-    });
-    setLogoutDialogOpen(false);
-  };
+    })
+    setLogoutDialogOpen(false)
+  }
 
   const handleCloseLogoutDialog = () => {
-    setLogoutDialogOpen(false);
-  };
+    setLogoutDialogOpen(false)
+  }
 
   const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
-  };
+    setMobileOpen(!mobileOpen)
+  }
 
   const handleSellerMenuToggle = () => {
-    setSellerMenuOpen(!sellerMenuOpen);
-  };
+    setSellerMenuOpen(!sellerMenuOpen)
+  }
 
   const menuItems = [
     { text: 'Hồ sơ', icon: <Person />, value: 1 },
@@ -95,8 +97,9 @@ const Profile = () => {
     { text: 'Chiến lợi phẩm', icon: <EmojiEvents />, value: 3 },
     { text: 'Phiên đấu giá', icon: <Gavel />, value: 4 },
     { text: 'Bán đấu giá', icon: <Store />, value: 5 },
-    { text: 'Đăng xuất', icon: <ExitToApp />, value: 6, onClick: handleLogout }
-  ];
+    { text: 'Ví của tôi', icon: <Wallet />, value: 6 },
+    { text: 'Đăng xuất', icon: <ExitToApp />, value: 7, onClick: handleLogout }
+  ]
 
   const drawer = (
     <StyledPaper elevation={3}>
@@ -111,14 +114,14 @@ const Profile = () => {
               active={tab === item.value}
               onClick={() => {
                 if (item.onClick) {
-                  item.onClick();
+                  item.onClick()
                 } else if (item.subItems) {
-                  handleSellerMenuToggle();
+                  handleSellerMenuToggle()
                 } else {
-                  setTab(item.value);
-                  setSubTab(null);
+                  setTab(item.value)
+                  setSubTab(null)
                   if (isMobile) {
-                    handleDrawerToggle();
+                    handleDrawerToggle()
                   }
                 }
               }}
@@ -139,10 +142,10 @@ const Profile = () => {
                       active={subTab === subItem.value}
                       sx={{ pl: 4 }}
                       onClick={() => {
-                        setTab(item.value);
-                        setSubTab(subItem.value);
+                        setTab(item.value)
+                        setSubTab(subItem.value)
                         if (isMobile) {
-                          handleDrawerToggle();
+                          handleDrawerToggle()
                         }
                       }}
                     >
@@ -156,7 +159,7 @@ const Profile = () => {
         ))}
       </List>
     </StyledPaper>
-  );
+  )
 
   return (
     <>
@@ -183,6 +186,7 @@ const Profile = () => {
               {tab === 3 && 'Chiến lợi phẩm'}
               {tab === 4 && 'Phiên đấu giá'}
               {tab === 5 && 'Bán đấu giá'}
+              {tab === 6 && 'Ví của tôi'}
             </Typography>
           </Breadcrumbs>
         </Box>
@@ -227,6 +231,7 @@ const Profile = () => {
                 {tab === 3 && <WonItems />}
                 {tab === 4 && <AuctionSessions />}
                 {tab === 5 && navigate('/vendor')}
+                {tab === 6 && <MyWallet />}
               </StyledPaper>
             </Grid>
           </Grid>
@@ -262,7 +267,7 @@ const Profile = () => {
         </Box>
       </Container>
     </>
-  );
-};
+  )
+}
 
-export default Profile;
+export default Profile
