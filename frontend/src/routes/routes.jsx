@@ -16,6 +16,7 @@ import ProfilePage from '~/pages/Customer/ProfilePage'
 import VendorPage from '~/pages/Vendor/VendorPage'
 import AddAssetPage from '~/pages/Asset/AddAssetPage'
 import SellerPage from '~/pages/Customer/SellerPage'
+import VNPayCallback from '~/features/Customer/Profile/MyWallet/VNPayCallback'
 
 export const BASE_PATHS = {
   HOME: '/',
@@ -62,6 +63,10 @@ export const publicRoutes = [
   {
     path: `${BASE_PATHS.SELLER}/:id`,
     page: SellerPage
+  },
+  {
+    path: '/payment/vn-pay-callback',
+    page: VNPayCallback
   }
 ]
 

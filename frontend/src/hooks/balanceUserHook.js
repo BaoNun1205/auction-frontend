@@ -5,6 +5,6 @@ import { getBalanceUser } from '~/api/balanceUserApi'
 export const UseGetBalanceUser = (id) => {
   return useQuery({
     queryKey: ['balanceUser', id],
-    queryFn: () => getBalanceUser(id),
-  });
-};
+    queryFn: () => getBalanceUser(id)
+  })
+}

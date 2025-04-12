@@ -21,10 +21,14 @@ const PUBLIC_ENDPOINTS = [
 ];
 
 // Hàm để kiểm tra xem URL và method có phải là public endpoint hay không
-const isPublicEndpoint = (url, method) => {
-  return PUBLIC_ENDPOINTS.some(
-    (endpoint) => url.includes(endpoint.url) && endpoint.method === method.toLowerCase()
-  );
+const isPublicEndpoint = (url) => {
+  if (!url || typeof url !== 'string') {
+    console.error('Invalid URL:', url);
+    return false;
+  }
+
+  const publicEndpoints = ['/login', '/register', '/public-data'];
+  return publicEndpoints.some((endpoint) => url.includes(endpoint));
 };
 
 // Hàm để thêm interceptor
