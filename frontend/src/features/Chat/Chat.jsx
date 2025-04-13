@@ -32,7 +32,7 @@ function formatCustomDate(timestamp) {
   return `${day}/${month}/${year}`
 }
 
-export default function Chat() {
+export default function Chat({ vendorId }) {
   const [selectedConversation, setSelectedConversation] = useState(null)
   const [newMessage, setNewMessage] = useState('')
   const [liveMessages, setLiveMessages] = useState([])
@@ -41,11 +41,35 @@ export default function Chat() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true)
   const [localConversations, setLocalConversations] = useState([])
   const messagesEndRef = useRef(null)
+  const { auth, conversationCount, setConversationCount } = useAppStore()
 
-  const user = useAppStore((state) => state.auth.user)
+  const user = auth.user
   const currentUserId = user.id
-  const token = useAppStore((state) => state.auth.token)
+  const token = auth.token
   const { data: conversations = [], isLoading: isLoadingConversations } = useGetConversations(currentUserId)
+
+  // Auto select conversation nếu truyền vào vendorId
+  useEffect(() => {
+    if (!vendorId || !conversations.length) return
+
+    const matchedConversation = conversations.find((conv) => {
+      return (
+        (conv.buyer.userId === vendorId || conv.seller.userId === vendorId) &&
+      (conv.buyer.userId === currentUserId || conv.seller.userId === currentUserId)
+      )
+    })
+
+    if (matchedConversation) {
+      setSelectedConversation(matchedConversation.conversationId)
+    }
+  }, [vendorId, conversations, currentUserId])
+
+  useEffect(() => {
+    if (conversationCount !== conversations.length) {
+      setConversationCount(conversations.length)
+    }
+  }, [conversations, conversationCount, setConversationCount])
+
   const { data: messages = [], isLoading: isLoadingMessages } = useGetMessages(selectedConversation)
 
   // Khởi tạo hook useUpdateUnread

@@ -8,9 +8,26 @@ import {
 import { Message } from '@mui/icons-material'
 import { Store } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import { useCreateConversation } from '~/hooks/chatHook'
+import { useAppStore } from '~/store/appStore'
 
 const VendorInformation = ({ vendorId, isView = true }) => {
   const navigate = useNavigate()
+  const { auth, setChatOpen, setChatVendorId } = useAppStore()
+  const { mutate: createConversation, isLoading } = useCreateConversation()
+
+  const handleChatClick = () => {
+    createConversation(
+      { buyerId: auth.user.id, sellerId: vendorId },
+      {
+        onSuccess: () => {
+          setChatVendorId(vendorId)
+          setChatOpen(true)
+        }
+      }
+    )
+  }
+
   const sellerStats = [
     { label: 'Đánh Giá', value: '2,2tr' },
     { label: 'Tỉ Lệ Phản Hồi', value: '100%' },
@@ -19,6 +36,7 @@ const VendorInformation = ({ vendorId, isView = true }) => {
     { label: 'Tham Gia', value: '4 năm trước' },
     { label: 'Người Theo Dõi', value: '3,9tr' }
   ]
+
   return (
     <Box
       sx={{
@@ -43,7 +61,7 @@ const VendorInformation = ({ vendorId, isView = true }) => {
                 borderColor: 'divider'
               }}
             >
-          L
+              L
             </Avatar>
             <Box
               component="img"
@@ -69,15 +87,17 @@ const VendorInformation = ({ vendorId, isView = true }) => {
                 lineHeight: 1.2
               }}
             >
-          LOVITO OFFICIAL STORE
+              LOVITO OFFICIAL STORE
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          Online 9 Phút Trước
+              Online 9 Phút Trước
             </Typography>
             <Box display="flex" gap={2}>
               <Button
                 variant="contained"
                 startIcon={<Message />}
+                onClick={handleChatClick}
+                disabled={isLoading}
                 sx={{
                   bgcolor: '#b41712',
                   color: 'white',
@@ -99,6 +119,7 @@ const VendorInformation = ({ vendorId, isView = true }) => {
                 <Button
                   variant="outlined"
                   startIcon={<Store />}
+                  onClick={() => navigate(`/store/${vendorId}`)}
                   sx={{
                     borderColor: 'rgba(0,0,0,0.12)',
                     color: 'text.primary',
@@ -114,14 +135,15 @@ const VendorInformation = ({ vendorId, isView = true }) => {
                     },
                     transition: 'all 0.2s ease-in-out'
                   }}
-                  onClick={() => navigate(`/store/${vendorId}`)}
                 >
-                XEM
+                  XEM
                 </Button>
               )}
             </Box>
           </Box>
         </Box>
+
+        {/* Thống kê */}
         <Box
           display="flex"
           flexWrap="wrap"

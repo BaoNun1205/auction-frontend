@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo, useState } from 'react'
 import {
   Box,
   TextField,
@@ -20,6 +20,17 @@ export default function ChatSidebar({
   setSelectedConversation,
   formatCustomDate
 }) {
+
+  const [searchText, setSearchText] = useState('')
+
+  const filteredConversations = useMemo(() => {
+    return conversations.filter((chat) => {
+      const chatTargetUser = chat.seller.userId === currentUserId ? chat.buyer : chat.seller
+      const targetName = chatTargetUser.name || chatTargetUser.username || ''
+      return targetName.toLowerCase().includes(searchText.toLowerCase())
+    })
+  }, [conversations, currentUserId, searchText])
+
   return (
     <Box
       sx={{
@@ -37,6 +48,8 @@ export default function ChatSidebar({
         <TextField
           fullWidth
           placeholder="Tìm theo tên"
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
           InputProps={{
             startAdornment: (
               <IconButton size="small">
@@ -66,9 +79,15 @@ export default function ChatSidebar({
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
             <CircularProgress size={24} />
           </Box>
+        ) : filteredConversations.length === 0 ? (
+          <Box sx={{ textAlign: 'center', p: 2 }}>
+            <Typography variant="body2" color="textSecondary">
+      Không có cuộc trò chuyện nào
+            </Typography>
+          </Box>
         ) : (
           <List disablePadding>
-            {conversations.map((chat) => {
+            {filteredConversations.map((chat) => {
               const chatTargetUser = chat.seller.userId === currentUserId ? chat.buyer : chat.seller
               return (
                 <ListItem
@@ -79,8 +98,12 @@ export default function ChatSidebar({
                 >
                   <Avatar src={chatTargetUser.avatar} />
                   <Box sx={{ flex: 1, overflow: 'hidden' }}>
-                    <Typography variant="body2" fontWeight={500} noWrap>{chatTargetUser.name}</Typography>
-                    <Typography variant="body2" color="textSecondary" noWrap>{chat.lastMessage}</Typography>
+                    <Typography variant="body2" fontWeight={500} noWrap>
+                      {chatTargetUser?.name || chatTargetUser.username}
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary" noWrap>
+                      {chat.lastMessage}
+                    </Typography>
                   </Box>
                   <Box display="flex" flexDirection="column" alignItems="flex-end" justifyContent="center" gap={2}>
                     <Typography variant="caption" color="textSecondary">
@@ -89,7 +112,14 @@ export default function ChatSidebar({
                     <Badge
                       badgeContent={chat.unread}
                       color="error"
-                      sx={{ '& .MuiBadge-badge': { fontSize: '0.5rem', height: '10px', minWidth: '10px', padding: '0 4px' } }}
+                      sx={{
+                        '& .MuiBadge-badge': {
+                          fontSize: '0.5rem',
+                          height: '10px',
+                          minWidth: '10px',
+                          padding: '0 4px'
+                        }
+                      }}
                     />
                   </Box>
                 </ListItem>

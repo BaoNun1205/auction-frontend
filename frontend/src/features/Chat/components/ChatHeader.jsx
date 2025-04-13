@@ -38,7 +38,7 @@ export default function ChatHeader({
         onClick={handleShopMenuOpen}
       >
         <Typography variant="subtitle1" sx={{ fontWeight: 500 }}>
-          {targetUser?.name || 'Đang tải...'}
+          {targetUser?.name || targetUser.username || 'Đang tải...'}
         </Typography>
         <KeyboardArrowDown fontSize="small" sx={{ color: '#757575' }} />
       </Box>
@@ -56,7 +56,7 @@ export default function ChatHeader({
         <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
           <Avatar src={targetUser?.avatar} sx={{ width: 40, height: 40 }} />
           <Typography variant="subtitle1" sx={{ fontWeight: 500 }}>
-            {targetUser?.name || 'Đang tải...'}
+            {targetUser?.name || targetUser.username || 'Đang tải...'}
           </Typography>
         </Box>
         <Divider />
