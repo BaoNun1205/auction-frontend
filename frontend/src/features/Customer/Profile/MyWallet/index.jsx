@@ -1,9 +1,14 @@
 import React, { useEffect, useState } from 'react'
-import { Box, Typography, CircularProgress, Paper, Card, CardContent, Grid, Chip, Button } from '@mui/material'
-import { UseGetBalanceHistory } from '../../../../hooks/balanceHistoryHook'
-import { UseGetBalanceUser } from '../../../../hooks/balanceUserHook'
-import { useAppStore } from '~/store/appStore'
 import {
+  Box,
+  Typography,
+  CircularProgress,
+  Paper,
+  Card,
+  CardContent,
+  Grid,
+  Chip,
+  Button,
   Table,
   TableHead,
   TableBody,
@@ -15,6 +20,9 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet'
 import AddIcon from '@mui/icons-material/Add'
 import { format } from 'date-fns'
 import { vi } from 'date-fns/locale'
+import { UseGetBalanceHistory } from '~/hooks/balanceHistoryHook'
+import { UseGetBalanceUser } from '~/hooks/balanceUserHook'
+import { useAppStore } from '~/store/appStore'
 import DepositDialog from './DepositDialog'
 
 const MyWallet = () => {
