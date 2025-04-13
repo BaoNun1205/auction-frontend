@@ -19,6 +19,17 @@ let appStore = (set) => ({
   sessionOpen: false,
   setSessionOpen: (sessionOpen) => set((state) => ({ sessionOpen })),
 
+  // Trạng thái mở chat
+  isChatOpen: false,
+  setChatOpen: (isChatOpen) => set(() => ({ isChatOpen })),
+
+  // Lưu vendorId đang chat
+  chatVendorId: null,
+  setChatVendorId: (chatVendorId) => set(() => ({ chatVendorId })),
+
+  conversationCount: 0, // Khởi tạo conversationCount
+  setConversationCount: (conversationCount) => set(() => ({ conversationCount })),
+
   auth: {
     token: '',
     role: '',

@@ -1,5 +1,21 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getConversations, getMessages, sendMessage, updateUnread } from '~/api/chatApi';
+import { createConversation, getConversations, getMessages, sendMessage, updateUnread } from '~/api/chatApi';
+
+export const useCreateConversation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: createConversation,
+    onSuccess: (data) => {
+      // Làm mới danh sách conversation sau khi tạo mới
+      queryClient.invalidateQueries(['conversations']);
+      console.log('Conversation created successfully:', data);
+    },
+    onError: (error) => {
+      console.error('Error creating conversation:', error);
+    },
+  });
+};
 
 export const useGetConversations = (userId) => {
   return useQuery({

@@ -1,6 +1,6 @@
-import React from 'react'
-import { Box, Stack, Avatar, Typography, CircularProgress } from '@mui/material'
-import TypingIndicator from './TypingIndicator'
+import React from 'react';
+import { Box, Stack, Avatar, Typography, CircularProgress } from '@mui/material';
+import TypingIndicator from './TypingIndicator';
 
 export default function ChatMessages({
   sortedMessages,
@@ -9,7 +9,7 @@ export default function ChatMessages({
   targetUser,
   user,
   isTyping,
-  messagesEndRef
+  messagesEndRef,
 }) {
   return (
     <Box
@@ -21,18 +21,40 @@ export default function ChatMessages({
         flexDirection: 'column',
         gap: 0.5,
         '&::-webkit-scrollbar': { width: '6px' },
-        '&::-webkit-scrollbar-thumb': { backgroundColor: '#bdbdbd', borderRadius: '3px' }
+        '&::-webkit-scrollbar-thumb': { backgroundColor: '#bdbdbd', borderRadius: '3px' },
       }}
     >
       {isLoadingMessages ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
           <CircularProgress size={24} />
         </Box>
+      ) : sortedMessages.length === 0 ? (
+        <Box
+          sx={{
+            bgcolor: '#fff3e0',
+            p: 2,
+            borderRadius: 2,
+            maxWidth: '90%',
+            alignSelf: 'center',
+            mt: 2,
+          }}
+        >
+          <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#ff9800' }}>
+            LƯU Ý: BIDMASTER KHÔNG CHO PHÉP CÁC HÀNH VI: ĐẶT CỌC/CHUYỂN
+          </Typography>
+          <Typography variant="body2" sx={{ color: 'black', mt: 0.5 }}>
+            khoản riêng tiền cho người bán/Người giao dịch/CáC HOẠT động thông tuyển CTV/Tăng
+            cấp qua miễn phí, ... Vui lòng chỉ đấu giá trực tiếp trên ứng dụng BidMaster để tránh nguy cơ bị lừa đảo nhé!{' '}
+            <Typography component="span" sx={{ color: '#1976d2', fontWeight: 'bold' }}>
+              Tìm hiểu thêm
+            </Typography>
+          </Typography>
+        </Box>
       ) : (
         <>
           {sortedMessages.map((msg, index) => {
-            const senderId = msg.sender?.userId || msg.senderId
-            const senderAvatar = senderId === currentUserId ? user.avatar : targetUser?.avatar
+            const senderId = msg.sender?.userId || msg.senderId;
+            const senderAvatar = senderId === currentUserId ? user.avatar : targetUser?.avatar;
             return (
               <Stack
                 key={index}
@@ -51,7 +73,7 @@ export default function ChatMessages({
                     maxWidth: '70%',
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: 0.5
+                    gap: 0.5,
                   }}
                 >
                   <Typography variant="body2" sx={{ wordBreak: 'break-word', fontSize: '0.875rem', width: '100%' }}>
@@ -61,16 +83,20 @@ export default function ChatMessages({
                     variant="caption"
                     sx={{ color: 'rgba(0, 0, 0, 0.6)', fontSize: '0.7rem', fontWeight: 400, alignSelf: 'flex-end' }}
                   >
-                    {(new Date(msg.timestamp)).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}
+                    {new Date(msg.timestamp).toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: false,
+                    })}
                   </Typography>
                 </Box>
               </Stack>
-            )
+            );
           })}
           {isTyping && <TypingIndicator />}
           <div ref={messagesEndRef} />
         </>
       )}
     </Box>
-  )
+  );
 }

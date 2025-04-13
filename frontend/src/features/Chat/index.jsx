@@ -1,17 +1,18 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Box, IconButton, Paper, Typography, Badge } from '@mui/material'
 import { Chat as ChatIcon, OpenInNew, KeyboardArrowDown } from '@mui/icons-material'
 import ChatInterface from './Chat' // Import giao diện chat
+import { useAppStore } from '~/store/appStore'
 
 const ChatButton = () => {
-  const [open, setOpen] = useState(false)
+  const { isChatOpen, setChatOpen, chatVendorId, conversationCount } = useAppStore()
 
   const handleClickOpen = () => {
-    setOpen(true)
+    setChatOpen(true)
   }
 
   const handleClose = () => {
-    setOpen(false)
+    setChatOpen(false)
   }
 
   return (
@@ -35,7 +36,7 @@ const ChatButton = () => {
       </IconButton>
 
       {/* Cửa sổ chat */}
-      {open && (
+      {isChatOpen && (
         <Paper
           sx={{
             position: 'fixed',
@@ -76,7 +77,7 @@ const ChatButton = () => {
                 Chat
               </Typography>
               <Badge
-                badgeContent="25"
+                badgeContent={conversationCount}
                 color="error"
                 sx={{
                   ml: 0.5,
@@ -105,7 +106,7 @@ const ChatButton = () => {
 
           {/* Nội dung Chat */}
           <Box sx={{ flex: 1, overflow: 'hidden' }}>
-            <ChatInterface />
+            <ChatInterface vendorId={chatVendorId} />
           </Box>
         </Paper>
       )}

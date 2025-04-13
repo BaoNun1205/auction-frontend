@@ -5,7 +5,7 @@ import TypingIndicator from './TypingIndicator'
 
 const MessageList = ({ messages, currentUserId, targetUser, isLoading, isTyping }) => {
   const messagesEndRef = useRef(null)
-  
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
@@ -21,7 +21,7 @@ const MessageList = ({ messages, currentUserId, targetUser, isLoading, isTyping 
   return (
     <Box sx={{ flex: 1, p: 1.5, overflowY: 'auto', '&::-webkit-scrollbar': { width: '6px' }, '&::-webkit-scrollbar-thumb': { backgroundColor: '#bdbdbd', borderRadius: '3px' } }}>
       {messages.map((msg, index) => (
-        <MessageItem 
+        <MessageItem
           key={index}
           message={msg}
           currentUserId={currentUserId}
