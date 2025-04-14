@@ -41,7 +41,13 @@ export default function Chat({ vendorId }) {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true)
   const [localConversations, setLocalConversations] = useState([])
   const messagesEndRef = useRef(null)
-  const { auth, conversationCount, setConversationCount } = useAppStore()
+  const { auth, conversationCount, setConversationCount, isChatOpen } = useAppStore()
+
+  const isChatOpenRef = useRef(isChatOpen)
+
+  useEffect(() => {
+    isChatOpenRef.current = isChatOpen
+  }, [isChatOpen])
 
   const user = auth.user
   const currentUserId = user.id
@@ -82,7 +88,8 @@ export default function Chat({ vendorId }) {
   useEffect(() => setLocalConversations(conversations), [conversations])
 
   const selectedConversationData = localConversations.find((c) => c.conversationId === selectedConversation)
-  const targetUser = selectedConversationData 
+
+  const targetUser = selectedConversationData
     ? (selectedConversationData.seller.userId === currentUserId ? selectedConversationData.buyer : selectedConversationData.seller)
     : null
 
@@ -91,16 +98,20 @@ export default function Chat({ vendorId }) {
       const response = JSON.parse(message.body)
       if (response.code === 200 && response.result) {
         const messageData = response.result
+        const isMine = messageData.sender.userId === currentUserId
+        const isCurrentConversation = messageData.conversationId === selectedConversation
+
         if (messageData.content && messageData.sender && messageData.timestamp && messageData.conversationId) {
-          if (messageData.conversationId === selectedConversation) {
-            setLiveMessages((prev) => {
-              const isDuplicate = prev.some(m => m.timestamp === messageData.timestamp && m.content === messageData.content) ||
-                messages.some(m => m.timestamp === messageData.timestamp && m.content === messageData.content)
-              if (isDuplicate || messageData.sender.userId === currentUserId) return prev
-              return [...prev, messageData]
-            })
-          } else if (messageData.sender.userId !== currentUserId) {
-            // Cập nhật unread nếu không phải conversation hiện tại và không phải tin nhắn do user gửi
+          const isDuplicate =
+              liveMessages.some(m => m.timestamp === messageData.timestamp && m.content === messageData.content) ||
+              messages.some(m => m.timestamp === messageData.timestamp && m.content === messageData.content)
+
+          if (isCurrentConversation && !isMine && !isDuplicate) {
+            setLiveMessages(prev => [...prev, messageData])
+          }
+
+          // xử lý unread nếu khác conversation hiện tại
+          if (!isMine && !isCurrentConversation) {
             const conversation = localConversations.find(conv => conv.conversationId === messageData.conversationId)
             if (conversation) {
               updateUnreadCount({
@@ -108,6 +119,19 @@ export default function Chat({ vendorId }) {
                 unreadCount: (conversation.unread || 0) + 1
               })
             }
+          }
+
+          // gửi notification nếu chat chưa mở và không phải tin nhắn của mình
+          if (!isChatOpenRef.current && !isMine) {
+            console.log('send notification')
+            sendMessage(`/app/rt-auction/notification/new-message/user/${currentUserId}`, {
+              senderId: messageData.sender.userId,
+              receiverId: currentUserId,
+              type: 'MESSAGE',
+              title: 'Tin nhắn mới',
+              content: `${messageData.sender.name || messageData.sender.username}: ${messageData.content}`,
+              referenceId: messageData.conversationId
+            })
           }
 
           setLocalConversations((prevConversations) => {
@@ -119,7 +143,7 @@ export default function Chat({ vendorId }) {
                     ...conv,
                     lastMessage: messageData.content,
                     time: messageData.timestamp,
-                    unread: messageData.sender.userId !== currentUserId && conv.conversationId !== selectedConversation
+                    unread: !isMine && conv.conversationId !== selectedConversation
                       ? (conv.unread || 0) + 1 : conv.unread
                   }
                   : conv
@@ -127,7 +151,8 @@ export default function Chat({ vendorId }) {
             }
             return prevConversations
           })
-          if (messageData.sender.userId !== currentUserId && messageData.conversationId === selectedConversation) {
+
+          if (!isMine && isCurrentConversation) {
             setIsTyping(false)
           }
         }
@@ -138,8 +163,9 @@ export default function Chat({ vendorId }) {
         }
       }
     },
-    [currentUserId, selectedConversation, messages]
+    [currentUserId, selectedConversation, messages, liveMessages]
   )
+
 
   useEffect(() => {
     if (!isLoadingConversations && conversations.length > 0 && token) {

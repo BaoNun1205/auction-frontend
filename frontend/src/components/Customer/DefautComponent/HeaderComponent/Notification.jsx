@@ -26,10 +26,15 @@ const Notification = ({ userId, authToken, initialNotifications = [] }) => {
       console.log('Parsed notification:', notification)
 
       setNotifications((prev) => {
-        if (!prev.some((n) => n.id === notification.id)) {
-          return [notification, ...prev]
+        const existingIndex = prev.findIndex((n) => n.id === notification.id)
+        if (existingIndex !== -1) {
+          // Nếu đã tồn tại, thay thế bằng thông báo mới
+          const updated = [...prev]
+          updated[existingIndex] = notification
+          return updated
         }
-        return prev
+        // Nếu chưa có thì thêm mới vào đầu danh sách
+        return [notification, ...prev]
       })
     } catch (error) {
       console.error('Failed to parse WebSocket message:', error)
@@ -205,11 +210,11 @@ const Notification = ({ userId, authToken, initialNotifications = [] }) => {
                   px: 2,
                   borderBottom: '1px solid',
                   borderColor: 'divider',
-                  backgroundColor: notification.read ? 'inherit' : 'rgba(231, 229, 229, 0.75)',
+                  backgroundColor: notification.read ? 'inherit' : 'rgba(180, 23, 18, 0.1)',
                   '&:hover': {
                     backgroundColor: notification.read
                       ? 'rgba(0, 0, 0, 0.04)'
-                      : 'rgba(189, 189, 189, 0.5)'
+                      : 'rgba(180, 23, 18, 0.2)' // hover với màu chủ đạo đậm hơn
                   }
                 }}
               >
@@ -217,7 +222,7 @@ const Notification = ({ userId, authToken, initialNotifications = [] }) => {
                   <Typography
                     variant="subtitle1"
                     sx={{
-                      fontWeight: 'bold',
+                      fontWeight: notification.read ? 'medium' : 'bold',
                       mb: 0.5,
                       whiteSpace: 'nowrap',
                       overflow: 'hidden',
