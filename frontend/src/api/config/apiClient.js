@@ -1,8 +1,6 @@
 import axios from 'axios';
 import { useAppStore } from '~/store/appStore';
 
-const auth = useAppStore.getState().auth;
-
 const apiClient = axios.create({
   baseURL: 'http://localhost:8080',
   headers: {
@@ -10,6 +8,7 @@ const apiClient = axios.create({
   },
 });
 
+// Danh sách các endpoint công khai
 const PUBLIC_ENDPOINTS = [
   { url: '/users', method: 'post' },
   { url: '/auth/token', method: 'post' },
@@ -20,35 +19,38 @@ const PUBLIC_ENDPOINTS = [
   { url: '/confirm-account', method: 'post' },
 ];
 
-// Hàm để kiểm tra xem URL và method có phải là public endpoint hay không
-const isPublicEndpoint = (url) => {
-  if (!url || typeof url !== 'string') {
-    console.error('Invalid URL:', url);
-    return false;
-  }
+// Hàm kiểm tra xem request có nằm trong public endpoints hay không
+const isPublicEndpoint = (url, method) => {
+  if (!url || !method) return false;
 
-  const publicEndpoints = ['/login', '/register', '/public-data'];
-  return publicEndpoints.some((endpoint) => url.includes(endpoint));
+  // Normalize url để so sánh (có thể có query string)
+  const normalizedUrl = url.split('?')[0].toLowerCase();
+  const normalizedMethod = method.toLowerCase();
+
+  return PUBLIC_ENDPOINTS.some(
+    (endpoint) =>
+      normalizedUrl.endsWith(endpoint.url.toLowerCase()) &&
+      normalizedMethod === endpoint.method.toLowerCase()
+  );
 };
 
-// Hàm để thêm interceptor
+// Thêm interceptor để gắn token nếu không phải endpoint công khai
 const addAuthInterceptor = (client) => {
   client.interceptors.request.use(
     (config) => {
-      const token = auth.token;
+      const token = useAppStore.getState().auth.token;
+      console.log('Token:', token);
 
       if (token && !isPublicEndpoint(config.url, config.method)) {
         config.headers.Authorization = `Bearer ${token}`;
       }
+
       return config;
     },
-    (error) => {
-      return Promise.reject(error);
-    }
+    (error) => Promise.reject(error)
   );
 };
 
-// Thêm interceptor vào apiClient
 addAuthInterceptor(apiClient);
 
 export default apiClient;
