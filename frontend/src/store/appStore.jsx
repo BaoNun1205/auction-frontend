@@ -30,6 +30,21 @@ let appStore = (set) => ({
   conversationCount: 0, // Khởi tạo conversationCount
   setConversationCount: (conversationCount) => set(() => ({ conversationCount })),
 
+  // Lưu thông báo của người dùng
+  notifications: [], // danh sách notification
+  setNotifications: (notifications) => set(() => ({ notifications })),
+
+  addOrUpdateNotification: (notification) =>
+    set((state) => {
+      const existingIndex = state.notifications.findIndex((n) => n.id === notification.id);
+      if (existingIndex !== -1) {
+        const updated = [...state.notifications];
+        updated[existingIndex] = notification;
+        return { notifications: updated };
+      }
+      return { notifications: [notification, ...state.notifications] };
+    }),
+
   auth: {
     token: '',
     role: '',

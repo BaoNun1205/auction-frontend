@@ -150,8 +150,6 @@ const Header = () => {
           {/* Sử dụng component Notification với userId và authToken */}
           {auth.isAuth && (
             <Notification
-              userId={auth?.user?.id} // Truyền userId từ auth
-              authToken={auth?.token} // Truyền accessToken từ auth
               initialNotifications={notifications} // Truyền danh sách thông báo ban đầu
             />
           )}
