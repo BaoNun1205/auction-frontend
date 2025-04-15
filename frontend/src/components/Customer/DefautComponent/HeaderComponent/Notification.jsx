@@ -9,68 +9,38 @@ import {
 } from '@mui/material'
 import { Notifications as NotificationsIcon } from '@mui/icons-material'
 import { IconButtonWithBadge } from './style'
-import { connectWebSocket, disconnectWebSocket } from '~/service/webSocketService'
-import { useCountUnreadNotifications, useMarkNotificationAsRead } from '~/hooks/notificationHook'
+import { useMarkNotificationAsRead } from '~/hooks/notificationHook'
+import { useAppStore } from '~/store/appStore'
 
-const Notification = ({ userId, authToken, initialNotifications = [] }) => {
-  const [notifications, setNotifications] = useState(initialNotifications) // Khởi tạo với danh sách từ API
+const Notification = ({ initialNotifications = [] }) => {
+  const notifications = useAppStore((state) => state.notifications)
+  const setNotifications = useAppStore((state) => state.setNotifications)
+
+  useEffect(() => {
+    if (initialNotifications.length > 0) {
+      setNotifications(initialNotifications)
+    }
+  }, [initialNotifications, setNotifications])
+
   const [notificationsAnchorEl, setNotificationsAnchorEl] = useState(null)
 
-  // Hàm xử lý thông báo mới từ WebSocket
-  const handleNewNotification = (frame) => {
-    try {
-      const binaryBody = frame.binaryBody || frame._binaryBody
-      const jsonString = new TextDecoder().decode(binaryBody)
-      const notification = JSON.parse(jsonString)
-
-      console.log('Parsed notification:', notification)
-
-      setNotifications((prev) => {
-        const existingIndex = prev.findIndex((n) => n.id === notification.id)
-        if (existingIndex !== -1) {
-          // Nếu đã tồn tại, thay thế bằng thông báo mới
-          const updated = [...prev]
-          updated[existingIndex] = notification
-          return updated
-        }
-        // Nếu chưa có thì thêm mới vào đầu danh sách
-        return [notification, ...prev]
-      })
-    } catch (error) {
-      console.error('Failed to parse WebSocket message:', error)
-    }
+  const handleIconClick = (event) => {
+    setNotificationsAnchorEl(notificationsAnchorEl ? null : event.currentTarget)
   }
 
-  // Cập nhật notifications khi initialNotifications thay đổi (từ API)
-  useEffect(() => {
-    console.log('Initial notifications updated:', initialNotifications)
-    setNotifications(initialNotifications)
-  }, [initialNotifications])
+  const { mutate: markAsRead } = useMarkNotificationAsRead()
 
-  // Kết nối WebSocket khi component mount
-  useEffect(() => {
-    if (!userId || !authToken) {
-      console.log('Missing userId or authToken, WebSocket not connected')
-      return
-    }
-
-    console.log('Connecting WebSocket with userId:', userId, 'and authToken:', authToken)
-    const destinations = [
-      `/rt-notification/new-message/user/${userId}`, // Thông báo tin nhắn
-      `/rt-notification/new-register/owner/${userId}` // Thông báo đăng ký mới (nếu user là owner)
-      // Nếu cần subscribe topic session, thêm `/rt-notification/new-bid/session/{sessionId}`
-    ]
-    console.log('Subscribing to destinations:', destinations)
-
-    const cleanup = connectWebSocket(authToken, destinations, handleNewNotification)
-
-    // Cleanup khi component unmount
-    return () => {
-      console.log('Cleaning up WebSocket connection')
-      cleanup()
-      // disconnectWebSocket()
-    }
-  }, [userId, authToken])
+  const handleNotificationClick = (notificationId) => {
+    markAsRead(notificationId, {
+      onSuccess: () => {
+        // setNotifications((prev) =>
+        //   prev.map((n) => (n.id === notificationId ? { ...n, read: true } : n))
+        // )
+        setNotificationsAnchorEl(null)
+      },
+      onError: (err) => console.error('Failed to mark as read:', err)
+    })
+  }
 
   const formatRelativeTime = (createdAt) => {
     const createdDate = new Date(createdAt)
@@ -94,24 +64,6 @@ const Notification = ({ userId, authToken, initialNotifications = [] }) => {
     } else {
       return `${diffInMinutes} phút trước`
     }
-  }
-
-  const handleIconClick = (event) => {
-    console.log('Notification icon clicked, current notifications:', notifications)
-    setNotificationsAnchorEl(notificationsAnchorEl ? null : event.currentTarget)
-  }
-
-  const { mutate: markAsRead } = useMarkNotificationAsRead()
-
-  const handleNotificationClick = (notificationId) => {
-    markAsRead(notificationId, {
-      onSuccess: () => {
-        setNotificationsAnchorEl(null)
-      },
-      onError: (err) => {
-        console.error('Failed to mark as read:', err)
-      }
-    })
   }
 
   return (
@@ -201,54 +153,56 @@ const Notification = ({ userId, authToken, initialNotifications = [] }) => {
               </Typography>
             </Box>
           ) : (
-            notifications.map((notification) => (
-              <MenuItem
-                key={notification.id}
-                onClick={() => handleNotificationClick(notification.id)}
-                sx={{
-                  py: 2,
-                  px: 2,
-                  borderBottom: '1px solid',
-                  borderColor: 'divider',
-                  backgroundColor: notification.read ? 'inherit' : 'rgba(180, 23, 18, 0.1)',
-                  '&:hover': {
-                    backgroundColor: notification.read
-                      ? 'rgba(0, 0, 0, 0.04)'
-                      : 'rgba(180, 23, 18, 0.2)' // hover với màu chủ đạo đậm hơn
-                  }
-                }}
-              >
-                <Box sx={{ width: '100%' }}>
-                  <Typography
-                    variant="subtitle1"
-                    sx={{
-                      fontWeight: notification.read ? 'medium' : 'bold',
-                      mb: 0.5,
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis'
-                    }}
-                  >
-                    {notification.title}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{
-                      mb: 1,
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis'
-                    }}
-                  >
-                    {notification.content}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    {formatRelativeTime(notification.createdAt)}
-                  </Typography>
-                </Box>
-              </MenuItem>
-            ))
+            [...notifications]
+              .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+              .map((notification) => (
+                <MenuItem
+                  key={notification.id}
+                  onClick={() => handleNotificationClick(notification.id)}
+                  sx={{
+                    py: 2,
+                    px: 2,
+                    borderBottom: '1px solid',
+                    borderColor: 'divider',
+                    backgroundColor: notification.read ? 'inherit' : 'rgba(180, 23, 18, 0.1)',
+                    '&:hover': {
+                      backgroundColor: notification.read
+                        ? 'rgba(0, 0, 0, 0.04)'
+                        : 'rgba(180, 23, 18, 0.2)' // hover với màu chủ đạo đậm hơn
+                    }
+                  }}
+                >
+                  <Box sx={{ width: '100%' }}>
+                    <Typography
+                      variant="subtitle1"
+                      sx={{
+                        fontWeight: notification.read ? 'medium' : 'bold',
+                        mb: 0.5,
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
+                      }}
+                    >
+                      {notification.title}
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{
+                        mb: 1,
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
+                      }}
+                    >
+                      {notification.content}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {formatRelativeTime(notification.createdAt)}
+                    </Typography>
+                  </Box>
+                </MenuItem>
+              ))
           )}
         </Box>
       </Popover>
