@@ -7,7 +7,6 @@ import { useAppStore } from './store/appStore'
 import { introspect } from './api/authApi'
 import { useLogout, useRefreshToken } from './hooks/authHook'
 import ChatButton from './features/Chat'
-import { setupWebSocket } from './service/setupWebSocket'
 
 function App() {
   const [routes, setRoutes] = useState([...privateRoutes, ...publicRoutes])
@@ -51,6 +50,7 @@ function App() {
         },
         onError: () => {
           setIsRefreshing(false)
+          window.location.reload()
         }
       })
     } else if (!isValid && !isLoading) {
@@ -68,23 +68,6 @@ function App() {
       setRoutes([...privateRoutes, ...publicRoutes])
     }
   }, [getRole()])
-
-  useEffect(() => {
-    const state = useAppStore.getState()
-    const token = state.auth.token
-    const userId = state.auth.user?.id
-
-    if (!token || !userId || !isValid || isLoading) return
-
-    console.log('[WebSocket Effect] Reconnect triggered')
-
-    const disconnect = setupWebSocket({ token, userId })
-
-    return () => {
-      console.log('Disconnecting WebSocket on unmount')
-      disconnect()
-    }
-  }, [isValid, isLoading, useAppStore((s) => s.auth.token), useAppStore((s) => s.auth.user?.id)])
 
   if (isLoading) {
     return <div>Loading...</div>

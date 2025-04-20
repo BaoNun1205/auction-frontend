@@ -11,14 +11,14 @@ import {
   CircularProgress
 } from '@mui/material'
 import { Search } from '@mui/icons-material'
+import { formatCustomDate } from '~/utils/customTime'
 
 export default function ChatSidebar({
   conversations,
   isLoadingConversations,
   currentUserId,
   selectedConversation,
-  setSelectedConversation,
-  formatCustomDate
+  setSelectedConversation
 }) {
 
   const [searchText, setSearchText] = useState('')

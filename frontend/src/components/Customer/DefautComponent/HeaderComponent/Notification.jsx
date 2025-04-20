@@ -4,66 +4,138 @@ import {
   Box,
   Popover,
   MenuItem,
-  IconButton,
   Badge
 } from '@mui/material'
 import { Notifications as NotificationsIcon } from '@mui/icons-material'
 import { IconButtonWithBadge } from './style'
+import { connectWebSocket } from '~/service/webSocketService'
 import { useMarkNotificationAsRead } from '~/hooks/notificationHook'
 import { useAppStore } from '~/store/appStore'
+import { useGetUserById, useUpdateUnreadNotificationCount } from '~/hooks/userHook'
+import { formatRelativeTime } from '~/utils/customTime'
+import { set } from 'date-fns'
 
 const Notification = ({ initialNotifications = [] }) => {
-  const notifications = useAppStore((state) => state.notifications)
-  const setNotifications = useAppStore((state) => state.setNotifications)
+  const [notifications, setNotifications] = useState(initialNotifications) // Khởi tạo với danh sách từ API
+  const [notificationsAnchorEl, setNotificationsAnchorEl] = useState(null)
+  const [localUnreadCount, setLocalUnreadCount] = useState(0)
+  const { mutate: updateUnreadNotificationCount } = useUpdateUnreadNotificationCount()
+  const { mutate: markAsRead } = useMarkNotificationAsRead()
+  const { auth } = useAppStore()
+  const token = auth.token
+  const userId = auth.user.id
+
+  const { data: user, refetch: refetchUser } = useGetUserById(userId)
+  const unreadNotificationCount = user?.unreadNotificationCount || 0
 
   useEffect(() => {
-    if (initialNotifications.length > 0) {
-      setNotifications(initialNotifications)
-    }
-  }, [initialNotifications, setNotifications])
+    setLocalUnreadCount(unreadNotificationCount)
+  }, [unreadNotificationCount])
 
-  const [notificationsAnchorEl, setNotificationsAnchorEl] = useState(null)
+  console.log('userId noti: ', userId)
+
+  // Hàm xử lý thông báo mới từ WebSocket
+  const handleNewNotification = (frame) => {
+    try {
+      console.log('Received WebSocket message:', frame)
+      const binaryBody = frame.binaryBody || frame._binaryBody
+      const jsonString = new TextDecoder().decode(binaryBody)
+      const notification = JSON.parse(jsonString)
+
+      console.log('Parsed notification:', notification)
+
+      if (notification?.sender?.userId == userId) {
+        return
+      }
+
+      setNotifications((prev) => {
+        const existingIndex = prev.findIndex((n) => n.id === notification.id)
+        if (existingIndex !== -1) {
+          // Nếu đã tồn tại, thay thế bằng thông báo mới
+          const updated = [...prev]
+          updated[existingIndex] = notification
+          return updated
+        }
+        // Nếu chưa có thì thêm mới vào đầu danh sách
+        return [notification, ...prev]
+      })
+
+      console.log('unreadNotificationCount:', unreadNotificationCount)
+      if (!notificationsAnchorEl) {
+        setLocalUnreadCount((prev) => {
+          const newCount = prev + 1
+          updateUnreadNotificationCount(
+            { userId, count: newCount }
+          )
+          return newCount
+        })
+      }
+    } catch (error) {
+      console.error('Failed to parse WebSocket message:', error)
+    }
+  }
+
+  // Cập nhật notifications khi initialNotifications thay đổi (từ API)
+  useEffect(() => {
+    console.log('Initial notifications updated:', initialNotifications)
+    setNotifications(initialNotifications)
+  }, [initialNotifications])
+
+  useEffect(() => {
+    if (!userId || !token) {
+      console.log('Missing userId or token, WebSocket not connected')
+      return
+    }
+
+    const destinations = [
+      `/rt-notification/user/${userId}`,
+      '/rt-notification/new-bid/session/c01757ff-ba4f-4beb-9852-ecad623a1767'
+    ]
+
+    let cleanup = null
+
+    console.log('Connecting WebSocket with userId:', userId, 'and token:', token)
+    connectWebSocket(token, destinations, handleNewNotification)
+      .then((_cleanup) => {
+        cleanup = _cleanup
+      })
+      .catch((err) => {
+        console.error('WebSocket connection failed:', err)
+      })
+
+    return () => {
+      console.log('Cleaning up WebSocket connection')
+      if (cleanup) cleanup()
+    }
+  }, [token, userId])
 
   const handleIconClick = (event) => {
     setNotificationsAnchorEl(notificationsAnchorEl ? null : event.currentTarget)
+    console.log('Icon clicked, notificationsAnchorEl:', notificationsAnchorEl)
   }
 
-  const { mutate: markAsRead } = useMarkNotificationAsRead()
+  useEffect(() => {
+    if (notificationsAnchorEl) {
+      updateUnreadNotificationCount(
+        { userId, count: 0 },
+        {
+          onSuccess: () => {
+            setLocalUnreadCount(0)
+          }
+        }
+      )
+    }
+  }, [notificationsAnchorEl])
 
   const handleNotificationClick = (notificationId) => {
     markAsRead(notificationId, {
       onSuccess: () => {
-        // setNotifications((prev) =>
-        //   prev.map((n) => (n.id === notificationId ? { ...n, read: true } : n))
-        // )
         setNotificationsAnchorEl(null)
       },
-      onError: (err) => console.error('Failed to mark as read:', err)
+      onError: (err) => {
+        console.error('Failed to mark as read:', err)
+      }
     })
-  }
-
-  const formatRelativeTime = (createdAt) => {
-    const createdDate = new Date(createdAt)
-    const now = new Date()
-    const diffInMs = now - createdDate
-
-    const diffInMinutes = Math.floor(diffInMs / (1000 * 60))
-    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60))
-    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24))
-    const diffInMonths = Math.floor(diffInMs / (1000 * 60 * 60 * 24 * 30))
-    const diffInYears = Math.floor(diffInMs / (1000 * 60 * 60 * 24 * 365))
-
-    if (diffInYears >= 1) {
-      return `${diffInYears} năm trước`
-    } else if (diffInMonths >= 1) {
-      return `${diffInMonths} tháng trước`
-    } else if (diffInDays >= 1) {
-      return `${diffInDays} ngày trước`
-    } else if (diffInHours >= 1) {
-      return `${diffInHours} giờ trước`
-    } else {
-      return `${diffInMinutes} phút trước`
-    }
   }
 
   return (
@@ -73,10 +145,7 @@ const Notification = ({ initialNotifications = [] }) => {
         aria-label="notifications"
         onClick={handleIconClick}
       >
-        <Badge
-          badgeContent={notifications.filter((n) => !n.read).length}
-          color="error"
-        >
+        <Badge badgeContent={localUnreadCount} color="error">
           <NotificationsIcon />
         </Badge>
       </IconButtonWithBadge>
@@ -153,56 +222,65 @@ const Notification = ({ initialNotifications = [] }) => {
               </Typography>
             </Box>
           ) : (
-            [...notifications]
-              .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
-              .map((notification) => (
-                <MenuItem
-                  key={notification.id}
-                  onClick={() => handleNotificationClick(notification.id)}
-                  sx={{
-                    py: 2,
-                    px: 2,
-                    borderBottom: '1px solid',
-                    borderColor: 'divider',
-                    backgroundColor: notification.read ? 'inherit' : 'rgba(180, 23, 18, 0.1)',
-                    '&:hover': {
-                      backgroundColor: notification.read
-                        ? 'rgba(0, 0, 0, 0.04)'
-                        : 'rgba(180, 23, 18, 0.2)' // hover với màu chủ đạo đậm hơn
-                    }
-                  }}
-                >
-                  <Box sx={{ width: '100%' }}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        fontWeight: notification.read ? 'medium' : 'bold',
-                        mb: 0.5,
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis'
-                      }}
-                    >
-                      {notification.title}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{
-                        mb: 1,
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis'
-                      }}
-                    >
-                      {notification.content}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {formatRelativeTime(notification.createdAt)}
-                    </Typography>
-                  </Box>
-                </MenuItem>
-              ))
+            notifications.map((notification) => (
+              <MenuItem
+                key={notification.id}
+                onClick={() => handleNotificationClick(notification.id)}
+                sx={{
+                  py: 2,
+                  px: 2,
+                  borderBottom: '1px solid',
+                  borderColor: 'divider',
+                  '&:hover': {
+                    backgroundColor: 'rgba(0, 0, 0, 0.04)' // chỉ dùng hover nhẹ
+                  },
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}
+              >
+                <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>
+                  <Typography
+                    variant="subtitle1"
+                    sx={{
+                      fontWeight: notification.read ? 'medium' : 'bold',
+                      mb: 0.5,
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis'
+                    }}
+                  >
+                    {notification.title}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{
+                      mb: 1,
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis'
+                    }}
+                  >
+                    {notification.content}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    {formatRelativeTime(notification.createdAt)}
+                  </Typography>
+                </Box>
+                {!notification.read && (
+                  <Box
+                    sx={{
+                      width: 10,
+                      height: 10,
+                      bgcolor: 'error.main',
+                      borderRadius: '50%',
+                      ml: 2
+                    }}
+                  />
+                )}
+              </MenuItem>
+            ))
           )}
         </Box>
       </Popover>
