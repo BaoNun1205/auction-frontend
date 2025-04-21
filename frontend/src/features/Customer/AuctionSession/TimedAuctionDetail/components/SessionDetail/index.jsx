@@ -3,31 +3,27 @@ import {
   Box,
   Typography,
   Card,
-  Breadcrumbs,
   Chip,
   Divider,
   Grid,
   CardContent,
   Fade,
-  Zoom,
   Button,
   Snackbar,
   Alert,
-  Avatar,
-  createTheme,
   ThemeProvider,
   Container
 } from '@mui/material'
-import { AccessTime, ChevronRight, Whatshot } from '@mui/icons-material'
+import { AccessTime, Whatshot } from '@mui/icons-material'
 import { useTheme } from '@mui/material'
 import { useAppStore } from '~/store/appStore'
 import { useNavigate } from 'react-router-dom'
-import { StyledCardMedia, StyledCard, primaryColor } from './style'
+import { primaryColor } from './style'
 import { useCreateAuctionHistory, useGetAuctionHistoriesByAuctionSessionId } from '~/hooks/auctionHistoryHook'
 import AppModal from '~/components/Modal/Modal'
 import PlaceBidForm from './components/PlaceBidForm'
 import VendorInformation from '../VendorInfomation'
-import { connectWebSocket, disconnectWebSocket, sendMessage } from '~/service/webSocketService'
+import { connectWebSocket, sendMessage } from '~/service/webSocketService'
 import Countdown from 'react-countdown'
 import PlaceDepositForm from './components/PlaceDepositForm'
 import AuctionHistoryDialog from './components/AuctionHistoryDialog'
@@ -36,14 +32,11 @@ import Authentication from '~/features/Authentication'
 import AutoBidForm from './components/AutoBidForm'
 import { useCreateAutoBid, useCheckAutoBid, useGetAutoBid, useUpdateAutoBid } from '~/hooks/autoBidHook'
 import AutoBidDialog from './components/AutoBidDialog'
-
-const customTheme = createTheme({
-  palette: {
-    primary: {
-      main: primaryColor
-    }
-  }
-})
+import Breadcrumb from './components/Breadcrumb'
+import ImageGallery from './components/ImageGallery'
+import customTheme from './components/theme'
+import WinnerSection from './components/WinnerSection'
+import DescriptionSection from './components/DescriptionSection'
 
 const SessionDetail = ({ item, refresh }) => {
   const theme = useTheme()
@@ -84,6 +77,7 @@ const SessionDetail = ({ item, refresh }) => {
   }
 
   const handleOpenHistoryDialog = () => {
+    console.log('History dialog opened')
     setHistoryDialogOpen(true)
   }
 
@@ -100,6 +94,13 @@ const SessionDetail = ({ item, refresh }) => {
   }
 
   const cleanupRef = useRef(null)
+
+  useEffect(() => {
+    if (item.status !== 'ONGOING') {
+      refetchIsDeposit()
+      refetchAutoBid()
+    }
+  }, [item.status])
 
   const onMessage = useCallback((message) => {
     const response = JSON.parse(message.body)
@@ -118,8 +119,12 @@ const SessionDetail = ({ item, refresh }) => {
   }, [])
 
   useEffect(() => {
+    let isMounted = true
+
+    const destination = `/rt-product/bidPrice-update/${item.id}`
+
+    // Nếu không còn ONGOING thì cleanup và return sớm
     if (item.status !== 'ONGOING') {
-      // Cleanup nếu không còn ONGOING
       if (cleanupRef.current) {
         cleanupRef.current()
         cleanupRef.current = null
@@ -127,18 +132,26 @@ const SessionDetail = ({ item, refresh }) => {
       return
     }
 
-    const destination = `/rt-product/bidPrice-update/${item.id}`
-
-    // Cleanup kết nối trước đó nếu có
+    // Cleanup trước khi kết nối mới
     if (cleanupRef.current) {
       cleanupRef.current()
+      cleanupRef.current = null
     }
 
-    // Kết nối mới
-    cleanupRef.current = connectWebSocket(auth.token, destination, onMessage)
+    // Kết nối WebSocket và lưu cleanup function khi thành công
+    connectWebSocket(auth.token, destination, onMessage)
+      .then((cleanup) => {
+        if (isMounted && typeof cleanup === 'function') {
+          cleanupRef.current = cleanup
+        }
+      })
+      .catch((error) => {
+        console.error('WebSocket connection error:', error)
+      })
 
     // Cleanup khi component unmount hoặc dependencies thay đổi
     return () => {
+      isMounted = false
       if (cleanupRef.current) {
         cleanupRef.current()
         cleanupRef.current = null
@@ -273,115 +286,18 @@ const SessionDetail = ({ item, refresh }) => {
     })
   }
 
-  const renderWinnerSection = () => {
-    if (item.status !== 'AUCTION_SUCCESS' && item.status !== 'AUCTION_FAILED') return null
-
-    return (
-      <>
-        <Divider sx={{ my: 3 }} />
-        <Fade in={true} style={{ transitionDelay: '700ms' }}>
-          <Box sx={{ p: 2, mt: 3 }}>
-            <Box display="flex" alignItems="center" justifyContent="center" flexDirection="column">
-              {item.status === 'AUCTION_FAILED' ? (
-                <Typography variant="h6" color="error" align="center">
-                  Chưa có người đấu giá
-                </Typography>
-              ) : (
-                <>
-                  <Typography variant="h5" gutterBottom align="center" sx={{ fontWeight: 'bold' }}>
-                    Người Thắng Cuộc
-                  </Typography>
-                  <Avatar
-                    src={item.auctionSessionInfo.user.avatar || placeholderImage}
-                    alt="Winner Avatar"
-                    sx={{ width: 100, height: 100, mb: 2, border: `4px solid ${primaryColor}` }}
-                  />
-                  <Typography variant="h5" gutterBottom align="center" sx={{ fontWeight: 'bold' }}>
-                    {item.auctionSessionInfo.user.username}
-                  </Typography>
-                  <Typography variant="h6" align="center" sx={{ mb: 2 }} color="text.secondary">
-                    Giá thắng: <span style={{ fontWeight: 'bold', color: primaryColor }}>{highestBid.toLocaleString('vi-VN')} VND</span>
-                  </Typography>
-                  <Grid container spacing={2} justifyContent="center">
-                    <Grid item>
-                      <Chip
-                        icon={<Whatshot />}
-                        label={`${totalBidder} người tham gia`}
-                        color="primary"
-                        variant="outlined"
-                      />
-                    </Grid>
-                    <Grid item>
-                      <Chip
-                        icon={<AccessTime />}
-                        label={`${totalAuctionHistory} lượt đấu giá`}
-                        variant="outlined"
-                        onClick={isDeposit || isVendor ? handleOpenHistoryDialog : undefined}
-                      />
-                    </Grid>
-                  </Grid>
-                </>
-              )}
-            </Box>
-          </Box>
-        </Fade>
-      </>
-    )
-  }
-
   return (
     <ThemeProvider theme={customTheme}>
       <Container maxWidth="lg">
         <Box mb={6}>
-          <Breadcrumbs separator={<ChevronRight fontSize="small" />} aria-label="breadcrumb" mb={3}>
-            <Typography
-              color="inherit"
-              onClick={() => handleNavigate('/')}
-              sx={{ cursor: 'pointer', textDecoration: 'underline' }}
-            >
-              Trang chủ
-            </Typography>
-            <Typography
-              color="inherit"
-              onClick={() => handleNavigate('/art')}
-              sx={{ cursor: 'pointer', textDecoration: 'underline' }}
-            >
-              Phiên đấu giá đang diễn ra
-            </Typography>
-            <Typography color="text.primary">Chi tiết</Typography>
-          </Breadcrumbs>
-
+          <Breadcrumb item={item} />
           <Grid container spacing={4}>
-            <Grid item xs={12} md={7}>
-              <Zoom in={true} style={{ transitionDelay: '300ms' }}>
-                <StyledCard elevation={3}>
-                  <StyledCardMedia
-                    component="img"
-                    height="400"
-                    image={mainImage}
-                    alt={item.name}
-                  />
-                </StyledCard>
-              </Zoom>
-              <Grid container spacing={2} mt={2}>
-                {item.asset?.listImages.slice(0, 4).map((image, i) => (
-                  <Grid item xs={3} key={i}>
-                    <Fade in={true} style={{ transitionDelay: `${i * 100}ms` }}>
-                      <StyledCard
-                        onClick={() => handleThumbnailClick(image.imageAsset || placeholderImage)}
-                      >
-                        <StyledCardMedia
-                          component="img"
-                          height="100"
-                          image={image.imageAsset || placeholderImage}
-                          alt={`Thumbnail ${i}`}
-                        />
-                      </StyledCard>
-                    </Fade>
-                  </Grid>
-                ))}
-              </Grid>
-            </Grid>
+            <ImageGallery
+              mainImage={mainImage}
+              images={item.asset?.listImages}
+              itemName={item.name}
+              onThumbnailClick={handleThumbnailClick}
+            />
 
             <Grid item xs={12} md={5}>
               <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 'bold' }}>
@@ -397,6 +313,7 @@ const SessionDetail = ({ item, refresh }) => {
                   variant="outlined"
                 />
               </Box>
+
               {item.status === 'ONGOING' ? (
                 <Fade in={true} style={{ transitionDelay: '500ms' }}>
                   <Card elevation={3} sx={{ bgcolor: theme.palette.background.paper, mb: 3, borderRadius: 2 }}>
@@ -469,7 +386,7 @@ const SessionDetail = ({ item, refresh }) => {
                               disabled={isAutoBid}
                               onClick={handleOpenModal}
                               sx={{
-                                width: '100px',
+                                width: '150px',
                                 transition: 'all 0.3s ease-in-out',
                                 bgcolor: primaryColor,
                                 color: 'white',
@@ -480,7 +397,7 @@ const SessionDetail = ({ item, refresh }) => {
                                 }
                               }}
                             >
-                              Auto Bid
+                              Tự động
                             </Button>
                           }>
                             {auth.isAuth ? (
@@ -523,12 +440,6 @@ const SessionDetail = ({ item, refresh }) => {
                         </Box>
                       )}
 
-                      <AuctionHistoryDialog
-                        auctionHistory={auctionHistory}
-                        open={historyDialogOpen}
-                        onClose={handleCloseHistoryDialog}
-                      />
-
                       {autoBidData && (
                         <AutoBidDialog
                           autoBid={autoBidData}
@@ -549,8 +460,19 @@ const SessionDetail = ({ item, refresh }) => {
                   </Card>
                 </Fade>
               ) : (
-                renderWinnerSection()
+                <WinnerSection
+                  item={item}
+                  isDeposit={isDeposit}
+                  isVendor={isVendor}
+                  handleOpenHistoryDialog={handleOpenHistoryDialog}
+                />
               )}
+
+              <AuctionHistoryDialog
+                auctionHistory={auctionHistory}
+                open={historyDialogOpen}
+                onClose={handleCloseHistoryDialog}
+              />
 
               <Divider sx={{ my: 3 }} />
 
@@ -577,23 +499,8 @@ const SessionDetail = ({ item, refresh }) => {
 
             </Grid>
           </Grid>
-          <Divider sx={{ my: 6 }} />
-          <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold' }}>
-            Mô tả
-          </Typography>
-          <Box sx={{ p: 3, mb: 1, borderRadius: 2 }}>
-            <Typography variant="h6">
-              Thông tin phiên
-            </Typography>
-            <Typography paragraph dangerouslySetInnerHTML={{ __html: item.description }} />
-          </Box>
-          <Divider sx={{ my: 1 }} />
-          <Box sx={{ p: 3, mb: 3, borderRadius: 2 }}>
-            <Typography variant="h6">
-              Thông tin vật phẩm
-            </Typography>
-            <Typography paragraph dangerouslySetInnerHTML={{ __html: item.asset.assetDescription }} />
-          </Box>
+
+          <DescriptionSection item={item} />
 
           <VendorInformation vendorId={item.asset.vendor.userId}/>
           <Snackbar

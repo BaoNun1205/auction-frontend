@@ -3,31 +3,6 @@ import { Client } from '@stomp/stompjs'
 let stompClient = null
 let subscriptions = [] // Lưu trữ các subscription để quản lý
 
-// export const connectWebSocket = (authToken, destinations, onMessage) => {
-//   if (stompClient && stompClient.connected) {
-//     const dests = Array.isArray(destinations) ? destinations : [destinations]
-//     dests.forEach((destination) => {
-//       if (!subscriptions.some(sub => sub.destination === destination)) {
-//         const subscription = stompClient.subscribe(destination, onMessage)
-//         subscriptions.push({ destination, subscription })
-//         console.log('Subscribed to:', destination)
-//       }
-//     })
-
-//     // Trả về hàm cleanup chỉ hủy subscriptions liên quan
-//     return () => {
-//       dests.forEach((destination) => {
-//         const index = subscriptions.findIndex(sub => sub.destination === destination)
-//         if (index !== -1) {
-//           subscriptions[index].subscription.unsubscribe()
-//           subscriptions.splice(index, 1)
-//           console.log('Unsubscribed from:', destination)
-//         }
-//       })
-//     }
-//   }
-// }
-
 export const connectWebSocket = (authToken, destinations, onMessage) => {
   return new Promise((resolve, reject) => {
     const dests = Array.isArray(destinations) ? destinations : [destinations]
