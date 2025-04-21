@@ -21,7 +21,7 @@ export const useMarkNotificationAsRead = () => {
 
   return useMutation({
     mutationFn: markNotificationAsRead,
-    onSuccess: (_, notificationId) => {
+    onSuccess: (notificationId) => {
       // Invalidate specific notification or list, tùy cách bạn lưu cache
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
       queryClient.invalidateQueries({ queryKey: ['notifications-unread-count'] });

@@ -5,7 +5,7 @@ import ChatInterface from './Chat'
 import { useAppStore } from '~/store/appStore'
 
 const ChatButton = () => {
-  const { isChatOpen, setChatOpen, chatVendorId, conversationCount } = useAppStore()
+  const { isChatOpen, setChatOpen, chatVendorId, conversationCount, unreadConversationCount } = useAppStore()
 
   const handleClickOpen = () => {
     setChatOpen(true)
@@ -32,7 +32,25 @@ const ChatButton = () => {
           }
         }}
       >
-        <ChatIcon />
+        <Badge
+          badgeContent={unreadConversationCount}
+          color="error"
+          sx={{
+            '& .MuiBadge-badge': {
+              bgcolor: '#b41712',
+              color: 'white',
+              fontWeight: 'normal',
+              fontSize: '0.75rem',
+              minWidth: '20px',
+              height: '20px',
+              borderRadius: '10px',
+              padding: '0 6px'
+            }
+          }}
+        >
+          <ChatIcon />
+        </Badge>
+
       </IconButton>
 
       {/* Cửa sổ chat luôn mount, ẩn bằng CSS khi đóng */}

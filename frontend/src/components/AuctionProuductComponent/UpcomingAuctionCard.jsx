@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardMedia, Typography, Button, Grid, Box } from '@mui/material';
-import splitDateTime from '~/utils/SplitDateTime';
+import { splitDateTime } from '~/utils/customTime';
 
 const UpcomingAuctionCard = ({ product }) => {
   const navigate = useNavigate();

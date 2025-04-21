@@ -23,18 +23,18 @@ import {
   StyledTitleBox
 } from '~/features/style'
 import { useFilterTypes, useDeleteType, useRestoreType } from '~/hooks/typeHook'
-import splitDateTime from '~/utils/SplitDateTime'
 import ActionMenu from '~/components/IconMenuComponent/IconMenuComponent'
 import CreateType from '../AddType/AddType'
 import ListEmpty from '~/components/ListEmpty/ListEmpty'
+import { splitDateTime } from '~/utils/customTime'
 
 const TypeList = () => {
   const [selectedItems, setSelectedItems] = useState([])
   const [showDeleteButton, setShowDeleteButton] = useState(false)
   const [status, setStatus] = useState(false)
   const [keyword, setKeyword] = useState('')
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [page, setPage] = useState(0)
+  const [rowsPerPage, setRowsPerPage] = useState(10)
   const [anchorEl, setAnchorEl] = useState(null)
 
   const handleOpenPopover = (event) => {
@@ -48,7 +48,7 @@ const TypeList = () => {
   const payload = {
     status,
     keyword,
-    page, 
+    page,
     size: rowsPerPage
   }
 
@@ -98,13 +98,13 @@ const TypeList = () => {
   }
 
   const handlePageChange = (newPage) => {
-    setPage(newPage);
-  };
+    setPage(newPage)
+  }
 
   const handleRowsPerPageChange = (newRowsPerPage) => {
-    setRowsPerPage(newRowsPerPage);
-    setPage(0);
-  };
+    setRowsPerPage(newRowsPerPage)
+    setPage(0)
+  }
 
   const publishMenuItems = [
     { value: false, label: 'Hoạt động' },
@@ -182,111 +182,111 @@ const TypeList = () => {
         </StyledSecondaryBox>
 
         {items.length > 0 ? (
-        <StyledSecondaryBox bgcolor={(theme) => (theme.palette.primary.secondary)}>
-          <StyledTableContainer sx={{ maxHeight: rowsPerPage === 5 ? 500 : 'auto', overflowY: rowsPerPage === 5 ? 'auto' : 'visible',}}>
-            <Table stickyHeader>
-              <StyledTableHead sx={(theme) => ({ bgcolor: theme.palette.primary.buttonHover })}>
-                <TableRow>
-                  <TableCell padding="checkbox">
-                    <StyledCheckbox
-                      checked={selectedItems.length === items.length}
-                      onChange={handleSelectAll}
-                    />
-                  </TableCell>
-                  {columnNames.map((columnName, index) => (
-                    <StyledTableCell key={index}>
-                      {columnName}
-                    </StyledTableCell>
-                  ))}
-                  <TableCell />
-                </TableRow>
-              </StyledTableHead>
-              <TableBody>
-                {isLoading ? (
+          <StyledSecondaryBox bgcolor={(theme) => (theme.palette.primary.secondary)}>
+            <StyledTableContainer sx={{ maxHeight: rowsPerPage === 5 ? 500 : 'auto', overflowY: rowsPerPage === 5 ? 'auto' : 'visible' }}>
+              <Table stickyHeader>
+                <StyledTableHead sx={(theme) => ({ bgcolor: theme.palette.primary.buttonHover })}>
                   <TableRow>
-                    <TableCell colSpan={columnNames.length + 2}>
-                      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                        <CircularProgress />
-                      </Box>
+                    <TableCell padding="checkbox">
+                      <StyledCheckbox
+                        checked={selectedItems.length === items.length}
+                        onChange={handleSelectAll}
+                      />
                     </TableCell>
+                    {columnNames.map((columnName, index) => (
+                      <StyledTableCell key={index}>
+                        {columnName}
+                      </StyledTableCell>
+                    ))}
+                    <TableCell />
                   </TableRow>
-                ) : error ? (
-                  <TableRow>
-                    <TableCell colSpan={columnNames.length + 2}>
-                      <Typography color="error">Error fetching categories</Typography>
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  items.map((item) => {
-                    const { date, time } = splitDateTime(item.createdAt)
-                    return (
-                      <StyledTableRow key={item.typeId}>
-                        <TableCell padding="checkbox">
-                          <StyledCheckbox
-                            checked={selectedItems.includes(item.typeId)}
-                            onChange={(event) => handleSelectItem(event, item.typeId)}
-                            onClick={(event) => event.stopPropagation()}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            <Box
-                              component="img"
-                              src={item.image}
-                              sx={{ width: 48, height: 48, borderRadius: 1, mr: 2 }}
+                </StyledTableHead>
+                <TableBody>
+                  {isLoading ? (
+                    <TableRow>
+                      <TableCell colSpan={columnNames.length + 2}>
+                        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                          <CircularProgress />
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                  ) : error ? (
+                    <TableRow>
+                      <TableCell colSpan={columnNames.length + 2}>
+                        <Typography color="error">Error fetching categories</Typography>
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    items.map((item) => {
+                      const { date, time } = splitDateTime(item.createdAt)
+                      return (
+                        <StyledTableRow key={item.typeId}>
+                          <TableCell padding="checkbox">
+                            <StyledCheckbox
+                              checked={selectedItems.includes(item.typeId)}
+                              onChange={(event) => handleSelectItem(event, item.typeId)}
+                              onClick={(event) => event.stopPropagation()}
                             />
-                            <Box>
-                              <StyledSpan>{item.typeName}</StyledSpan>
-                              <Box sx={{ color: 'primary.textSecondary' }}>{item.categoryName}</Box>
+                          </TableCell>
+                          <TableCell>
+                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                              <Box
+                                component="img"
+                                src={item.image}
+                                sx={{ width: 48, height: 48, borderRadius: 1, mr: 2 }}
+                              />
+                              <Box>
+                                <StyledSpan>{item.typeName}</StyledSpan>
+                                <Box sx={{ color: 'primary.textSecondary' }}>{item.categoryName}</Box>
+                              </Box>
                             </Box>
-                          </Box>
-                        </TableCell>
-                        <TableCell>
-                          <StyledSpan>{date} </StyledSpan>
-                          <StyledSpan>{time}</StyledSpan>
-                        </TableCell>
-                        <TableCell>
-                          <StyledStatusBox
-                            sx={(theme) => ({
-                              bgcolor: item.delFlag === false ? theme.palette.success.main : theme.palette.warning.main,
-                              color: item.delFlag === false ? theme.palette.success.contrastText : theme.palette.warning.contrastText
-                            })}
-                          >
-                            {item.delFlag === false ? 'Hoạt động' : 'Không hoạt động'}
-                          </StyledStatusBox>
-                        </TableCell>
-                        <TableCell>
-                          <ActionMenu>
-                            {item.delFlag === false ?
-                              (<MuiMenuItem onClick={() => handleDeleteClick(item)}>Delete</MuiMenuItem>)
-                              : (<MuiMenuItem onClick={() => handleRestoreClick(item)}>Restore</MuiMenuItem>)}
-                          </ActionMenu>
-                        </TableCell>
-                      </StyledTableRow>
-                    )
-                  })
-                )}
-              </TableBody>
-            </Table>
-          </StyledTableContainer>
-          <PaginationControl
-            page={page}
-            rowsPerPage={rowsPerPage}
-            totalItems={data?.total}
-            onPageChange={handlePageChange}
-            onRowsPerPageChange={handleRowsPerPageChange}
-            />
-        </StyledSecondaryBox>
-        ) : (
-          <StyledSecondaryBox>
-          <ListEmpty nameList="loại vật phẩm" />
+                          </TableCell>
+                          <TableCell>
+                            <StyledSpan>{date} </StyledSpan>
+                            <StyledSpan>{time}</StyledSpan>
+                          </TableCell>
+                          <TableCell>
+                            <StyledStatusBox
+                              sx={(theme) => ({
+                                bgcolor: item.delFlag === false ? theme.palette.success.main : theme.palette.warning.main,
+                                color: item.delFlag === false ? theme.palette.success.contrastText : theme.palette.warning.contrastText
+                              })}
+                            >
+                              {item.delFlag === false ? 'Hoạt động' : 'Không hoạt động'}
+                            </StyledStatusBox>
+                          </TableCell>
+                          <TableCell>
+                            <ActionMenu>
+                              {item.delFlag === false ?
+                                (<MuiMenuItem onClick={() => handleDeleteClick(item)}>Delete</MuiMenuItem>)
+                                : (<MuiMenuItem onClick={() => handleRestoreClick(item)}>Restore</MuiMenuItem>)}
+                            </ActionMenu>
+                          </TableCell>
+                        </StyledTableRow>
+                      )
+                    })
+                  )}
+                </TableBody>
+              </Table>
+            </StyledTableContainer>
             <PaginationControl
               page={page}
               rowsPerPage={rowsPerPage}
               totalItems={data?.total}
               onPageChange={handlePageChange}
               onRowsPerPageChange={handleRowsPerPageChange}
-              />
+            />
+          </StyledSecondaryBox>
+        ) : (
+          <StyledSecondaryBox>
+            <ListEmpty nameList="loại vật phẩm" />
+            <PaginationControl
+              page={page}
+              rowsPerPage={rowsPerPage}
+              totalItems={data?.total}
+              onPageChange={handlePageChange}
+              onRowsPerPageChange={handleRowsPerPageChange}
+            />
           </StyledSecondaryBox>
         )}
       </StyledInnerBox>
