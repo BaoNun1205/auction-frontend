@@ -30,6 +30,9 @@ let appStore = (set) => ({
   conversationCount: 0, // Khởi tạo conversationCount
   setConversationCount: (conversationCount) => set(() => ({ conversationCount })),
 
+  unreadConversationCount: 0, // Khởi tạo unreadConversationCount
+  setUnreadConversationCount: (unreadConversationCount) => set(() => ({ unreadConversationCount })),
+
   // Lưu thông báo của người dùng
   notifications: [], // danh sách notification
   setNotifications: (notifications) => set(() => ({ notifications })),

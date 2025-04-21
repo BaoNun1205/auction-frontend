@@ -41,3 +41,15 @@ export const updateAvatar = async (userId, payload) => {
     handleApiError(error);
   }
 };
+
+export const updateUnreadNotificationCount = async (userId, count) => {
+  try {
+    const response = await PUT({
+      url: `${USER_PATH}/notifications/unread/${userId}`,
+      params: { count }
+    });
+    return response.data.result;
+  } catch (error) {
+    handleApiError(error);
+  }
+};

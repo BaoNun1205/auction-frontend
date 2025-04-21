@@ -9,29 +9,6 @@ import ChatHeader from './components/ChatHeader'
 import ChatMessages from './components/ChatMessages'
 import ChatInput from './components/ChatInput'
 
-function formatCustomDate(timestamp) {
-  const date = new Date(timestamp)
-  const now = new Date()
-  const diffTime = now - date
-  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
-  const weekdays = ['Chủ nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7']
-  const weekday = weekdays[date.getDay()]
-  const day = String(date.getDate()).padStart(2, '0')
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const year = date.getFullYear()
-  const currentYear = now.getFullYear()
-  const isToday = date.getDate() === now.getDate() && date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear()
-  const yesterday = new Date(now)
-  yesterday.setDate(now.getDate() - 1)
-  const isYesterday = date.getDate() === yesterday.getDate() && date.getMonth() === yesterday.getMonth() && date.getFullYear() === yesterday.getFullYear()
-
-  if (isToday) return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
-  if (isYesterday) return 'Hôm qua'
-  if (diffDays > 0 && diffDays <= 3) return weekday
-  if (diffDays > 3 && year === currentYear) return `${day}/${month}`
-  return `${day}/${month}/${year}`
-}
-
 export default function Chat({ vendorId }) {
   const [selectedConversation, setSelectedConversation] = useState(null)
   const [newMessage, setNewMessage] = useState('')
@@ -41,7 +18,7 @@ export default function Chat({ vendorId }) {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true)
   const [localConversations, setLocalConversations] = useState([])
   const messagesEndRef = useRef(null)
-  const { auth, conversationCount, setConversationCount, isChatOpen } = useAppStore()
+  const { auth, conversationCount, setConversationCount, unreadConversationCount, setUnreadConversationCount, isChatOpen } = useAppStore()
 
   const isChatOpenRef = useRef(isChatOpen)
 
@@ -87,6 +64,14 @@ export default function Chat({ vendorId }) {
 
   useEffect(() => setLocalConversations(conversations), [conversations])
 
+  // Cập nhật danh sách cuộc trò chuyện với tin nhắn mới
+  useEffect(() => {
+    const unreadCount = localConversations.filter(conv => conv.unread > 0).length
+    if (unreadConversationCount !== unreadCount) {
+      setUnreadConversationCount(unreadCount)
+    }
+  }, [localConversations, unreadConversationCount, setUnreadConversationCount])
+
   const selectedConversationData = localConversations.find((c) => c.conversationId === selectedConversation)
 
   const targetUser = selectedConversationData
@@ -122,17 +107,20 @@ export default function Chat({ vendorId }) {
           }
 
           // gửi notification nếu chat chưa mở và không phải tin nhắn của mình
-          if (!isChatOpenRef.current && !isMine) {
-            console.log('send notification')
-            sendMessage(`/app/rt-auction/notification/new-message/user/${currentUserId}`, {
-              senderId: messageData.sender.userId,
-              receiverId: currentUserId,
-              type: 'MESSAGE',
-              title: 'Tin nhắn mới',
-              content: `${messageData.sender.name || messageData.sender.username}: ${messageData.content}`,
-              referenceId: messageData.conversationId
-            })
-          }
+          // if (!isChatOpenRef.current && !isMine) {
+          //   const payload = {
+          //     senderId: messageData.sender.userId,
+          //     receiverId: currentUserId,
+          //     type: 'MESSAGE',
+          //     title: 'Tin nhắn mới',
+          //     content: `${messageData.sender.name || messageData.sender.username}: ${messageData.content}`,
+          //     referenceId: messageData.conversationId
+          //   }
+
+          //   console.log('Sending notification payload:', payload)
+
+          //   sendMessage(`/app/rt-auction/notification/new-message/user/${currentUserId}`, payload)
+          // }
 
           setLocalConversations((prevConversations) => {
             const existingConv = prevConversations.find(conv => conv.conversationId === messageData.conversationId)
@@ -170,8 +158,26 @@ export default function Chat({ vendorId }) {
   useEffect(() => {
     if (!isLoadingConversations && conversations.length > 0 && token) {
       const destinations = conversations.map(conv => `/rt-chat/conversations/${conv.conversationId}`)
-      const cleanup = connectWebSocket(token, destinations, onMessage)
-      return () => typeof cleanup === 'function' && cleanup()
+      let cleanupFunc = null
+      let isMounted = true
+
+      connectWebSocket(token, destinations, onMessage)
+        .then((cleanup) => {
+          if (isMounted) {
+            cleanupFunc = cleanup
+          }
+        })
+        .catch((err) => {
+          console.error('WebSocket connection failed:', err)
+        })
+
+      return () => {
+        isMounted = false
+        if (typeof cleanupFunc === 'function') {
+          console.log('Cleaning up chat WebSocket subscriptions')
+          cleanupFunc()
+        }
+      }
     }
   }, [conversations, isLoadingConversations, token, onMessage])
 
@@ -227,7 +233,6 @@ export default function Chat({ vendorId }) {
         currentUserId={currentUserId}
         selectedConversation={selectedConversation}
         setSelectedConversation={setSelectedConversation}
-        formatCustomDate={formatCustomDate}
       />
       <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
         {!selectedConversation ? (

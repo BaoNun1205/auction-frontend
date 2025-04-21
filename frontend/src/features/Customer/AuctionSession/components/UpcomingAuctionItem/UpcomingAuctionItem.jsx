@@ -1,8 +1,8 @@
 import React from 'react';
 import { Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import splitDateTime from '~/utils/SplitDateTime';
 import { StyledCard, StyledCardMedia, StyledCardContent, StyledButton } from './style';
+import { splitDateTime } from '~/utils/customTime';
 
 const UpcomingAuctionItem = ({ item }) => {
   const navigate = useNavigate();

@@ -47,11 +47,10 @@ const Header = () => {
   const [searchKeyword, setSearchKeyword] = useState('')
   const navigate = useNavigate()
   const location = useLocation()
-  const { data: user } = useGetUserById(auth?.user?.id)
-
+  const { data: user, refetch: refetchUser } = useGetUserById(auth?.user?.id)
+  console.log('user: ', user)
   // Lấy danh sách thông báo của người dùng
   const { data: notifications = [], isLoading } = useGetNotificationsByReceiverId(auth?.user?.id)
-
   const menuItems = [
     { label: 'Trang chủ', path: '/' },
     { label: 'Giới thiệu', path: '/introduction' },
@@ -148,7 +147,7 @@ const Header = () => {
             </Badge>
           </IconButtonWithBadge>
           {/* Sử dụng component Notification với userId và authToken */}
-          {auth.isAuth && (
+          {auth.isAuth && user && (
             <Notification
               initialNotifications={notifications} // Truyền danh sách thông báo ban đầu
             />

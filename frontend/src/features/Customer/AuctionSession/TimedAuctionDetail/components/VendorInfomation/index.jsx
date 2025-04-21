@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import {
   Box,
   Typography,
@@ -10,11 +10,14 @@ import { Store } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useCreateConversation } from '~/hooks/chatHook'
 import { useAppStore } from '~/store/appStore'
+import { useGetUserById } from '~/hooks/userHook'
 
 const VendorInformation = ({ vendorId, isView = true }) => {
   const navigate = useNavigate()
   const { auth, setChatOpen, setChatVendorId } = useAppStore()
   const { mutate: createConversation, isLoading } = useCreateConversation()
+  const { data: user, refetch: refetchUser } = useGetUserById(vendorId)
+  const [imgError, setImgError] = useState(false)
 
   const handleChatClick = () => {
     createConversation(
@@ -51,6 +54,8 @@ const VendorInformation = ({ vendorId, isView = true }) => {
         <Box display="flex" alignItems="flex-start" gap={3}>
           <Box position="relative">
             <Avatar
+              alt={user?.username}
+              src={!imgError ? user?.avatar : undefined}
               sx={{
                 width: 100,
                 height: 100,
@@ -58,24 +63,12 @@ const VendorInformation = ({ vendorId, isView = true }) => {
                 bgcolor: '#f5f5f5',
                 color: '#757575',
                 border: '1px solid',
-                borderColor: 'divider'
+                borderColor: 'divider',
               }}
+              onError={() => setImgError(true)}
             >
-              L
+              {(!user?.avatar || imgError) && user?.username?.charAt(0).toUpperCase()}
             </Avatar>
-            <Box
-              component="img"
-              src="/shopee-mall-badge.png"
-              alt="Shopee Mall"
-              sx={{
-                position: 'absolute',
-                bottom: -8,
-                left: '50%',
-                transform: 'translateX(-50%)',
-                height: 24,
-                zIndex: 1
-              }}
-            />
           </Box>
           <Box flex={1}>
             <Typography
@@ -87,7 +80,7 @@ const VendorInformation = ({ vendorId, isView = true }) => {
                 lineHeight: 1.2
               }}
             >
-              LOVITO OFFICIAL STORE
+              {user?.name || user?.username || 'Người Bán'}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
               Online 9 Phút Trước

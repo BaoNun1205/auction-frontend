@@ -24,10 +24,10 @@ import {
   StyledTitleBox
 } from '~/features/style'
 import { useFilterAssets } from '~/hooks/assetHook'
-import splitDateTime from '~/utils/SplitDateTime'
 import ListEmpty from '~/components/ListEmpty/ListEmpty'
 import ActionMenu from '~/components/IconMenuComponent/IconMenuComponent'
 import { useNavigate } from 'react-router-dom'
+import { splitDateTime } from '~/utils/customTime'
 
 const AssetList = () => {
   const [selectedAssets, setSelectedAssets] = useState([])

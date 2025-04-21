@@ -24,9 +24,9 @@ import {
   StyledTableRow,
   StyledTitleBox
 } from '~/features/style'
-import splitDateTime from '~/utils/SplitDateTime'
 import ActionMenu from '~/components/IconMenuComponent/IconMenuComponent'
 import ListEmpty from '~/components/ListEmpty/ListEmpty'
+import { splitDateTime } from '~/utils/customTime'
 
 const SessionList = () => {
   const [selectedItems, setSelectedItems] = useState([])

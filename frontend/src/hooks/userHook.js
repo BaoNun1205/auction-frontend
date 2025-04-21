@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getUserById, updateAvatar, updateUser } from '~/api/user'
+import { getUserById, updateAvatar, updateUnreadNotificationCount, updateUser } from '~/api/user'
 
 export const useGetUserById = (id) => {
   return useQuery({
@@ -36,6 +36,21 @@ export const useUpdateAvatar = () => {
     },
     onError: (error) => {
       console.error('Error updating avatar:', error);
+    }
+  });
+};
+
+export const useUpdateUnreadNotificationCount = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ userId, count }) => updateUnreadNotificationCount(userId, count),
+    onSuccess: (data, variables) => {
+      console.log('Unread notification count updated successfully:', data);
+      queryClient.invalidateQueries(['user', variables.userId]); // Xóa cache user để refetch lại
+    },
+    onError: (error) => {
+      console.error('Error updating unread notification count:', error);
     }
   });
 };

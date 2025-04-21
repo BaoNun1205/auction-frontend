@@ -25,7 +25,6 @@ import CloseIcon from '@mui/icons-material/Close';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import PersonIcon from '@mui/icons-material/Person';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
-import { useGetAuctionHistoriesByAuctionSessionId } from '~/hooks/auctionHistoryHook';
 
 const StyledDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialog-paper': {
@@ -80,6 +79,7 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
 }));
 
 const AuctionHistoryDialog = ({ auctionHistory, open, onClose }) => {
+  console.log('AuctionHistoryDialog', auctionHistory, open, onClose);
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
