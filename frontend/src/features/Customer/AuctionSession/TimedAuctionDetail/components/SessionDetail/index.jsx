@@ -16,7 +16,7 @@ import {
   Tooltip,
   IconButton
 } from '@mui/material'
-import { AccessTime, Whatshot, AutoFixHigh } from '@mui/icons-material'
+import { AccessTime, Whatshot, AutoAwesome, AutoAwesomeMosaic } from '@mui/icons-material'
 import { useTheme } from '@mui/material'
 import { useAppStore } from '~/store/appStore'
 import { useNavigate } from 'react-router-dom'
@@ -420,7 +420,7 @@ const SessionDetail = ({ item, refresh }) => {
                                   }
                                 }}
                               >
-                                <AutoFixHigh fontSize="small" />
+                                <Typography sx={{ fontWeight: 'bold', fontSize: '14px' }}>AA</Typography>
                               </IconButton>
 
                               {isAutoBid && (

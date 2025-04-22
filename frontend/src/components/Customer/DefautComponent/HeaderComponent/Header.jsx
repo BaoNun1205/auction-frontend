@@ -36,7 +36,8 @@ import {
 import { useGetUserById } from '~/hooks/userHook'
 import { useGetNotificationsByReceiverId } from '~/hooks/notificationHook'
 import Authentication from '~/features/Authentication'
-import Notification from './Notification' // Import component Notification đã sửa
+import Notification from './Notification'
+import ChatButton from '~/features/Chat/ChatUser'
 
 const Header = () => {
   const theme = useTheme()
@@ -148,9 +149,12 @@ const Header = () => {
           </IconButtonWithBadge>
           {/* Sử dụng component Notification với userId và authToken */}
           {auth.isAuth && user && (
-            <Notification
-              initialNotifications={notifications} // Truyền danh sách thông báo ban đầu
-            />
+            <>
+              <ChatButton />
+              <Notification
+                initialNotifications={notifications} // Truyền danh sách thông báo ban đầu
+              />
+            </>
           )}
           {auth.isAuth ? (
             <IconButton color="inherit" onClick={handleProfileClick}>
