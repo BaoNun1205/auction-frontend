@@ -90,7 +90,7 @@ function App() {
           })}
         </Route>
       </Routes>
-      {/* <ChatButton /> */}
+      <ChatButton />
     </Router>
   )
 }
