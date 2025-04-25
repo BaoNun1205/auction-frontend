@@ -12,9 +12,11 @@ import {
   Snackbar,
   Alert,
   ThemeProvider,
-  Container
+  Container,
+  Tooltip,
+  IconButton
 } from '@mui/material'
-import { AccessTime, Whatshot } from '@mui/icons-material'
+import { AccessTime, Whatshot, AutoAwesome, AutoAwesomeMosaic } from '@mui/icons-material'
 import { useTheme } from '@mui/material'
 import { useAppStore } from '~/store/appStore'
 import { useNavigate } from 'react-router-dom'
@@ -53,18 +55,35 @@ const SessionDetail = ({ item, refresh }) => {
   const { mutate: createDeposit } = useCreateDeposit()
   const { mutate: createAutoBid } = useCreateAutoBid()
   const { mutate: updateAutoBid } = useUpdateAutoBid()
-  const { data: isDeposit, refetch: refetchIsDeposit, error: depositError, isLoading: depositLoading } = useCheckDeposit({ userId: auth.user.id, auctionSessionId: item.id })
-  const { data: isAutoBid, refetch: refetchAutoBid, error: autoBidError, isLoading: autoBidLoading } = useCheckAutoBid({ userId: auth.user.id, auctionSessionId: item.id })
-  const { data: autoBidData, refetch: refetchAutoBidData } = useGetAutoBid({ userId: auth.user.id, auctionSessionId: item.id })
+  const {
+    data: isDeposit,
+    refetch: refetchIsDeposit,
+    error: depositError,
+    isLoading: depositLoading
+  } = useCheckDeposit({ userId: auth.user.id, auctionSessionId: item.id })
+  const {
+    data: isAutoBid,
+    refetch: refetchAutoBid,
+    error: autoBidError,
+    isLoading: autoBidLoading
+  } = useCheckAutoBid({ userId: auth.user.id, auctionSessionId: item.id })
+  const { data: autoBidData, refetch: refetchAutoBidData } = useGetAutoBid({
+    userId: auth.user.id,
+    auctionSessionId: item.id
+  })
 
   const { data, refetch: refreshHistory } = useGetAuctionHistoriesByAuctionSessionId(item.id)
   const auctionHistory = Array.isArray(data) ? data : []
 
   const isVendor = item.asset.vendor.userId === auth.user.id
   const [openModal, setOpenModal] = React.useState(false)
+  const [openAutoBidModal, setOpenAutoBidModal] = React.useState(false)
 
   const handleOpenModal = () => setOpenModal(true)
   const handleCloseModal = () => setOpenModal(false)
+
+  const handleOpenAutoBidModal = () => setOpenAutoBidModal(true)
+  const handleCloseAutoBidModal = () => setOpenAutoBidModal(false)
 
   const placeholderImage = 'https://via.placeholder.com/150'
 
@@ -110,11 +129,7 @@ const SessionDetail = ({ item, refresh }) => {
       setTotalAuctionHistory(auctionSessionInfo.totalAuctionHistory)
       setHighestBid(auctionSessionInfo.highestBid)
 
-      setSnackbar({
-        open: true,
-        message: `New bid: ${auctionSessionInfo.highestBid.toLocaleString('vi-VN')} VND`,
-        severity: 'info'
-      })
+      refreshHistory()
     }
   }, [])
 
@@ -169,19 +184,19 @@ const SessionDetail = ({ item, refresh }) => {
     const auctionHistory = {
       auctionSessionId: item.id,
       userId: auth.user.id,
-      bidPrice: bidPrice,
-      bidTime: new Date().toISOString()
+      bidPrice: bidPrice
     }
     createAuctionHistory(auctionHistory, {
       onSuccess: (data) => {
-        if (data?.code === 400) { // Kiểm tra lỗi API
+        if (data?.code === 400) {
+          // Kiểm tra lỗi API
           setSnackbar({
             open: true,
             message: data.message,
             severity: 'error'
           })
           return
-        };
+        }
 
         handleBidPrice()
         refresh()
@@ -251,6 +266,9 @@ const SessionDetail = ({ item, refresh }) => {
           message: 'Create auto bid successfully.',
           severity: 'info'
         })
+        handleCloseAutoBidModal()
+        refetchAutoBid()
+        refetchAutoBidData()
       },
       onError: (error) => {
         setSnackbar({
@@ -268,22 +286,28 @@ const SessionDetail = ({ item, refresh }) => {
       bidIncrement: bidIncre,
       status: status
     }
-    updateAutoBid({ id: autoBidData.autoBidId, payload: autoBid }, {
-      onSuccess: () => {
-        setSnackbar({
-          open: true,
-          message: 'Update auto bid successfully.',
-          severity: 'info'
-        })
-      },
-      onError: (error) => {
-        setSnackbar({
-          open: true,
-          message: 'Error update auto bid. Please try again.',
-          severity: 'error'
-        })
+    updateAutoBid(
+      { id: autoBidData.autoBidId, payload: autoBid },
+      {
+        onSuccess: () => {
+          setSnackbar({
+            open: true,
+            message: 'Update auto bid successfully.',
+            severity: 'info'
+          })
+          handleCloseAutoBidDialog()
+          refetchAutoBid()
+          refetchAutoBidData()
+        },
+        onError: (error) => {
+          setSnackbar({
+            open: true,
+            message: 'Error update auto bid. Please try again.',
+            severity: 'error'
+          })
+        }
       }
-    })
+    )
   }
 
   return (
@@ -305,13 +329,12 @@ const SessionDetail = ({ item, refresh }) => {
               </Typography>
               <Box display="flex" justifyContent="space-between" mb={3}>
                 <Typography variant="subtitle1" color="text.secondary">
-                  Giá khởi điểm: <span style={{ fontWeight: 'bold', color: primaryColor }}>{item.startingBids.toLocaleString('vi-VN')} VND</span>
+                  Giá khởi điểm:{' '}
+                  <span style={{ fontWeight: 'bold', color: primaryColor }}>
+                    {item.startingBids.toLocaleString('vi-VN')} VND
+                  </span>
                 </Typography>
-                <Chip
-                  icon={<AccessTime />}
-                  label={new Date(item.endTime).toLocaleString('vi-VN')}
-                  variant="outlined"
-                />
+                <Chip icon={<AccessTime />} label={new Date(item.endTime).toLocaleString('vi-VN')} variant="outlined" />
               </Box>
 
               {item.status === 'ONGOING' ? (
@@ -335,110 +358,116 @@ const SessionDetail = ({ item, refresh }) => {
                             Xem
                           </Typography>
                         </Typography>
-                        {/* <Chip
-                          icon={<Lock fontSize="small" />}
-                          label="SECURE"
-                          color="success"
-                          variant="outlined"
-                          size="small"
-                        /> */}
                       </Box>
                       <Typography variant="h4" component="div" gutterBottom>
                         {highestBid.toLocaleString('vi-VN')} VND
                       </Typography>
                       {!isVendor && (
-                        <Box sx={{ display: 'flex', gap: 2, mt: 2, mb: 2 }}>
-                          <AppModal trigger={
-                            <Button
-                              variant="contained"
-                              fullWidth
-                              size="medium"
-                              sx={{
-                                width: '100px',
-                                transition: 'all 0.3s ease-in-out',
-                                bgcolor: primaryColor,
-                                color: 'white',
-                                '&:hover': {
-                                  bgcolor: '#8B0000',
-                                  transform: 'translateY(-3px)',
-                                  boxShadow: theme.shadows[4]
-                                }
-                              }}
-                            >
-                              Đặt giá
-                            </Button>
-                          }>
-                            {auth.isAuth ? (
-                              !isDeposit ? (
-                                <PlaceDepositForm item={item} onSubmit={handleSubmitDeposit} />
-                              ) : (
-                                <PlaceBidForm item={item} onSubmit={handleSubmitPrice} />
-                              )
-                            ) : (
-                              <Authentication />
-                            )}
-                          </AppModal>
-                          <AppModal open={openModal} onClose={handleCloseModal} trigger={
-                            <Button
-                              variant="contained"
-                              fullWidth
-                              size="medium"
-                              disabled={isAutoBid}
-                              onClick={handleOpenModal}
-                              sx={{
-                                width: '150px',
-                                transition: 'all 0.3s ease-in-out',
-                                bgcolor: primaryColor,
-                                color: 'white',
-                                '&:hover': {
-                                  bgcolor: '#8B0000',
-                                  transform: 'translateY(-3px)',
-                                  boxShadow: theme.shadows[4]
-                                }
-                              }}
-                            >
-                              Tự động
-                            </Button>
-                          }>
-                            {auth.isAuth ? (
-                              !isDeposit ? (
-                                <PlaceDepositForm item={item} onSubmit={handleSubmitDeposit} />
-                              ) : (
-                                <AutoBidForm
-                                  item={item}
-                                  onSubmit={handleSubmitAutoBid}
-                                  onCloseSession={() => handleCloseModal(false)}
-                                  flagEdit={false}
-                                />
-
-                              )
-                            ) : (
-                              <Authentication />
-                            )}
-                          </AppModal>
-                          <Button
-                            variant="contained"
-                            fullWidth
-                            size="medium"
-                            disabled={!isAutoBid}
-                            onClick={() => handleOpenAutoBidDialog()}
-                            sx={{
-                              width: '110px',
-                              transition: 'all 0.3s ease-in-out',
-                              bgcolor: primaryColor,
-                              color: 'white',
-                              '&:hover': {
-                                bgcolor: '#8B0000',
-                                transform: 'translateY(-3px)',
-                                boxShadow: theme.shadows[4]
-                              }
-                            }}
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 2, mb: 2 }}>
+                          <AppModal
+                            trigger={
+                              <Button
+                                variant="contained"
+                                fullWidth
+                                size="medium"
+                                sx={{
+                                  transition: 'all 0.3s ease-in-out',
+                                  bgcolor: primaryColor,
+                                  color: 'white',
+                                  '&:hover': {
+                                    bgcolor: '#8B0000',
+                                    transform: 'translateY(-3px)',
+                                    boxShadow: theme.shadows[4]
+                                  }
+                                }}
+                              >
+                                Đặt giá
+                              </Button>
+                            }
                           >
-                            Info Auto
-                          </Button>
+                            {auth.isAuth ? (
+                              !isDeposit ? (
+                                <PlaceDepositForm item={item} onSubmit={handleSubmitDeposit} />
+                              ) : (
+                                <PlaceBidForm item={item} onSubmit={handleSubmitPrice} currentPrice={highestBid} />
+                              )
+                            ) : (
+                              <Authentication />
+                            )}
+                          </AppModal>
 
+                          <Tooltip title={isAutoBid ? 'Chỉnh sửa đấu giá tự động' : 'Thiết lập đấu giá tự động'}>
+                            <Box
+                              sx={{
+                                position: 'relative',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                              }}
+                            >
+                              <IconButton
+                                onClick={isAutoBid ? handleOpenAutoBidDialog : handleOpenAutoBidModal}
+                                sx={{
+                                  bgcolor: isAutoBid ? 'rgba(76, 175, 80, 0.1)' : 'rgba(233, 30, 99, 0.1)',
+                                  color: isAutoBid ? '#4caf50' : primaryColor,
+                                  border: `2px solid ${isAutoBid ? '#4caf50' : primaryColor}`,
+                                  p: 1.5,
+                                  transition: 'all 0.3s ease',
+                                  '&:hover': {
+                                    bgcolor: isAutoBid ? 'rgba(76, 175, 80, 0.2)' : 'rgba(233, 30, 99, 0.2)',
+                                    transform: 'translateY(-2px)',
+                                    boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
+                                  }
+                                }}
+                              >
+                                <Typography sx={{ fontWeight: 'bold', fontSize: '14px' }}>AA</Typography>
+                              </IconButton>
+
+                              {isAutoBid && (
+                                <Box
+                                  sx={{
+                                    position: 'absolute',
+                                    top: -5,
+                                    right: -5,
+                                    width: 16,
+                                    height: 16,
+                                    borderRadius: '50%',
+                                    bgcolor: '#4caf50',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    border: '1px solid white'
+                                  }}
+                                >
+                                  <Typography
+                                    variant="caption"
+                                    sx={{ color: 'white', fontSize: '10px', fontWeight: 'bold' }}
+                                  >
+                                    ✓
+                                  </Typography>
+                                </Box>
+                              )}
+                            </Box>
+                          </Tooltip>
                         </Box>
                       )}
+
+                      <AppModal open={openAutoBidModal} onClose={handleCloseAutoBidModal}>
+                        {auth.isAuth ? (
+                          !isDeposit ? (
+                            <PlaceDepositForm item={item} onSubmit={handleSubmitDeposit} />
+                          ) : (
+                            <AutoBidForm
+                              item={item}
+                              onSubmit={handleSubmitAutoBid}
+                              onCloseSession={handleCloseAutoBidModal}
+                              flagEdit={false}
+                            />
+                          )
+                        ) : (
+                          <Authentication />
+                        )}
+                      </AppModal>
 
                       {autoBidData && (
                         <AutoBidDialog
@@ -476,7 +505,6 @@ const SessionDetail = ({ item, refresh }) => {
 
               <Divider sx={{ my: 3 }} />
 
-
               <Box display="flex" alignItems="center" justifyContent="center">
                 {item.status === 'ONGOING' ? (
                   <Box display="flex" flexDirection="column" alignItems="center">
@@ -496,13 +524,12 @@ const SessionDetail = ({ item, refresh }) => {
                   </Typography>
                 )}
               </Box>
-
             </Grid>
           </Grid>
 
           <DescriptionSection item={item} />
 
-          <VendorInformation vendorId={item.asset.vendor.userId}/>
+          <VendorInformation vendorId={item.asset.vendor.userId} />
           <Snackbar
             open={snackbar.open}
             autoHideDuration={6000}

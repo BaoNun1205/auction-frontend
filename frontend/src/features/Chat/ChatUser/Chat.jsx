@@ -3,11 +3,11 @@ import { connectWebSocket, sendMessage } from '~/service/webSocketService'
 import { useGetConversations, useGetMessages, useUpdateUnread } from '~/hooks/chatHook'
 import { Box } from '@mui/material'
 import { useAppStore } from '~/store/appStore'
-import ChatSidebar from './components/ChatSidebar'
-import WelcomeScreen from './components/WelcomeScreen'
-import ChatHeader from './components/ChatHeader'
-import ChatMessages from './components/ChatMessages'
-import ChatInput from './components/ChatInput'
+import ChatSidebar from '../components/ChatSidebar'
+import WelcomeScreen from '../components/WelcomeScreen'
+import ChatHeader from '../components/ChatHeader'
+import ChatMessages from '../components/ChatMessages'
+import ChatInput from '../components/ChatInput'
 
 export default function Chat({ vendorId }) {
   const [selectedConversation, setSelectedConversation] = useState(null)

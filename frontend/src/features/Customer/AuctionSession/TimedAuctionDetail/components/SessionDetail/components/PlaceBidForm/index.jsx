@@ -42,11 +42,10 @@ const StyledButton = styled(Button)(({ theme }) => ({
   textTransform: 'none'
 }));
 
-const PlaceBidForm = ({ item, onSubmit }) => {
+const PlaceBidForm = ({ item, onSubmit, currentPrice }) => {
   const [bidPrice, setBidPrice] = useState('');
   const [error, setError] = useState('');
   const minBidIncrement = item.bidIncrement;
-  const currentPrice = item?.auctionSessionInfo?.highestBid || 0;
   const minNextBid = currentPrice + minBidIncrement;
 
   useEffect(() => {
