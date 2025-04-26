@@ -51,7 +51,7 @@ const SellerAuction = ({ vendorId }) => {
 
   return (
     <Container maxWidth="lg">
-      <VendorInformation isView={false} />
+      <VendorInformation vendorId={vendorId} isView={false} />
       <Typography variant="h4" sx={{ my: 4, fontWeight: 'bold' }}>
         Phiên Đấu Giá
       </Typography>

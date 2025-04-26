@@ -51,3 +51,23 @@ export const formatCustomDate = (timestamp) => {
   if (diffDays > 3 && year === currentYear) return `${day}/${month}`
   return `${day}/${month}/${year}`
 }
+
+export const formatResponseTime = (responseTimeInSeconds) => {
+  if (responseTimeInSeconds == null || responseTimeInSeconds < 0) {
+    return 'Chưa cập nhật'
+  }
+
+  const minutes = Math.floor(responseTimeInSeconds / 60)
+  const hours = Math.floor(minutes / 60)
+  const days = Math.floor(hours / 24)
+
+  if (minutes < 1) {
+    return 'ít hơn 1 phút'
+  } else if (minutes < 60) {
+    return 'trong vài phút'
+  } else if (hours < 24) {
+    return 'trong vài giờ'
+  } else {
+    return 'trong vài ngày'
+  }
+}

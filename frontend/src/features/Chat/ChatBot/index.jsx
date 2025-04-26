@@ -5,14 +5,14 @@ import ChatInterface from './Chat'
 import { useAppStore } from '~/store/appStore'
 
 const ChatButton = () => {
-  const { isChatOpen, setChatOpen, chatVendorId, conversationCount, unreadConversationCount } = useAppStore()
+  const { isChatBotOpen, setChatBotOpen, chatVendorId, conversationCount, unreadConversationCount } = useAppStore()
 
   const handleClickOpen = () => {
-    setChatOpen(true)
+    setChatBotOpen(true)
   }
 
   const handleClose = () => {
-    setChatOpen(false)
+    setChatBotOpen(false)
   }
 
   return (
@@ -64,7 +64,7 @@ const ChatButton = () => {
           bgcolor: 'white',
           boxShadow: 3,
           borderRadius: 2,
-          display: isChatOpen ? 'flex' : 'none',
+          display: isChatBotOpen ? 'flex' : 'none',
           flexDirection: 'column',
           zIndex: 1000,
           overflow: 'hidden'
