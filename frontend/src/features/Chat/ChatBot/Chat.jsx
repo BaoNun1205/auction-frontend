@@ -16,15 +16,9 @@ export default function Chat() {
 
   const [messages, setMessages] = useState([
     {
-      content: 'Chào bạn, bạn cần gì ạ?',
+      content: 'Chào bạn, bạn cần tôi hỗ trợ gì không?',
       timestamp: new Date().toISOString(),
       sender: mockConversation.seller,
-      conversationId: mockConversation.conversationId
-    },
-    {
-      content: 'Mình muốn hỏi về sản phẩm A',
-      timestamp: new Date().toISOString(),
-      sender: mockConversation.buyer,
       conversationId: mockConversation.conversationId
     }
   ])
