@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   Box,
   Typography,
@@ -11,6 +11,8 @@ import { useNavigate } from 'react-router-dom'
 import { useCreateConversation } from '~/hooks/chatHook'
 import { useAppStore } from '~/store/appStore'
 import { useGetUserById } from '~/hooks/userHook'
+import { formatRelativeTime, formatResponseTime } from '~/utils/customTime'
+import { useFilterSessions } from '~/hooks/sessionHook'
 
 const VendorInformation = ({ vendorId, isView = true }) => {
   const navigate = useNavigate()
@@ -18,6 +20,20 @@ const VendorInformation = ({ vendorId, isView = true }) => {
   const { mutate: createConversation, isLoading } = useCreateConversation()
   const { data: user, refetch: refetchUser } = useGetUserById(vendorId)
   const [imgError, setImgError] = useState(false)
+  const { data, isError, refetch } = useFilterSessions({ userId: vendorId })
+
+  useEffect(() => {
+    if (isError) {
+      console.error('Error fetching auction sessions')
+    }
+  }, [isError])
+
+  useEffect(() => {
+    console.log('Fetching auction sessions')
+    refetch()
+  }, [refetch])
+
+  const auctionSessions = Array.isArray(data?.data) ? data.data : []
 
   const handleChatClick = () => {
     createConversation(
@@ -34,9 +50,9 @@ const VendorInformation = ({ vendorId, isView = true }) => {
   const sellerStats = [
     { label: 'Đánh Giá', value: '2,2tr' },
     { label: 'Tỉ Lệ Phản Hồi', value: '100%' },
-    { label: 'Sản Phẩm', value: '36,5k' },
-    { label: 'Thời Gian Phản Hồi', value: 'trong vài giờ' },
-    { label: 'Tham Gia', value: '4 năm trước' },
+    { label: 'Phiên đấu giá', value: auctionSessions.length || 0 },
+    { label: 'Thời Gian Phản Hồi', value: formatResponseTime(user?.responseTimeInSeconds) },
+    { label: 'Tham Gia', value: formatRelativeTime(user?.createdAt) },
     { label: 'Người Theo Dõi', value: '3,9tr' }
   ]
 
@@ -63,7 +79,7 @@ const VendorInformation = ({ vendorId, isView = true }) => {
                 bgcolor: '#f5f5f5',
                 color: '#757575',
                 border: '1px solid',
-                borderColor: 'divider',
+                borderColor: 'divider'
               }}
               onError={() => setImgError(true)}
             >
@@ -82,8 +98,15 @@ const VendorInformation = ({ vendorId, isView = true }) => {
             >
               {user?.name || user?.username || 'Người Bán'}
             </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-              Online 9 Phút Trước
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+              {formatRelativeTime(user?.lastSeen) === '0 phút trước' ? (
+                <>
+                  Đang Online
+                  <Box sx={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: 'green' }} />
+                </>
+              ) : (
+                `Online ${formatRelativeTime(user?.lastSeen)}`
+              )}
             </Typography>
             <Box display="flex" gap={2}>
               <Button
