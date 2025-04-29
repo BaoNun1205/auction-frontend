@@ -75,14 +75,17 @@ const AuctionRequest = () => {
     setFormData({ ...formData, description: content })
   }
 
-  const handleImageUpload = (e, type, index) => {
-    const file = e.target.files[0]
+  const handleImageUpload = (e, type, index, setFieldValue) => {
+    const file = e.target.files[0];
     if (file) {
-      const newImages = [...formData[type]]
-      newImages[index] = file
-      setFormData({ ...formData, [type]: newImages })
+      const newImages = [...formData[type]];
+      newImages[index] = file;
+      setFormData({ ...formData, [type]: newImages });
+      if (setFieldValue) {
+        setFieldValue(type, newImages);
+      }
     }
-  }
+  };
 
   const handleDeleteImage = (type, index) => {
     const newImages = [...formData[type]]
@@ -338,12 +341,14 @@ const AuctionRequest = () => {
         <DialogContent dividers>
           <RequirementFormContent
             formData={formData}
+            setFormData={setFormData} // Thêm prop này
             handleInputChange={handleInputChange}
             handleDescriptionChange={handleDescriptionChange}
             handleImageUpload={handleImageUpload}
             handleDeleteImage={handleDeleteImage}
             canEdit={canEdit(currentRequirement?.status)}
             currentRequirement={currentRequirement}
+            handleSubmit={handleSubmit}
           />
         </DialogContent>
         <DialogActions>

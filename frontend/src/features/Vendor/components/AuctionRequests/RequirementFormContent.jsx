@@ -21,25 +21,30 @@ const formatNumber = (value) => {
 
 const RequirementFormContent = ({
   formData,
-  handleInputChange,
-  handleDescriptionChange,
+  setFormData,
   handleImageUpload,
   handleDeleteImage,
   canEdit,
   currentRequirement,
-  handleSubmit
+  handleSubmit,
 }) => {
   const validationSchema = Yup.object().shape({
     name: Yup.string().required('Tên vật phẩm là bắt buộc'),
     startingPrice: Yup.string().required('Giá khởi điểm là bắt buộc'),
     productImages: Yup.array().min(1, 'Cần ít nhất một hình ảnh vật phẩm'),
-    documentImages: Yup.array().min(1, 'Cần ít nhất một hình ảnh giấy tờ')
+    documentImages: Yup.array().min(1, 'Cần ít nhất một hình ảnh giấy tờ'),
   });
 
   const handlePriceChange = (event, setFieldValue) => {
     const { name, value } = event.target;
     const formattedValue = formatNumber(value.replace(/\./g, ''));
     setFieldValue(name, formattedValue);
+    setFormData((prev) => ({ ...prev, [name]: formattedValue }));
+  };
+
+  const handleDescriptionChange = (content, setFieldValue) => {
+    setFieldValue('description', content);
+    setFormData((prev) => ({ ...prev, description: content }));
   };
 
   return (
@@ -47,6 +52,7 @@ const RequirementFormContent = ({
       initialValues={formData}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
+      enableReinitialize
     >
       {({ values, errors, touched, setFieldValue, isValid, dirty }) => (
         <Form>
@@ -58,7 +64,10 @@ const RequirementFormContent = ({
                 label="Tên vật phẩm"
                 name="name"
                 value={values.name}
-                onChange={handleInputChange}
+                onChange={(e) => {
+                  setFieldValue('name', e.target.value);
+                  setFormData((prev) => ({ ...prev, name: e.target.value }));
+                }}
                 required
                 variant="outlined"
                 disabled={currentRequirement && !canEdit}
@@ -77,7 +86,7 @@ const RequirementFormContent = ({
                 required
                 variant="outlined"
                 InputProps={{
-                  startAdornment: <Typography color="textSecondary">₫</Typography>
+                  startAdornment: <Typography color="textSecondary">₫</Typography>,
                 }}
                 disabled={currentRequirement && !canEdit}
                 error={touched.startingPrice && Boolean(errors.startingPrice)}
@@ -90,7 +99,7 @@ const RequirementFormContent = ({
               </Typography>
               <ReactQuill
                 value={values.description}
-                onChange={handleDescriptionChange}
+                onChange={(content) => handleDescriptionChange(content, setFieldValue)}
                 theme="snow"
                 style={{ height: '200px', marginBottom: '50px' }}
                 readOnly={currentRequirement && !canEdit}
@@ -108,24 +117,38 @@ const RequirementFormContent = ({
                       style={{ display: 'none' }}
                       id={`product-image-upload-${index}`}
                       type="file"
-                      onChange={(e) => handleImageUpload(e, 'productImages', index)}
+                      onChange={(e) => handleImageUpload(e, 'productImages', index, setFieldValue)}
                       disabled={currentRequirement && !canEdit}
                     />
                     <label htmlFor={`product-image-upload-${index}`}>
                       {image ? (
-                        <ImagePreview style={{ backgroundImage: `url(${image instanceof File ? URL.createObjectURL(image) : image})` }}>
+                        <ImagePreview
+                          style={{
+                            backgroundImage: `url(${
+                              image instanceof File ? URL.createObjectURL(image) : image
+                            })`,
+                          }}
+                        >
                           {(!currentRequirement || canEdit) && (
                             <IconButton
                               size="small"
-                              onClick={() => handleDeleteImage('productImages', index)}
-                              sx={{ position: 'absolute', top: 5, right: 5, bgcolor: 'rgba(255,255,255,0.7)' }}
+                              onClick={() => handleDeleteImage('productImages', index, setFieldValue)}
+                              sx={{
+                                position: 'absolute',
+                                top: 5,
+                                right: 5,
+                                bgcolor: 'rgba(255,255,255,0.7)',
+                              }}
                             >
                               <CloseIcon />
                             </IconButton>
                           )}
                         </ImagePreview>
                       ) : (
-                        <ImageUploadButton component="span" disabled={currentRequirement && !canEdit}>
+                        <ImageUploadButton
+                          component="span"
+                          disabled={currentRequirement && !canEdit}
+                        >
                           <AddPhotoAlternateIcon sx={{ fontSize: 40, color: 'grey.500' }} />
                           <Typography variant="body2" color="textSecondary">
                             Thêm ảnh
@@ -154,24 +177,38 @@ const RequirementFormContent = ({
                       style={{ display: 'none' }}
                       id={`document-image-upload-${index}`}
                       type="file"
-                      onChange={(e) => handleImageUpload(e, 'documentImages', index)}
+                      onChange={(e) => handleImageUpload(e, 'documentImages', index, setFieldValue)}
                       disabled={currentRequirement && !canEdit}
                     />
                     <label htmlFor={`document-image-upload-${index}`}>
                       {image ? (
-                        <ImagePreview style={{ backgroundImage: `url(${image instanceof File ? URL.createObjectURL(image) : image})` }}>
+                        <ImagePreview
+                          style={{
+                            backgroundImage: `url(${
+                              image instanceof File ? URL.createObjectURL(image) : image
+                            })`,
+                          }}
+                        >
                           {(!currentRequirement || canEdit) && (
                             <IconButton
                               size="small"
-                              onClick={() => handleDeleteImage('documentImages', index)}
-                              sx={{ position: 'absolute', top: 5, right: 5, bgcolor: 'rgba(255,255,255,0.7)' }}
+                              onClick={() => handleDeleteImage('documentImages', index, setFieldValue)}
+                              sx={{
+                                position: 'absolute',
+                                top: 5,
+                                right: 5,
+                                bgcolor: 'rgba(255,255,255,0.7)',
+                              }}
                             >
                               <CloseIcon />
                             </IconButton>
                           )}
                         </ImagePreview>
                       ) : (
-                        <ImageUploadButton component="span" disabled={currentRequirement && !canEdit}>
+                        <ImageUploadButton
+                          component="span"
+                          disabled={currentRequirement && !canEdit}
+                        >
                           <AddPhotoAlternateIcon sx={{ fontSize: 40, color: 'grey.500' }} />
                           <Typography variant="body2" color="textSecondary">
                             Thêm ảnh
