@@ -107,7 +107,7 @@ export default function ChatSidebar({
                   </Box>
                   <Box display="flex" flexDirection="column" alignItems="flex-end" justifyContent="center" gap={2}>
                     <Typography variant="caption" color="textSecondary">
-                      {formatCustomDate(chat.time)}
+                      {formatCustomDate(chat.updatedAt)}
                     </Typography>
                     <Badge
                       badgeContent={chat.unread}

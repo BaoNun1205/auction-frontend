@@ -1,5 +1,5 @@
 import React from 'react'
-import Header from '~/components/Vendor/DefaultComponent/HeaderComponent/Header'
+import Header from '~/components/Customer/DefautComponent/HeaderComponent/Header'
 
 function VendorLayout({ children, isCategory = true }) {
   return (

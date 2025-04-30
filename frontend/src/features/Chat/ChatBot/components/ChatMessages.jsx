@@ -1,13 +1,11 @@
 import React from 'react'
 import { Box, Stack, Avatar, Typography, CircularProgress } from '@mui/material'
 import TypingIndicator from './TypingIndicator'
+import chatBotLogo from '~/assets/images/logo/chatBotLogo.png'
 
 export default function ChatMessages({
   sortedMessages,
   isLoadingMessages,
-  currentUserId,
-  targetUser,
-  user,
   isTyping,
   messagesEndRef
 }) {
@@ -39,34 +37,37 @@ export default function ChatMessages({
             mt: 2
           }}
         >
-          <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#ff9800' }}>
-            LƯU Ý: BIDMASTER KHÔNG CHO PHÉP CÁC HÀNH VI: ĐẶT CỌC/CHUYỂN
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+            <Avatar src={chatBotLogo} sx={{ width: 24, height: 24, mr: 0.5 }} />
+            <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#ff9800' }}>
+              Lưu ý từ BidAI:
+            </Typography>
+          </Box>
           <Typography variant="body2" sx={{ color: 'black', mt: 0.5 }}>
-            khoản riêng tiền cho người bán/Người giao dịch/CáC HOẠT động thông tuyển CTV/Tăng
-            cấp qua miễn phí, ... Vui lòng chỉ đấu giá trực tiếp trên ứng dụng BidMaster để tránh nguy cơ bị lừa đảo nhé!{' '}
-            <Typography component="span" sx={{ color: '#1976d2', fontWeight: 'bold' }}>
-              Tìm hiểu thêm
+            BidAI là trợ lý ảo hỗ trợ thông tin và giải đáp thắc mắc về đấu giá. Vui lòng <strong>không chia sẻ thông tin cá nhân, tài khoản ngân hàng</strong> hay thực hiện bất kỳ <strong>giao dịch bên ngoài ứng dụng</strong>.
+            <br />
+              Nếu có điều gì không rõ hoặc cần tìm kiếm thông tin liên quan đến ứng dụng, bạn có thể hỏi BidAI bất kỳ lúc nào để được hỗ trợ nhanh chóng và chính xác.
+            <Typography component="span" sx={{ color: '#43a047', fontWeight: 'bold', display: 'block', mt: 0.5 }}>
+              🟢 Hỏi ngay: "Thông tin về các phiên đấu giá đang diễn ra?"
             </Typography>
           </Typography>
+
         </Box>
       ) : (
         <>
           {sortedMessages.map((msg, index) => {
-            const senderId = msg.sender?.userId || msg.senderId
-            const senderAvatar = senderId === currentUserId ? user.avatar : targetUser?.avatar
             return (
               <Stack
                 key={index}
                 direction="row"
                 spacing={1}
-                justifyContent={senderId === currentUserId ? 'flex-end' : 'flex-start'}
+                justifyContent={msg.role == 'user' ? 'flex-end' : 'flex-start'}
                 sx={{ mb: 0.75 }}
               >
-                {senderId !== currentUserId && <Avatar src={senderAvatar} sx={{ width: 28, height: 28 }} />}
+                {msg.role == 'assistant' && <Avatar src={chatBotLogo} sx={{ width: 28, height: 28 }} />}
                 <Box
                   sx={{
-                    bgcolor: senderId === currentUserId ? '#d7f7ef' : '#fff',
+                    bgcolor: msg.role == 'user' ? '#d7f7ef' : '#fff',
                     color: 'black',
                     p: 1.25,
                     borderRadius: 1.5,
@@ -76,14 +77,17 @@ export default function ChatMessages({
                     gap: 0.5
                   }}
                 >
-                  <Typography variant="body2" sx={{ wordBreak: 'break-word', fontSize: '0.875rem', width: '100%' }}>
-                    {msg.content}
-                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{ wordBreak: 'break-word', fontSize: '0.875rem', width: '100%' }}
+                    dangerouslySetInnerHTML={{ __html: msg.content }}
+                  />
+
                   <Typography
                     variant="caption"
                     sx={{ color: 'rgba(0, 0, 0, 0.6)', fontSize: '0.7rem', fontWeight: 400, alignSelf: 'flex-end' }}
                   >
-                    {new Date(msg.timestamp).toLocaleTimeString([], {
+                    {new Date(msg.createdAt).toLocaleTimeString([], {
                       hour: '2-digit',
                       minute: '2-digit',
                       hour12: false
@@ -99,11 +103,11 @@ export default function ChatMessages({
               sx={{
                 fontStyle: 'italic',
                 color: 'gray',
-                pl: '40px',
+                pl: '10px',
                 mt: 0.5
               }}
             >
-              {targetUser?.name || 'Hệ thống'} đang trả lời...
+              BidAI đang trả lời...
             </Typography>
           )}
 

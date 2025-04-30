@@ -23,6 +23,10 @@ let appStore = (set) => ({
   isChatOpen: false,
   setChatOpen: (isChatOpen) => set(() => ({ isChatOpen })),
 
+  // Trạng thái mở chat bot
+  isChatBotOpen: false,
+  setChatBotOpen: (isChatBotOpen) => set(() => ({ isChatBotOpen })),
+
   // Lưu vendorId đang chat
   chatVendorId: null,
   setChatVendorId: (chatVendorId) => set(() => ({ chatVendorId })),

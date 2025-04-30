@@ -1,6 +1,6 @@
 import React from 'react'
-import { Box, Typography } from '@mui/material'
-import { Chat as ChatIcon } from '@mui/icons-material'
+import { Avatar, Box, Typography } from '@mui/material'
+import chatBotLogo from '~/assets/images/logo/chatBotLogo.png'
 
 const WelcomeScreen = () => (
   <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', textAlign: 'center', p: 3 }}>
@@ -10,12 +10,14 @@ const WelcomeScreen = () => (
           <Box sx={{ width: '70%', height: 8, bgcolor: '#b41712', borderRadius: 1, mb: 2 }} />
         </Box>
       </Box>
-      <Box sx={{ position: 'absolute', top: 15, right: 10, bgcolor: '#b41712', color: 'white', borderRadius: '50% 50% 50% 0', width: 45, height: 45, display: 'flex', alignItems: 'center', justifyContent: 'center', transform: 'rotate(-10deg)' }}>
-        <ChatIcon sx={{ fontSize: 24 }} />
+      <Box sx={{ position: 'absolute', top: 15, right: 10, bgcolor: '#b41712', color: 'white', borderRadius: '50% 50% 50% 50%', display: 'flex', alignItems: 'center', justifyContent: 'center', transform: 'rotate(-10deg)' }}>
+        <Avatar src={chatBotLogo} sx={{ width: 42, height: 42 }} />
       </Box>
     </Box>
-    <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>Chào mừng bạn đến với BidMaster Chat</Typography>
-    <Typography variant="body2" color="text.secondary">Bắt đầu trả lời tin nhắn!</Typography>
+    <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
+      Chào mừng đến với <span style={{ color: '#b41712' }}>BidAI</span>
+    </Typography>
+    <Typography variant="body2" color="text.secondary">Bắt đầu đặt câu hỏi!</Typography>
   </Box>
 )
 

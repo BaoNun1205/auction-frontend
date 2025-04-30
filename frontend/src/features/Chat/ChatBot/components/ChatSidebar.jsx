@@ -1,36 +1,24 @@
-import React, { useMemo, useState } from 'react'
+import React from 'react'
 import {
   Box,
-  TextField,
-  IconButton,
+  Button,
   List,
   ListItem,
   Avatar,
-  Badge,
   Typography,
-  CircularProgress
+  CircularProgress,
+  Badge
 } from '@mui/material'
-import { Search } from '@mui/icons-material'
+import { Add } from '@mui/icons-material'
 import { formatCustomDate } from '~/utils/customTime'
 
 export default function ChatSidebar({
   conversations,
   isLoadingConversations,
-  currentUserId,
   selectedConversation,
-  setSelectedConversation
+  setSelectedConversation,
+  handleNewChat
 }) {
-
-  const [searchText, setSearchText] = useState('')
-
-  const filteredConversations = useMemo(() => {
-    return conversations.filter((chat) => {
-      const chatTargetUser = chat.seller.userId === currentUserId ? chat.buyer : chat.seller
-      const targetName = chatTargetUser.name || chatTargetUser.username || ''
-      return targetName.toLowerCase().includes(searchText.toLowerCase())
-    })
-  }, [conversations, currentUserId, searchText])
-
   return (
     <Box
       sx={{
@@ -44,29 +32,21 @@ export default function ChatSidebar({
         overflow: 'hidden'
       }}
     >
-      <Box sx={{ p: 1.5, borderBottom: 1, borderColor: 'divider' }}>
-        <TextField
-          fullWidth
-          placeholder="Tìm theo tên"
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-          InputProps={{
-            startAdornment: (
-              <IconButton size="small">
-                <Search fontSize="small" />
-              </IconButton>
-            )
-          }}
+      {/* Nút New Chat */}
+      <Box sx={{ p: 1.5, borderBottom: 1, borderColor: 'divider', bgcolor: 'white' }}>
+        <Button
           variant="outlined"
           size="small"
-          sx={{
-            '& .MuiOutlinedInput-root': {
-              borderRadius: 1,
-              fontSize: '0.875rem'
-            }
-          }}
-        />
+          startIcon={<Add />}
+          onClick={handleNewChat}
+          fullWidth
+          sx={{ fontSize: '0.75rem', textTransform: 'none', borderColor: '#b41712', bgcolor: 'white', color: '#b41712' }}
+        >
+          Tạo mới
+        </Button>
       </Box>
+
+      {/* Danh sách cuộc trò chuyện */}
       <Box
         sx={{
           flex: 1,
@@ -79,53 +59,34 @@ export default function ChatSidebar({
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
             <CircularProgress size={24} />
           </Box>
-        ) : filteredConversations.length === 0 ? (
+        ) : conversations.length === 0 ? (
           <Box sx={{ textAlign: 'center', p: 2 }}>
             <Typography variant="body2" color="textSecondary">
-      Không có cuộc trò chuyện nào
+              Không có cuộc trò chuyện nào
             </Typography>
           </Box>
         ) : (
           <List disablePadding>
-            {filteredConversations.map((chat) => {
-              const chatTargetUser = chat.seller.userId === currentUserId ? chat.buyer : chat.seller
-              return (
-                <ListItem
-                  key={chat.conversationId}
-                  button
-                  onClick={() => setSelectedConversation(chat.conversationId)}
-                  sx={{ '&:hover': { bgcolor: '#f5f5f5' }, py: 1, display: 'flex', alignItems: 'center', gap: 2 }}
-                >
-                  <Avatar src={chatTargetUser.avatar} />
-                  <Box sx={{ flex: 1, overflow: 'hidden' }}>
-                    <Typography variant="body2" fontWeight={500} noWrap>
-                      {chatTargetUser?.name || chatTargetUser.username}
-                    </Typography>
-                    <Typography variant="body2" color="textSecondary" noWrap>
-                      {chat.lastMessage}
-                    </Typography>
-                  </Box>
-                  <Box display="flex" flexDirection="column" alignItems="flex-end" justifyContent="center" gap={2}>
-                    <Typography variant="caption" color="textSecondary">
-                      {formatCustomDate(chat.time)}
-                    </Typography>
-                    <Badge
-                      badgeContent={chat.unread}
-                      color="error"
-                      sx={{
-                        '& .MuiBadge-badge': {
-                          fontSize: '0.5rem',
-                          height: '10px',
-                          minWidth: '10px',
-                          padding: '0 4px'
-                        }
-                      }}
-                    />
-                  </Box>
-                </ListItem>
-              )
-            })}
+            {conversations.map((chat) => (
+              <ListItem
+                key={chat.id}
+                button
+                onClick={() => setSelectedConversation(chat.id)}
+                selected={selectedConversation === chat.id}
+                sx={{
+                  '&:hover': { bgcolor: '#f5f5f5' },
+                  py: 1,
+                  px: 2,
+                  bgcolor: selectedConversation === chat.id ? '#e0e0e0' : 'inherit'
+                }}
+              >
+                <Typography variant="body2" fontWeight={500} noWrap>
+                  {chat.topic || 'Chưa đặt tiêu đề'}
+                </Typography>
+              </ListItem>
+            ))}
           </List>
+
         )}
       </Box>
     </Box>
