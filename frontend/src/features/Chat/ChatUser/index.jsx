@@ -6,7 +6,14 @@ import { useAppStore } from '~/store/appStore'
 import { IconButtonWithBadge } from '~/components/Customer/DefautComponent/HeaderComponent/style'
 
 const ChatButton = () => {
-  const { isChatOpen, setChatOpen, chatVendorId, conversationCount, unreadConversationCount } = useAppStore()
+  const {
+    isChatOpen,
+    setChatOpen,
+    isChatBotOpen,
+    chatVendorId,
+    conversationCount,
+    unreadConversationCount
+  } = useAppStore()
 
   const handleClickOpen = () => {
     setChatOpen(true)
@@ -33,7 +40,7 @@ const ChatButton = () => {
         sx={{
           position: 'fixed',
           bottom: 16,
-          right: 16,
+          right: isChatOpen && isChatBotOpen ? 632 : 16,
           width: 600,
           height: 500,
           bgcolor: 'white',

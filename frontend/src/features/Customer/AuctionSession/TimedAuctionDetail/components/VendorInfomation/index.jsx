@@ -49,7 +49,7 @@ const VendorInformation = ({ vendorId, isView = true }) => {
 
   const sellerStats = [
     { label: 'Đánh Giá', value: '2,2tr' },
-    { label: 'Tỉ Lệ Phản Hồi', value: '100%' },
+    { label: 'Tỉ Lệ Phản Hồi', value: user?.responseRate != null ? `${user.responseRate}%` : 'Chưa cập nhật' },
     { label: 'Phiên đấu giá', value: auctionSessions.length || 0 },
     { label: 'Thời Gian Phản Hồi', value: formatResponseTime(user?.responseTimeInSeconds) },
     { label: 'Tham Gia', value: formatRelativeTime(user?.createdAt) },

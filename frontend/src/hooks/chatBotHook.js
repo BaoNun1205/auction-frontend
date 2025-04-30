@@ -9,8 +9,8 @@ import {
 // Gọi chatbot bằng tool call (POST)
 export const useChatWithToolCall = () => {
   return useMutation({
-    mutationFn: ({ messages }) =>
-      chatWithToolCall({ messages }),
+    mutationFn: ({ conversationId, content }) =>
+      chatWithToolCall({ conversationId, content }),
 
     onSuccess: (data) => {
       console.log('Chatbot response:', data);

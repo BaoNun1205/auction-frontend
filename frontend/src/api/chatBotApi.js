@@ -3,13 +3,11 @@ import handleApiError from './config/handldeApiError'
 
 export const CHAT_BOT_PATH = '/api/chat'
 
-export const chatWithToolCall = async (messages) => {
+export const chatWithToolCall = async (payload) => {
   try {
     const response = await POST({
       url: `${CHAT_BOT_PATH}/test-tool-call`,
-      payload: {
-        messages
-      }
+      payload
     })
     return response || null
   } catch (error) {
@@ -18,13 +16,13 @@ export const chatWithToolCall = async (messages) => {
   }
 }
 
-export const createConversation = async (userId) => {
+export const createConversation = async (conversationData) => {
   try {
     const response = await POST({
       url: `${CHAT_BOT_PATH}/conversations`,
-      params: { userId }
+      payload: conversationData
     })
-    return response.data
+    return response.data.result
   } catch (error) {
     handleApiError(error)
   }

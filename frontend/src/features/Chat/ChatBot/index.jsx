@@ -1,11 +1,12 @@
 import React from 'react'
-import { Box, IconButton, Paper, Typography, Badge } from '@mui/material'
+import { Box, IconButton, Paper, Typography, Badge, Avatar } from '@mui/material'
 import { Chat as ChatIcon, OpenInNew, KeyboardArrowDown } from '@mui/icons-material'
 import ChatInterface from './Chat'
 import { useAppStore } from '~/store/appStore'
+import chatBotLogo from '~/assets/images/logo/chatBotLogo.png'
 
 const ChatButton = () => {
-  const { isChatBotOpen, setChatBotOpen, chatVendorId, conversationCount, unreadConversationCount } = useAppStore()
+  const { isChatBotOpen, setChatBotOpen, chatVendorId } = useAppStore()
 
   const handleClickOpen = () => {
     setChatBotOpen(true)
@@ -23,35 +24,21 @@ const ChatButton = () => {
         sx={{
           position: 'fixed',
           bottom: 16,
-          right: 16,
+          left: 16,
           bgcolor: '#b41712',
           color: 'white',
           zIndex: 1000,
+          borderRadius: '50%',
           '&:hover': {
-            bgcolor: '#9c1410'
-          }
+            bgcolor: '#9c1410',
+            boxShadow: '0 4px 10px rgba(0, 0, 0, 0.3)'
+          },
+          padding: 0
         }}
       >
-        <Badge
-          badgeContent={unreadConversationCount}
-          color="error"
-          sx={{
-            '& .MuiBadge-badge': {
-              bgcolor: '#b41712',
-              color: 'white',
-              fontWeight: 'normal',
-              fontSize: '0.75rem',
-              minWidth: '20px',
-              height: '20px',
-              borderRadius: '10px',
-              padding: '0 6px'
-            }
-          }}
-        >
-          <ChatIcon />
-        </Badge>
-
+        <Avatar src={chatBotLogo} sx={{ width: 48, height: 48, borderRadius: '50%' }} />
       </IconButton>
+
 
       {/* Cửa sổ chat luôn mount, ẩn bằng CSS khi đóng */}
       <Paper
@@ -82,35 +69,19 @@ const ChatButton = () => {
           }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Avatar src={chatBotLogo} sx={{ width: 34, height: 34, mr: 1 }} />
             <Typography
               variant="h6"
               sx={{
                 fontWeight: 'bold',
                 color: '#b41712',
-                fontSize: '1.25rem',
-                mr: 2
+                fontSize: '1.25rem'
               }}
             >
-              Chat
+              BidAI
             </Typography>
-            <Badge
-              badgeContent={conversationCount}
-              color="error"
-              sx={{
-                ml: 0.5,
-                '& .MuiBadge-badge': {
-                  bgcolor: '#b41712',
-                  color: 'white',
-                  fontWeight: 'normal',
-                  fontSize: '0.75rem',
-                  minWidth: '20px',
-                  height: '20px',
-                  borderRadius: '10px',
-                  padding: '0 6px'
-                }
-              }}
-            />
           </Box>
+
           <Box>
             <IconButton size="small" sx={{ color: '#757575' }}>
               <OpenInNew fontSize="small" />
