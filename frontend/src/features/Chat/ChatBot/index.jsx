@@ -6,7 +6,7 @@ import { useAppStore } from '~/store/appStore'
 import chatBotLogo from '~/assets/images/logo/chatBotLogo.png'
 
 const ChatButton = () => {
-  const { isChatBotOpen, setChatBotOpen, chatVendorId } = useAppStore()
+  const { isChatBotOpen, setChatBotOpen, isChatOpen, chatVendorId } = useAppStore()
 
   const handleClickOpen = () => {
     setChatBotOpen(true)
@@ -23,8 +23,8 @@ const ChatButton = () => {
         onClick={handleClickOpen}
         sx={{
           position: 'fixed',
-          bottom: 16,
-          left: 16,
+          bottom: isChatOpen && !isChatBotOpen ? '60%' : 16,
+          right: 16,
           bgcolor: '#b41712',
           color: 'white',
           zIndex: 1000,
