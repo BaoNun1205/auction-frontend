@@ -1,41 +1,41 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useRef, useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
 import {
   Box,
   Typography,
   Button,
   Stack,
   CircularProgress
-} from '@mui/material';
-import { Formik, Form, Field } from 'formik';
-import * as Yup from 'yup';
-import ImageUploadAndReview from './ImageUpload';
-import { StyledContainer, StyledHeaderBox, StyledInnerBox, StyledSubtitleBox, StyledTitleBox } from '~/features/style';
-import TextFieldComponent from '~/components/TextFieldComponent/TextFieldComponent';
-import Editor from '~/components/EditorComponent/Editor';
-import { useCreateRequirement, useGetRequirementById } from '~/hooks/requirementHook';
-import StackSelectComponent from '~/components/StackSelectComponent/StackSelectComponent';
-import { useCreateAsset } from '~/hooks/assetHook';
-import { useNavigate } from 'react-router-dom';
-import { ASSET_PATH } from '~/api/assetApi';
-import { BASE_PATHS } from '~/routes/routes';
-import { useGetTypes } from '~/hooks/typeHook';
+} from '@mui/material'
+import { Formik, Form, Field } from 'formik'
+import * as Yup from 'yup'
+import ImageUploadAndReview from './ImageUpload'
+import { StyledContainer, StyledHeaderBox, StyledInnerBox, StyledSubtitleBox, StyledTitleBox } from '~/features/style'
+import TextFieldComponent from '~/components/TextFieldComponent/TextFieldComponent'
+import Editor from '~/components/EditorComponent/Editor'
+import { useCreateRequirement, useGetRequirementById } from '~/hooks/requirementHook'
+import StackSelectComponent from '~/components/StackSelectComponent/StackSelectComponent'
+import { useCreateAsset } from '~/hooks/assetHook'
+import { useNavigate } from 'react-router-dom'
+import { ASSET_PATH } from '~/api/assetApi'
+import { BASE_PATHS } from '~/routes/routes'
+import { useGetTypes } from '~/hooks/typeHook'
 
 const validationSchema = Yup.object().shape({
   assetName: Yup.string().required('Asset Name is required'),
   price: Yup.number().required('Price is required').positive('Price must be positive'),
   editorContent: Yup.string().required('Description is required'),
   type: Yup.string().required('Type is required')
-});
+})
 
 const AddAsset = () => {
-  const { id } = useParams();
-  const { data: requirement, error, isLoading } = useGetRequirementById(id);
-  const { mutate: createAsset } = useCreateAsset();
-  const imageUploadRef = useRef();
-  const navigate = useNavigate();
-  const { data } = useGetTypes();
-  const types = Array.isArray(data) ? data : [];
+  const { id } = useParams()
+  const { data: requirement, error, isLoading } = useGetRequirementById(id)
+  const { mutate: createAsset } = useCreateAsset()
+  const imageUploadRef = useRef()
+  const navigate = useNavigate()
+  const { data } = useGetTypes()
+  const types = Array.isArray(data) ? data : []
 
   const [initialValues, setInitialValues] = useState({
     assetName: '',
@@ -45,7 +45,7 @@ const AddAsset = () => {
     inspector: '',
     type: '',
     images: []
-  });
+  })
 
   useEffect(() => {
     if (requirement) {
@@ -56,41 +56,41 @@ const AddAsset = () => {
         vendor: requirement.vendor.userId || '',
         inspector: requirement.inspector.userId || '',
         images: requirement.imageRequirements.map(img => img.image) || []
-      });
+      })
     }
-  }, [requirement]);
+  }, [requirement])
 
   const handleSubmit = (values, { setSubmitting }) => {
-    const formData = new FormData();
-    formData.append('requirementId', id);
-    formData.append('assetName', values.assetName);
-    formData.append('assetPrice', values.price);
-    formData.append('assetDescription', values.editorContent);
-    formData.append('vendorId', values.vendor);
-    formData.append('inspectorId', values.inspector);
-    formData.append('typeId', values.type);
-    formData.append('images', values.images);
+    const formData = new FormData()
+    formData.append('requirementId', id)
+    formData.append('assetName', values.assetName)
+    formData.append('assetPrice', values.price)
+    formData.append('assetDescription', values.editorContent)
+    formData.append('vendorId', values.vendor)
+    formData.append('inspectorId', values.inspector)
+    formData.append('typeId', values.type)
+    formData.append('images', values.images)
 
-    console.log('formData', formData);
+    console.log('formData', formData)
 
     createAsset(formData, {
       onSuccess: (response) => {
-        console.log('Success:', response);
-        navigate(`${BASE_PATHS.ASSET}`);
+        console.log('Success:', response)
+        navigate(`${BASE_PATHS.ASSET}`)
       },
       onError: (error) => {
-        console.error('Error:', error);
-        navigate(`${BASE_PATHS.ASSET}`);
+        console.error('Error:', error)
+        navigate(`${BASE_PATHS.ASSET}`)
       }
-    });
-  };
+    })
+  }
 
   if (isLoading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
         <CircularProgress />
       </Box>
-    );
+    )
   }
 
   if (error) {
@@ -98,7 +98,7 @@ const AddAsset = () => {
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
         <Typography color="error">Error fetching requirement</Typography>
       </Box>
-    );
+    )
   }
 
   return (
@@ -233,9 +233,9 @@ const AddAsset = () => {
             </Formik>
           </Box>
         </Box>
-        </StyledInnerBox>
+      </StyledInnerBox>
     </StyledContainer>
-  );
-};
+  )
+}
 
-export default AddAsset;
+export default AddAsset
