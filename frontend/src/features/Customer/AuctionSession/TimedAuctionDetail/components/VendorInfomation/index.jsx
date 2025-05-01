@@ -5,7 +5,7 @@ import {
   Button,
   Avatar
 } from '@mui/material'
-import { Message } from '@mui/icons-material'
+import { Add, Message } from '@mui/icons-material'
 import { Store } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useCreateConversation } from '~/hooks/chatHook'
@@ -67,7 +67,7 @@ const VendorInformation = ({ vendorId, isView = true }) => {
       }}
     >
       <Box display="flex" flexDirection={{ xs: 'column', lg: 'row' }} gap={4}>
-        <Box display="flex" alignItems="flex-start" gap={3}>
+        <Box display="flex" alignItems="flex-start" gap={3} minWidth={420}>
           <Box position="relative">
             <Avatar
               alt={user?.username}
@@ -131,7 +131,7 @@ const VendorInformation = ({ vendorId, isView = true }) => {
               >
                 CHAT
               </Button>
-              {isView && (
+              {isView ? (
                 <Button
                   variant="outlined"
                   startIcon={<Store />}
@@ -153,6 +153,32 @@ const VendorInformation = ({ vendorId, isView = true }) => {
                   }}
                 >
                   XEM
+                </Button>
+              ) : (
+                <Button
+                  variant="outlined"
+                  startIcon={<Add />}
+                  onClick={() => {
+                    // TODO: xử lý theo dõi ở đây
+                    console.log('Theo dõi vendor', vendorId)
+                  }}
+                  sx={{
+                    borderColor: 'rgba(0,0,0,0.12)',
+                    color: 'text.primary',
+                    px: 3,
+                    py: 1,
+                    fontSize: '0.95rem',
+                    fontWeight: 500,
+                    '&:hover': {
+                      borderColor: 'rgba(0,0,0,0.24)',
+                      bgcolor: 'rgba(0,0,0,0.04)',
+                      transform: 'translateY(-1px)',
+                      boxShadow: '0 4px 8px rgba(0,0,0,0.06)'
+                    },
+                    transition: 'all 0.2s ease-in-out'
+                  }}
+                >
+                  THEO DÕI
                 </Button>
               )}
             </Box>

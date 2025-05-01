@@ -78,7 +78,7 @@ const AutoBidDialog = ({ open, onClose, autoBid, onEdit }) => {
 
         {/* Nút hành động */}
         <DialogActions sx={{ justifyContent: 'center', gap: 2 }}>
-          <Button variant="outlined" color="secondary" onClick={onClose}>
+          <Button variant="outlined" color="primary" onClick={onClose}>
             Hủy
           </Button>
           <Button variant="contained" color="primary" onClick={handleEdit}>

@@ -13,7 +13,7 @@ import { useAppStore } from '~/store/appStore'
 import WelcomeScreen from './components/WelcomeScreen'
 
 export default function Chat() {
-  const { auth } = useAppStore()
+  const { auth, isBotSidebarVisible } = useAppStore()
   const user = auth.user
   const currentUserId = user.id
 
@@ -104,14 +104,16 @@ export default function Chat() {
 
   return (
     <Box sx={{ display: 'flex', height: '100%', bgcolor: '#f5f5f5', overflow: 'hidden', borderRadius: 1 }}>
-      <ChatSidebar
-        conversations={conversations}
-        isLoadingConversations={isLoadingConversations}
-        currentUserId={currentUserId}
-        selectedConversation={selectedConversation}
-        setSelectedConversation={setSelectedConversation}
-        handleNewChat={handleNewChat}
-      />
+      {isBotSidebarVisible && (
+        <ChatSidebar
+          conversations={conversations}
+          isLoadingConversations={isLoadingConversations}
+          currentUserId={currentUserId}
+          selectedConversation={selectedConversation}
+          setSelectedConversation={setSelectedConversation}
+          handleNewChat={handleNewChat}
+        />
+      )}
       <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
         {!selectedConversation ? (
           <WelcomeScreen />

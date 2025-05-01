@@ -18,7 +18,15 @@ export default function Chat({ vendorId }) {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true)
   const [localConversations, setLocalConversations] = useState([])
   const messagesEndRef = useRef(null)
-  const { auth, conversationCount, setConversationCount, unreadConversationCount, setUnreadConversationCount, isChatOpen } = useAppStore()
+  const {
+    auth,
+    conversationCount,
+    setConversationCount,
+    unreadConversationCount,
+    setUnreadConversationCount,
+    isChatOpen,
+    isSidebarVisible
+  } = useAppStore()
 
   const isChatOpenRef = useRef(isChatOpen)
 
@@ -227,13 +235,15 @@ export default function Chat({ vendorId }) {
 
   return (
     <Box sx={{ display: 'flex', height: '100%', bgcolor: '#f5f5f5', overflow: 'hidden', borderRadius: 1 }}>
-      <ChatSidebar
-        conversations={localConversations}
-        isLoadingConversations={isLoadingConversations}
-        currentUserId={currentUserId}
-        selectedConversation={selectedConversation}
-        setSelectedConversation={setSelectedConversation}
-      />
+      {isSidebarVisible && (
+        <ChatSidebar
+          conversations={localConversations}
+          isLoadingConversations={isLoadingConversations}
+          currentUserId={currentUserId}
+          selectedConversation={selectedConversation}
+          setSelectedConversation={setSelectedConversation}
+        />
+      )}
       <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
         {!selectedConversation ? (
           <WelcomeScreen />

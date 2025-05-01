@@ -1,12 +1,12 @@
 import React from 'react'
-import { Box, IconButton, Paper, Typography, Badge, Avatar } from '@mui/material'
-import { Chat as ChatIcon, OpenInNew, KeyboardArrowDown } from '@mui/icons-material'
+import { Box, IconButton, Paper, Typography, Avatar } from '@mui/material'
+import { ChevronLeft, ChevronRight, KeyboardArrowDown } from '@mui/icons-material'
 import ChatInterface from './Chat'
 import { useAppStore } from '~/store/appStore'
 import chatBotLogo from '~/assets/images/logo/chatBotLogo.png'
 
 const ChatButton = () => {
-  const { isChatBotOpen, setChatBotOpen, isChatOpen, chatVendorId } = useAppStore()
+  const { isChatBotOpen, setChatBotOpen, isChatOpen, chatVendorId, isBotSidebarVisible, toggleBotSidebar } = useAppStore()
 
   const handleClickOpen = () => {
     setChatBotOpen(true)
@@ -14,6 +14,10 @@ const ChatButton = () => {
 
   const handleClose = () => {
     setChatBotOpen(false)
+  }
+
+  const handleToggleSidebar = () => {
+    toggleBotSidebar()
   }
 
   return (
@@ -83,8 +87,8 @@ const ChatButton = () => {
           </Box>
 
           <Box>
-            <IconButton size="small" sx={{ color: '#757575' }}>
-              <OpenInNew fontSize="small" />
+            <IconButton onClick={handleToggleSidebar}>
+              {isBotSidebarVisible ? <ChevronLeft /> : <ChevronRight />}
             </IconButton>
             <IconButton size="small" onClick={handleClose} sx={{ color: '#757575' }}>
               <KeyboardArrowDown fontSize="small" />
