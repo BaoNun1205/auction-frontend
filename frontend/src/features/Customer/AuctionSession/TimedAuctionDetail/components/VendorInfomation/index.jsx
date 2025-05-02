@@ -13,6 +13,7 @@ import { useAppStore } from '~/store/appStore'
 import { useGetUserById } from '~/hooks/userHook'
 import { formatRelativeTime, formatResponseTime } from '~/utils/customTime'
 import { useFilterSessions } from '~/hooks/sessionHook'
+import { useFollowUser, useUnfollowUser, useIsFollowing, useCountFollowers } from '~/hooks/followHook'
 
 const VendorInformation = ({ vendorId, isView = true }) => {
   const navigate = useNavigate()
@@ -21,6 +22,39 @@ const VendorInformation = ({ vendorId, isView = true }) => {
   const { data: user, refetch: refetchUser } = useGetUserById(vendorId)
   const [imgError, setImgError] = useState(false)
   const { data, isError, refetch } = useFilterSessions({ userId: vendorId })
+
+  const currentUserId = auth.user.id
+  const isCurrentUserVendor = currentUserId === vendorId
+
+  const { data: isFollowing, refetch: refetchIsFollowing } = useIsFollowing(currentUserId, vendorId)
+  const { data: followerCount, refetch: refetchFollowerCount } = useCountFollowers(vendorId)
+
+  const { mutate: followVendor } = useFollowUser()
+  const { mutate: unfollowVendor } = useUnfollowUser()
+
+  const handleFollowClick = () => {
+    if (isFollowing) {
+      unfollowVendor(
+        { followerId: currentUserId, followeeId: vendorId },
+        {
+          onSuccess: () => {
+            refetchIsFollowing()
+            refetchFollowerCount()
+          }
+        }
+      )
+    } else {
+      followVendor(
+        { followerId: currentUserId, followeeId: vendorId },
+        {
+          onSuccess: () => {
+            refetchIsFollowing()
+            refetchFollowerCount()
+          }
+        }
+      )
+    }
+  }
 
   useEffect(() => {
     if (isError) {
@@ -53,7 +87,7 @@ const VendorInformation = ({ vendorId, isView = true }) => {
     { label: 'Phiên đấu giá', value: auctionSessions.length || 0 },
     { label: 'Thời Gian Phản Hồi', value: formatResponseTime(user?.responseTimeInSeconds) },
     { label: 'Tham Gia', value: formatRelativeTime(user?.createdAt) },
-    { label: 'Người Theo Dõi', value: '3,9tr' }
+    { label: 'Người Theo Dõi', value: followerCount }
   ]
 
   return (
@@ -67,7 +101,7 @@ const VendorInformation = ({ vendorId, isView = true }) => {
       }}
     >
       <Box display="flex" flexDirection={{ xs: 'column', lg: 'row' }} gap={4}>
-        <Box display="flex" alignItems="flex-start" gap={3} minWidth={420}>
+        <Box display="flex" alignItems="flex-start" gap={3} minWidth={!isCurrentUserVendor ? 420 : 300}>
           <Box position="relative">
             <Avatar
               alt={user?.username}
@@ -101,7 +135,7 @@ const VendorInformation = ({ vendorId, isView = true }) => {
             <Typography variant="body2" color="text.secondary" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
               {formatRelativeTime(user?.lastSeen) === '0 phút trước' ? (
                 <>
-                  Đang Online
+                              Đang Online
                   <Box sx={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: 'green' }} />
                 </>
               ) : (
@@ -109,29 +143,58 @@ const VendorInformation = ({ vendorId, isView = true }) => {
               )}
             </Typography>
             <Box display="flex" gap={2}>
-              <Button
-                variant="contained"
-                startIcon={<Message />}
-                onClick={handleChatClick}
-                disabled={isLoading}
-                sx={{
-                  bgcolor: '#b41712',
-                  color: 'white',
-                  px: 3,
-                  py: 1,
-                  fontSize: '0.95rem',
-                  fontWeight: 500,
-                  '&:hover': {
-                    bgcolor: '#8B0000',
-                    transform: 'translateY(-1px)',
-                    boxShadow: '0 4px 8px rgba(0,0,0,0.12)'
-                  },
-                  transition: 'all 0.2s ease-in-out'
-                }}
-              >
-                CHAT
-              </Button>
-              {isView ? (
+              {currentUserId !== vendorId && (
+                <Button
+                  variant="contained"
+                  startIcon={<Message />}
+                  onClick={handleChatClick}
+                  disabled={isLoading}
+                  sx={{
+                    bgcolor: '#b41712',
+                    color: 'white',
+                    px: 3,
+                    py: 1,
+                    fontSize: '0.95rem',
+                    fontWeight: 500,
+                    '&:hover': {
+                      bgcolor: '#8B0000',
+                      transform: 'translateY(-1px)',
+                      boxShadow: '0 4px 8px rgba(0,0,0,0.12)'
+                    },
+                    transition: 'all 0.2s ease-in-out'
+                  }}
+                >
+      CHAT
+                </Button>
+              )}
+
+              {currentUserId !== vendorId && !isView && (
+                <Button
+                  variant={isFollowing ? 'outlined' : 'contained'}
+                  startIcon={!isFollowing && <Add />}
+                  onClick={handleFollowClick}
+                  sx={{
+                    borderColor: 'rgba(0,0,0,0.12)',
+                    color: isFollowing ? 'text.primary' : 'white',
+                    backgroundColor: isFollowing ? 'transparent' : '#b41712',
+                    px: 3,
+                    py: 1,
+                    fontSize: '0.95rem',
+                    fontWeight: 500,
+                    '&:hover': {
+                      borderColor: 'rgba(0,0,0,0.24)',
+                      bgcolor: isFollowing ? 'rgba(0,0,0,0.04)' : '#8B0000',
+                      transform: 'translateY(-1px)',
+                      boxShadow: '0 4px 8px rgba(0,0,0,0.06)'
+                    },
+                    transition: 'all 0.2s ease-in-out'
+                  }}
+                >
+                  {isFollowing ? 'BỎ THEO DÕI' : 'THEO DÕI'}
+                </Button>
+              )}
+
+              {isView && (
                 <Button
                   variant="outlined"
                   startIcon={<Store />}
@@ -152,36 +215,11 @@ const VendorInformation = ({ vendorId, isView = true }) => {
                     transition: 'all 0.2s ease-in-out'
                   }}
                 >
-                  XEM
-                </Button>
-              ) : (
-                <Button
-                  variant="outlined"
-                  startIcon={<Add />}
-                  onClick={() => {
-                    // TODO: xử lý theo dõi ở đây
-                    console.log('Theo dõi vendor', vendorId)
-                  }}
-                  sx={{
-                    borderColor: 'rgba(0,0,0,0.12)',
-                    color: 'text.primary',
-                    px: 3,
-                    py: 1,
-                    fontSize: '0.95rem',
-                    fontWeight: 500,
-                    '&:hover': {
-                      borderColor: 'rgba(0,0,0,0.24)',
-                      bgcolor: 'rgba(0,0,0,0.04)',
-                      transform: 'translateY(-1px)',
-                      boxShadow: '0 4px 8px rgba(0,0,0,0.06)'
-                    },
-                    transition: 'all 0.2s ease-in-out'
-                  }}
-                >
-                  THEO DÕI
+      XEM
                 </Button>
               )}
             </Box>
+
           </Box>
         </Box>
 
