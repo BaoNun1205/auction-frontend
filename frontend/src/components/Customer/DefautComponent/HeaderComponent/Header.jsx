@@ -10,15 +10,15 @@ import {
   Fade,
   IconButton,
   Badge,
-  Avatar,
-  Link
+  Avatar
 } from '@mui/material'
 import {
   Menu as MenuIcon,
   Favorite as FavoriteIcon,
   AccountCircle as SignInIcon,
   Search as SearchIcon,
-  Close as CloseIcon
+  Close as CloseIcon,
+  AccessTime
 } from '@mui/icons-material'
 import Logo from '~/assets/images/logo/logo.png'
 import AppModal from '~/components/Modal/Modal'
@@ -38,6 +38,7 @@ import { useGetNotificationsByReceiverId } from '~/hooks/notificationHook'
 import Authentication from '~/features/Authentication'
 import Notification from './Notification'
 import ChatButton from '~/features/Chat/ChatUser'
+import { useRecentKeywords, useRecordSearch } from '~/hooks/searchHistoryHook'
 
 const Header = () => {
   const theme = useTheme()
@@ -49,9 +50,16 @@ const Header = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const { data: user, refetch: refetchUser } = useGetUserById(auth?.user?.id)
+  const [showSuggestions, setShowSuggestions] = useState(false)
   console.log('user: ', user)
   // Lấy danh sách thông báo của người dùng
-  const { data: notifications = [], isLoading } = useGetNotificationsByReceiverId(auth?.user?.id)
+
+  const currentUserId = auth?.user?.id
+
+  const { data: notifications = [], isLoading } = useGetNotificationsByReceiverId(currentUserId)
+  const { data: recentKeywords = [] } = useRecentKeywords(currentUserId)
+  const { mutate: recordSearch } = useRecordSearch()
+
   const menuItems = [
     { label: 'Trang chủ', path: '/' },
     { label: 'Giới thiệu', path: '/introduction' },
@@ -80,7 +88,20 @@ const Header = () => {
 
   const handleSearchSubmit = (event) => {
     event.preventDefault()
+
+    if (!searchKeyword.trim()) return
+
+    if (auth?.user?.id) {
+      recordSearch({
+        userId: auth.user.id,
+        keyword: searchKeyword.trim()
+      })
+    }
+
     navigate(`/search?keyword=${searchKeyword.trim()}`)
+
+    setSearchKeyword('')
+    setShowSuggestions(false)
   }
 
   return (
@@ -121,9 +142,17 @@ const Header = () => {
             </Box>
           )}
         </Box>
-        {!isMobile && (
-          <Box component="form" onSubmit={handleSearchSubmit} sx={{ display: 'flex' }}>
-            <Search>
+        {(!isMobile || searchOpen) && (
+          <Box
+            component="form"
+            onSubmit={handleSearchSubmit}
+            sx={{
+              display: 'flex',
+              flexGrow: isMobile ? 1 : 0,
+              ml: isMobile ? 1 : 0
+            }}
+          >
+            <Search sx={{ position: 'relative', width: isMobile ? '100%' : 'auto' }}>
               <SearchIconWrapper>
                 <SearchIcon />
               </SearchIconWrapper>
@@ -132,10 +161,57 @@ const Header = () => {
                 inputProps={{ 'aria-label': 'search' }}
                 value={searchKeyword}
                 onChange={handleSearchChange}
+                onFocus={() => {
+                  if (recentKeywords.length > 0) setShowSuggestions(true)
+                }}
+                onBlur={() => {
+                  setTimeout(() => setShowSuggestions(false), 200)
+                }}
+                sx={{
+                  width: isMobile ? '100%' : 'auto'
+                }}
               />
+              {showSuggestions && recentKeywords.length > 0 && (
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: 0,
+                    right: 0,
+                    zIndex: 1,
+                    mt: 0.5,
+                    bgcolor: 'background.paper',
+                    boxShadow: 3,
+                    borderRadius: 1,
+                    maxHeight: 300,
+                    overflow: 'auto'
+                  }}
+                >
+                  {recentKeywords.map((item, index) => (
+                    <MenuItem
+                      key={index}
+                      onClick={() => {
+                        setSearchKeyword(item.keyword)
+                        navigate(`/search?keyword=${item.keyword}`)
+                        setShowSuggestions(false)
+                      }}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1,
+                        color: 'text.primary'
+                      }}
+                    >
+                      <AccessTime fontSize="small" color="action" />
+                      {item.keyword}
+                    </MenuItem>
+                  ))}
+                </Box>
+              )}
             </Search>
           </Box>
         )}
+
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           {isMobile && (
             <IconButton color="inherit" onClick={toggleSearch}>
@@ -173,24 +249,6 @@ const Header = () => {
           )}
         </Box>
       </Toolbar>
-      {isMobile && searchOpen && (
-        <Box sx={{ p: 2, backgroundColor: 'background.paper' }}>
-          <Box component="form" onSubmit={handleSearchSubmit} sx={{ display: 'flex' }}>
-            <Search>
-              <SearchIconWrapper>
-                <SearchIcon />
-              </SearchIconWrapper>
-              <StyledInputBase
-                placeholder="Tìm kiếm…"
-                inputProps={{ 'aria-label': 'search' }}
-                value={searchKeyword}
-                onChange={handleSearchChange}
-                fullWidth
-              />
-            </Search>
-          </Box>
-        </Box>
-      )}
     </StyledAppBar>
   )
 }
