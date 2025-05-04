@@ -137,7 +137,7 @@ const MyWallet = () => {
                 <TableCell>
                   <Chip
                     label={formatCurrency(transaction.amount)}
-                    color={transaction.amount >= 0 ? 'success' : 'error'}
+                    color={transaction.actionbalance === 'ADD' ? 'success' : 'error'}
                     size="small"
                   />
                 </TableCell>
