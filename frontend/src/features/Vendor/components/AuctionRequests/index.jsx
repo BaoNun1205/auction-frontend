@@ -247,7 +247,7 @@ const AuctionRequest = () => {
             }}
           >
             <Tab label="Tất cả" />
-            <Tab label="Đang xử lý" />
+            <Tab label="Đã được duyệt" />
             <Tab label="Đang chờ duyệt" />
             <Tab label="Đã từ chối" />
           </Tabs>

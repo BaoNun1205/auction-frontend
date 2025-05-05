@@ -20,6 +20,9 @@ import { useNavigate } from 'react-router-dom'
 import { ASSET_PATH } from '~/api/assetApi'
 import { BASE_PATHS } from '~/routes/routes'
 import { useGetTypes } from '~/hooks/typeHook'
+import { useClassifyProduct } from '~/hooks/classifyHook'
+import { useAppStore } from '~/store/appStore'
+
 
 const validationSchema = Yup.object().shape({
   assetName: Yup.string().required('Asset Name is required'),
@@ -32,6 +35,12 @@ const AddAsset = () => {
   const { id } = useParams()
   const { data: requirement, error, isLoading } = useGetRequirementById(id)
   const { mutate: createAsset } = useCreateAsset()
+  const { auth } = useAppStore()
+  const { mutate: classifyProduct } = useClassifyProduct()
+
+  const currentUser = auth.user
+  console.log('currentUser', currentUser)
+
   const imageUploadRef = useRef()
   const navigate = useNavigate()
   const { data } = useGetTypes()
@@ -47,15 +56,42 @@ const AddAsset = () => {
     images: []
   })
 
+  const selectOptions = [
+    { label: 'Không xác định', value: '' },
+    ...types.map(type => ({
+      label: type.typeName,
+      value: type.typeId
+    }))
+  ]
+
   useEffect(() => {
     if (requirement) {
+      const name = requirement.assetName || ''
+      const description = requirement.assetDescription || ''
+      const imageUrls = requirement.imageRequirements?.map(img => img.image) || []
+
       setInitialValues({
-        assetName: requirement.assetName || '',
+        assetName: name,
         price: requirement.assetPrice || '',
-        editorContent: requirement.assetDescription || '',
+        editorContent: description,
         vendor: requirement.vendor.userId || '',
-        inspector: requirement.inspector.userId || '',
-        images: requirement.imageRequirements.map(img => img.image) || []
+        inspector: currentUser.id,
+        images: imageUrls,
+        type: ''
+      })
+
+      // Gọi classify sau khi set xong initial
+      classifyProduct({ name, description, imageUrls }, {
+        onSuccess: (response) => {
+          console.log('Classified product type:', response)
+          setInitialValues(prev => ({
+            ...prev,
+            type: response.typeId
+          }))
+        },
+        onError: (err) => {
+          console.error('Failed to classify product type:', err)
+        }
       })
     }
   }, [requirement])
@@ -165,14 +201,15 @@ const AddAsset = () => {
                       }}
                     />
                     <StackSelectComponent
-                      options={types.map(type => ({ label: type.typeName, value: type.typeId }))}
-                      value={types.find(type => type.typeId === values.type)?.typeName}
+                      options={selectOptions}
+                      value={selectOptions.find(option => option.value === values.type) || selectOptions[0]}
                       label='Loại vật phẩm'
                       onChange={(event, newValue) => setFieldValue('type', newValue?.value || '')}
                       sx={{ m: 1, width: '50%' }}
                       error={touched.type && Boolean(errors.type)}
                       helperText={touched.type && errors.type}
                     />
+
                   </Stack>
                   <Stack spacing={2} direction="row" sx={{ my: 2 }}>
                     <Field
@@ -191,7 +228,7 @@ const AddAsset = () => {
                       name="inspector"
                       as={TextFieldComponent}
                       label="Người kiểm duyệt"
-                      value={requirement?.inspector?.username}
+                      value={currentUser?.username}
                       onChange={handleChange}
                       onBlur={handleBlur}
                       sx={{ width: '50%' }}
