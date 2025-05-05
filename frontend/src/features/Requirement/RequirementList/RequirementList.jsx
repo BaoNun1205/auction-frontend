@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
-import { Box, Button, Table, TableBody, TableCell, TableRow, CircularProgress, Typography, MenuItem as MuiMenuItem, Modal, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
-import { Eye, SlidersHorizontal, Download, Trash2 } from 'lucide-react';
-import SelectComponent from '~/components/SelectComponent/SelectComponent';
-import SearchTextField from '~/components/SearchTextFieldComponent/SearchTextField';
-import IconButtonComponent from '~/components/IconButtonComponent/IconButtonComponent';
-import PaginationControl from '~/components/PanigationControlComponent/PaginationControl';
-import { useApprovedRequirement, useFilterRequirements, useRejectedRequirement } from '~/hooks/requirementHook';
-import { useNavigate } from 'react-router-dom';
-import parseToken from '~/utils/parseToken';
+import React, { useState } from 'react'
+import { Box, Button, Table, TableBody, TableCell, TableRow, CircularProgress, Typography, MenuItem as MuiMenuItem, Modal, Dialog, DialogActions, DialogContent, DialogTitle, Tooltip, IconButton } from '@mui/material'
+import { Eye, SlidersHorizontal, Download, Trash2, CheckCircleIcon } from 'lucide-react'
+import SelectComponent from '~/components/SelectComponent/SelectComponent'
+import SearchTextField from '~/components/SearchTextFieldComponent/SearchTextField'
+import IconButtonComponent from '~/components/IconButtonComponent/IconButtonComponent'
+import PaginationControl from '~/components/PanigationControlComponent/PaginationControl'
+import { useApprovedRequirement, useFilterRequirements, useRejectedRequirement } from '~/hooks/requirementHook'
+import { useNavigate } from 'react-router-dom'
+import parseToken from '~/utils/parseToken'
 import {
   StyledContainer,
   StyledCheckbox,
@@ -23,97 +23,97 @@ import {
   StyledTableHead,
   StyledTableRow,
   StyledTitleBox
-} from '~/features/style';
-import ActionMenu from '~/components/IconMenuComponent/IconMenuComponent';
-import ListEmpty from '~/components/ListEmpty/ListEmpty';
-import RequirementDetails from '~/features/Requirement/RequirementList/RequirementDetail'; 
-import { splitDateTime } from '~/utils/customTime';
+} from '~/features/style'
+import ActionMenu from '~/components/IconMenuComponent/IconMenuComponent'
+import ListEmpty from '~/components/ListEmpty/ListEmpty'
+import RequirementDetails from '~/features/Requirement/RequirementList/RequirementDetail'
+import { splitDateTime } from '~/utils/customTime'
 
 
 const RequirementList = () => {
-  const [selectedItems, setSelectedItems] = useState([]);
-  const [showDeleteButton, setShowDeleteButton] = useState(false);
-  const [status, setStatus] = useState(0);
-  const [keyword, setKeyword] = useState('');
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [openDetailsModal, setOpenDetailsModal] = useState(false);  // Modal state
-  const [selectedRequirement, setSelectedRequirement] = useState(null);
+  const [selectedItems, setSelectedItems] = useState([])
+  const [showDeleteButton, setShowDeleteButton] = useState(false)
+  const [status, setStatus] = useState(0)
+  const [keyword, setKeyword] = useState('')
+  const [page, setPage] = useState(0)
+  const [rowsPerPage, setRowsPerPage] = useState(10)
+  const [openDetailsModal, setOpenDetailsModal] = useState(false) // Modal state
+  const [selectedRequirement, setSelectedRequirement] = useState(null)
 
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
-  const { data, error, isLoading, refetch } = useFilterRequirements(status, keyword, page, rowsPerPage);
-  const items = Array.isArray(data?.data) ? data.data : [];
-  const { mutate: approvedRequirement } = useApprovedRequirement();
-  const { mutate: rejectedRequirement } = useRejectedRequirement();
+  const { data, error, isLoading, refetch } = useFilterRequirements(status, keyword, page, rowsPerPage)
+  const items = Array.isArray(data?.data) ? data.data : []
+  const { mutate: approvedRequirement } = useApprovedRequirement()
+  const { mutate: rejectedRequirement } = useRejectedRequirement()
 
   const publishMenuItems = [
     { value: '0', label: 'Chưa được duyệt' },
     { value: '1', label: 'Chấp nhận' },
     { value: '2', label: 'Từ chối' }
-  ];
+  ]
 
-  const columnNames = ['Tên vật phẩm', 'Ngày tạo', 'Giá khởi điểm', 'Trạng thái', 'Người bán'];
-  
+  const columnNames = ['Tên vật phẩm', 'Ngày tạo', 'Giá khởi điểm', 'Trạng thái', 'Người bán']
+
 
   const handlePageChange = (newPage) => {
-    setPage(newPage);
-  };
+    setPage(newPage)
+  }
 
   const handleRowsPerPageChange = (newRowsPerPage) => {
-    setRowsPerPage(newRowsPerPage);
-    setPage(0);
-  };
+    setRowsPerPage(newRowsPerPage)
+    setPage(0)
+  }
 
   const handleApprovedRequirement = (item) => {
-    const { jti: inspectorId } = parseToken();
+    const { jti: inspectorId } = parseToken()
     approvedRequirement({ requirementId: item.requirementId, inspectorId }, {
       onSuccess: refetch
-    });
-  };
+    })
+  }
 
   const handleRejectedRequirement = (item) => {
     rejectedRequirement(item.requirementId, {
       onSuccess: refetch
-    });
-  };
+    })
+  }
 
   const handleCreateAsset = (item) => {
-    navigate(`/asset/create/${item.requirementId}`);
-  };
+    navigate(`/asset/create/${item.requirementId}`)
+  }
 
   const handleSelectAll = (event) => {
     if (event.target.checked) {
-      setSelectedItems(items.map(item => item.requirementId));
-      setShowDeleteButton(true);
+      setSelectedItems(items.map(item => item.requirementId))
+      setShowDeleteButton(true)
     } else {
-      setSelectedItems([]);
-      setShowDeleteButton(false);
+      setSelectedItems([])
+      setShowDeleteButton(false)
     }
-  };
+  }
 
   const handleSelectItem = (event, itemId) => {
     const newSelectedItems = event.target.checked
       ? [...selectedItems, itemId]
-      : selectedItems.filter(id => id !== itemId);
+      : selectedItems.filter(id => id !== itemId)
 
-    setSelectedItems(newSelectedItems);
-    setShowDeleteButton(newSelectedItems.length > 0);
-  };
+    setSelectedItems(newSelectedItems)
+    setShowDeleteButton(newSelectedItems.length > 0)
+  }
 
   const handleDelete = () => {
-    console.log('Deleting selected requirements:', selectedItems);
-  };
+    console.log('Deleting selected requirements:', selectedItems)
+  }
 
   const handleViewDetails = (item) => {
-    setSelectedRequirement(item);  // Set the selected requirement
-    setOpenDetailsModal(true);     // Open the modal
-  };
+    setSelectedRequirement(item) // Set the selected requirement
+    setOpenDetailsModal(true) // Open the modal
+  }
 
   const handleCloseModal = () => {
-    setOpenDetailsModal(false);    // Close the modal
-    setSelectedRequirement(null);  // Clear selected requirement
-  };
+    setOpenDetailsModal(false) // Close the modal
+    setSelectedRequirement(null) // Clear selected requirement
+  }
 
   return (
     <StyledContainer>
@@ -125,7 +125,7 @@ const RequirementList = () => {
               Yêu cầu • <Box component="span" sx={{ color: 'primary.disable' }}>Danh sách</Box>
             </StyledSubtitleBox>
           </Box>
- 
+
         </StyledHeaderBox>
 
         <StyledSecondaryBox bgcolor={(theme) => theme.palette.primary.secondary}>
@@ -157,7 +157,7 @@ const RequirementList = () => {
 
         {items.length > 0 ? (
           <StyledSecondaryBox bgcolor={(theme) => theme.palette.primary.secondary}>
-            <StyledTableContainer sx={{ maxHeight: rowsPerPage === 5 ? 500 : 'auto', overflowY: rowsPerPage === 5 ? 'auto' : 'visible',}}>
+            <StyledTableContainer sx={{ maxHeight: rowsPerPage === 5 ? 500 : 'auto', overflowY: rowsPerPage === 5 ? 'auto' : 'visible' }}>
               <Table stickyHeader>
                 <StyledTableHead sx={(theme) => ({ bgcolor: theme.palette.primary.buttonHover })}>
                   <TableRow>
@@ -192,7 +192,7 @@ const RequirementList = () => {
                     </TableRow>
                   ) : (
                     items.map((item) => {
-                      const { date, time } = splitDateTime(item.createdAt);
+                      const { date, time } = splitDateTime(item.createdAt)
                       return (
                         <StyledTableRow key={item.requirementId}>
                           <TableCell padding="checkbox">
@@ -225,11 +225,11 @@ const RequirementList = () => {
                             <StyledStatusBox
                               sx={(theme) => {
                                 if (item.status === '1') {
-                                  return { bgcolor: theme.palette.success.main, color: theme.palette.success.contrastText };
+                                  return { bgcolor: theme.palette.success.main, color: theme.palette.success.contrastText }
                                 } else if (item.status === '2') {
-                                  return { bgcolor: theme.palette.error.main, color: theme.palette.error.contrastText };
+                                  return { bgcolor: theme.palette.error.main, color: theme.palette.error.contrastText }
                                 } else {
-                                  return { bgcolor: theme.palette.warning.main, color: theme.palette.warning.contrastText };
+                                  return { bgcolor: theme.palette.warning.main, color: theme.palette.warning.contrastText }
                                 }
                               }}
                             >
@@ -239,19 +239,18 @@ const RequirementList = () => {
                           <TableCell>
                             <StyledSpan>{item?.vendor?.username || 'N/A'}</StyledSpan>
                           </TableCell>
-                          <TableCell>
-                            <ActionMenu>
-                              {item.status === '0' ? (
-                                <>
-                                  <MuiMenuItem onClick={() => handleViewDetails(item)}>Xem chi tiết</MuiMenuItem> {/* New menu item */}
-                                </>
-                              ) : item.status === '1' ? (
-                                <MuiMenuItem onClick={() => handleCreateAsset(item)}>Tạo sản phẩm</MuiMenuItem>
-                              ) : null}
-                            </ActionMenu>
-                          </TableCell>
+                          {item.status === '0' && (
+                            <TableCell>
+                              <Tooltip title="Phê duyệt">
+                                <IconButton onClick={() => handleCreateAsset(item)}>
+                                  <CheckCircleIcon color="#000" />
+                                </IconButton>
+                              </Tooltip>
+                            </TableCell>
+                          )}
+
                         </StyledTableRow>
-                      );
+                      )
                     })
                   )}
                 </TableBody>
@@ -281,15 +280,15 @@ const RequirementList = () => {
 
       {/* Modal for viewing details */}
       <RequirementDetails
-        open={openDetailsModal} 
-        onClose={handleCloseModal} 
+        open={openDetailsModal}
+        onClose={handleCloseModal}
         requirement={selectedRequirement}
         onApprove={handleApprovedRequirement} // Pass approve handler
-        onReject={handleRejectedRequirement}   // Pass reject handler
+        onReject={handleRejectedRequirement} // Pass reject handler
       />
 
     </StyledContainer>
-  );
-};
+  )
+}
 
-export default RequirementList;
+export default RequirementList

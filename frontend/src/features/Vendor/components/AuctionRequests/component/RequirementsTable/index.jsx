@@ -42,7 +42,7 @@ const RequirementsTable = ({ filteredRequirements, handleMenuOpen }) => {
                   <TableCell sx={{ color: 'red', fontWeight: 'bold' }}>{`${req.assetPrice.toLocaleString('vi-VN')}`} ₫</TableCell>
                   <TableCell>
                     <StyledChip
-                      label={req.status === '0' ? 'Đang chờ duyệt' : req.status === '1' ? 'Đang xử lý' : 'Đã từ chối'}
+                      label={req.status === '0' ? 'Đang chờ duyệt' : req.status === '1' ? 'Đã dược duyệt' : 'Đã từ chối'}
                       status={req.status}
                     />
                   </TableCell>
