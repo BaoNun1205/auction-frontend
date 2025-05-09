@@ -13,7 +13,7 @@ import ImageUploadAndReview from './ImageUpload'
 import { StyledContainer, StyledHeaderBox, StyledInnerBox, StyledSubtitleBox, StyledTitleBox } from '~/features/style'
 import TextFieldComponent from '~/components/TextFieldComponent/TextFieldComponent'
 import Editor from '~/components/EditorComponent/Editor'
-import { useCreateRequirement, useGetRequirementById } from '~/hooks/requirementHook'
+import { useCreateRequirement, useGetRequirementById, useRejectedRequirement } from '~/hooks/requirementHook'
 import StackSelectComponent from '~/components/StackSelectComponent/StackSelectComponent'
 import { useCreateAsset } from '~/hooks/assetHook'
 import { useNavigate } from 'react-router-dom'
@@ -22,6 +22,8 @@ import { BASE_PATHS } from '~/routes/routes'
 import { useGetTypes } from '~/hooks/typeHook'
 import { useClassifyProduct } from '~/hooks/classifyHook'
 import { useAppStore } from '~/store/appStore'
+import ImageGallery from './ImageGallery'
+import DescriptionViewer from './DescriptionViewer'
 
 
 const validationSchema = Yup.object().shape({
@@ -37,11 +39,11 @@ const AddAsset = () => {
   const { mutate: createAsset } = useCreateAsset()
   const { auth } = useAppStore()
   const { mutate: classifyProduct } = useClassifyProduct()
+  const { mutate: rejectedRequirement } = useRejectedRequirement()
 
   const currentUser = auth.user
   console.log('currentUser', currentUser)
 
-  const imageUploadRef = useRef()
   const navigate = useNavigate()
   const { data } = useGetTypes()
   const types = Array.isArray(data) ? data : []
@@ -112,11 +114,22 @@ const AddAsset = () => {
     createAsset(formData, {
       onSuccess: (response) => {
         console.log('Success:', response)
-        navigate(`${BASE_PATHS.ASSET}`)
+        navigate(`${BASE_PATHS.REQUIREMENT}`)
       },
       onError: (error) => {
         console.error('Error:', error)
-        navigate(`${BASE_PATHS.ASSET}`)
+      }
+    })
+  }
+
+  const handleRejectedRequirement = (item) => {
+    rejectedRequirement(item.requirementId, {
+      onSuccess: (response) => {
+        console.log('Success:', response)
+        navigate(`${BASE_PATHS.REQUIREMENT}`)
+      },
+      onError: (error) => {
+        console.error('Error:', error)
       }
     })
   }
@@ -241,30 +254,34 @@ const AddAsset = () => {
                     <Typography variant="h6" gutterBottom>
                       Mô tả chi tiết
                     </Typography>
-                    <Editor
-                      value={values.editorContent}
-                      onChange={(content) => setFieldValue('editorContent', content)}
-                      error={false}
-                      helperText=""
-                    />
+                    <DescriptionViewer content={values.editorContent} />
                   </Box>
                   <Box sx={{ marginTop: 4 }}>
                     <Typography variant="h6" gutterBottom>
                       Hình ảnh
                     </Typography>
-                    <ImageUploadAndReview ref={imageUploadRef} initialImages={values.images} />
+                    <ImageGallery images={values.images} />
                   </Box>
-                  <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 8 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop: 8 }}>
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      onClick={() => handleRejectedRequirement({ requirementId: id })}
+                      sx={{ width: '30%' }}
+                    >
+                      Từ chối
+                    </Button>
                     <Button
                       type="submit"
                       variant="contained"
                       color="primary"
                       disabled={isSubmitting || !values.type}
-                      sx={{ width: '70%' }}
+                      sx={{ width: '65%' }}
                     >
                       Tạo vật phẩm
                     </Button>
                   </Box>
+
                 </Form>
               )}
             </Formik>

@@ -99,7 +99,8 @@ const AuctionRequest = () => {
 
     const formDataObj = new FormData()
     formDataObj.append('assetName', formData.name)
-    formDataObj.append('assetPrice', formData.startingPrice.replace(/\./g, ''))
+    const priceAsString = String(formData.startingPrice).replace(/\./g, '');
+    formDataObj.append('assetPrice', priceAsString);
     formDataObj.append('assetDescription', formData.description)
     formDataObj.append('status', '0')
     const allImages = [...formData.productImages, ...formData.documentImages]
@@ -117,6 +118,7 @@ const AuctionRequest = () => {
             console.log('Success:', response)
             setSnackbar({ open: true, message: 'Yêu cầu đã được cập nhật', severity: 'success' })
             refetch()
+            handleCloseDialog();
           },
           onError: (error) => {
             console.error('Error:', error)
