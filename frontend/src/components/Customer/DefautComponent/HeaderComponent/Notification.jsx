@@ -13,7 +13,7 @@ import { useMarkNotificationAsRead } from '~/hooks/notificationHook'
 import { useAppStore } from '~/store/appStore'
 import { useGetUserById, useUpdateUnreadNotificationCount } from '~/hooks/userHook'
 import { formatRelativeTime } from '~/utils/customTime'
-import { set } from 'date-fns'
+import { useGetJoinedSessions } from '~/hooks/depositHook'
 
 const Notification = ({ initialNotifications = [] }) => {
   const [notifications, setNotifications] = useState(initialNotifications) // Khởi tạo với danh sách từ API
@@ -27,6 +27,8 @@ const Notification = ({ initialNotifications = [] }) => {
 
   const { data: user, refetch: refetchUser } = useGetUserById(userId)
   const unreadNotificationCount = user?.unreadNotificationCount || 0
+
+  const { data: joinedSessions } = useGetJoinedSessions(userId)
 
   useEffect(() => {
     setLocalUnreadCount(unreadNotificationCount)
@@ -87,10 +89,19 @@ const Notification = ({ initialNotifications = [] }) => {
       return
     }
 
-    const destinations = [
-      `/rt-notification/user/${userId}`,
-      '/rt-notification/new-bid/session/c01757ff-ba4f-4beb-9852-ecad623a1767'
-    ]
+    // const destinations = [
+    //   `/rt-notification/user/${userId}`,
+    //   '/rt-notification/new-bid/session/c01757ff-ba4f-4beb-9852-ecad623a1767'
+    // ]
+
+    const destinations = [`/rt-notification/user/${userId}`]
+
+    if (Array.isArray(joinedSessions)) {
+      joinedSessions.forEach((session) => {
+        destinations.push(`/rt-notification/new-bid/session/${session.id}`)
+      })
+    }
+
 
     let cleanup = null
 

@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { StyledCard, StyledCardMedia, StyledChip } from './style'
 import { useGetRelatedSessions } from '~/hooks/sessionHook'
 import { useNavigate } from 'react-router-dom'
+import { useRecommendBySession } from '~/hooks/recommendHook'
 
 const getStatusColor = (status) => {
   switch (status) {
@@ -40,7 +41,7 @@ const RelatedPaintings = ({ id }) => {
   const [currentIndex, setCurrentIndex] = useState(0)
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
-  const { data, refetch, isError } = useGetRelatedSessions(id)
+  const { data: relatedSessions, refetch, isError } = useRecommendBySession(id)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -53,9 +54,6 @@ const RelatedPaintings = ({ id }) => {
     console.log('Fetching auction sessions')
     refetch()
   }, [refetch])
-
-  const relatedSessions = Array.isArray(data?.data) ? data?.data : []
-  console.log('Related sessions:', relatedSessions)
 
   const handleNext = () => {
     setCurrentIndex((prevIndex) => (prevIndex + 1) % Math.max(relatedSessions.length - 2, 1))

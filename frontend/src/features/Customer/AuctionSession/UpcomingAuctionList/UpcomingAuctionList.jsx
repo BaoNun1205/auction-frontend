@@ -1,28 +1,27 @@
-import React from 'react';
-import { ImHammer2 } from 'react-icons/im';
-import { PiArrowRightFill } from 'react-icons/pi';
-import { Link, useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
-import { Box, Typography, Grid, Divider, Button } from '@mui/material';
-import UpcomingAuctionItem from '../components/UpcomingAuctionItem/UpcomingAuctionItem';
-import { useFilterSessions } from '~/hooks/sessionHook';
+import React from 'react'
+import { ImHammer2 } from 'react-icons/im'
+import { PiArrowRightFill } from 'react-icons/pi'
+import { useNavigate } from 'react-router-dom'
+import { Box, Typography, Grid, Divider, Button } from '@mui/material'
+import UpcomingAuctionItem from '../components/UpcomingAuctionItem/UpcomingAuctionItem'
+import { useRecommendByUser } from '~/hooks/recommendHook'
+import { useAppStore } from '~/store/appStore'
 
 function UpcomingAuctions() {
-  const [upcomingData, setUpcomingData] = useState([]);
-  const navigate = useNavigate();
+  const navigate = useNavigate()
+  const { auth } = useAppStore()
+  const userId = auth.user.id
 
-  const { data, isLoading, isError } = useFilterSessions({ status: 'UPCOMING' });
-  console.log('Data:', data);
+  const { data: items, isLoading, isError } = useRecommendByUser(userId, 'UPCOMING')
+  console.log('Data:', items)
 
   if (isLoading) {
-    return <Typography>Loading...</Typography>;
+    return <Typography>Loading...</Typography>
   }
 
   if (isError) {
-    return <Typography>Error loading sessions</Typography>;
+    return <Typography>Error loading sessions</Typography>
   }
-
-  const { data: items, total: totalPages } = data;
 
   return (
     <Box mx={5}>
@@ -47,7 +46,7 @@ function UpcomingAuctions() {
         </Button>
       </Box>
     </Box>
-  );
+  )
 }
 
-export default UpcomingAuctions;
+export default UpcomingAuctions
