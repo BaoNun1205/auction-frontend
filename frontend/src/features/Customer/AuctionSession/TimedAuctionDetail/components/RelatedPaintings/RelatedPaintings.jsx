@@ -3,7 +3,6 @@ import { Box, Typography, IconButton, useTheme, useMediaQuery, CardContent, Grid
 import { ArrowBackIos, ArrowForwardIos } from '@mui/icons-material'
 import { motion } from 'framer-motion'
 import { StyledCard, StyledCardMedia, StyledChip } from './style'
-import { useGetRelatedSessions } from '~/hooks/sessionHook'
 import { useNavigate } from 'react-router-dom'
 import { useRecommendBySession } from '~/hooks/recommendHook'
 

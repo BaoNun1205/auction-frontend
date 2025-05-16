@@ -14,6 +14,7 @@ import { useAppStore } from '~/store/appStore'
 import { useGetUserById, useUpdateUnreadNotificationCount } from '~/hooks/userHook'
 import { formatRelativeTime } from '~/utils/customTime'
 import { useGetJoinedSessions } from '~/hooks/depositHook'
+import { useNavigate } from 'react-router-dom'
 
 const Notification = ({ initialNotifications = [] }) => {
   const [notifications, setNotifications] = useState(initialNotifications) // Khởi tạo với danh sách từ API
@@ -22,6 +23,7 @@ const Notification = ({ initialNotifications = [] }) => {
   const { mutate: updateUnreadNotificationCount } = useUpdateUnreadNotificationCount()
   const { mutate: markAsRead } = useMarkNotificationAsRead()
   const { auth } = useAppStore()
+  const navigate = useNavigate()
   const token = auth.token
   const userId = auth.user.id
 
@@ -138,8 +140,16 @@ const Notification = ({ initialNotifications = [] }) => {
     }
   }, [notificationsAnchorEl])
 
-  const handleNotificationClick = (notificationId) => {
-    markAsRead(notificationId, {
+  const handleNotificationClick = (notification) => {
+    if (notification.type === 'NEW_BID') {
+      navigate(`/session/${notification.referenceId}`)
+    } else if (notification.type === 'NEW_REGISTRATION') {
+      navigate(`/session/register/${notification.referenceId}`)
+    } else if (notification.type === 'RECHARGE' || notification.type === 'REFUND') {
+      navigate('/profile', { state: { tabSet: 6 } })
+    }
+
+    markAsRead(notification.id, {
       onSuccess: () => {
         setNotificationsAnchorEl(null)
       },
@@ -148,6 +158,7 @@ const Notification = ({ initialNotifications = [] }) => {
       }
     })
   }
+
 
   return (
     <>
@@ -236,7 +247,7 @@ const Notification = ({ initialNotifications = [] }) => {
             notifications.map((notification) => (
               <MenuItem
                 key={notification.id}
-                onClick={() => handleNotificationClick(notification.id)}
+                onClick={() => handleNotificationClick(notification)}
                 sx={{
                   py: 2,
                   px: 2,
