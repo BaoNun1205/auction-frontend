@@ -15,6 +15,7 @@ const RootComponent = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <RenderApp />
+      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
     </QueryClientProvider>
   )
 }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   Box, Container, Typography, Grid, Paper, List, ListItem, ListItemText,
   ListItemIcon, Button, styled, useTheme, useMediaQuery, IconButton, Drawer,
@@ -9,7 +9,7 @@ import {
   ExpandLess, ExpandMore,
   Wallet
 } from '@mui/icons-material'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useLogout } from '~/hooks/authHook'
 import CustomerInformation from './CustomerInfomation'
 import AddressesInfomation from './AddressInfomation/AddressInfomation'
@@ -56,6 +56,14 @@ const Profile = () => {
   const [sellerMenuOpen, setSellerMenuOpen] = useState(false)
   const navigate = useNavigate()
   const { mutate: logout, isLoading: isLoggingOut } = useLogout()
+  const location = useLocation()
+
+  useEffect(() => {
+    if (location.state?.tabSet) {
+      setTab(location.state.tabSet)
+    }
+  }, [location.state])
+
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
 

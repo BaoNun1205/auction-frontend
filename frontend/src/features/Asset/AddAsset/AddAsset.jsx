@@ -1,41 +1,50 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useRef, useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
 import {
   Box,
   Typography,
   Button,
   Stack,
   CircularProgress
-} from '@mui/material';
-import { Formik, Form, Field } from 'formik';
-import * as Yup from 'yup';
-import ImageUploadAndReview from './ImageUpload';
-import { StyledContainer, StyledHeaderBox, StyledInnerBox, StyledSubtitleBox, StyledTitleBox } from '~/features/style';
-import TextFieldComponent from '~/components/TextFieldComponent/TextFieldComponent';
-import Editor from '~/components/EditorComponent/Editor';
-import { useCreateRequirement, useGetRequirementById } from '~/hooks/requirementHook';
-import StackSelectComponent from '~/components/StackSelectComponent/StackSelectComponent';
-import { useCreateAsset } from '~/hooks/assetHook';
-import { useNavigate } from 'react-router-dom';
-import { ASSET_PATH } from '~/api/assetApi';
-import { BASE_PATHS } from '~/routes/routes';
-import { useGetTypes } from '~/hooks/typeHook';
+} from '@mui/material'
+import { Formik, Form, Field } from 'formik'
+import * as Yup from 'yup'
+import { StyledContainer, StyledHeaderBox, StyledInnerBox, StyledSubtitleBox, StyledTitleBox } from '~/features/style'
+import TextFieldComponent from '~/components/TextFieldComponent/TextFieldComponent'
+import { useGetRequirementById, useRejectedRequirement } from '~/hooks/requirementHook'
+import StackSelectComponent from '~/components/StackSelectComponent/StackSelectComponent'
+import { useCreateAsset } from '~/hooks/assetHook'
+import { useNavigate } from 'react-router-dom'
+import { BASE_PATHS } from '~/routes/routes'
+import { useGetTypes } from '~/hooks/typeHook'
+import { useClassifyProduct } from '~/hooks/classifyHook'
+import { useAppStore } from '~/store/appStore'
+import ImageGallery from './ImageGallery'
+import DescriptionViewer from './DescriptionViewer'
+
 
 const validationSchema = Yup.object().shape({
   assetName: Yup.string().required('Asset Name is required'),
   price: Yup.number().required('Price is required').positive('Price must be positive'),
   editorContent: Yup.string().required('Description is required'),
   type: Yup.string().required('Type is required')
-});
+})
 
 const AddAsset = () => {
-  const { id } = useParams();
-  const { data: requirement, error, isLoading } = useGetRequirementById(id);
-  const { mutate: createAsset } = useCreateAsset();
-  const imageUploadRef = useRef();
-  const navigate = useNavigate();
-  const { data } = useGetTypes();
-  const types = Array.isArray(data) ? data : [];
+  const { id } = useParams()
+  const [isClassifying, setIsClassifying] = useState(false)
+  const { data: requirement, error, isLoading } = useGetRequirementById(id)
+  const { mutate: createAsset } = useCreateAsset()
+  const { auth } = useAppStore()
+  const { mutate: classifyProduct } = useClassifyProduct()
+  const { mutate: rejectedRequirement } = useRejectedRequirement()
+
+  const currentUser = auth.user
+  console.log('currentUser', currentUser)
+
+  const navigate = useNavigate()
+  const { data } = useGetTypes()
+  const types = Array.isArray(data) ? data : []
 
   const [initialValues, setInitialValues] = useState({
     assetName: '',
@@ -45,52 +54,102 @@ const AddAsset = () => {
     inspector: '',
     type: '',
     images: []
-  });
+  })
+
+  const selectOptions = [
+    { label: 'Không xác định', value: '' },
+    ...types.map(type => ({
+      label: type.typeName,
+      value: type.typeId
+    }))
+  ]
 
   useEffect(() => {
     if (requirement) {
+      const name = requirement.assetName || ''
+      const description = requirement.assetDescription || ''
+      const imageUrls = requirement.imageRequirements?.map(img => img.image) || []
+
       setInitialValues({
-        assetName: requirement.assetName || '',
+        assetName: name,
         price: requirement.assetPrice || '',
-        editorContent: requirement.assetDescription || '',
+        editorContent: description,
         vendor: requirement.vendor.userId || '',
-        inspector: requirement.inspector.userId || '',
-        images: requirement.imageRequirements.map(img => img.image) || []
-      });
+        inspector: currentUser.id,
+        images: imageUrls,
+        type: ''
+      })
+
+      const classifyUntilCertain = () => {
+        setIsClassifying(true)
+        classifyProduct({ name, description, imageUrls }, {
+          onSuccess: (response) => {
+            console.log('Classified product type:', response)
+            if (response.typeId === 'uncertain') {
+              console.warn('Classification uncertain, retrying...')
+              // Gọi lại sau một khoảng thời gian ngắn (ví dụ 1s)
+              setTimeout(classifyUntilCertain, 1000)
+            } else {
+              setInitialValues(prev => ({
+                ...prev,
+                type: response.typeId
+              }))
+              setIsClassifying(false)
+            }
+          },
+          onError: (err) => {
+            console.error('Failed to classify product type:', err)
+            setIsClassifying(false)
+          }
+        })
+      }
+
+      classifyUntilCertain()
     }
-  }, [requirement]);
+  }, [requirement])
 
   const handleSubmit = (values, { setSubmitting }) => {
-    const formData = new FormData();
-    formData.append('requirementId', id);
-    formData.append('assetName', values.assetName);
-    formData.append('assetPrice', values.price);
-    formData.append('assetDescription', values.editorContent);
-    formData.append('vendorId', values.vendor);
-    formData.append('inspectorId', values.inspector);
-    formData.append('typeId', values.type);
-    formData.append('images', values.images);
+    const formData = new FormData()
+    formData.append('requirementId', id)
+    formData.append('assetName', values.assetName)
+    formData.append('assetPrice', values.price)
+    formData.append('assetDescription', values.editorContent)
+    formData.append('vendorId', values.vendor)
+    formData.append('inspectorId', values.inspector)
+    formData.append('typeId', values.type)
+    formData.append('images', values.images)
 
-    console.log('formData', formData);
+    console.log('formData', formData)
 
     createAsset(formData, {
       onSuccess: (response) => {
-        console.log('Success:', response);
-        navigate(`${BASE_PATHS.ASSET}`);
+        console.log('Success:', response)
+        navigate(`${BASE_PATHS.REQUIREMENT}`)
       },
       onError: (error) => {
-        console.error('Error:', error);
-        navigate(`${BASE_PATHS.ASSET}`);
+        console.error('Error:', error)
       }
-    });
-  };
+    })
+  }
+
+  const handleRejectedRequirement = (item) => {
+    rejectedRequirement(item.requirementId, {
+      onSuccess: (response) => {
+        console.log('Success:', response)
+        navigate(`${BASE_PATHS.REQUIREMENT}`)
+      },
+      onError: (error) => {
+        console.error('Error:', error)
+      }
+    })
+  }
 
   if (isLoading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
         <CircularProgress />
       </Box>
-    );
+    )
   }
 
   if (error) {
@@ -98,7 +157,7 @@ const AddAsset = () => {
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
         <Typography color="error">Error fetching requirement</Typography>
       </Box>
-    );
+    )
   }
 
   return (
@@ -121,9 +180,27 @@ const AddAsset = () => {
             color: theme.palette.primary.textMain, borderBottom: '1px solid',
             borderColor: theme.palette.primary.disable
           })}>
-            <Typography component="h6" variant='h6' sx={(theme) => ({ color: theme.palette.primary.textMain })}>
-              Chi tiết vật phẩm
-            </Typography>
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+              }}
+            >
+              <Typography component="h6" variant="h6">
+                Chi tiết vật phẩm
+              </Typography>
+
+              {isClassifying && (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <CircularProgress size={20} color="red" />
+                  <Typography variant="body2" sx={{ fontStyle: 'italic', color: 'text.secondary' }}>
+                    Đang phân loại vật phẩm
+                  </Typography>
+                </Box>
+              )}
+            </Box>
+
             <Typography sx={(theme) => ({ color: theme.palette.primary.disable })}>
               Tiêu đề, mô tả ngắn, hình ảnh...
             </Typography>
@@ -165,8 +242,8 @@ const AddAsset = () => {
                       }}
                     />
                     <StackSelectComponent
-                      options={types.map(type => ({ label: type.typeName, value: type.typeId }))}
-                      value={types.find(type => type.typeId === values.type)?.typeName}
+                      options={selectOptions}
+                      value={selectOptions.find(option => option.value === values.type) || selectOptions[0]}
                       label='Loại vật phẩm'
                       onChange={(event, newValue) => setFieldValue('type', newValue?.value || '')}
                       sx={{ m: 1, width: '50%' }}
@@ -191,7 +268,7 @@ const AddAsset = () => {
                       name="inspector"
                       as={TextFieldComponent}
                       label="Người kiểm duyệt"
-                      value={requirement?.inspector?.username}
+                      value={currentUser?.username}
                       onChange={handleChange}
                       onBlur={handleBlur}
                       sx={{ width: '50%' }}
@@ -204,38 +281,42 @@ const AddAsset = () => {
                     <Typography variant="h6" gutterBottom>
                       Mô tả chi tiết
                     </Typography>
-                    <Editor
-                      value={values.editorContent}
-                      onChange={(content) => setFieldValue('editorContent', content)}
-                      error={false}
-                      helperText=""
-                    />
+                    <DescriptionViewer content={values.editorContent} />
                   </Box>
                   <Box sx={{ marginTop: 4 }}>
                     <Typography variant="h6" gutterBottom>
                       Hình ảnh
                     </Typography>
-                    <ImageUploadAndReview ref={imageUploadRef} initialImages={values.images} />
+                    <ImageGallery images={values.images} />
                   </Box>
-                  <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 8 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop: 8 }}>
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      onClick={() => handleRejectedRequirement({ requirementId: id })}
+                      sx={{ width: '30%' }}
+                    >
+                      Từ chối
+                    </Button>
                     <Button
                       type="submit"
                       variant="contained"
                       color="primary"
                       disabled={isSubmitting || !values.type}
-                      sx={{ width: '70%' }}
+                      sx={{ width: '65%' }}
                     >
                       Tạo vật phẩm
                     </Button>
                   </Box>
+
                 </Form>
               )}
             </Formik>
           </Box>
         </Box>
-        </StyledInnerBox>
+      </StyledInnerBox>
     </StyledContainer>
-  );
-};
+  )
+}
 
-export default AddAsset;
+export default AddAsset

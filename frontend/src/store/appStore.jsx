@@ -23,6 +23,14 @@ let appStore = (set) => ({
   isChatOpen: false,
   setChatOpen: (isChatOpen) => set(() => ({ isChatOpen })),
 
+  // Trạng thái đóng/mở chat bot slidebar
+  isBotSidebarVisible: true,
+  toggleBotSidebar: () => set((state) => ({ isBotSidebarVisible: !state.isBotSidebarVisible })),
+
+  // Trạng thái đóng/mở chat slidebar
+  isSidebarVisible: true,
+  toggleSidebar: () => set((state) => ({ isSidebarVisible: !state.isSidebarVisible })),
+
   // Trạng thái mở chat bot
   isChatBotOpen: false,
   setChatBotOpen: (isChatBotOpen) => set(() => ({ isChatBotOpen })),
@@ -43,13 +51,13 @@ let appStore = (set) => ({
 
   addOrUpdateNotification: (notification) =>
     set((state) => {
-      const existingIndex = state.notifications.findIndex((n) => n.id === notification.id);
+      const existingIndex = state.notifications.findIndex((n) => n.id === notification.id)
       if (existingIndex !== -1) {
-        const updated = [...state.notifications];
-        updated[existingIndex] = notification;
-        return { notifications: updated };
+        const updated = [...state.notifications]
+        updated[existingIndex] = notification
+        return { notifications: updated }
       }
-      return { notifications: [notification, ...state.notifications] };
+      return { notifications: [notification, ...state.notifications] }
     }),
 
   auth: {
@@ -59,10 +67,10 @@ let appStore = (set) => ({
     isValid: false,
     user: {
       id: '',
-      username: '',
+      username: ''
     }
   },
-  setAuth: (auth) => set((state) => ({ auth })),
+  setAuth: (auth) => set((state) => ({ auth }))
 })
 
 appStore = persist(appStore, { name: 'appStore' })

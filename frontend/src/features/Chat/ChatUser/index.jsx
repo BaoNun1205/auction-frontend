@@ -1,6 +1,6 @@
 import React from 'react'
 import { Box, IconButton, Paper, Typography, Badge } from '@mui/material'
-import { Forum as ChatIcon, OpenInNew, KeyboardArrowDown } from '@mui/icons-material'
+import { Forum as ChatIcon, KeyboardArrowDown, ChevronRight, ChevronLeft } from '@mui/icons-material'
 import ChatInterface from './Chat'
 import { useAppStore } from '~/store/appStore'
 import { IconButtonWithBadge } from '~/components/Customer/DefautComponent/HeaderComponent/style'
@@ -12,7 +12,9 @@ const ChatButton = () => {
     isChatBotOpen,
     chatVendorId,
     conversationCount,
-    unreadConversationCount
+    unreadConversationCount,
+    isSidebarVisible,
+    toggleSidebar
   } = useAppStore()
 
   const handleClickOpen = () => {
@@ -21,6 +23,10 @@ const ChatButton = () => {
 
   const handleClose = () => {
     setChatOpen(false)
+  }
+
+  const handleToggleSidebar = () => {
+    toggleSidebar()
   }
 
   return (
@@ -94,8 +100,8 @@ const ChatButton = () => {
             />
           </Box>
           <Box>
-            <IconButton size="small" sx={{ color: '#757575' }}>
-              <OpenInNew fontSize="small" />
+            <IconButton onClick={handleToggleSidebar}>
+              {isSidebarVisible ? <ChevronLeft /> : <ChevronRight />}
             </IconButton>
             <IconButton size="small" onClick={handleClose} sx={{ color: '#757575' }}>
               <KeyboardArrowDown fontSize="small" />

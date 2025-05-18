@@ -32,12 +32,13 @@ const RegisterAuctionDetail = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const { auth } = useAppStore();
+  const currentUserId = auth.user.id;
   const { id } = useParams();
   const { data: session, refetch, isLoading, isError } = useGetSessionById(id);
   const { data: usersRegisted } = useGetUsersRegisted(id);
   const { mutate: registerSession } = useRegisterSession();
   const { mutate: unregisterSession } = useUnregisterSession();
-  const { data: isChecked } = useCheckRegisted({ auctionSessionId: id, userId: auth.user.id });
+  const { data: isChecked } = useCheckRegisted({ auctionSessionId: id, userId: currentUserId });
 
   if (isLoading) {
     return <Typography>Loading...</Typography>;
@@ -81,7 +82,7 @@ const RegisterAuctionDetail = () => {
 
   const handleRegisterClick = () => {
     registerSession(
-      { userId: auth.user.id, auctionSessionId: session.id },
+      { userId: currentUserId, auctionSessionId: session.id },
       {
         onSuccess: () => {
           refetch();
@@ -97,7 +98,7 @@ const RegisterAuctionDetail = () => {
 
   const handleUnregisterClick = () => {
     unregisterSession(
-      { userId: auth.user.id, auctionSessionId: session.id },
+      { userId: currentUserId, auctionSessionId: session.id },
       {
         onSuccess: () => {
           refetch();
@@ -247,12 +248,15 @@ const RegisterAuctionDetail = () => {
                 </Box>
               </Stack>
 
-              <StyledButton
-                onClick={isChecked ? handleUnregisterClick : handleRegisterClick}
-                sx={{ width: { xs: '100%', sm: 'auto' }, alignSelf: 'flex-start' }}
-              >
-                {isChecked ? 'Hủy đăng ký' : 'Đăng ký'}
-              </StyledButton>
+              {currentUserId !== session.asset.vendor.userId && (
+  <StyledButton
+    onClick={isChecked ? handleUnregisterClick : handleRegisterClick}
+    sx={{ width: { xs: '100%', sm: 'auto' }, alignSelf: 'flex-start' }}
+  >
+    {isChecked ? 'Hủy đăng ký' : 'Đăng ký'}
+  </StyledButton>
+)}
+
 
               <Snackbar
                 open={snackbar.open}

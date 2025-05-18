@@ -17,6 +17,9 @@ import VendorPage from '~/pages/Vendor/VendorPage'
 import AddAssetPage from '~/pages/Asset/AddAssetPage'
 import SellerPage from '~/pages/Customer/SellerPage'
 import VNPayCallback from '~/features/Customer/Profile/MyWallet/VNPayCallback'
+import IntroductionPage from '~/pages/Customer/IntroductionPage'
+import NewsPage from '~/pages/Customer/NewsPage'
+import ContactPage from '~/pages/Customer/ContactPage'
 
 export const BASE_PATHS = {
   HOME: '/',
@@ -27,8 +30,11 @@ export const BASE_PATHS = {
   USERS: '/users',
   CUSTOMER: 'customer',
   SESSION: '/session',
-  VENDOR: 'vendor',
-  SELLER: 'store'
+  VENDOR: '/vendor',
+  SELLER: '/store',
+  INTRODUCTION: '/introduction',
+  NEWS: '/news',
+  CONTACT: '/contact',
 }
 
 export const publicRoutes = [
@@ -57,7 +63,7 @@ export const publicRoutes = [
     page: SearchResultPage
   },
   {
-    path: '/vendor',
+    path: `${BASE_PATHS.VENDOR}`,
     page: VendorPage
   },
   {
@@ -67,6 +73,18 @@ export const publicRoutes = [
   {
     path: '/payment/vn-pay-callback',
     page: VNPayCallback
+  },
+  {
+    path: `${BASE_PATHS.INTRODUCTION}`,
+    page: IntroductionPage
+  },
+  {
+    path: `${BASE_PATHS.NEWS}`,
+    page: NewsPage
+  },
+  {
+    path: `${BASE_PATHS.CONTACT}`,
+    page: ContactPage
   }
 ]
 
