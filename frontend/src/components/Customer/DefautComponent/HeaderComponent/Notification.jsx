@@ -145,7 +145,7 @@ const Notification = ({ initialNotifications = [] }) => {
       navigate(`/session/${notification.referenceId}`)
     } else if (notification.type === 'NEW_REGISTRATION') {
       navigate(`/session/register/${notification.referenceId}`)
-    } else if (notification.type === 'RECHARGE' || notification.type === 'REFUND') {
+    } else if (notification.type === 'RECHARGE' || notification.type === 'REFUND' || notification.type == 'DEPOSIT') {
       navigate('/profile', { state: { tabSet: 6 } })
     }
 

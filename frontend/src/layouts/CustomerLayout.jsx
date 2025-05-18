@@ -8,14 +8,10 @@ function CustomerLayout({ children, isCategory = true }) {
   return (
     <>
       <Header />
-      {isCategory ? (
-        <CategoryBar />
-      ) : (
-        <Box sx={{ mt: 4 }} />
-      )}
+      {isCategory && <CategoryBar />}
       {children}
       <Box sx={{ mt: 4 }} />
-      {/* <Footer /> */}
+      <Footer />
     </>
   );
 }

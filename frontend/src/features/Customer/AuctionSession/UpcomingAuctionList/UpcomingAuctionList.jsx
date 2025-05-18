@@ -1,15 +1,12 @@
 import React from 'react'
 import { ImHammer2 } from 'react-icons/im'
-import { PiArrowRightFill } from 'react-icons/pi'
-import { useNavigate } from 'react-router-dom'
-import { Box, Typography, Grid, Divider, Button } from '@mui/material'
+import { Box, Typography, Grid, Divider } from '@mui/material'
 import UpcomingAuctionItem from '../components/UpcomingAuctionItem/UpcomingAuctionItem'
 import { useRecommendByUser } from '~/hooks/recommendHook'
 import { useAppStore } from '~/store/appStore'
 import { useFilterSessions } from '~/hooks/sessionHook'
 
 function UpcomingAuctions() {
-  const navigate = useNavigate()
   const { auth } = useAppStore()
   const userId = auth.user?.id
 
@@ -17,31 +14,31 @@ function UpcomingAuctions() {
     data: recommendedData,
     isLoading: isLoadingRecommend,
     isError: isErrorRecommend
-  } = useRecommendByUser(userId, 'UPCOMING');
+  } = useRecommendByUser(userId, 'UPCOMING')
 
   const {
     data: filteredData,
     isLoading: isLoadingFilter,
     isError: isErrorFilter
-  } = useFilterSessions({ status: 'UPCOMING' });
+  } = useFilterSessions({ status: 'UPCOMING' })
 
   // Xử lý loading và error
   if (userId && isLoadingRecommend) {
-    return <Typography>Loading...</Typography>;
+    return <Typography>Loading...</Typography>
   }
   if (!userId && isLoadingFilter) {
-    return <Typography>Loading...</Typography>;
+    return <Typography>Loading...</Typography>
   }
 
   if (userId && isErrorRecommend) {
-    return <Typography>Error loading sessions</Typography>;
+    return <Typography>Error loading sessions</Typography>
   }
   if (!userId && isErrorFilter) {
-    return <Typography>Error loading sessions</Typography>;
+    return <Typography>Error loading sessions</Typography>
   }
 
   // Lấy dữ liệu hiển thị
-  const items = userId ? recommendedData : filteredData?.data || [];
+  const items = userId ? recommendedData : filteredData?.data || []
 
   return (
     <Box mx={5}>
@@ -60,11 +57,6 @@ function UpcomingAuctions() {
           </Grid>
         ))}
       </Grid>
-      <Box display="flex" justifyContent="center" my={3}>
-        <Button onClick={() => navigate('/search')} variant="contained" sx={{ bgcolor: '#b41712', '&:hover': { bgcolor: '#8B0000' } }} endIcon={<PiArrowRightFill />}>
-          Xem thêm
-        </Button>
-      </Box>
     </Box>
   )
 }
