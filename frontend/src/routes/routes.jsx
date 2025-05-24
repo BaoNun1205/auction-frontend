@@ -21,6 +21,9 @@ import IntroductionPage from '~/pages/Customer/IntroductionPage'
 import NewsPage from '~/pages/Customer/NewsPage'
 import ContactPage from '~/pages/Customer/ContactPage'
 import CheckoutPage from '~/pages/Customer/CheckoutPage'
+import PaymentSuccessPage from '~/pages/Customer/PaymentSuccessPage'
+import PaymentHistoryPage from '~/pages/Customer/PaymentHistoryPage '
+import InvoicePage from '~/pages/Customer/InvoicePage'
 
 export const BASE_PATHS = {
   HOME: '/',
@@ -37,6 +40,9 @@ export const BASE_PATHS = {
   NEWS: '/news',
   CONTACT: '/contact',
   CHECKOUT: '/checkout',
+  PAYMENT_SUCCESS: '/payment-success',
+  PAYMENT_HISTORY: '/payment-history',
+  INVOICE: '/invoice'
 }
 
 export const publicRoutes = [
@@ -98,6 +104,18 @@ export const privateRoutes = [
   {
     path: `${BASE_PATHS.CHECKOUT}/:id`,
     page: CheckoutPage
+  },
+  {
+    path: `${BASE_PATHS.PAYMENT_SUCCESS}/:id`,
+    page: PaymentSuccessPage
+  },
+  {
+    path: `${BASE_PATHS.PAYMENT_HISTORY}`,
+    page: PaymentHistoryPage
+  },
+  {
+    path: `${BASE_PATHS.INVOICE}/:id`,
+    page: InvoicePage
   }
 ]
 
