@@ -7,7 +7,8 @@ import {
 import {
   Person, EmojiEvents, Gavel, Store, ExitToApp, LocationOn, Menu as MenuIcon,
   ExpandLess, ExpandMore,
-  Wallet
+  Wallet,
+  Payments
 } from '@mui/icons-material'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useLogout } from '~/hooks/authHook'
@@ -17,6 +18,8 @@ import { ChevronRight } from 'lucide-react'
 import AuctionSessions from './AuctionSessions'
 import WonItems from './WonItems'
 import MyWallet from './MyWallet'
+import PaymentHistory from './PaymentHistory'
+import BackButton from '~/components/BackButton'
 
 const primaryColor = '#b41712'
 
@@ -67,8 +70,8 @@ const Profile = () => {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
 
-  const handleNavigate = (path) => {
-    navigate(path)
+  const handleNavigate = () => {
+    navigate('/')
   }
 
   const handleLogout = () => {
@@ -102,11 +105,12 @@ const Profile = () => {
   const menuItems = [
     { text: 'Hồ sơ', icon: <Person />, value: 1 },
     { text: 'Địa chỉ', icon: <LocationOn />, value: 2 },
-    { text: 'Chiến lợi phẩm', icon: <EmojiEvents />, value: 3 },
+    { text: 'Vật phẩm đã thắng', icon: <EmojiEvents />, value: 3 },
     { text: 'Phiên đấu giá', icon: <Gavel />, value: 4 },
     { text: 'Bán đấu giá', icon: <Store />, value: 5 },
     { text: 'Ví của tôi', icon: <Wallet />, value: 6 },
-    { text: 'Đăng xuất', icon: <ExitToApp />, value: 7, onClick: handleLogout }
+    { text: 'Lịch sử thanh toán', icon: <Payments />, value: 7 },
+    { text: 'Đăng xuất', icon: <ExitToApp />, value: 8, onClick: handleLogout }
   ]
 
   const drawer = (
@@ -172,32 +176,8 @@ const Profile = () => {
   return (
     <>
       <Container maxWidth="xl" sx={{ mt: { xs: 2, sm: 4 }, mb: { xs: 2, sm: 4 }, mx: 'auto' }}>
-        <Box sx={{ display: 'flex', flexDirection: 'column', mb: 3 }}>
-          <Breadcrumbs separator={<ChevronRight fontSize="small" />} aria-label="breadcrumb">
-            <Typography
-              color="inherit"
-              onClick={() => handleNavigate('/')}
-              sx={{ cursor: 'pointer', textDecoration: 'underline' }}
-            >
-              Trang chủ
-            </Typography>
-            <Typography
-              color="inherit"
-              onClick={() => handleNavigate('/profile')}
-              sx={{ cursor: 'pointer', textDecoration: 'underline' }}
-            >
-              Thông tin tài khoản
-            </Typography>
-            <Typography color="text.primary">
-              {tab === 1 && 'Hồ sơ'}
-              {tab === 2 && 'Địa chỉ'}
-              {tab === 3 && 'Chiến lợi phẩm'}
-              {tab === 4 && 'Phiên đấu giá'}
-              {tab === 5 && 'Bán đấu giá'}
-              {tab === 6 && 'Ví của tôi'}
-            </Typography>
-          </Breadcrumbs>
-        </Box>
+        <BackButton onClick={() => handleNavigate()} />
+
         <Box sx={{ display: 'flex' }}>
           <Grid container spacing={3} justifyContent="center">
             {isMobile && (
@@ -240,6 +220,7 @@ const Profile = () => {
                 {tab === 4 && <AuctionSessions />}
                 {tab === 5 && navigate('/vendor')}
                 {tab === 6 && <MyWallet />}
+                {tab === 7 && <PaymentHistory />}
               </StyledPaper>
             </Grid>
           </Grid>

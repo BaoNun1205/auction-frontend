@@ -20,6 +20,10 @@ import VNPayCallback from '~/features/Customer/Profile/MyWallet/VNPayCallback'
 import IntroductionPage from '~/pages/Customer/IntroductionPage'
 import NewsPage from '~/pages/Customer/NewsPage'
 import ContactPage from '~/pages/Customer/ContactPage'
+import CheckoutPage from '~/pages/Customer/CheckoutPage'
+import PaymentSuccessPage from '~/pages/Customer/PaymentSuccessPage'
+import PaymentHistoryPage from '~/pages/Customer/PaymentHistoryPage '
+import InvoicePage from '~/pages/Customer/InvoicePage'
 
 export const BASE_PATHS = {
   HOME: '/',
@@ -35,6 +39,10 @@ export const BASE_PATHS = {
   INTRODUCTION: '/introduction',
   NEWS: '/news',
   CONTACT: '/contact',
+  CHECKOUT: '/checkout',
+  PAYMENT_SUCCESS: '/payment-success',
+  PAYMENT_HISTORY: '/payment-history',
+  INVOICE: '/invoice'
 }
 
 export const publicRoutes = [
@@ -93,6 +101,22 @@ export const privateRoutes = [
     path: '/profile',
     page: ProfilePage
   },
+  {
+    path: `${BASE_PATHS.CHECKOUT}/:id`,
+    page: CheckoutPage
+  },
+  {
+    path: `${BASE_PATHS.PAYMENT_SUCCESS}/:id`,
+    page: PaymentSuccessPage
+  },
+  {
+    path: `${BASE_PATHS.PAYMENT_HISTORY}`,
+    page: PaymentHistoryPage
+  },
+  {
+    path: `${BASE_PATHS.INVOICE}/:id`,
+    page: InvoicePage
+  }
 ]
 
 export const adminRoutes = [

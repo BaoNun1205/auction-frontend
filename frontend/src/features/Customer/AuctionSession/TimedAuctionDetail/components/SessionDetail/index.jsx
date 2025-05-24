@@ -39,6 +39,7 @@ import ImageGallery from './components/ImageGallery'
 import customTheme from './components/theme'
 import WinnerSection from './components/WinnerSection'
 import DescriptionSection from './components/DescriptionSection'
+import BackButton from '~/components/BackButton'
 
 const SessionDetail = ({ item, refresh }) => {
   const theme = useTheme()
@@ -314,7 +315,7 @@ const SessionDetail = ({ item, refresh }) => {
     <ThemeProvider theme={customTheme}>
       <Container maxWidth="lg">
         <Box mb={6}>
-          <Breadcrumb item={item} />
+          <BackButton />
           <Grid container spacing={4}>
             <ImageGallery
               mainImage={mainImage}

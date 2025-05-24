@@ -20,25 +20,48 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import PersonIcon from '@mui/icons-material/Person';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'; // Thêm biểu tượng ArrowBack
 import { StyledCard, ThumbnailImage, StyledButton, StyledIconButton } from './style';
-import { useCheckRegisted, useGetSessionById, useGetUsersRegisted, useRegisterSession, useUnregisterSession } from '~/hooks/sessionHook';
-import { useParams } from 'react-router-dom';
+import {
+  useCheckRegisted,
+  useGetSessionById,
+  useGetUsersRegisted,
+  useRegisterSession,
+  useUnregisterSession,
+} from '~/hooks/sessionHook';
+import { useParams, useNavigate } from 'react-router-dom'; // Thêm useNavigate
 import { useAppStore } from '~/store/appStore';
+import BackButton from '~/components/BackButton';
 
 const RegisterAuctionDetail = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const [optimisticUserCount, setOptimisticUserCount] = useState(0);
+  const [optimisticIsChecked, setOptimisticIsChecked] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const { auth } = useAppStore();
   const currentUserId = auth.user.id;
   const { id } = useParams();
+  const navigate = useNavigate(); // Khởi tạo useNavigate
   const { data: session, refetch, isLoading, isError } = useGetSessionById(id);
   const { data: usersRegisted } = useGetUsersRegisted(id);
   const { mutate: registerSession } = useRegisterSession();
   const { mutate: unregisterSession } = useUnregisterSession();
   const { data: isChecked } = useCheckRegisted({ auctionSessionId: id, userId: currentUserId });
+
+  // Đồng bộ optimisticUserCount với dữ liệu từ server khi usersRegisted thay đổi
+  useEffect(() => {
+    if (Array.isArray(usersRegisted)) {
+      setOptimisticUserCount(usersRegisted.length);
+    }
+  }, [usersRegisted]);
+
+  // Đồng bộ optimisticIsChecked với isChecked từ server
+  useEffect(() => {
+    setOptimisticIsChecked(!!isChecked);
+  }, [isChecked]);
 
   if (isLoading) {
     return <Typography>Loading...</Typography>;
@@ -49,8 +72,6 @@ const RegisterAuctionDetail = () => {
   }
 
   const listUser = Array.isArray(usersRegisted) ? usersRegisted : [];
-  console.log('listUser:', listUser);
-
   const listImages = Array.isArray(session.asset.listImages) ? session.asset.listImages : [];
 
   const handleThumbnailClick = (index) => {
@@ -81,6 +102,10 @@ const RegisterAuctionDetail = () => {
   };
 
   const handleRegisterClick = () => {
+    setOptimisticUserCount((prev) => prev + 1);
+    setOptimisticIsChecked(true);
+    setSnackbar({ open: true, message: 'Đang xử lý đăng ký...', severity: 'info' });
+
     registerSession(
       { userId: currentUserId, auctionSessionId: session.id },
       {
@@ -89,6 +114,8 @@ const RegisterAuctionDetail = () => {
           setSnackbar({ open: true, message: 'Đăng ký phiên đấu giá thành công', severity: 'success' });
         },
         onError: (error) => {
+          setOptimisticUserCount((prev) => prev - 1);
+          setOptimisticIsChecked(false);
           console.error('Error registering session:', error);
           setSnackbar({ open: true, message: 'Đăng ký phiên đấu giá thất bại', severity: 'error' });
         },
@@ -97,6 +124,10 @@ const RegisterAuctionDetail = () => {
   };
 
   const handleUnregisterClick = () => {
+    setOptimisticUserCount((prev) => Math.max(0, prev - 1));
+    setOptimisticIsChecked(false);
+    setSnackbar({ open: true, message: 'Đang xử lý hủy đăng ký...', severity: 'info' });
+
     unregisterSession(
       { userId: currentUserId, auctionSessionId: session.id },
       {
@@ -105,6 +136,8 @@ const RegisterAuctionDetail = () => {
           setSnackbar({ open: true, message: 'Hủy đăng ký phiên đấu giá thành công', severity: 'success' });
         },
         onError: (error) => {
+          setOptimisticUserCount((prev) => prev + 1);
+          setOptimisticIsChecked(true);
           console.error('Error unregistering session:', error);
           setSnackbar({ open: true, message: 'Hủy đăng ký phiên đấu giá thất bại', severity: 'error' });
         },
@@ -119,8 +152,13 @@ const RegisterAuctionDetail = () => {
     setSnackbar({ ...snackbar, open: false });
   };
 
+  const handleNavigateBack = () => {
+    navigate(-1); // Quay lại trang trước
+  };
+
   return (
     <Container maxWidth="lg" sx={{ py: 6 }}>
+      <BackButton />
       <Grid container spacing={{ xs: 2, md: 6 }}>
         <Grid item xs={12} md={6}>
           <StyledCard>
@@ -166,7 +204,12 @@ const RegisterAuctionDetail = () => {
         <Grid item xs={12} md={6}>
           <Box sx={{ pl: { md: 4 } }}>
             <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-              <Typography variant="h4" fontWeight="bold" gutterBottom sx={{ fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' } }}>
+              <Typography
+                variant="h4"
+                fontWeight="bold"
+                gutterBottom
+                sx={{ fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' } }}
+              >
                 {session.name}
               </Typography>
               <Stack direction="row" spacing={1}>
@@ -202,11 +245,7 @@ const RegisterAuctionDetail = () => {
               <Typography variant="h6" color="text.secondary">
                 {session.asset.vendor.username}
               </Typography>
-              <Chip
-                label="Đã kiểm duyệt"
-                sx={{ backgroundColor: '#B41712', color: 'white' }}
-                size="small"
-              />
+              <Chip label="Đã kiểm duyệt" sx={{ backgroundColor: '#B41712', color: 'white' }} size="small" />
             </Stack>
 
             <Typography
@@ -240,7 +279,7 @@ const RegisterAuctionDetail = () => {
               <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 2, sm: 4 }} sx={{ mt: 2 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <PersonIcon />
-                  <Typography variant="h6">{listUser.length} người đăng ký</Typography>
+                  <Typography variant="h6">{optimisticUserCount} người đăng ký</Typography>
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <AccessTimeIcon />
@@ -249,14 +288,13 @@ const RegisterAuctionDetail = () => {
               </Stack>
 
               {currentUserId !== session.asset.vendor.userId && (
-  <StyledButton
-    onClick={isChecked ? handleUnregisterClick : handleRegisterClick}
-    sx={{ width: { xs: '100%', sm: 'auto' }, alignSelf: 'flex-start' }}
-  >
-    {isChecked ? 'Hủy đăng ký' : 'Đăng ký'}
-  </StyledButton>
-)}
-
+                <StyledButton
+                  onClick={optimisticIsChecked ? handleUnregisterClick : handleRegisterClick}
+                  sx={{ width: { xs: '100%', sm: 'auto' }, alignSelf: 'flex-start' }}
+                >
+                  {optimisticIsChecked ? 'Hủy đăng ký' : 'Đăng ký'}
+                </StyledButton>
+              )}
 
               <Snackbar
                 open={snackbar.open}

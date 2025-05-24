@@ -86,7 +86,7 @@ const AuctionRegisteredItem = ({ id, auctionName, imgSrc, startTime, endTime, st
             <InfoChip icon={<CalendarToday />} label={`Bắt đầu: ${new Date(startTime).toLocaleString('vi-VN')}`} />
             <InfoChip icon={<HourglassEmpty />} label={`Kết thúc: ${new Date(endTime).toLocaleString('vi-VN')}`} />
             <InfoChip icon={<People />} label={`Số người đăng ký: ${registrants}`} />
-            <InfoChip icon={<MonetizationOn />} label={`Giá khởi điểm: ${startingPrice.toLocaleString('vi-VN')} VNĐ`} color="primary" />
+            <InfoChip icon={<MonetizationOn />} label={`Giá khởi điểm: ${startingPrice.toLocaleString('vi-VN')} ₫`} color="primary" />
           </Box>
         </CardContent>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
@@ -138,8 +138,8 @@ const AuctionParticipatedItem = ({ id, productName, imgSrc, auctionStartTime, au
             <InfoChip icon={<CalendarToday />} label={`Bắt đầu: ${new Date(auctionStartTime).toLocaleString('vi-VN')}`} />
             <InfoChip icon={<HourglassEmpty />} label={`Kết thúc: ${new Date(auctionEndTime).toLocaleString('vi-VN')}`} />
             <InfoChip icon={<People />} label={`Số người tham gia: ${participants}`} />
-            <InfoChip icon={<MonetizationOn />} label={`Giá khởi điểm: ${startingPrice.toLocaleString('vi-VN')} VNĐ`} color="primary" />
-            <InfoChip icon={<Gavel />} label={`Giá đấu thắng: ${winningPrice.toLocaleString('vi-VN')} VNĐ`} color="success" />
+            <InfoChip icon={<MonetizationOn />} label={`Giá khởi điểm: ${startingPrice.toLocaleString('vi-VN')} ₫`} color="primary" />
+            <InfoChip icon={<Gavel />} label={`Giá đấu thắng: ${winningPrice.toLocaleString('vi-VN')} ₫`} color="success" />
           </Box>
         </CardContent>
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
@@ -148,49 +148,6 @@ const AuctionParticipatedItem = ({ id, productName, imgSrc, auctionStartTime, au
           </ActionButton>
         </Box>
       </Box>
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="auction-history-dialog-title"
-        maxWidth="md"
-        fullWidth
-      >
-        <DialogTitle id="auction-history-dialog-title" sx={{ bgcolor: '#f5f5f5', color: '#B7201B' }}>
-          Lịch sử đấu giá: {productName}
-        </DialogTitle>
-        <DialogContent sx={{ mt: 2 }}>
-          <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #e0e0e0' }}>
-            <Table aria-label="auction history table">
-              <TableHead>
-                <TableRow sx={{ bgcolor: '#f5f5f5' }}>
-                  <TableCell sx={{ fontWeight: 'bold' }}>Thời gian</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold' }}>Người đấu giá</TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 'bold' }}>Giá đấu</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {auctionHistory.map((historyItem, index) => (
-                  <TableRow
-                    key={index}
-                    sx={{ '&:last-child td, &:last-child th': { border: 0 }, '&:nth-of-type(odd)': { bgcolor: '#fafafa' } }}
-                  >
-                    <TableCell>{new Date(historyItem.time).toLocaleString('vi-VN')}</TableCell>
-                    <TableCell>{historyItem.bidder}</TableCell>
-                    <TableCell align="right" sx={{ color: '#B7201B', fontWeight: 'bold' }}>
-                      {historyItem.price.toLocaleString('vi-VN')} VNĐ
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </DialogContent>
-        <DialogActions sx={{ p: 2, bgcolor: '#f5f5f5' }}>
-          <Button onClick={handleClose} sx={{ color: '#B7201B', fontWeight: 'bold' }}>
-            Đóng
-          </Button>
-        </DialogActions>
-      </Dialog>
     </StyledCard>
   );
 };
