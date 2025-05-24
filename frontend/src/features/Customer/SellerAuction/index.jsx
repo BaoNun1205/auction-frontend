@@ -3,6 +3,7 @@ import { Container, Typography, Tabs, Tab, Box, Pagination } from '@mui/material
 import EnhancedAuctionCard from './EnhancedAuctionCard';
 import VendorInformation from '../AuctionSession/TimedAuctionDetail/components/VendorInfomation';
 import { useFilterSessions } from '~/hooks/sessionHook';
+import BackButton from '~/components/BackButton';
 
 const SellerAuction = ({ vendorId }) => {
   const [tabValue, setTabValue] = useState(0);
@@ -51,6 +52,7 @@ const SellerAuction = ({ vendorId }) => {
 
   return (
     <Container maxWidth="lg">
+      <BackButton sx={{ mt:4 }} />
       <VendorInformation vendorId={vendorId} isView={false} />
       <Typography variant="h4" sx={{ my: 4, fontWeight: 'bold' }}>
         Phiên Đấu Giá

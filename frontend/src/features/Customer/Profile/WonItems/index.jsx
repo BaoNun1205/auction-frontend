@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react'
 import {
   Box,
   Typography,
@@ -8,42 +8,48 @@ import {
   CardActions,
   Button,
   Container,
-  Paper,
-} from '@mui/material';
+  Paper
+} from '@mui/material'
 import {
   Payment,
   CheckCircle,
   Cancel,
   ListAlt,
-  Timer,
-} from '@mui/icons-material';
-import { useGetWinSessionsByUserId } from '~/hooks/sessionHook';
-import { useAppStore } from '~/store/appStore';
-import { StyledTab, StyledCard, InfoChip, AnimatedButton } from './style';
-import { useNavigate } from 'react-router-dom';
+  Timer
+} from '@mui/icons-material'
+import { useGetWinSessionsByUserId } from '~/hooks/sessionHook'
+import { useAppStore } from '~/store/appStore'
+import { StyledTab, StyledCard, InfoChip, AnimatedButton } from './style'
+import { useNavigate } from 'react-router-dom'
 
 const WonItems = () => {
-  const [tab, setTab] = useState(0);
-  const navigate = useNavigate();
-  const { auth } = useAppStore();
-  const { data } = useGetWinSessionsByUserId(auth.user.id);
-  const wonItems = Array.isArray(data) ? data : [];
+  const [tab, setTab] = useState(0)
+  const navigate = useNavigate()
+  const { auth } = useAppStore()
+  const { data } = useGetWinSessionsByUserId(auth.user.id)
+  const wonItems = Array.isArray(data) ? data : []
 
   const handleTabChange = (event, newValue) => {
-    setTab(newValue);
-  };
+    setTab(newValue)
+  }
 
   const handleOpenDetails = (item) => {
-    navigate(`/checkout/${item.auctionSession.auctionSessionId}`);
-  };
+    if (item.status === 'PAYMENT_SUCCESSFUL') {
+      navigate(`/invoice/${item.auctionSession.auctionSessionId}`, {
+        state: { tabSet: 3 }
+      })
+    } else {
+      navigate(`/checkout/${item.auctionSession.auctionSessionId}`)
+    }
+  }
 
   const getStatusChip = (status) => {
     const statusConfig = {
       PENDING_PAYMENT: { icon: <Payment />, label: 'Chờ thanh toán', color: 'warning' },
       PAYMENT_SUCCESSFUL: { icon: <CheckCircle />, label: 'Đã thanh toán', color: 'success' },
-      CANCELED: { icon: <Cancel />, label: 'Đã hủy', color: 'error' },
-    };
-    const config = statusConfig[status] || statusConfig.CANCELED;
+      CANCELED: { icon: <Cancel />, label: 'Đã hủy', color: 'error' }
+    }
+    const config = statusConfig[status] || statusConfig.CANCELED
 
     return (
       <InfoChip
@@ -52,14 +58,14 @@ const WonItems = () => {
         color={config.color}
         size="small"
       />
-    );
-  };
+    )
+  }
 
   const filteredData = useMemo(() => {
-    if (tab === 0) return wonItems; // Tab "Tất cả"
-    const statusKeys = ['PENDING_PAYMENT', 'PAYMENT_SUCCESSFUL', 'CANCELED'];
-    return wonItems.filter((item) => item.status === statusKeys[tab - 1]);
-  }, [tab, wonItems]);
+    if (tab === 0) return wonItems // Tab "Tất cả"
+    const statusKeys = ['PENDING_PAYMENT', 'PAYMENT_SUCCESSFUL', 'CANCELED']
+    return wonItems.filter((item) => item.status === statusKeys[tab - 1])
+  }, [tab, wonItems])
 
   return (
     <Container maxWidth="lg">
@@ -101,7 +107,7 @@ const WonItems = () => {
                       borderRadius: 2,
                       position: 'absolute',
                       top: 0,
-                      left: 0,
+                      left: 0
                     }}
                     image={item.auctionSession.asset.mainImage || '/placeholder.svg?height=200&width=200'}
                     alt={item.auctionSession.asset.assetName}
@@ -148,7 +154,7 @@ const WonItems = () => {
         </Box>
       </Box>
     </Container>
-  );
-};
+  )
+}
 
-export default WonItems;
+export default WonItems

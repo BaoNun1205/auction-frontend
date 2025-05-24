@@ -36,18 +36,21 @@ import {
 } from '@mui/icons-material'
 import { ThemeProvider } from '@mui/material/styles'
 import { theme } from './style'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useGetSessionById } from '~/hooks/sessionHook'
 import { useReactToPrint } from 'react-to-print'
 import { QRCodeSVG } from 'qrcode.react'
 import BackButton from '~/components/BackButton'
+import { useCustomNavigate } from '~/utils/navigate'
 
-const InvoicePage = () => {
+const Invoice = () => {
   const { id } = useParams()
+  const { state } = useLocation();
+  const tabSet = state?.tabSet ?? 7;
   const { data: auctionData, isLoading, isError } = useGetSessionById(id)
-  const navigate = useNavigate()
   const printRef = useRef()
   const [showPrintableVersion, setShowPrintableVersion] = useState(false)
+  const { handleNavigate } = useCustomNavigate();
 
   // Handle print functionality
   const handlePrint = useReactToPrint({
@@ -65,10 +68,6 @@ const InvoicePage = () => {
       alert('Có lỗi xảy ra khi tạo PDF. Vui lòng thử lại!')
     }
   })
-
-  const handleNavigateBack = () => {
-    navigate('/profile', { state: { tabSet: 7 } })
-  }
 
   const handleCopyInvoiceNumber = () => {
     navigator.clipboard.writeText(`INV-${id}`)
@@ -165,7 +164,7 @@ const InvoicePage = () => {
       {!showPrintableVersion && (
         <Container maxWidth="lg" sx={{ py: { xs: 4, md: 6 } }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-            <BackButton onClick={handleNavigateBack} label='Lịch sử thanh toán' />
+            <BackButton onClick={() => handleNavigate('/profile', { tabSet })} />
             <Box sx={{ display: 'flex', gap: 1 }}>
               <Tooltip title="Xem chi tiết để tải xuống">
                 <Button variant="outlined" startIcon={<Download />} onClick={handleViewDownload}>
@@ -895,4 +894,4 @@ const InvoicePage = () => {
   )
 }
 
-export default InvoicePage
+export default Invoice
