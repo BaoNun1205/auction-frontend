@@ -34,12 +34,11 @@ import Authentication from '~/features/Authentication'
 import AutoBidForm from './components/AutoBidForm'
 import { useCreateAutoBid, useCheckAutoBid, useGetAutoBid, useUpdateAutoBid } from '~/hooks/autoBidHook'
 import AutoBidDialog from './components/AutoBidDialog'
-import Breadcrumb from './components/Breadcrumb'
 import ImageGallery from './components/ImageGallery'
 import customTheme from './components/theme'
 import WinnerSection from './components/WinnerSection'
 import DescriptionSection from './components/DescriptionSection'
-import BackButton from '~/components/BackButton'
+import Breadcrumb from '~/components/Customer/BreadcrumbComponent'
 
 const SessionDetail = ({ item, refresh }) => {
   const theme = useTheme()
@@ -311,11 +310,17 @@ const SessionDetail = ({ item, refresh }) => {
     )
   }
 
+  const breadcrumbItems = [
+    { label: 'Trang chủ', path: '/' },
+    { label: 'Phiên đấu đang sắp diễn ra', path: '/ongoing' },
+    { label: 'Chi tiết' }
+  ]
+
   return (
     <ThemeProvider theme={customTheme}>
       <Container maxWidth="lg">
         <Box mb={6}>
-          <BackButton />
+          <Breadcrumb items={breadcrumbItems} />
           <Grid container spacing={4}>
             <ImageGallery
               mainImage={mainImage}

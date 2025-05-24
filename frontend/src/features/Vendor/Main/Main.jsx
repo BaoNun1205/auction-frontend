@@ -1,22 +1,22 @@
-import React, { useState } from 'react';
-import { 
-  Box, Container, Typography, Grid, Paper, List, ListItem, ListItemText, 
+import React, { useState } from 'react'
+import {
+  Box, Container, Typography, Grid, Paper, List, ListItem, ListItemText,
   ListItemIcon, Button, styled, useTheme, useMediaQuery, IconButton, Drawer,
   Collapse, Breadcrumbs
-} from '@mui/material';
-import { 
+} from '@mui/material'
+import {
   Person, EmojiEvents, Gavel, Store, ExitToApp, LocationOn, Menu as MenuIcon,
   ExpandLess, ExpandMore
-} from '@mui/icons-material';
-import { Home, FolderTree, ShoppingBag, Calendar, FileText, ChevronRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { useLogout } from '~/hooks/authHook';
-import AppModal from '~/components/Modal/Modal';
-import AuctionRequest from '../components/AuctionRequests';
-import MyAssets from '../components/MyAssets';
-import AuctionSessions from '../components/MyAuctionSession';
+} from '@mui/icons-material'
+import { Home, FolderTree, ShoppingBag, Calendar, FileText, ChevronRight } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { useLogout } from '~/hooks/authHook'
+import AppModal from '~/components/Modal/Modal'
+import AuctionRequest from '../components/AuctionRequests'
+import MyAssets from '../components/MyAssets'
+import AuctionSessions from '../components/MyAuctionSession'
 
-const primaryColor = '#b41712';
+const primaryColor = '#b41712'
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -25,9 +25,9 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
   boxShadow: '0 3px 5px 2px rgba(0, 0, 0, .03)',
   transition: 'box-shadow 0.3s ease-in-out',
   '&:hover': {
-    boxShadow: '0 6px 10px 4px rgba(0, 0, 0, .07)',
-  },
-}));
+    boxShadow: '0 6px 10px 4px rgba(0, 0, 0, .07)'
+  }
+}))
 
 const StyledListItem = styled(ListItem)(({ theme, active }) => ({
   borderRadius: theme.shape.borderRadius,
@@ -35,65 +35,65 @@ const StyledListItem = styled(ListItem)(({ theme, active }) => ({
   transition: 'all 0.2s',
   '&:hover': {
     backgroundColor: 'rgba(180, 23, 18, 0.1)',
-    transform: 'translateX(5px)',
+    transform: 'translateX(5px)'
   },
   ...(active && {
     backgroundColor: primaryColor,
     color: theme.palette.primary.contrastText,
     '&:hover': {
-      backgroundColor: '#8B0000',
-    },
-  }),
-}));
+      backgroundColor: '#8B0000'
+    }
+  })
+}))
 
 const Main = () => {
-  const [tab, setTab] = useState(1);
-  const [subTab, setSubTab] = useState(null);
-  const [logoutModalOpen, setLogoutModalOpen] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [sellerMenuOpen, setSellerMenuOpen] = useState(false);
-  const navigate = useNavigate();
-  const { mutate: logout, isLoading: isLoggingOut } = useLogout();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const [tab, setTab] = useState(1)
+  const [subTab, setSubTab] = useState(null)
+  const [logoutModalOpen, setLogoutModalOpen] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const [sellerMenuOpen, setSellerMenuOpen] = useState(false)
+  const navigate = useNavigate()
+  const { mutate: logout, isLoading: isLoggingOut } = useLogout()
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
 
-  const handleNavigate = (path) => {
-    navigate(path);
-  };
+  const handleNavigate = (path, state = {}) => {
+    navigate(path, { state })
+  }
 
   const handleLogout = () => {
-    setLogoutModalOpen(true);
-  };
+    setLogoutModalOpen(true)
+  }
 
   const handleConfirmLogout = () => {
     logout(null, {
       onSuccess: () => {
-        navigate('/');
+        navigate('/')
       },
       onError: (error) => {
-        console.error('Error logging out:', error);
-      },
-    });
-    setLogoutModalOpen(false);
-  };
+        console.error('Error logging out:', error)
+      }
+    })
+    setLogoutModalOpen(false)
+  }
 
   const handleCloseLogoutModal = () => {
-    setLogoutModalOpen(false);
-  };
+    setLogoutModalOpen(false)
+  }
 
   const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
-  };
+    setMobileOpen(!mobileOpen)
+  }
 
   const handleSellerMenuToggle = () => {
-    setSellerMenuOpen(!sellerMenuOpen);
-  };
+    setSellerMenuOpen(!sellerMenuOpen)
+  }
 
   const menuItems = [
     { text: 'Yêu cầu', icon: <ShoppingBag />, value: 1 },
     { text: 'Vật phẩm', icon: <FileText />, value: 2 },
     { text: 'Phiên đấu giá', icon: <Calendar />, value: 3 }
-  ];
+  ]
 
   const drawer = (
     <StyledPaper elevation={3}>
@@ -108,14 +108,14 @@ const Main = () => {
               active={tab === item.value}
               onClick={() => {
                 if (item.onClick) {
-                  item.onClick();
+                  item.onClick()
                 } else if (item.subItems) {
-                  handleSellerMenuToggle();
+                  handleSellerMenuToggle()
                 } else {
-                  setTab(item.value);
-                  setSubTab(null);
+                  setTab(item.value)
+                  setSubTab(null)
                   if (isMobile) {
-                    handleDrawerToggle();
+                    handleDrawerToggle()
                   }
                 }
               }}
@@ -136,10 +136,10 @@ const Main = () => {
                       active={subTab === subItem.value}
                       sx={{ pl: 4 }}
                       onClick={() => {
-                        setTab(item.value);
-                        setSubTab(subItem.value);
+                        setTab(item.value)
+                        setSubTab(subItem.value)
                         if (isMobile) {
-                          handleDrawerToggle();
+                          handleDrawerToggle()
                         }
                       }}
                     >
@@ -153,7 +153,7 @@ const Main = () => {
         ))}
       </List>
     </StyledPaper>
-  );
+  )
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -208,11 +208,11 @@ const Main = () => {
                 open={mobileOpen}
                 onClose={handleDrawerToggle}
                 ModalProps={{
-                  keepMounted: true, // Better open performance on mobile.
+                  keepMounted: true // Better open performance on mobile.
                 }}
                 sx={{
                   display: { xs: 'block', sm: 'none' },
-                  '& .MuiDrawer-paper': { boxSizing: 'border-box', width: 240 },
+                  '& .MuiDrawer-paper': { boxSizing: 'border-box', width: 240 }
                 }}
               >
                 {drawer}
@@ -246,9 +246,9 @@ const Main = () => {
               <Button onClick={handleCloseLogoutModal} sx={{ mr: 2 }}>
                 Hủy
               </Button>
-              <Button 
-                variant="contained" 
-                color="primary" 
+              <Button
+                variant="contained"
+                color="primary"
                 onClick={handleConfirmLogout}
                 disabled={isLoggingOut}
               >
@@ -259,7 +259,7 @@ const Main = () => {
         </AppModal>
       </Container>
     </Box>
-  );
-};
+  )
+}
 
-export default Main;
+export default Main

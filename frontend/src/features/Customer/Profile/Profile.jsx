@@ -19,7 +19,6 @@ import AuctionSessions from './AuctionSessions'
 import WonItems from './WonItems'
 import MyWallet from './MyWallet'
 import PaymentHistory from './PaymentHistory'
-import BackButton from '~/components/BackButton'
 
 const primaryColor = '#b41712'
 
@@ -176,8 +175,33 @@ const Profile = () => {
   return (
     <>
       <Container maxWidth="xl" sx={{ mt: { xs: 2, sm: 4 }, mb: { xs: 2, sm: 4 }, mx: 'auto' }}>
-        <BackButton onClick={() => handleNavigate()} />
-
+        <Box sx={{ display: 'flex', flexDirection: 'column', mb: 3 }}>
+          <Breadcrumbs separator={<ChevronRight fontSize="small" />} aria-label="breadcrumb">
+            <Typography
+              color="inherit"
+              onClick={() => handleNavigate('/')}
+              sx={{ cursor: 'pointer', textDecoration: 'underline' }}
+            >
+                Trang chủ
+            </Typography>
+            <Typography
+              color="inherit"
+              onClick={() => handleNavigate('/profile')}
+              sx={{ cursor: 'pointer', textDecoration: 'underline' }}
+            >
+                Thông tin tài khoản
+            </Typography>
+            <Typography color="text.primary">
+              {tab === 1 && 'Hồ sơ'}
+              {tab === 2 && 'Địa chỉ'}
+              {tab === 3 && 'Vật phẩm đã thắng'}
+              {tab === 4 && 'Phiên đấu giá'}
+              {tab === 5 && 'Bán đấu giá'}
+              {tab === 6 && 'Ví của tôi'}
+              {tab === 7 && 'Lịch sử thanh toán'}
+            </Typography>
+          </Breadcrumbs>
+        </Box>
         <Box sx={{ display: 'flex' }}>
           <Grid container spacing={3} justifyContent="center">
             {isMobile && (

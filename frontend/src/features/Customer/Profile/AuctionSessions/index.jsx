@@ -109,7 +109,7 @@ const AuctionRegisteredItem = ({ id, auctionName, imgSrc, startTime, endTime, st
   );
 };
 
-const AuctionParticipatedItem = ({ id, productName, imgSrc, auctionStartTime, auctionEndTime, participants, startingPrice, winningPrice, auctionHistory }) => {
+const AuctionParticipatedItem = ({ id, productName, imgSrc, auctionStartTime, auctionEndTime, participants, startingPrice, winningPrice }) => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -231,10 +231,9 @@ const AuctionSessions = () => {
                     imgSrc={item.auctionSession.asset.mainImage || '/placeholder.svg?height=200&width=200'}
                     auctionStartTime={item.auctionSession.startTime}
                     auctionEndTime={item.auctionSession.endTime}
-                    participants={10} // Default value for participants
+                    participants={item.auctionSession.auctionSessionInfo.totalBidder}
                     startingPrice={item.auctionSession.startingBids}
-                    winningPrice={item.auctionSession.asset.assetPrice}
-                    auctionHistory={[]} // Replace with actual auction history data
+                    winningPrice={item.auctionSession.auctionSessionInfo.highestBid}
                   />
                 ))
               ) : (
