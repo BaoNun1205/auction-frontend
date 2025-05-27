@@ -198,7 +198,7 @@ const AuctionSessions = () => {
           </Tabs>
         </Box>
 
-        <Box>
+        <Box sx={{ minHeight: '400px', maxHeight: '600px', overflowY: 'auto' }}>
           {tab === 0 ? (
             <Box>
               {upcomingSessions.length > 0 ? (
@@ -211,7 +211,7 @@ const AuctionSessions = () => {
                     startTime={item.auctionSession.startTime}
                     endTime={item.auctionSession.endTime}
                     startingPrice={item.auctionSession.startingBids}
-                    registrants={10} // Default value for registrants
+                    registrants={item.totalRegistrations}
                   />
                 ))
               ) : (

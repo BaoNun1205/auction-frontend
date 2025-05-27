@@ -1,14 +1,14 @@
-import React from 'react'
-import { Box, Typography, Card, CardContent, Grid, IconButton, Tooltip } from '@mui/material'
-import { Receipt, Visibility, CalendarToday, AccountBalance } from '@mui/icons-material'
-import { useNavigate } from 'react-router-dom'
+import React from 'react';
+import { Box, Typography, Card, CardContent, Grid, IconButton, Tooltip } from '@mui/material';
+import { Receipt, CalendarToday, AccountBalance } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 
 const PaymentHistoryItem = ({ payment }) => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const handleViewInvoice = () => {
-    navigate(`/invoice/${payment.id}`)
-  }
+    navigate(`/invoice/${payment.billId}`);
+  };
 
   return (
     <Card elevation={0} sx={{ borderRadius: 2, mb: 2, border: '1px solid #eee' }}>
@@ -19,21 +19,21 @@ const PaymentHistoryItem = ({ payment }) => {
               <Box
                 component="img"
                 src={
-                  payment.asset?.mainImage ||
-                  (payment.asset?.listImages && payment.asset.listImages[0]?.imageAsset) ||
+                  payment.asset.mainImage ||
+                  (payment.asset.listImages && payment.asset.listImages[0]?.imageAsset) ||
                   '/placeholder.svg?height=60&width=60'
                 }
-                alt={payment.asset?.assetName}
+                alt={payment.asset.assetName}
                 sx={{ width: 60, height: 60, borderRadius: 1, mr: 2, objectFit: 'cover' }}
               />
               <Box>
                 <Typography variant="subtitle1" fontWeight="medium" noWrap sx={{ maxWidth: 200 }}>
-                  {payment.asset?.assetName}
+                  {payment.asset.assetName}
                 </Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}>
                   <CalendarToday fontSize="small" sx={{ color: 'text.secondary', fontSize: 14, mr: 0.5 }} />
                   <Typography variant="caption" color="text.secondary">
-                    {new Date(payment.paymentDate).toLocaleDateString('vi-VN')}
+                    {new Date(payment.billDate).toLocaleDateString('vi-VN')}
                   </Typography>
                 </Box>
               </Box>
@@ -45,7 +45,7 @@ const PaymentHistoryItem = ({ payment }) => {
               Mã hóa đơn
             </Typography>
             <Typography variant="body2" fontWeight="medium">
-              INV-{payment.id.substring(0, 8).toUpperCase()}
+              INV-{payment.billId.substring(0, 8).toUpperCase()}
             </Typography>
           </Grid>
 
@@ -64,7 +64,7 @@ const PaymentHistoryItem = ({ payment }) => {
               Số tiền
             </Typography>
             <Typography variant="subtitle1" fontWeight="bold" color="primary.main">
-              {payment.amount.toLocaleString('vi-VN')} VNĐ
+              {payment.bidPrice.toLocaleString('vi-VN')} VNĐ
             </Typography>
           </Grid>
 
@@ -80,7 +80,7 @@ const PaymentHistoryItem = ({ payment }) => {
         </Grid>
       </CardContent>
     </Card>
-  )
-}
+  );
+};
 
-export default PaymentHistoryItem
+export default PaymentHistoryItem;

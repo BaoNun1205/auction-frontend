@@ -30,9 +30,12 @@ import { ImageModal } from './component/ImageModal'
 import { BidHistoryItem } from './component/BidHistoryItem'
 import { PaymentConfirmDialog } from './component/PaymentConfirmDialog'
 import BackButton from '~/components/BackButton'
+import { useAppStore } from '~/store/appStore'
+import { useGetAddressByUserId } from '~/hooks/addressHook'
 
 const Checkout = () => {
   const { id } = useParams()
+  const { auth } = useAppStore();
   const { data: auctionData, refetch, isLoading, isError } = useGetSessionById(id)
   const { data, refetch: refreshHistory } = useGetAuctionHistoriesByAuctionSessionId(id)
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
@@ -40,6 +43,7 @@ const Checkout = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
   const { mutate: paySession, isPending } = usePaymentSession()
+  const { data: addresses } = useGetAddressByUserId(auth.user.id);
 
   const navigate = useNavigate()
 

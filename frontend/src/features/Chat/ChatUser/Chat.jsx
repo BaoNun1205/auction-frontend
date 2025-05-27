@@ -114,22 +114,6 @@ export default function Chat({ vendorId }) {
             }
           }
 
-          // gửi notification nếu chat chưa mở và không phải tin nhắn của mình
-          // if (!isChatOpenRef.current && !isMine) {
-          //   const payload = {
-          //     senderId: messageData.sender.userId,
-          //     receiverId: currentUserId,
-          //     type: 'MESSAGE',
-          //     title: 'Tin nhắn mới',
-          //     content: `${messageData.sender.name || messageData.sender.username}: ${messageData.content}`,
-          //     referenceId: messageData.conversationId
-          //   }
-
-          //   console.log('Sending notification payload:', payload)
-
-          //   sendMessage(`/app/rt-auction/notification/new-message/user/${currentUserId}`, payload)
-          // }
-
           setLocalConversations((prevConversations) => {
             const existingConv = prevConversations.find(conv => conv.conversationId === messageData.conversationId)
             if (existingConv) {

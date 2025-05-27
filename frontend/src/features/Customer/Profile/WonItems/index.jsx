@@ -15,9 +15,11 @@ import {
   CheckCircle,
   Cancel,
   ListAlt,
-  Timer
+  Timer,
+  LocalShipping,
+  Beenhere
 } from '@mui/icons-material'
-import { useGetWinSessionsByUserId } from '~/hooks/sessionHook'
+import { useGetWinSessionsByUserId, useUpdateSessionWinnerStatus } from '~/hooks/sessionHook'
 import { useAppStore } from '~/store/appStore'
 import { StyledTab, StyledCard, InfoChip, AnimatedButton } from './style'
 import { useNavigate } from 'react-router-dom'
@@ -27,6 +29,7 @@ const WonItems = () => {
   const navigate = useNavigate()
   const { auth } = useAppStore()
   const { data } = useGetWinSessionsByUserId(auth.user.id)
+  const { mutate: updateStatus, isLoading: isUpdating } = useUpdateSessionWinnerStatus()
   const wonItems = Array.isArray(data) ? data : []
 
   const handleTabChange = (event, newValue) => {
@@ -43,10 +46,26 @@ const WonItems = () => {
     }
   }
 
+  const handleUpdateStatus = (sessionWinnerId, newStatus) => {
+    updateStatus(
+      { sessionWinnerId, status: newStatus },
+      {
+        onSuccess: () => {
+          console.log(`Status updated to ${newStatus}`)
+        },
+        onError: (error) => {
+          console.error(`Error updating status to ${newStatus}:`, error)
+        }
+      }
+    )
+  }
+
   const getStatusChip = (status) => {
     const statusConfig = {
       PENDING_PAYMENT: { icon: <Payment />, label: 'Chờ thanh toán', color: 'warning' },
       PAYMENT_SUCCESSFUL: { icon: <CheckCircle />, label: 'Đã thanh toán', color: 'success' },
+      DELIVERING: { icon: <LocalShipping />, label: 'Đang giao hàng', color: 'info' },
+      RECEIVED: { icon: <Beenhere />, label: 'Đã nhận', color: 'success' },
       CANCELED: { icon: <Cancel />, label: 'Đã hủy', color: 'error' }
     }
     const config = statusConfig[status] || statusConfig.CANCELED
@@ -63,14 +82,14 @@ const WonItems = () => {
 
   const filteredData = useMemo(() => {
     if (tab === 0) return wonItems // Tab "Tất cả"
-    const statusKeys = ['PENDING_PAYMENT', 'PAYMENT_SUCCESSFUL', 'CANCELED']
+    const statusKeys = ['PENDING_PAYMENT', 'PAYMENT_SUCCESSFUL', 'DELIVERING', 'RECEIVED', 'CANCELED']
     return wonItems.filter((item) => item.status === statusKeys[tab - 1])
   }, [tab, wonItems])
 
   return (
     <Container maxWidth="lg">
       <Box sx={{ width: '100%', py: 4 }}>
-        <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', color: '#b41712' }}>
+        <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
           Vật phẩm đã thắng
         </Typography>
         <Typography variant="subtitle1" color="text.secondary" gutterBottom>
@@ -89,11 +108,13 @@ const WonItems = () => {
             <StyledTab icon={<ListAlt />} label="Tất cả" />
             <StyledTab icon={<Payment />} label="Chờ thanh toán" />
             <StyledTab icon={<CheckCircle />} label="Đã thanh toán" />
+            <StyledTab icon={<LocalShipping />} label="Đang giao hàng" />
+            <StyledTab icon={<Beenhere />} label="Đã nhận" />
             <StyledTab icon={<Cancel />} label="Đã hủy" />
           </Tabs>
         </Paper>
 
-        <Box sx={{ mt: 3 }}>
+        <Box sx={{ mt: 3, maxHeight: '600px', overflowY: 'auto' }}>
           {filteredData.length > 0 ? (
             filteredData.map((item) => (
               <StyledCard key={item.sessionWinnerId}>
@@ -130,6 +151,16 @@ const WonItems = () => {
                     {getStatusChip(item.status)}
                   </CardContent>
                   <CardActions sx={{ mt: 'auto', justifyContent: 'flex-end', p: 0 }}>
+                    {item.status === 'DELIVERING' && (
+                      <AnimatedButton
+                        variant="contained"
+                        onClick={() => handleUpdateStatus(item.sessionWinnerId, 'RECEIVED')}
+                        disabled={isUpdating}
+                        sx={{ mt: 2, mr: 1 }}
+                      >
+                        {isUpdating ? 'Đang xử lý...' : 'Xác nhận đã nhận'}
+                      </AnimatedButton>
+                    )}
                     <AnimatedButton
                       variant="contained"
                       onClick={() => handleOpenDetails(item)}

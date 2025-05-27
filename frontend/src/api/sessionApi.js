@@ -127,3 +127,15 @@ export const getWinSessionsByUserId = async (id) => {
     handleApiError(error)
   }
 }
+
+export const updateSessionWinnerStatus = async (sessionWinnerId, status) => {
+  try {
+    const response = await PUT({
+      url: `${SESSION_PATH}/win-sessions/${sessionWinnerId}/status`,
+      payload: { status }
+    })
+    return response.data.result
+  } catch (error) {
+    handleApiError(error)
+  }
+}

@@ -29,7 +29,7 @@ const ImageCarousel = ({ images }) => {
       <CardMedia
         component="img"
         height="300"
-        image={images[currentIndex].imageAsset || '/placeholder.svg?height=300&width=300'}
+        image={images[currentIndex]?.imageAsset || '/placeholder.svg?height=300&width=300'}
         alt={`Image ${currentIndex + 1}`}
         sx={{ borderRadius: 2, objectFit: 'cover' }}
       />

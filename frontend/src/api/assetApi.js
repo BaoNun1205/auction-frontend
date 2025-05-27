@@ -35,3 +35,15 @@ export const filterAssets = async (payload) => {
     handleApiError(error);
   }
 }
+
+export const updateAssetStatus = async (assetId, status) => {
+  try {
+    const response = await PUT({
+      url: `${ASSET_PATH}/status/${assetId}`,
+      params: { status }
+    });
+    return response.data.result;
+  } catch (error) {
+    handleApiError(error);
+  }
+}

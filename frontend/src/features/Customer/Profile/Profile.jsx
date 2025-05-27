@@ -19,6 +19,7 @@ import AuctionSessions from './AuctionSessions'
 import WonItems from './WonItems'
 import MyWallet from './MyWallet'
 import PaymentHistory from './PaymentHistory'
+import { useCustomNavigate } from '~/utils/navigate'
 
 const primaryColor = '#b41712'
 
@@ -59,6 +60,7 @@ const Profile = () => {
   const navigate = useNavigate()
   const { mutate: logout, isLoading: isLoggingOut } = useLogout()
   const location = useLocation()
+  const { handleNavigate } = useCustomNavigate()
 
   useEffect(() => {
     if (location.state?.tabSet) {
@@ -68,10 +70,6 @@ const Profile = () => {
 
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
-
-  const handleNavigate = () => {
-    navigate('/')
-  }
 
   const handleLogout = () => {
     setLogoutDialogOpen(true)

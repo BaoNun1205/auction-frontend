@@ -1,7 +1,6 @@
 import AssetListPage from '~/pages/Asset/AssetListPage'
 import CategoryListPage from '~/pages/Category/CategoryListPage'
 import HomePage from '~/pages/Home/HomePage'
-import ConfirmAccount from '~/pages/Authentication/comfirm'
 import TypeListPage from '~/pages/Type/TypeListPage'
 import RequirementListPage from '~/pages/Requirement/RequirementListPage'
 import AddRequirementPage from '~/pages/Requirement/AddRequirementPage'
@@ -26,6 +25,7 @@ import InvoicePage from '~/pages/Customer/InvoicePage'
 import CustomerHomePage from '~/pages/Customer/Home'
 import UpcomingRedirect from '~/pages/Customer/Home/component/UpcomingRedirect'
 import OngoingRedirect from '~/pages/Customer/Home/component/OngoingRedirect'
+import ConfirmAccount from '~/pages/Authentication/comfirm'
 
 export const BASE_PATHS = {
   HOME: '/',
