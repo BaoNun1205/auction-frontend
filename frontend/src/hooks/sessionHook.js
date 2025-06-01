@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { createSesion, getSessionById, filterSessions, getRelatedSessions, updateSesion, registerSesion, getRegistedSession, checkRegisted, getUsersRegisted, getWinSessionsByUserId, getSessionByAssetId, unRegisterSesion } from '~/api/sessionApi'
+import { createSesion, getSessionById, filterSessions, getRelatedSessions, updateSesion, registerSesion, getRegistedSession, checkRegisted, getUsersRegisted, getWinSessionsByUserId, getSessionByAssetId, unRegisterSesion, updateSessionWinnerStatus } from '~/api/sessionApi'
 
 export const useCreateSession = () => {
   const queryClient = useQueryClient()
@@ -133,6 +133,21 @@ export const useGetWinSessionsByUserId = (id) => {
     queryFn: () => getWinSessionsByUserId(id),
     onError: (error) => {
       console.error('Error fetching winning sessions:', error);
+    },
+  });
+};
+
+export const useUpdateSessionWinnerStatus = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ sessionWinnerId, status }) => updateSessionWinnerStatus(sessionWinnerId, status),
+    onSuccess: (data) => {
+      console.log('Session winner status updated successfully:', data);
+      queryClient.invalidateQueries(['getWinSessionsByUserId']);
+    },
+    onError: (error) => {
+      console.error('Error updating session winner status:', error);
     },
   });
 };

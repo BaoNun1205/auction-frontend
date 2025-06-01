@@ -104,7 +104,6 @@ const Notification = ({ initialNotifications = [] }) => {
       })
     }
 
-
     let cleanup = null
 
     console.log('Connecting WebSocket with userId:', userId, 'and token:', token)

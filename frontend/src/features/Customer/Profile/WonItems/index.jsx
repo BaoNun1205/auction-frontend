@@ -1,212 +1,229 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react'
 import {
-  Box, Typography, Tabs, CardMedia, CardContent,
-  CardActions, Button, Modal, Grid, Paper,
-  Container, useTheme, useMediaQuery,
-  Avatar,
-  Divider
-} from '@mui/material';
-import {
-  LocalShipping, Inventory, CheckCircle,
-  ListAlt, Timer, Gavel, Close,
-  Cancel,
-  Person,
-  Home,
-  Phone
-} from '@mui/icons-material';
-import { useGetWinSessionsByUserId } from '~/hooks/sessionHook';
-import { useAppStore } from '~/store/appStore';
-import { StyledTab, StyledCard, InfoChip, AnimatedButton } from './style';
-import AuctionModal from './component/AuctionModal';
+  Box,
+  Typography,
+  CardMedia,
+  CardContent,
+  CardActions,
+  Button,
+  Container,
+  Paper,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  DialogContentText,
+  Snackbar,
+  Alert,
+  Chip
+} from '@mui/material'
+import { styled } from '@mui/material/styles'
+import { Payment, CheckCircle, Cancel, Timer, LocalShipping, Beenhere } from '@mui/icons-material'
+import { useGetWinSessionsByUserId, useUpdateSessionWinnerStatus } from '~/hooks/sessionHook'
+import { useAppStore } from '~/store/appStore'
+import { useNavigate } from 'react-router-dom'
+import { useCompletedPaymentSession } from '~/hooks/balanceHistoryHook'
 
-// const AuctionModal = ({ open, handleClose, item }) => {
-//   const theme = useTheme();
-//   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+const StyledCard = styled(Paper)({
+  display: 'flex',
+  marginBottom: '16px',
+  borderRadius: '12px',
+  boxShadow: '0 4px 20px rgba(180, 23, 18, 0.08)',
+  border: '1px solid rgba(180, 23, 18, 0.1)',
+  transition: 'all 0.3s ease',
+  '&:hover': {
+    boxShadow: '0 8px 32px rgba(180, 23, 18, 0.15)',
+    transform: 'translateY(-2px)'
+  }
+})
 
-//   if (!item) return null;
+const InfoChip = styled(Chip)({
+  borderRadius: '16px',
+  fontWeight: '500'
+})
 
-//   const user = {
-//     name: 'Nguyễn Văn A',
-//     address: '123 Đường ABC, Quận XYZ, TP. Hồ Chí Minh',
-//     phone: '0123456789',
-//     avatar: '/placeholder.svg?height=100&width=100'
-//   };
-
-//   return (
-//     <Modal
-//       open={open}
-//       onClose={handleClose}
-//       aria-labelledby="auction-details-modal"
-//     >
-//       <Box sx={{
-//         position: 'absolute',
-//         top: '50%',
-//         left: '50%',
-//         transform: 'translate(-50%, -50%)',
-//         width: fullScreen ? '100%' : 800,
-//         maxHeight: '90vh',
-//         overflowY: 'auto',
-//         bgcolor: 'background.paper',
-//         borderRadius: 2,
-//         boxShadow: 24,
-//         p: 4
-//       }}>
-//         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-//           <Typography variant="h5" component="h2" color="#b41712" fontWeight="bold">
-//             Chi tiết đấu giá
-//           </Typography>
-//           <Button onClick={handleClose} sx={{ minWidth: 'auto', p: 0.5 }}>
-//             <Close />
-//           </Button>
-//         </Box>
-//         <Grid container spacing={4}>
-//           <Grid item xs={12} md={6}>
-//             <CardMedia
-//               component="img"
-//               height="310"
-//               image={item.auctionSession.asset.mainImage || '/placeholder.svg?height=300&width=300'}
-//               alt={item.auctionSession.asset.assetName}
-//               sx={{ borderRadius: 2, objectFit: 'cover' }}
-//             />
-//             <Typography variant="h6" gutterBottom fontWeight="bold" sx={{ mt: 2 }}>
-//               {item.auctionSession.asset.assetName}
-//             </Typography>
-//             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-//               <Typography variant="body1" color="text.secondary">
-//                 Giá thắng:
-//               </Typography>
-//               <Typography variant="h6" color="#b41712" fontWeight="bold">
-//                 {item.price.toLocaleString('vi-VN')} VNĐ
-//               </Typography>
-//             </Box>
-//             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-//               <Timer color="action" fontSize="small" />
-//               <Typography variant="body2" color="text.secondary">
-//                 Thời gian kết thúc: {new Date(item.victoryTime).toLocaleString('vi-VN')}
-//               </Typography>
-//             </Box>
-//             <InfoChip
-//               icon={<Gavel />}
-//               label="Đã thắng đấu giá"
-//               color="success"
-//               sx={{ mb: 2 }}
-//             />
-//           </Grid>
-//           <Grid item xs={12} md={6}>
-//             <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
-//               <Typography variant="h6" gutterBottom fontWeight="bold">
-//                 Thông tin người nhận
-//               </Typography>
-//               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-//                 <Avatar src={user.avatar} sx={{ width: 60, height: 60, mr: 2 }} />
-//                 <Box>
-//                   <Typography variant="subtitle1" fontWeight="bold">
-//                     {user.name}
-//                   </Typography>
-//                   <Typography variant="body2" color="text.secondary">
-//                     Người thắng đấu giá
-//                   </Typography>
-//                 </Box>
-//               </Box>
-//               <Divider sx={{ my: 2 }} />
-//               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-//                 <Person sx={{ mr: 2, color: '#b41712' }} />
-//                 <Typography variant="body1">{user.name}</Typography>
-//               </Box>
-//               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-//                 <Home sx={{ mr: 2, color: '#b41712' }} />
-//                 <Typography variant="body1">{user.address}</Typography>
-//               </Box>
-//               <Box sx={{ display: 'flex', alignItems: 'center' }}>
-//                 <Phone sx={{ mr: 2, color: '#b41712' }} />
-//                 <Typography variant="body1">{user.phone}</Typography>
-//               </Box>
-//             </Paper>
-//           </Grid>
-//         </Grid>
-//         <Box sx={{ mt: 4 }}>
-//           <Typography variant="h6" gutterBottom fontWeight="bold">
-//             Thông tin vật phẩm
-//           </Typography>
-//           <Typography variant="body2" color="text.secondary" paragraph dangerouslySetInnerHTML={{ __html: item.auctionSession.asset.assetDescription || 'Không có thông tin chi tiết.' }} />
-//         </Box>
-//       </Box>
-//     </Modal>
-//   );
-// };
+const AnimatedButton = styled(Button)({
+  borderRadius: '8px',
+  textTransform: 'none',
+  fontWeight: 600,
+  transition: 'all 0.3s ease',
+  backgroundColor: '#b41712',
+  '&:hover': {
+    backgroundColor: '#a01510',
+    transform: 'translateY(-1px)'
+  }
+})
 
 const WonItems = () => {
-  const [tab, setTab] = useState(0);
-  const [selectedItem, setSelectedItem] = useState(null);
-  const { auth } = useAppStore();
-  const { data } = useGetWinSessionsByUserId(auth.user.id);
-  const wonItems = Array.isArray(data) ? data : [];
+  const [activeTab, setActiveTab] = useState(0)
+  const [receivedConfirmDialog, setReceivedConfirmDialog] = useState(false)
+  const [selectedItem, setSelectedItem] = useState(null)
+  const { mutate: completedPaymentSession, isPending } = useCompletedPaymentSession()
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success'
+  })
 
-  const handleTabChange = (event, newValue) => {
-    setTab(newValue);
-  };
+  const navigate = useNavigate()
+  const { auth } = useAppStore()
+  const { data, refetch } = useGetWinSessionsByUserId(auth.user.id)
+  const { mutate: updateStatus, isLoading: isUpdating } = useUpdateSessionWinnerStatus()
+  const wonItems = Array.isArray(data) ? data : []
+
+  const getStatusCount = (status) => {
+    if (status === 'ALL') return wonItems.length
+    const statusKeys = ['PENDING_PAYMENT', 'PAYMENT_SUCCESSFUL', 'DELIVERING', 'RECEIVED', 'CANCELED']
+    const statusKey = statusKeys.find((key) => key === status)
+    return wonItems.filter((item) => item.status === statusKey).length
+  }
 
   const handleOpenDetails = (item) => {
-    setSelectedItem(item);
-  };
+    if (item.status === 'PAYMENT_SUCCESSFUL') {
+      navigate(`/invoice/${item.auctionSession.auctionSessionId}`, {
+        state: { tabSet: 3 }
+      })
+    } else {
+      navigate(`/checkout/${item.auctionSession.auctionSessionId}`)
+    }
+  }
 
-  const handleCloseDetails = () => {
-    setSelectedItem(null);
-  };
+  const handleConfirmReceived = (item) => {
+    setSelectedItem(item)
+    setReceivedConfirmDialog(true)
+  }
+
+  const handleCloseReceivedDialog = () => {
+    setReceivedConfirmDialog(false)
+    setSelectedItem(null)
+  }
+
+  const handleConfirmReceivedAction = () => {
+    console.log('Confirming received for item:', selectedItem)
+    if (!selectedItem) return
+
+    const { auctionSession } = selectedItem
+    const buyerId = selectedItem.user.userId
+    const sellerId = auctionSession?.asset?.vendor?.userId
+    const sessionId = auctionSession?.auctionSessionId
+
+    if (!buyerId || !sellerId || !sessionId) {
+      setSnackbar({
+        open: true,
+        message: 'Không đủ thông tin để xác nhận nhận hàng!',
+        severity: 'error'
+      })
+      return
+    }
+
+    completedPaymentSession(
+      { buyerId, sellerId, sessionId },
+      {
+        onSuccess: () => {
+          setSnackbar({
+            open: true,
+            message: `Đã xác nhận nhận hàng và hoàn tất thanh toán cho "${selectedItem.auctionSession.asset.assetName}"`,
+            severity: 'success'
+          })
+          setReceivedConfirmDialog(false)
+          setSelectedItem(null)
+          refetch()
+        },
+        onError: (error) => {
+          setSnackbar({
+            open: true,
+            message: 'Có lỗi khi xác nhận nhận hàng và hoàn tất thanh toán!',
+            severity: 'error'
+          })
+          console.error('Error completing payment session:', error)
+        }
+      }
+    )
+  }
+
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === 'clickaway') {
+      return
+    }
+    setSnackbar({ ...snackbar, open: false })
+  }
 
   const getStatusChip = (status) => {
     const statusConfig = {
-      PREPARING: { icon: <Inventory />, label: 'Đang chuẩn bị', color: 'warning' },
+      PENDING_PAYMENT: { icon: <Payment />, label: 'Chờ thanh toán', color: 'warning' },
+      PAYMENT_SUCCESSFUL: { icon: <CheckCircle />, label: 'Đã thanh toán', color: 'success' },
       DELIVERING: { icon: <LocalShipping />, label: 'Đang giao hàng', color: 'info' },
-      RECEIVED: { icon: <CheckCircle />, label: 'Đã nhận hàng', color: 'success' },
+      RECEIVED: { icon: <Beenhere />, label: 'Đã nhận', color: 'success' },
       CANCELED: { icon: <Cancel />, label: 'Đã hủy', color: 'error' }
-    };
-    const config = statusConfig[status] || statusConfig.CANCELED;
+    }
+    const config = statusConfig[status] || statusConfig.CANCELED
 
-    return (
-      <InfoChip
-        icon={config.icon}
-        label={config.label}
-        color={config.color}
-        size="small"
-      />
-    );
-  };
+    return <InfoChip icon={config.icon} label={config.label} color={config.color} size="small" />
+  }
+
+  const getButtonText = (status) => {
+    switch (status) {
+    case 'PENDING_PAYMENT':
+      return 'Thanh toán'
+    case 'PAYMENT_SUCCESSFUL':
+    case 'DELIVERING':
+    case 'RECEIVED':
+    case 'CANCELED':
+    default:
+      return 'Xem chi tiết'
+    }
+  }
 
   const filteredData = useMemo(() => {
-    if (tab === 0) return wonItems;
-    const statusKeys = ['PREPARING', 'DELIVERING', 'RECEIVED', 'CANCELED'];
-    return wonItems.filter(item => item.status === statusKeys[tab - 1]);
-  }, [tab, wonItems]);
+    if (activeTab === 0) return wonItems // Tab "Tất cả"
+    const statusKeys = ['PENDING_PAYMENT', 'PAYMENT_SUCCESSFUL', 'DELIVERING', 'RECEIVED', 'CANCELED']
+    return wonItems.filter((item) => item.status === statusKeys[activeTab - 1])
+  }, [activeTab, wonItems])
 
   return (
     <Container maxWidth="lg">
       <Box sx={{ width: '100%', py: 4 }}>
-        <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', color: '#b41712' }}>
-          Chiến lợi phẩm
-        </Typography>
-        <Typography variant="subtitle1" color="text.secondary" gutterBottom>
+        <Box sx={{ mb: 4 }}>
+          <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
+          Vật phẩm đã thắng
+          </Typography>
+          <Typography variant="subtitle1" color="text.secondary" gutterBottom>
           Lưu trữ các vật phẩm đã thắng trong các phiên đấu giá
-        </Typography>
+          </Typography>
+        </Box>
 
         <Paper elevation={0} sx={{ mb: 3, borderBottom: 1, borderColor: 'divider' }}>
-          <Tabs
-            value={tab}
-            onChange={handleTabChange}
-            variant="scrollable"
-            scrollButtons="auto"
-            textColor="inherit"
-            TabIndicatorProps={{ sx: { bgcolor: '#b41712' } }}
-          >
-            <StyledTab icon={<ListAlt />} label="Tất cả" />
-            <StyledTab icon={<Inventory />} label="Đang chuẩn bị" />
-            <StyledTab icon={<LocalShipping />} label="Đang giao" />
-            <StyledTab icon={<CheckCircle />} label="Đã nhận" />
-            <StyledTab icon={<Cancel />} label="Đã hủy" />
-          </Tabs>
+          {/* Status Count Chips */}
+          <Box sx={{ display: 'flex', gap: 1, mb: 3, flexWrap: 'wrap' }}>
+            {[
+              { key: 'ALL', label: 'Tất cả', index: 0 },
+              { key: 'PENDING_PAYMENT', label: 'Chờ thanh toán', index: 1 },
+              { key: 'PAYMENT_SUCCESSFUL', label: 'Đã thanh toán', index: 2 },
+              { key: 'DELIVERING', label: 'Đang giao hàng', index: 3 },
+              { key: 'RECEIVED', label: 'Đã nhận', index: 4 },
+              { key: 'CANCELED', label: 'Đã hủy', index: 5 }
+            ].map(({ key, label, index }) => (
+              <Chip
+                key={key}
+                label={`${label} (${getStatusCount(key)})`}
+                variant={activeTab === index ? 'filled' : 'outlined'}
+                onClick={() => setActiveTab(index)}
+                sx={{
+                  cursor: 'pointer',
+                  borderRadius: '20px',
+                  backgroundColor: activeTab === index ? '#b41712' : 'transparent',
+                  color: activeTab === index ? 'white' : '#b41712',
+                  borderColor: '#b41712',
+                  '&:hover': {
+                    backgroundColor: activeTab === index ? '#a01510' : 'rgba(180, 23, 18, 0.1)'
+                  }
+                }}
+              />
+            ))}
+          </Box>
         </Paper>
 
-        <Box sx={{ mt: 3 }}>
+        <Box sx={{ mt: 3, maxHeight: '600px', overflowY: 'auto' }}>
           {filteredData.length > 0 ? (
             filteredData.map((item) => (
               <StyledCard key={item.sessionWinnerId}>
@@ -220,7 +237,7 @@ const WonItems = () => {
                       borderRadius: 2,
                       position: 'absolute',
                       top: 0,
-                      left: 0,
+                      left: 0
                     }}
                     image={item.auctionSession.asset.mainImage || '/placeholder.svg?height=200&width=200'}
                     alt={item.auctionSession.asset.assetName}
@@ -232,7 +249,7 @@ const WonItems = () => {
                       {item.auctionSession.asset.assetName}
                     </Typography>
                     <Typography variant="body1" color="text.secondary" gutterBottom>
-                      Giá thắng: {item.price.toLocaleString('vi-VN')} VNĐ
+                      Giá thắng: {item.price.toLocaleString('vi-VN')} ₫
                     </Typography>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                       <Timer color="action" fontSize="small" />
@@ -242,38 +259,115 @@ const WonItems = () => {
                     </Box>
                     {getStatusChip(item.status)}
                   </CardContent>
-                  <CardActions sx={{ mt: 'auto', justifyContent: 'flex-end', p: 0 }}>
-                    <AnimatedButton
-                      variant="contained"
-                      onClick={() => handleOpenDetails(item)}
-                      sx={{ mt: 2 }}
-                    >
-                      Xem chi tiết
+                  <CardActions sx={{ mt: 'auto', justifyContent: 'flex-end', p: 0, gap: 1 }}>
+                    {item.status === 'DELIVERING' && (
+                      <AnimatedButton
+                        variant="outlined"
+                        onClick={() => handleConfirmReceived(item)}
+                        disabled={isUpdating}
+                        sx={{
+                          mt: 2,
+                          borderColor: '#b41712',
+                          color: '#b41712',
+                          backgroundColor: 'transparent',
+                          '&:hover': {
+                            borderColor: '#a01510',
+                            backgroundColor: 'rgba(180, 23, 18, 0.1)',
+                            transform: 'translateY(-1px)'
+                          }
+                        }}
+                      >
+                        {isUpdating ? 'Đang xử lý...' : 'Đã nhận'}
+                      </AnimatedButton>
+                    )}
+                    <AnimatedButton variant="contained" onClick={() => handleOpenDetails(item)} sx={{ mt: 2 }}>
+                      {getButtonText(item.status)}
                     </AnimatedButton>
                   </CardActions>
                 </Box>
               </StyledCard>
             ))
           ) : (
-            <Typography
-              variant="body1"
-              textAlign="center"
-              color="text.secondary"
-              sx={{ py: 4 }}
-            >
+            <Typography variant="body1" textAlign="center" color="text.secondary" sx={{ py: 4 }}>
               Không có vật phẩm nào
             </Typography>
           )}
         </Box>
-
-        <AuctionModal
-          open={Boolean(selectedItem)}
-          handleClose={handleCloseDetails}
-          item={selectedItem}
-        />
       </Box>
-    </Container>
-  );
-};
 
-export default WonItems;
+      {/* Received Confirmation Dialog */}
+      <Dialog
+        open={receivedConfirmDialog}
+        onClose={handleCloseReceivedDialog}
+        PaperProps={{
+          sx: {
+            borderRadius: '12px',
+            border: '1px solid rgba(180, 23, 18, 0.2)'
+          }
+        }}
+      >
+        <DialogTitle sx={{ color: '#b41712', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Beenhere />
+          Xác nhận đã nhận hàng
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ mb: 2 }}>
+            Bạn có chắc chắn đã nhận được vật phẩm{' '}
+            <strong style={{ color: '#b41712' }}>"{selectedItem?.auctionSession?.asset?.assetName}"</strong> không?
+          </DialogContentText>
+          <Box
+            sx={{
+              p: 2,
+              backgroundColor: 'rgba(180, 23, 18, 0.05)',
+              borderRadius: '8px',
+              border: '1px solid rgba(180, 23, 18, 0.2)'
+            }}
+          >
+            <Typography variant="body2" color="text.secondary">
+              <strong>Lưu ý:</strong> Sau khi xác nhận, trạng thái sẽ được cập nhật thành "Đã nhận" và bạn không thể
+              thay đổi lại.
+            </Typography>
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ p: 3, gap: 1 }}>
+          <Button
+            onClick={handleCloseReceivedDialog}
+            variant="outlined"
+            sx={{
+              borderColor: '#b41712',
+              color: '#b41712',
+              '&:hover': {
+                borderColor: '#a01510',
+                backgroundColor: 'rgba(180, 23, 18, 0.1)'
+              }
+            }}
+          >
+            Hủy
+          </Button>
+          <Button
+            onClick={handleConfirmReceivedAction}
+            variant="contained"
+            startIcon={<CheckCircle />}
+            disabled={isUpdating}
+            sx={{
+              backgroundColor: '#b41712',
+              '&:hover': {
+                backgroundColor: '#a01510'
+              }
+            }}
+          >
+            {isUpdating ? 'Đang xử lý...' : 'Xác nhận đã nhận'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={handleCloseSnackbar}>
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+    </Container>
+  )
+}
+
+export default WonItems

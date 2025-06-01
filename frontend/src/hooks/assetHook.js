@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { createAsset, filterAssets, getAssetById } from '~/api/assetApi';
+import { createAsset, filterAssets, getAssetById, updateAssetStatus } from '~/api/assetApi';
 
 export const useCreateAsset = () => {
   const queryClient = useQueryClient();
@@ -30,6 +30,23 @@ export const useFilterAssets = (payload) => {
     queryFn: () => filterAssets(payload),
     onError: (error) => {
       console.error('Error fetching filtered assets:', error);
+    },
+  });
+};
+
+export const useUpdateAssetStatus = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ assetId, status }) => updateAssetStatus(assetId, status),
+    onSuccess: (data) => {
+      console.log('Asset status updated successfully:', data);
+      // Invalidate queries to refresh asset data
+      queryClient.invalidateQueries(['asset']);
+      queryClient.invalidateQueries(['filterAssets']);
+    },
+    onError: (error) => {
+      console.error('Error updating asset status:', error);
     },
   });
 };

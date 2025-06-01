@@ -23,13 +23,25 @@ export const useGetAddressByUserId = (userId) => {
   })
 }
 
-export const useGetAddressDefaultByUserId = (userId) => {
+// export const useGetAddressDefaultByUserId = (userId) => {
+//   return useQuery({
+//     queryKey: ['defaultAddress', userId],
+//     queryFn: () => getAddressDefaultByUserId(userId),
+//     enabled: !!userId,
+//     onError: (error) => {
+//       console.error('Error fetching default address:', error);
+//     },
+//   });
+// };
+
+export const useGetAddressDefaultByUserId = (userId, enabled = true) => {
   return useQuery({
     queryKey: ['defaultAddress', userId],
     queryFn: () => getAddressDefaultByUserId(userId),
+    enabled: enabled, // chỉ gọi nếu userId có
     onError: (error) => {
       console.error('Error fetching default address:', error);
-    },
+    }
   });
 };
 

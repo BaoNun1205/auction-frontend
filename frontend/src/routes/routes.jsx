@@ -1,11 +1,9 @@
 import AssetListPage from '~/pages/Asset/AssetListPage'
 import CategoryListPage from '~/pages/Category/CategoryListPage'
 import HomePage from '~/pages/Home/HomePage'
-import ConfirmAccount from '~/pages/Authentication/comfirm'
 import TypeListPage from '~/pages/Type/TypeListPage'
 import RequirementListPage from '~/pages/Requirement/RequirementListPage'
 import AddRequirementPage from '~/pages/Requirement/AddRequirementPage'
-import CustomerHomePage from '~/pages/Customer/Home'
 import AddSessionPage from '~/pages/Session/AddSessionPage'
 import TimedAuctionDetailPage from '~/pages/Customer/TimedAuctionDetailPage'
 import SessionListPage from '~/pages/Session/SessionListPage'
@@ -20,9 +18,19 @@ import VNPayCallback from '~/features/Customer/Profile/MyWallet/VNPayCallback'
 import IntroductionPage from '~/pages/Customer/IntroductionPage'
 import NewsPage from '~/pages/Customer/NewsPage'
 import ContactPage from '~/pages/Customer/ContactPage'
+import CheckoutPage from '~/pages/Customer/CheckoutPage'
+import PaymentSuccessPage from '~/pages/Customer/PaymentSuccessPage'
+import PaymentHistoryPage from '~/pages/Customer/PaymentHistoryPage '
+import InvoicePage from '~/pages/Customer/InvoicePage'
+import CustomerHomePage from '~/pages/Customer/Home'
+import UpcomingRedirect from '~/pages/Customer/Home/component/UpcomingRedirect'
+import OngoingRedirect from '~/pages/Customer/Home/component/OngoingRedirect'
+import ConfirmAccount from '~/pages/Authentication/comfirm'
 
 export const BASE_PATHS = {
   HOME: '/',
+  UPCOMING: '/upcoming',
+  ONGOING: '/ongoing',
   CATEGORY: '/category',
   ASSET: '/asset',
   REQUIREMENT: '/requirement',
@@ -35,6 +43,10 @@ export const BASE_PATHS = {
   INTRODUCTION: '/introduction',
   NEWS: '/news',
   CONTACT: '/contact',
+  CHECKOUT: '/checkout',
+  PAYMENT_SUCCESS: '/payment-success',
+  PAYMENT_HISTORY: '/payment-history',
+  INVOICE: '/invoice'
 }
 
 export const publicRoutes = [
@@ -49,6 +61,14 @@ export const publicRoutes = [
   {
     path: BASE_PATHS.HOME,
     page: CustomerHomePage
+  },
+  {
+    path: BASE_PATHS.UPCOMING,
+    page: UpcomingRedirect
+  },
+  {
+    path: BASE_PATHS.ONGOING,
+    page: OngoingRedirect
   },
   {
     path: `${BASE_PATHS.SESSION}/:id`,
@@ -93,6 +113,22 @@ export const privateRoutes = [
     path: '/profile',
     page: ProfilePage
   },
+  {
+    path: `${BASE_PATHS.CHECKOUT}/:id`,
+    page: CheckoutPage
+  },
+  {
+    path: `${BASE_PATHS.PAYMENT_SUCCESS}/:id`,
+    page: PaymentSuccessPage
+  },
+  {
+    path: `${BASE_PATHS.PAYMENT_HISTORY}`,
+    page: PaymentHistoryPage
+  },
+  {
+    path: `${BASE_PATHS.INVOICE}/:id`,
+    page: InvoicePage
+  }
 ]
 
 export const adminRoutes = [
