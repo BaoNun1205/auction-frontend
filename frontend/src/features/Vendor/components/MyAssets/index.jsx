@@ -31,6 +31,8 @@ import SearchIcon from '@mui/icons-material/Search'
 import FilterListIcon from '@mui/icons-material/FilterList'
 import LocalShippingIcon from '@mui/icons-material/LocalShipping'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import VisibilityIcon from '@mui/icons-material/Visibility'
+import GavelIcon from '@mui/icons-material/Gavel'
 import { useFilterAssets, useUpdateAssetStatus } from '~/hooks/assetHook'
 import { useAppStore } from '~/store/appStore'
 import AuctionCreationDialog from './component/AuctionCreationDialog'
@@ -88,6 +90,7 @@ const MyAssets = () => {
   const [isAssetSuccessModalOpen, setAssetSuccessModalOpen] = useState(false)
   const [selectedAssetForSuccess, setSelectedAssetForSuccess] = useState(null)
   const [deliveryConfirmDialog, setDeliveryConfirmDialog] = useState(false)
+  const [receivedConfirmDialog, setReceivedConfirmDialog] = useState(false)
   const { mutate: updateAssetStatus } = useUpdateAssetStatus()
   const { data, refetch } = useFilterAssets({ vendorId: auth?.user?.id })
   const assets = Array.isArray(data?.data) ? data.data : []
@@ -98,7 +101,7 @@ const MyAssets = () => {
 
     setSelectedAsset(asset)
 
-    if (asset?.status === 'AUCTION_SUCCESS') {
+    if (asset?.status === 'AUCTION_SUCCESS' || asset?.status === 'PAYMENT_SUCCESSFUL') {
       console.log('Opening AssetSuccessModal')
       setSelectedAssetForSuccess(asset)
       setAssetSuccessModalOpen(true)
@@ -137,6 +140,15 @@ const MyAssets = () => {
     setDeliveryConfirmDialog(false)
   }
 
+  const handleConfirmReceived = () => {
+    setReceivedConfirmDialog(true)
+    handleMenuClose()
+  }
+
+  const handleCloseReceivedDialog = () => {
+    setReceivedConfirmDialog(false)
+  }
+
   const handleConfirmDeliveryAction = () => {
     if (!selectedAsset) return
 
@@ -157,6 +169,33 @@ const MyAssets = () => {
           setSnackbar({
             open: true,
             message: 'Có lỗi khi cập nhật trạng thái giao hàng!',
+            severity: 'error'
+          })
+        }
+      }
+    )
+  }
+
+  const handleConfirmReceivedAction = () => {
+    if (!selectedAsset) return
+
+    updateAssetStatus(
+      { assetId: selectedAsset.assetId, status: 'COMPLETED' },
+      {
+        onSuccess: () => {
+          setSnackbar({
+            open: true,
+            message: `Đã xác nhận hoàn thành giao dịch cho vật phẩm "${selectedAsset?.assetName}"`,
+            severity: 'success'
+          })
+          setReceivedConfirmDialog(false)
+          setSelectedAsset(null)
+          refetch()
+        },
+        onError: () => {
+          setSnackbar({
+            open: true,
+            message: 'Có lỗi khi cập nhật trạng thái!',
             severity: 'error'
           })
         }
@@ -194,14 +233,16 @@ const MyAssets = () => {
       return 'Đang đấu giá'
     case 'AUCTION_SUCCESS':
       return 'Đấu giá thành công'
-    case 'AUCTION_FAILED':
-      return 'Đấu giá thất bại'
+    case 'PAYMENT_SUCCESSFUL':
+      return 'Đã thanh toán'
     case 'DELIVERING':
       return 'Đang giao hàng'
     case 'RECEIVED':
       return 'Đã nhận hàng'
     case 'COMPLETED':
       return 'Hoàn thành'
+    case 'AUCTION_FAILED':
+      return 'Đấu giá thất bại'
     default:
       return status
     }
@@ -215,14 +256,16 @@ const MyAssets = () => {
       return 'warning'
     case 'AUCTION_SUCCESS':
       return 'success'
-    case 'AUCTION_FAILED':
-      return 'error'
-    case 'DELIVERING':
+    case 'PAYMENT_SUCCESSFUL':
       return 'info'
+    case 'DELIVERING':
+      return 'primary'
     case 'RECEIVED':
       return 'success'
     case 'COMPLETED':
       return 'success'
+    case 'AUCTION_FAILED':
+      return 'error'
     default:
       return 'default'
     }
@@ -242,9 +285,10 @@ const MyAssets = () => {
         (activeTab === 1 && asset.status === 'NOT_AUCTIONED') ||
         (activeTab === 2 && asset.status === 'ONGOING') ||
         (activeTab === 3 && asset.status === 'AUCTION_SUCCESS') ||
-        (activeTab === 4 && asset.status === 'AUCTION_FAILED') ||
+        (activeTab === 4 && asset.status === 'PAYMENT_SUCCESSFUL') ||
         (activeTab === 5 && asset.status === 'DELIVERING') ||
-        (activeTab === 6 && ['RECEIVED', 'COMPLETED'].includes(asset.status))
+        (activeTab === 6 && asset.status === 'AUCTION_FAILED') ||
+        (activeTab === 7 && ['RECEIVED', 'COMPLETED'].includes(asset.status))
       const matchesSearch = asset.assetName.toLowerCase().includes(searchTerm.toLowerCase())
       const matchesPrice = priceFilter === '' || asset.assetPrice <= Number.parseInt(priceFilter)
       return matchesTab && matchesSearch && matchesPrice
@@ -269,9 +313,10 @@ const MyAssets = () => {
           { key: 'NOT_AUCTIONED', label: 'Chưa đấu giá', index: 1 },
           { key: 'ONGOING', label: 'Đang đấu giá', index: 2 },
           { key: 'AUCTION_SUCCESS', label: 'Thành công', index: 3 },
-          { key: 'AUCTION_FAILED', label: 'Thất bại', index: 4 },
+          { key: 'PAYMENT_SUCCESSFUL', label: 'Đã thanh toán', index: 4 },
           { key: 'DELIVERING', label: 'Đang giao', index: 5 },
-          { key: 'COMPLETED_ALL', label: 'Hoàn thành', index: 6 }
+          { key: 'AUCTION_FAILED', label: 'Thất bại', index: 6 },
+          { key: 'COMPLETED_ALL', label: 'Hoàn thành', index: 7 }
         ].map(({ key, label, index }) => (
           <Chip
             key={key}
@@ -309,10 +354,8 @@ const MyAssets = () => {
             sx={{
               '& .MuiOutlinedInput-root': {
                 borderRadius: '12px',
-                '&:hover .MuiOutlinedInput-notchedOutline': {
-                },
-                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                }
+                '&:hover .MuiOutlinedInput-notchedOutline': {},
+                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {}
               }
             }}
           />
@@ -332,10 +375,8 @@ const MyAssets = () => {
               '& .MuiOutlinedInput-notchedOutline': {
                 borderRadius: '12px'
               },
-              '&:hover .MuiOutlinedInput-notchedOutline': {
-              },
-              '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-              }
+              '&:hover .MuiOutlinedInput-notchedOutline': {},
+              '&.Mui-focused .MuiOutlinedInput-notchedOutline': {}
             }}
           >
             <MenuItem value="">Tất cả giá</MenuItem>
@@ -468,9 +509,13 @@ const MyAssets = () => {
           sx={{
             borderRadius: '4px',
             mx: 1,
-            '&:hover': { backgroundColor: 'rgba(180, 23, 18, 0.1)' }
+            '&:hover': { backgroundColor: 'rgba(180, 23, 18, 0.1)' },
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1
           }}
         >
+          <VisibilityIcon fontSize="small" sx={{ color: '#b41712' }} />
           Xem chi tiết
         </MenuItem>
 
@@ -483,14 +528,18 @@ const MyAssets = () => {
             sx={{
               borderRadius: '4px',
               mx: 1,
-              '&:hover': { backgroundColor: 'rgba(180, 23, 18, 0.1)' }
+              '&:hover': { backgroundColor: 'rgba(180, 23, 18, 0.1)' },
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1
             }}
           >
+            <GavelIcon fontSize="small" sx={{ color: '#b41712' }} />
             Tạo phiên đấu giá
           </MenuItem>
         )}
 
-        {selectedAsset?.status === 'AUCTION_SUCCESS' && (
+        {selectedAsset?.status === 'PAYMENT_SUCCESSFUL' && (
           <MenuItem
             onClick={handleConfirmDelivery}
             sx={{
@@ -513,10 +562,31 @@ const MyAssets = () => {
             sx={{
               borderRadius: '4px',
               mx: 1,
-              '&:hover': { backgroundColor: 'rgba(180, 23, 18, 0.1)' }
+              '&:hover': { backgroundColor: 'rgba(180, 23, 18, 0.1)' },
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1
             }}
           >
-            Cập nhật trạng thái giao hàng
+            <LocalShippingIcon fontSize="small" sx={{ color: '#b41712' }} />
+            Theo dõi giao hàng
+          </MenuItem>
+        )}
+
+        {selectedAsset?.status === 'RECEIVED' && (
+          <MenuItem
+            onClick={handleConfirmReceived}
+            sx={{
+              borderRadius: '4px',
+              mx: 1,
+              '&:hover': { backgroundColor: 'rgba(180, 23, 18, 0.1)' },
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1
+            }}
+          >
+            <CheckCircleIcon fontSize="small" sx={{ color: '#b41712' }} />
+            Xác nhận hoàn thành
           </MenuItem>
         )}
 
@@ -529,9 +599,13 @@ const MyAssets = () => {
             sx={{
               borderRadius: '4px',
               mx: 1,
-              '&:hover': { backgroundColor: 'rgba(180, 23, 18, 0.1)' }
+              '&:hover': { backgroundColor: 'rgba(180, 23, 18, 0.1)' },
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1
             }}
           >
+            <GavelIcon fontSize="small" sx={{ color: '#b41712' }} />
             Tạo phiên đấu giá mới
           </MenuItem>
         )}
@@ -598,6 +672,70 @@ const MyAssets = () => {
             }}
           >
             Xác nhận giao hàng
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Received Confirmation Dialog */}
+      <Dialog
+        open={receivedConfirmDialog}
+        onClose={handleCloseReceivedDialog}
+        PaperProps={{
+          sx: {
+            borderRadius: '12px',
+            border: '1px solid rgba(180, 23, 18, 0.2)'
+          }
+        }}
+      >
+        <DialogTitle sx={{ color: '#b41712', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: 1 }}>
+          <CheckCircleIcon />
+          Xác nhận hoàn thành
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ mb: 2 }}>
+            Bạn có chắc chắn muốn xác nhận hoàn thành giao dịch cho vật phẩm{' '}
+            <strong style={{ color: '#b41712' }}>"{selectedAsset?.assetName}"</strong> không?
+          </DialogContentText>
+          <Box
+            sx={{
+              p: 2,
+              backgroundColor: 'rgba(180, 23, 18, 0.05)',
+              borderRadius: '8px',
+              border: '1px solid rgba(180, 23, 18, 0.2)'
+            }}
+          >
+            <Typography variant="body2" color="text.secondary">
+              <strong>Lưu ý:</strong> Sau khi xác nhận, giao dịch sẽ được hoàn thành và không thể thay đổi.
+            </Typography>
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ p: 3, gap: 1 }}>
+          <Button
+            onClick={handleCloseReceivedDialog}
+            variant="outlined"
+            sx={{
+              borderColor: '#b41712',
+              color: '#b41712',
+              '&:hover': {
+                borderColor: '#a01510',
+                backgroundColor: 'rgba(180, 23, 18, 0.1)'
+              }
+            }}
+          >
+            Hủy
+          </Button>
+          <Button
+            onClick={handleConfirmReceivedAction}
+            variant="contained"
+            startIcon={<CheckCircleIcon />}
+            sx={{
+              backgroundColor: '#b41712',
+              '&:hover': {
+                backgroundColor: '#a01510'
+              }
+            }}
+          >
+            Xác nhận hoàn thành
           </Button>
         </DialogActions>
       </Dialog>

@@ -78,7 +78,8 @@ const PaymentHistory = () => {
         return sortOrder === 'asc' ? dateA - dateB : dateB - dateA
       })
       .map((item) => ({
-        billId: item.session.auctionSessionId,
+        // billId: item.session.auctionSessionId,
+        billId: item.billId,
         auctionSessionId: item.session.auctionSessionId,
         asset: {
           assetName: item.session.asset.assetName || 'Không xác định',
