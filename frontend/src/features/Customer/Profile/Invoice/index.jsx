@@ -23,7 +23,6 @@ import {
   ArrowBack,
   Download,
   ContentCopy,
-  Share,
   LocalShipping,
   Receipt,
   CalendarToday,
@@ -36,21 +35,24 @@ import {
 } from '@mui/icons-material'
 import { ThemeProvider } from '@mui/material/styles'
 import { theme } from './style'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import { useGetSessionById } from '~/hooks/sessionHook'
+import { useLocation, useParams } from 'react-router-dom'
 import { useReactToPrint } from 'react-to-print'
 import { QRCodeSVG } from 'qrcode.react'
 import BackButton from '~/components/BackButton'
 import { useCustomNavigate } from '~/utils/navigate'
+import { useBillById } from '~/hooks/billHooks'
+import { useGetAddressDefaultByUserId } from '~/hooks/addressHook'
 
 const Invoice = () => {
   const { id } = useParams()
   const { state } = useLocation();
   const tabSet = state?.tabSet ?? 7;
-  const { data: auctionData, isLoading, isError } = useGetSessionById(id)
+
+  const { data: bill, isLoading: isLoading, isError: isError } = useBillById(id)
   const printRef = useRef()
   const [showPrintableVersion, setShowPrintableVersion] = useState(false)
   const { handleNavigate } = useCustomNavigate();
+  const { data: addressDefaut } = useGetAddressDefaultByUserId(bill?.buyerBill.userId)
 
   // Handle print functionality
   const handlePrint = useReactToPrint({
@@ -69,9 +71,31 @@ const Invoice = () => {
     }
   })
 
+  useEffect(() => {
+    if (showPrintableVersion && printRef.current) {
+      handlePrint()
+    }
+  }, [showPrintableVersion])
+
   const handleCopyInvoiceNumber = () => {
     navigator.clipboard.writeText(`INV-${id}`)
     alert('Đã sao chép mã hóa đơn!')
+  }
+
+  if (isLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <Typography variant="h6">Đang tải...</Typography>
+      </Box>
+    )
+  }
+
+  if (isError || !bill) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <Typography variant="h6">Không tìm thấy thông tin hóa đơn</Typography>
+      </Box>
+    )
   }
 
   const handleShare = () => {
@@ -79,7 +103,7 @@ const Invoice = () => {
       navigator
         .share({
           title: 'Hóa đơn đấu giá',
-          text: `Hóa đơn thanh toán đấu giá: ${auctionData?.asset?.assetName}`,
+          text: `Hóa đơn thanh toán đấu giá: ${bill?.session?.asset?.assetName}`,
           url: window.location.href
         })
         .catch((error) => console.log('Lỗi chia sẻ:', error))
@@ -105,57 +129,33 @@ const Invoice = () => {
     handlePrint()
   }
 
-  // Đảm bảo DOM đã được cập nhật sau khi setShowPrintableVersion
-  useEffect(() => {
-    if (showPrintableVersion && printRef.current) {
-    // Tùy chọn: Tự động gọi handlePrint sau khi DOM được render
-      handlePrint()
-    }
-  }, [showPrintableVersion])
-
   const handleBackToInvoice = () => {
     setShowPrintableVersion(false)
   }
 
-  if (isLoading) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <Typography variant="h6">Đang tải...</Typography>
-      </Box>
-    )
-  }
-
-  if (isError || !auctionData) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <Typography variant="h6">Không tìm thấy thông tin hóa đơn</Typography>
-      </Box>
-    )
-  }
-
   // Calculate payment details
-  const depositAmount = auctionData.depositAmount || 0
-  const winningBid = auctionData.auctionSessionInfo?.highestBid || 0
+  const depositAmount = bill.depositPrice || 0
+  const winningBid = bill.bidPrice || 0
   const remainingAmount = winningBid - depositAmount
-  const paymentDate = new Date() // In a real app, this would come from the payment record
-  const invoiceDate = new Date()
-  const invoiceNumber = `INV-${id}`
-  const transactionId = `TX${id.substring(0, 8).toUpperCase()}`
+  const paymentDate = bill.billDate ? new Date(bill.billDate) : new Date();
+  const invoiceDate = bill.billDate ? new Date(bill.billDate) : new Date();
+  const invoiceNumber = `INV-${bill.billId.substring(0, 8).toUpperCase()}`
+  const transactionId = `TX${bill.transactionCode}`
 
   // Mock shipping information - in a real app, this would come from the user's profile or form input
   const shippingInfo = {
-    recipientName: 'Nguyễn Văn A',
-    phone: '0912345678',
-    address: '123 Đường Lê Lợi, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh'
+    recipientName: bill?.address?.recipientName,
+    phone: bill?.address?.phone,
+    address: bill?.address?.addressDetail,
+    email: bill?.buyerBill?.email
   }
 
   // Mock seller information - in a real app, this would come from the auction data
   const sellerInfo = {
-    name: 'Sàn Đấu Giá XYZ',
-    taxId: '0123456789',
-    address: '456 Đường Nguyễn Huệ, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh',
-    phone: '028 1234 5678',
-    email: 'contact@sandaugiaxyz.com'
+    name: bill?.sellerBill?.name || bill?.sellerBill?.username,
+    address: addressDefaut?.addressDetail,
+    phone: bill?.sellerBill?.phone,
+    email: bill?.sellerBill?.email
   }
 
   return (
@@ -254,9 +254,6 @@ const Invoice = () => {
                       {sellerInfo.name}
                     </Typography>
                     <Typography variant="body2" sx={{ mt: 1 }}>
-                      Mã số thuế: {sellerInfo.taxId}
-                    </Typography>
-                    <Typography variant="body2" sx={{ mt: 1 }}>
                       Địa chỉ: {sellerInfo.address}
                     </Typography>
                     <Typography variant="body2" sx={{ mt: 1 }}>
@@ -269,20 +266,20 @@ const Invoice = () => {
                 </Grid>
                 <Grid item xs={12} md={6}>
                   <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-                    Thông tin người mua
+                    Thông tin người nhận
                   </Typography>
                   <Paper elevation={0} sx={{ p: 2, bgcolor: '#f5f5f5', borderRadius: 2 }}>
                     <Typography variant="body1" fontWeight="bold">
                       {shippingInfo.recipientName}
                     </Typography>
                     <Typography variant="body2" sx={{ mt: 1 }}>
-                      Điện thoại: {shippingInfo.phone}
-                    </Typography>
-                    <Typography variant="body2" sx={{ mt: 1 }}>
                       Địa chỉ: {shippingInfo.address}
                     </Typography>
                     <Typography variant="body2" sx={{ mt: 1 }}>
-                      Người thắng đấu giá: {auctionData.auctionSessionInfo?.user?.name || 'Không có thông tin'}
+                      Điện thoại: {shippingInfo.phone}
+                    </Typography>
+                    <Typography variant="body2" sx={{ mt: 1 }}>
+                      Email: {shippingInfo.email}
                     </Typography>
                   </Paper>
                 </Grid>
@@ -309,25 +306,25 @@ const Invoice = () => {
                             <Box
                               component="img"
                               src={
-                                auctionData.asset.mainImage ||
-                                (auctionData.asset.listImages && auctionData.asset.listImages[0]?.imageAsset) ||
+                                bill.session.asset.mainImage ||
+                                (bill.session.asset.listImages && bill.session.asset.listImages[0]?.imageAsset) ||
                                 '/placeholder.svg?height=60&width=60'
                               }
-                              alt={auctionData.asset.assetName}
+                              alt={bill.session.asset.assetName}
                               sx={{ width: 60, height: 60, borderRadius: 1, mr: 2, objectFit: 'cover' }}
                             />
                             <Box>
                               <Typography variant="body1" fontWeight="medium">
-                                {auctionData.asset.assetName}
+                                {bill.session.asset.assetName}
                               </Typography>
                               <Typography variant="caption" color="text.secondary">
-                                Mã vật phẩm: {auctionData.asset.assetId || id.substring(0, 8).toUpperCase()}
+                                Mã vật phẩm: {bill.session.asset.assetId || id.substring(0, 8).toUpperCase()}
                               </Typography>
                             </Box>
                           </Box>
                         </TableCell>
                         <TableCell align="right">
-                          {auctionData.startingBids?.toLocaleString('vi-VN') || '0'} VNĐ
+                          {bill.session.startingBids?.toLocaleString('vi-VN') || '0'} VNĐ
                         </TableCell>
                         <TableCell align="right">{winningBid.toLocaleString('vi-VN')} VNĐ</TableCell>
                         <TableCell align="right">{winningBid.toLocaleString('vi-VN')} VNĐ</TableCell>
@@ -673,7 +670,7 @@ const Invoice = () => {
                     </Typography>
                     <Typography variant="body2" sx={{ mt: 1 }}>
                       <strong>Người thắng đấu giá:</strong>{' '}
-                      {auctionData.auctionSessionInfo?.user?.name || 'Không có thông tin'}
+                      {bill?.buyerBill?.user?.name || 'Không có thông tin'}
                     </Typography>
                   </Box>
                 </Grid>
@@ -706,15 +703,15 @@ const Invoice = () => {
                       <TableRow>
                         <TableCell sx={{ py: 2 }}>
                           <Typography variant="body1" fontWeight="bold" gutterBottom>
-                            {auctionData.asset.assetName}
+                            {bill.session.asset.assetName}
                           </Typography>
                           <Typography variant="body2" color="text.secondary">
-                            Mã vật phẩm: {auctionData.asset.assetId || id.substring(0, 8).toUpperCase()}
+                            Mã vật phẩm: {bill.session.asset.assetId || id.substring(0, 8).toUpperCase()}
                           </Typography>
                         </TableCell>
                         <TableCell align="right" sx={{ py: 2 }}>
                           <Typography variant="body1" fontWeight="medium">
-                            {auctionData.startingBids?.toLocaleString('vi-VN') || '0'} VNĐ
+                            {bill.session.startingBids?.toLocaleString('vi-VN') || '0'} VNĐ
                           </Typography>
                         </TableCell>
                         <TableCell align="right" sx={{ py: 2 }}>

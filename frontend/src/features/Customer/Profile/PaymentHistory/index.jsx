@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react'
 import {
   Box,
   Typography,
@@ -12,87 +12,88 @@ import {
   MenuItem,
   Select,
   FormControl,
-  InputLabel,
-} from '@mui/material';
-import { Search, Receipt, ArrowDownward, ArrowUpward } from '@mui/icons-material';
-import { ThemeProvider } from '@mui/material/styles';
-import { theme } from './style';
-import PaymentHistoryItem from './component/PaymentHistoryItem';
-import { useAppStore } from '~/store/appStore';
-import { useGetWinSessionsByUserId } from '~/hooks/sessionHook';
+  InputLabel
+} from '@mui/material'
+import { Search, Receipt, ArrowDownward, ArrowUpward } from '@mui/icons-material'
+import { ThemeProvider } from '@mui/material/styles'
+import { theme } from './style'
+import PaymentHistoryItem from './component/PaymentHistoryItem'
+import { useAppStore } from '~/store/appStore'
+import { useBillsByUserId } from '~/hooks/billHooks'
 
 const PaymentHistory = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [sortOrder, setSortOrder] = useState('desc');
-  const [timeFilter, setTimeFilter] = useState('all');
-  const { auth } = useAppStore();
-  const { data } = useGetWinSessionsByUserId(auth.user.id);
+  const [searchTerm, setSearchTerm] = useState('')
+  const [sortOrder, setSortOrder] = useState('desc')
+  const [timeFilter, setTimeFilter] = useState('all')
+  const { auth } = useAppStore()
+  const { data } = useBillsByUserId(auth.user.id)
+
   // Xử lý dữ liệu API, đảm bảo là mảng
-  const wonItems = Array.isArray(data) ? data : data?.json ? [data.json] : [];
+  const wonItems = Array.isArray(data) ? data : [];
+  console.log('wonItems: ', wonItems)
 
   const handleSearchChange = (event) => {
-    setSearchTerm(event.target.value);
-  };
+    setSearchTerm(event.target.value)
+  }
 
   const handleSortToggle = () => {
-    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-  };
+    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+  }
 
   const handleTimeFilterChange = (event) => {
-    setTimeFilter(event.target.value);
-  };
+    setTimeFilter(event.target.value)
+  }
 
   // Filter and sort payments
   const filteredPayments = useMemo(() => {
     return wonItems
       .filter((item) => {
-        // Chỉ lấy các phiên có status === 'PAYMENT_SUCCESSFUL'
-        if (item.status !== 'PAYMENT_SUCCESSFUL') {
-          return false;
-        }
-
         // Filter by search term
         if (
           searchTerm &&
-          !item.auctionSession.asset.assetName.toLowerCase().includes(searchTerm.toLowerCase())
+          !item?.session.asset.assetName.toLowerCase().includes(searchTerm.toLowerCase())
         ) {
-          return false;
+          return false
         }
 
         // Filter by time
-        const now = new Date();
-        const paymentDate = new Date(item.victoryTime);
+        const now = new Date()
+        const paymentDate = new Date(item.billDate)
         if (
           timeFilter === 'month' &&
           (paymentDate.getMonth() !== now.getMonth() ||
             paymentDate.getFullYear() !== now.getFullYear())
         ) {
-          return false;
+          return false
         } else if (timeFilter === 'year' && paymentDate.getFullYear() !== now.getFullYear()) {
-          return false;
+          return false
         }
 
-        return true;
+        return true
       })
       .sort((a, b) => {
         // Sort by date
-        const dateA = new Date(a.victoryTime);
-        const dateB = new Date(b.victoryTime);
-        return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+        const dateA = new Date(a.billDate)
+        const dateB = new Date(b.billDate)
+        return sortOrder === 'asc' ? dateA - dateB : dateB - dateA
       })
       .map((item) => ({
-        id: item.auctionSession.auctionSessionId,
+        // billId: item.session.auctionSessionId,
+        billId: item.billId,
+        auctionSessionId: item.session.auctionSessionId,
         asset: {
-          assetName: item.auctionSession.asset.assetName || 'Không xác định',
-          mainImage: item.auctionSession.asset.mainImage || '/placeholder.svg?height=60&width=60',
-          listImages: item.auctionSession.asset.listImages.map((img) => ({
-            imageAsset: img.imageAsset,
-          })) || [],
+          assetName: item.session.asset.assetName || 'Không xác định',
+          mainImage: item.session.asset.mainImage || '/placeholder.svg?height=60&width=60',
+          listImages: item.session.asset.listImages
+            ? item.session.asset.listImages.map((img) => ({
+              imageAsset: img.imageAsset
+            }))
+            : []
         },
-        paymentDate: new Date(item.victoryTime),
-        amount: item.price,
-      }));
-  }, [wonItems, searchTerm, timeFilter, sortOrder]);
+        billDate: new Date(item.billDate),
+        bidPrice: item.totalPrice
+      }))
+  }, [wonItems, searchTerm, timeFilter, sortOrder])
 
   return (
     <ThemeProvider theme={theme}>
@@ -117,7 +118,7 @@ const PaymentHistory = () => {
                       <InputAdornment position="start">
                         <Search color="action" />
                       </InputAdornment>
-                    ),
+                    )
                   }}
                   sx={{ bgcolor: '#f5f5f5', borderRadius: 1 }}
                 />
@@ -148,10 +149,10 @@ const PaymentHistory = () => {
               </Grid>
             </Grid>
 
-            <Box sx={{ mt: 3 }}>
+            <Box sx={{ mt: 3, minHeight: '400px', maxHeight: '600px', overflowY: 'auto' }}>
               {filteredPayments.length > 0 ? (
                 filteredPayments.map((payment) => (
-                  <PaymentHistoryItem key={payment.id} payment={payment} />
+                  <PaymentHistoryItem key={payment.billId} payment={payment} />
                 ))
               ) : (
                 <Box sx={{ textAlign: 'center', py: 4 }}>
@@ -169,7 +170,7 @@ const PaymentHistory = () => {
         </Card>
       </Container>
     </ThemeProvider>
-  );
-};
+  )
+}
 
-export default PaymentHistory;
+export default PaymentHistory

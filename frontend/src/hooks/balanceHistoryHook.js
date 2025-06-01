@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { cancelPaymentSession, getBalanceHistoryByUserId, paymentSession } from '~/api/balanceHistoryApi'
+import { cancelPaymentSession, completedPaymentSession, getBalanceHistoryByUserId, paymentSession } from '~/api/balanceHistoryApi'
 
 export const UseGetBalanceHistory = (id) => {
   return useQuery({
@@ -8,14 +8,33 @@ export const UseGetBalanceHistory = (id) => {
   });
 };
 
-export const usePaymentSession = () => {
+export const usePaymentSession = (options = {}) => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ buyerId, sellerId, sessionId, addressId }) =>
+      paymentSession({ buyerId, sellerId, sessionId, addressId }),
+    onSuccess: (data) => {
+      console.log('Payment session processed successfully')
+      queryClient.invalidateQueries({ queryKey: ['balanceHistory'] })
+      options.onSuccess?.(data)
+    },
+    onError: (error) => {
+      console.error('Error processing payment session:', error)
+      options.onError?.(error)
+    },
+    ...options
+  })
+}
+
+export const useCompletedPaymentSession = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: ({ buyerId, sellerId, sessionId }) =>
-      paymentSession({ buyerId, sellerId, sessionId }),
+      completedPaymentSession({ buyerId, sellerId, sessionId }),
     onSuccess: () => {
-      console.log('Payment session processed successfully')
+      console.log('Completed payment session processed successfully')
       queryClient.invalidateQueries({ queryKey: ['balanceHistory'] })
     },
     onError: (error) => {
