@@ -1,59 +1,21 @@
-import React from 'react'
-import { Box, Container, Typography, Grid, Button, Chip } from '@mui/material'
-import { ArrowForward, HowToReg } from '@mui/icons-material'
+import React, { useRef, useState, useEffect, useMemo } from 'react'
+import { Box, Container, Typography, Button, Chip, IconButton } from '@mui/material'
+import { ArrowForward, HowToReg, ChevronLeft, ChevronRight } from '@mui/icons-material'
 import { useAppStore } from '~/store/appStore'
 import { useRecommendByUser } from '~/hooks/recommendHook'
 import { useFilterSessions } from '~/hooks/sessionHook'
-import AuctionCard from '../UpcomingAuctionCard'
+import { useNavigate } from 'react-router-dom'
+import AuctionCard from '../OngoingAuctionCard'
 
 const primaryColor = '#B71C1C'
-
-const upcomingAuctions = [
-  {
-    id: 9,
-    name: 'Bộ sưu tập tranh Đông Hồ cổ',
-    startingPrice: 25000000,
-    bidIncrement: 1000000,
-    image: '/placeholder.svg?height=300&width=300',
-    startTime: '2 ngày nữa',
-    registrations: 15,
-    status: 'upcoming'
-  },
-  {
-    id: 10,
-    name: 'Xe Mercedes-Benz cổ 1980',
-    startingPrice: 850000000,
-    bidIncrement: 10000000,
-    image: '/placeholder.svg?height=300&width=300',
-    startTime: '1 tuần nữa',
-    registrations: 8,
-    status: 'upcoming'
-  },
-  {
-    id: 11,
-    name: 'Bộ chén Bát Tràng thời Lê',
-    startingPrice: 45000000,
-    bidIncrement: 2000000,
-    image: '/placeholder.svg?height=300&width=300',
-    startTime: '3 ngày nữa',
-    registrations: 12,
-    status: 'upcoming'
-  },
-  {
-    id: 12,
-    name: 'Đàn piano cổ Steinway',
-    startingPrice: 180000000,
-    bidIncrement: 5000000,
-    image: '/placeholder.svg?height=300&width=300',
-    startTime: '5 ngày nữa',
-    registrations: 6,
-    status: 'upcoming'
-  }
-]
 
 function UpcomingAuctions() {
   const { auth } = useAppStore()
   const userId = auth.user?.id
+  const scrollContainerRef = useRef(null)
+  const [canScrollLeft, setCanScrollLeft] = useState(false)
+  const [canScrollRight, setCanScrollRight] = useState(true)
+  const navigate = useNavigate()
 
   const {
     data: recommendedData,
@@ -68,55 +30,187 @@ function UpcomingAuctions() {
   } = useFilterSessions({ status: 'UPCOMING' })
 
   // Xử lý loading và error
-  if (userId && isLoadingRecommend) {
-    return <Typography>Loading...</Typography>
-  }
-  if (!userId && isLoadingFilter) {
-    return <Typography>Loading...</Typography>
+  const isLoading = isLoadingRecommend || isLoadingFilter
+  const isError = isErrorRecommend || isErrorFilter
+
+  // Memoize items to ensure stability
+  const items = useMemo(() => {
+    return userId ? recommendedData || [] : filteredData?.data || []
+  }, [userId, recommendedData, filteredData])
+
+  const checkScrollButtons = () => {
+    if (scrollContainerRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current
+      setCanScrollLeft(scrollLeft > 0)
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 1)
+    }
   }
 
-  if (userId && isErrorRecommend) {
-    return <Typography>Error loading sessions</Typography>
-  }
-  if (!userId && isErrorFilter) {
-    return <Typography>Error loading sessions</Typography>
+  const scrollLeft = () => {
+    if (scrollContainerRef.current) {
+      const cardWidth = 320 // Approximate width of one card including margin
+      scrollContainerRef.current.scrollBy({
+        left: -cardWidth * 2, // Scroll 2 cards at a time
+        behavior: 'smooth'
+      })
+    }
   }
 
-  // Lấy dữ liệu hiển thị
-  const items = userId ? recommendedData : filteredData?.data || []
+  const scrollRight = () => {
+    if (scrollContainerRef.current) {
+      const cardWidth = 320 // Approximate width of one card including margin
+      scrollContainerRef.current.scrollBy({
+        left: cardWidth * 2, // Scroll 2 cards at a time
+        behavior: 'smooth'
+      })
+    }
+  }
+
+  const handleViewAll = () => {
+    navigate('/search?status=UPCOMING')
+  }
+
+  useEffect(() => {
+    checkScrollButtons()
+    const handleResize = () => checkScrollButtons()
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [items])
 
   return (
     <Box sx={{ py: 6, bgcolor: '#fef7f7' }}>
       <Container maxWidth="lg">
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Typography variant="h4" sx={{ fontWeight: 'bold', mr: 2 }}>
-              Sắp diễn ra
-            </Typography>
-            <Chip
-              label="Đăng ký sớm"
-              size="small"
-              sx={{
-                bgcolor: primaryColor,
-                color: 'white'
-              }}
-              icon={<HowToReg sx={{ fontSize: 16, color: 'white !important' }} />}
-            />
-          </Box>
-          <Button endIcon={<ArrowForward />}>Xem tất cả</Button>
-        </Box>
-        {items.length > 0 ? (
-          <Grid container spacing={3}>
-            {items.map((auction) => (
-              <Grid item xs={12} sm={6} md={3} key={auction.auctionSessionId}>
-                <AuctionCard auction={auction} type="upcoming" />
-              </Grid>
-            ))}
-          </Grid>
+        {isLoading ? (
+          <Typography>Loading...</Typography>
+        ) : isError ? (
+          <Typography>Error loading sessions</Typography>
         ) : (
-          <Typography variant="body1" sx={{ textAlign: 'center' }}>
-            Không có phiên đấu giá sắp diễn ra.
-          </Typography>
+          <>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <Typography variant="h4" sx={{ fontWeight: 'bold', mr: 2 }}>
+                  Sắp diễn ra
+                </Typography>
+                <Chip
+                  label="Đăng ký sớm"
+                  size="small"
+                  sx={{
+                    bgcolor: primaryColor,
+                    color: 'white'
+                  }}
+                  icon={<HowToReg sx={{ fontSize: 16, color: 'white !important' }} />}
+                />
+              </Box>
+              <Button onClick={handleViewAll} endIcon={<ArrowForward />}>
+                Xem tất cả
+              </Button>
+            </Box>
+
+            {items.length > 0 ? (
+              <Box sx={{ position: 'relative' }}>
+                {/* Left Navigation Button */}
+                {canScrollLeft && (
+                  <IconButton
+                    onClick={scrollLeft}
+                    sx={{
+                      position: 'absolute',
+                      left: -20,
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      zIndex: 2,
+                      bgcolor: 'white',
+                      boxShadow: 2,
+                      width: 48,
+                      height: 48,
+                      '&:hover': {
+                        bgcolor: '#f5f5f5',
+                        boxShadow: 3
+                      }
+                    }}
+                  >
+                    <ChevronLeft sx={{ fontSize: 28 }} />
+                  </IconButton>
+                )}
+
+                {/* Right Navigation Button */}
+                {canScrollRight && (
+                  <IconButton
+                    onClick={scrollRight}
+                    sx={{
+                      position: 'absolute',
+                      right: -20,
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      zIndex: 2,
+                      bgcolor: 'white',
+                      boxShadow: 2,
+                      width: 48,
+                      height: 48,
+                      '&:hover': {
+                        bgcolor: '#f5f5f5',
+                        boxShadow: 3
+                      }
+                    }}
+                  >
+                    <ChevronRight sx={{ fontSize: 28 }} />
+                  </IconButton>
+                )}
+
+                {/* Scrollable Cards Container */}
+                <Box
+                  ref={scrollContainerRef}
+                  onScroll={checkScrollButtons}
+                  sx={{
+                    display: 'flex',
+                    gap: 3,
+                    overflowX: 'auto',
+                    overflowY: 'hidden',
+                    scrollBehavior: 'smooth',
+                    pb: 2,
+                    '&::-webkit-scrollbar': {
+                      display: 'none'
+                    },
+                    '-ms-overflow-style': 'none',
+                    'scrollbar-width': 'none',
+                    mx: 2
+                  }}
+                >
+                  {items.map((auction) => (
+                    <Box
+                      key={auction.id}
+                      sx={{
+                        minWidth: 300,
+                        maxWidth: 300,
+                        flexShrink: 0
+                      }}
+                    >
+                      <AuctionCard auction={auction} type="upcoming" />
+                    </Box>
+                  ))}
+                </Box>
+              </Box>
+            ) : (
+              <Typography variant="body1" sx={{ textAlign: 'center' }}>
+                Không có phiên đấu giá sắp diễn ra.
+              </Typography>
+            )}
+
+            {/* Mobile Touch Scroll Indicator */}
+            {items.length > 0 && (
+              <Box
+                sx={{
+                  display: { xs: 'flex', md: 'none' },
+                  justifyContent: 'center',
+                  mt: 2,
+                  gap: 1
+                }}
+              >
+                <Typography variant="caption" color="text.secondary">
+                  ← Vuốt để xem thêm →
+                </Typography>
+              </Box>
+            )}
+          </>
         )}
       </Container>
     </Box>
