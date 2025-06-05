@@ -1,75 +1,200 @@
-import React from 'react';
-import { Box, Container, Typography, Grid, Button } from '@mui/material';
-import { ArrowForward } from '@mui/icons-material';
-import AuctionCard from '../AuctionCard';
-
-const featuredAuctions = [
-  {
-    id: 1,
-    name: 'Tranh sơn dầu phong cảnh Paris thế kỷ 19',
-    startingPrice: 15000000,
-    currentPrice: 28500000,
-    image: '/placeholder.svg?height=300&width=300',
-    timeLeft: '2 ngày 5 giờ',
-    bids: 12,
-    status: 'hot',
-    percentComplete: 70
-  },
-  {
-    id: 2,
-    name: 'Đồng hồ Rolex Vintage 1970',
-    startingPrice: 120000000,
-    currentPrice: 145000000,
-    image: '/placeholder.svg?height=300&width=300',
-    timeLeft: '1 ngày 3 giờ',
-    bids: 8,
-    status: 'new',
-    percentComplete: 85
-  },
-  {
-    id: 3,
-    name: 'Tượng đồng cổ thời Lê',
-    startingPrice: 50000000,
-    currentPrice: 62500000,
-    image: '/placeholder.svg?height=300&width=300',
-    timeLeft: '5 giờ 23 phút',
-    bids: 15,
-    status: 'ending',
-    percentComplete: 95
-  },
-  {
-    id: 4,
-    name: 'Bộ sưu tập tem hiếm thế kỷ 20',
-    startingPrice: 8000000,
-    currentPrice: 12500000,
-    image: '/placeholder.svg?height=300&width=300',
-    timeLeft: '3 ngày 12 giờ',
-    bids: 6,
-    status: '',
-    percentComplete: 40
-  }
-];
+import React, { useRef, useState, useEffect } from 'react'
+import { Box, Container, Typography, Button, Chip, IconButton } from '@mui/material'
+import { ArrowForward, AccessTime, ChevronLeft, ChevronRight } from '@mui/icons-material'
+import { useAppStore } from '~/store/appStore'
+import { useRecommendByUser } from '~/hooks/recommendHook'
+import { useFilterSessions } from '~/hooks/sessionHook'
+import AuctionCard from '../OngoingAuctionCard'
+import { useNavigate } from 'react-router-dom'
 
 function FeaturedAuctions() {
+  const { auth } = useAppStore()
+  const userId = auth.user?.id
+  const scrollContainerRef = useRef(null)
+  const [canScrollLeft, setCanScrollLeft] = useState(false)
+  const [canScrollRight, setCanScrollRight] = useState(true)
+  const navigate = useNavigate()
+
+  const {
+    data: recommendedData,
+    isLoading: isLoadingRecommend,
+    isError: isErrorRecommend
+  } = useRecommendByUser(userId, 'HOT')
+
+  const {
+    data: filteredData,
+    isLoading: isLoadingFilter,
+    isError: isErrorFilter
+  } = useFilterSessions({ status: 'HOT' })
+
+  // Xử lý loading và error
+  const isLoading = userId ? isLoadingRecommend : isLoadingFilter
+  const isError = userId ? isErrorRecommend : isErrorFilter
+  const items = userId ? recommendedData : filteredData?.data || []
+
+  const checkScrollButtons = () => {
+    if (scrollContainerRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current
+      setCanScrollLeft(scrollLeft > 0)
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 1)
+    }
+  }
+
+  const scrollLeft = () => {
+    if (scrollContainerRef.current) {
+      const cardWidth = 320 // Approximate width of one card including margin
+      scrollContainerRef.current.scrollBy({
+        left: -cardWidth * 2, // Scroll 2 cards at a time
+        behavior: 'smooth'
+      })
+    }
+  }
+
+  const scrollRight = () => {
+    if (scrollContainerRef.current) {
+      const cardWidth = 320 // Approximate width of one card including margin
+      scrollContainerRef.current.scrollBy({
+        left: cardWidth * 2, // Scroll 2 cards at a time
+        behavior: 'smooth'
+      })
+    }
+  }
+
+  const handleViewAll = () => {
+    navigate('/search?status=ONGOING')
+  }
+
+  useEffect(() => {
+    checkScrollButtons()
+    const handleResize = () => checkScrollButtons()
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [items])
+
   return (
-    <Box sx={{ py: 6 }}>
+    <Box sx={{ py: 6, bgcolor: '#f8f9fa' }}>
       <Container maxWidth="lg">
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-          <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
-            Phiên đấu giá nổi bật
-          </Typography>
-          <Button endIcon={<ArrowForward />}>Xem tất cả</Button>
-        </Box>
-        <Grid container spacing={3}>
-          {featuredAuctions.map((auction) => (
-            <Grid item xs={12} sm={6} md={3} key={auction.id}>
-              <AuctionCard auction={auction} type="featured" />
-            </Grid>
-          ))}
-        </Grid>
+        {isLoading ? (
+          <Typography>Loading...</Typography>
+        ) : isError ? (
+          <Typography>Error loading sessions</Typography>
+        ) : (
+          <>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+                  Phiên đấu giá nổi bật
+                </Typography>
+              </Box>
+              <Button onClick={handleViewAll} endIcon={<ArrowForward />}>
+                Xem tất cả
+              </Button>
+            </Box>
+
+            {/* Scroll Container with Navigation */}
+            <Box sx={{ position: 'relative' }}>
+              {/* Left Navigation Button */}
+              {canScrollLeft && (
+                <IconButton
+                  onClick={scrollLeft}
+                  sx={{
+                    position: 'absolute',
+                    left: -20,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    zIndex: 2,
+                    bgcolor: 'white',
+                    boxShadow: 2,
+                    width: 48,
+                    height: 48,
+                    '&:hover': {
+                      bgcolor: '#f5f5f5',
+                      boxShadow: 3
+                    }
+                  }}
+                >
+                  <ChevronLeft sx={{ fontSize: 28 }} />
+                </IconButton>
+              )}
+
+              {/* Right Navigation Button */}
+              {canScrollRight && (
+                <IconButton
+                  onClick={scrollRight}
+                  sx={{
+                    position: 'absolute',
+                    right: -20,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    zIndex: 2,
+                    bgcolor: 'white',
+                    boxShadow: 2,
+                    width: 48,
+                    height: 48,
+                    '&:hover': {
+                      bgcolor: '#f5f5f5',
+                      boxShadow: 3
+                    }
+                  }}
+                >
+                  <ChevronRight sx={{ fontSize: 28 }} />
+                </IconButton>
+              )}
+
+              {/* Scrollable Cards Container */}
+              <Box
+                ref={scrollContainerRef}
+                onScroll={checkScrollButtons}
+                sx={{
+                  display: 'flex',
+                  gap: 3,
+                  overflowX: 'auto',
+                  overflowY: 'hidden',
+                  scrollBehavior: 'smooth',
+                  pb: 2,
+                  // Hide scrollbar
+                  '&::-webkit-scrollbar': {
+                    display: 'none'
+                  },
+                  '-ms-overflow-style': 'none',
+                  'scrollbar-width': 'none',
+                  // Add padding for navigation buttons
+                  mx: 2
+                }}
+              >
+                {items.map((auction) => (
+                  <Box
+                    key={auction.id}
+                    sx={{
+                      minWidth: 300,
+                      maxWidth: 300,
+                      flexShrink: 0
+                    }}
+                  >
+                    <AuctionCard auction={auction} type="ongoing" />
+                  </Box>
+                ))}
+              </Box>
+            </Box>
+
+            {/* Mobile Touch Scroll Indicator */}
+            <Box
+              sx={{
+                display: { xs: 'flex', md: 'none' },
+                justifyContent: 'center',
+                mt: 2,
+                gap: 1
+              }}
+            >
+              <Typography variant="caption" color="text.secondary">
+                ← Vuốt để xem thêm →
+              </Typography>
+            </Box>
+          </>
+        )}
       </Container>
     </Box>
-  );
+  )
 }
 
-export default FeaturedAuctions;
+export default FeaturedAuctions
