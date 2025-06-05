@@ -18,7 +18,8 @@ import {
   List,
   ListItem,
   ListItemText,
-  Stack
+  Stack,
+  Button
 } from '@mui/material'
 import {
   NavigateNext as NavigateNextIcon,
@@ -32,44 +33,61 @@ import { useFilterSessions } from '~/hooks/sessionHook'
 import { useLocation, useNavigate } from 'react-router-dom'
 
 export default function SearchResults() {
-  const [filters, setFilters] = useState({
-    all: true,
-    upcoming: false,
-    ongoing: false,
-    auction_success: false
-  })
-  const [sortOrder, setSortOrder] = useState('new')
-  const [expandedCategory, setExpandedCategory] = useState('')
-  const [status, setStatus] = useState('')
-  const [keyword, setKeyword] = useState('')
-  const [typeId, setTypeId] = useState('')
-  const [page, setPage] = useState(0)
-  const [rowsPerPage, setRowsPerPage] = useState(6)
-  const [priceFilter, setPriceFilter] = useState('all')
-
   const location = useLocation()
   const navigate = useNavigate()
 
   const searchParams = new URLSearchParams(location.search)
   const searchKeyword = searchParams.get('keyword') || ''
+  const urlStatus = searchParams.get('status')?.toUpperCase() || ''
+  const urlTypeId = searchParams.get('typeId') || ''
 
+  // Initialize filters based on URL status
+  const initialFilters = {
+    all: !urlStatus,
+    upcoming: urlStatus === 'UPCOMING',
+    ongoing: urlStatus === 'ONGOING',
+    auction_success: urlStatus === 'AUCTION_SUCCESS'
+  }
+
+  const [filters, setFilters] = useState(initialFilters)
+  const [sortOrder, setSortOrder] = useState('new')
+  const [expandedCategory, setExpandedCategory] = useState('')
+  const [status, setStatus] = useState(urlStatus)
+  const [keyword, setKeyword] = useState(searchKeyword)
+  const [typeId, setTypeId] = useState(urlTypeId)
+  const [page, setPage] = useState(0)
+  const [rowsPerPage, setRowsPerPage] = useState(6)
+  const [priceFilter, setPriceFilter] = useState('all')
+
+  const { data: sessionData, isLoading: isLoadingSessions, isError: isErrorSessions } = useFilterSessions(
+    useMemo(
+      () => ({
+        status,
+        typeId,
+        keyword,
+        page,
+        size: rowsPerPage,
+        isInCrease: sortOrder === 'new' || sortOrder === 'price_high',
+        minPrice: priceFilter === 'all' ? 0 : parseInt(priceFilter.split('-')[0]),
+        maxPrice: priceFilter === 'all' ? Number.MAX_SAFE_INTEGER : parseInt(priceFilter.split('-')[1])
+      }),
+      [status, typeId, keyword, page, rowsPerPage, sortOrder, priceFilter]
+    )
+  )
+  const { data: categoryData, isLoading: isLoadingCategories, isError: isErrorCategories } = useFilterCategories()
+
+  // Set expanded category based on typeId from URL
   useEffect(() => {
     setKeyword(searchKeyword)
-  }, [searchKeyword])
-
-  const payload = useMemo(() => ({
-    status,
-    typeId,
-    keyword,
-    page,
-    size: rowsPerPage,
-    isInCrease: sortOrder === 'new' || sortOrder === 'price_high',
-    minPrice: priceFilter === 'all' ? 0 : parseInt(priceFilter.split('-')[0]),
-    maxPrice: priceFilter === 'all' ? Number.MAX_SAFE_INTEGER : parseInt(priceFilter.split('-')[1])
-  }), [status, typeId, keyword, page, rowsPerPage, sortOrder, priceFilter])
-
-  const { data: sessionData, isLoading: isLoadingSessions, isError: isErrorSessions } = useFilterSessions(payload)
-  const { data: categoryData, isLoading: isLoadingCategories, isError: isErrorCategories } = useFilterCategories()
+    if (urlTypeId && categoryData?.data) {
+      const category = categoryData.data.find((cat) =>
+        cat.types.some((type) => type.typeId === urlTypeId)
+      )
+      if (category) {
+        setExpandedCategory(category.categoryName)
+      }
+    }
+  }, [searchKeyword, urlTypeId, categoryData])
 
   if (isLoadingCategories || isLoadingSessions) {
     return <Typography>Loading...</Typography>
@@ -80,7 +98,7 @@ export default function SearchResults() {
   }
 
   const categories = categoryData.data
-  const sessions = sessionData.data.filter(session => session.status !== 'AUCTION_FAILED')
+  const sessions = sessionData.data.filter((session) => session.status !== 'AUCTION_FAILED')
   const totalResults = sessionData.total
 
   const handleFilterChange = (event) => {
@@ -93,15 +111,24 @@ export default function SearchResults() {
         auction_success: false
       })
       setStatus('')
+      setPage(0) // Reset page to 0
+      // Update URL to remove status
+      navigate(`?keyword=${keyword}${typeId ? `&typeId=${typeId}` : ''}`)
     } else {
       setFilters((prevFilters) => {
         const newFilters = { ...prevFilters, [name]: checked }
         if (checked) {
           newFilters.all = false
           setStatus(name.toUpperCase())
+          setPage(0) // Reset page to 0
+          // Update URL with new status
+          navigate(`?keyword=${keyword}${typeId ? `&typeId=${typeId}` : ''}&status=${name.toUpperCase()}`)
         } else if (!newFilters.upcoming && !newFilters.ongoing && !newFilters.auction_success) {
           newFilters.all = true
           setStatus('')
+          setPage(0) // Reset page to 0
+          // Update URL to remove status
+          navigate(`?keyword=${keyword}${typeId ? `&typeId=${typeId}` : ''}`)
         }
         return newFilters
       })
@@ -123,6 +150,24 @@ export default function SearchResults() {
   const handleTypeClick = (typeId, category) => {
     setTypeId(typeId)
     setExpandedCategory(category)
+    setPage(0) // Reset page to 0
+    // Update URL with new typeId
+    navigate(`?keyword=${keyword}${status ? `&status=${status}` : ''}&typeId=${typeId}`)
+  }
+
+  const handleClearFilters = () => {
+    setTypeId('')
+    setStatus('')
+    setFilters({
+      all: true,
+      upcoming: false,
+      ongoing: false,
+      auction_success: false
+    })
+    setExpandedCategory('')
+    setPage(0) // Reset page to 0
+    // Update URL to remove typeId and status, keep keyword if present
+    navigate(`?${keyword ? `keyword=${keyword}` : ''}`)
   }
 
   const handlePageChange = (event, newPage) => {
@@ -185,24 +230,11 @@ export default function SearchResults() {
 
   return (
     <Box sx={{ p: 3, maxWidth: 1200, mx: 'auto' }}>
-      <Breadcrumbs
-        separator={<NavigateNextIcon fontSize="small" />}
-        sx={{ mb: 3 }}
-      >
-        <Link
-          component="button"
-          color="inherit"
-          underline="hover"
-          onClick={() => navigate('/')}
-        >
+      <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} sx={{ mb: 3 }}>
+        <Link component="button" color="inherit" underline="hover" onClick={() => navigate('/')}>
           Trang chủ
         </Link>
-        <Link
-          component="button"
-          color="inherit"
-          underline="hover"
-          onClick={() => navigate('/search')}
-        >
+        <Link component="button" color="inherit" underline="hover" onClick={() => navigate('/search')}>
           Kết quả tìm kiếm
         </Link>
         <Typography color="text.primary">{totalResults} kết quả</Typography>
@@ -210,14 +242,37 @@ export default function SearchResults() {
 
       <Grid container spacing={4}>
         <Grid item xs={12} md={3}>
-          <Typography variant="h5" component="h1" sx={{
-            mb: 3,
-            borderBottom: '2px solid #c41e3a',
-            pb: 1,
-            width: 'fit-content'
-          }}>
-            Danh mục
-          </Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Typography
+              variant="h5"
+              component="h1"
+              sx={{
+                borderBottom: '2px solid #c41e3a',
+                pb: 1,
+                width: 'fit-content'
+              }}
+            >
+                Danh mục
+            </Typography>
+
+            {(typeId || status) && (
+              <Button
+                variant="text"
+                color="error"
+                size="small"
+                onClick={handleClearFilters}
+                sx={{
+                  textTransform: 'none',
+                  fontSize: '0.875rem',
+                  '&:hover': {
+                    backgroundColor: 'rgba(211, 47, 47, 0.04)'
+                  }
+                }}
+              >
+                  Xóa bộ lọc
+              </Button>
+            )}
+          </Box>
 
           <List>
             {categories.map((category) => (
@@ -362,10 +417,7 @@ export default function SearchResults() {
                       transition={{ type: 'spring', stiffness: 300 }}
                       onClick={() => handleCardClick(session)}
                     >
-                      <StyledCardMedia
-                        image={session.asset.mainImage}
-                        title={session.name}
-                      />
+                      <StyledCardMedia image={session.asset.mainImage} title={session.name} />
                       <CardContent sx={{ flexGrow: 1 }}>
                         <Typography
                           variant="subtitle1"
@@ -396,10 +448,7 @@ export default function SearchResults() {
                         </Typography>
                       </CardContent>
                       <CardActions>
-                        <AnimatedButton
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
+                        <AnimatedButton whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                           {session.status === 'UPCOMING' ? 'Đăng ký' : 'Xem chi tiết'}
                         </AnimatedButton>
                       </CardActions>
@@ -409,13 +458,15 @@ export default function SearchResults() {
               ))}
             </Grid>
           )}
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-            <Pagination
-              count={Math.max(1, Math.ceil(totalResults / rowsPerPage))}
-              page={page + 1}
-              onChange={handlePageChange}
-            />
-          </Box>
+          {filteredSessions.length > 0 && (
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+              <Pagination
+                count={Math.max(1, Math.ceil(totalResults / rowsPerPage))}
+                page={page + 1}
+                onChange={handlePageChange}
+              />
+            </Box>
+          )}
         </Grid>
       </Grid>
     </Box>

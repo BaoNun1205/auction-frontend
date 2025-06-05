@@ -1,5 +1,16 @@
 import React from 'react'
-import { Box, Card, CardMedia, CardContent, Typography, Chip, LinearProgress, IconButton, Divider, Button } from '@mui/material'
+import {
+  Box,
+  Card,
+  CardMedia,
+  CardContent,
+  Typography,
+  Chip,
+  LinearProgress,
+  IconButton,
+  Divider,
+  Button
+} from '@mui/material'
 import { Gavel, AccessTime, Visibility, Notifications, HowToReg, TrendingUp } from '@mui/icons-material'
 import { useCustomNavigate } from '~/utils/navigate'
 
@@ -20,15 +31,10 @@ function AuctionCard({ auction, type }) {
     case 'new':
       return '#4ECDC4'
     case 'ONGOING':
-    case 'ending':
       return '#FF9800'
     case 'UPCOMING':
     case 'upcoming':
       return primaryColor
-    case 'AUCTION_SUCCESS':
-      return '#4CAF50'
-    case 'AUCTION_FAILED':
-      return '#F44336'
     default:
       return '#757575'
     }
@@ -41,14 +47,9 @@ function AuctionCard({ auction, type }) {
     case 'new':
       return 'Mới đăng'
     case 'ONGOING':
-    case 'ending':
-      return 'Sắp kết thúc'
+      return 'Đang diễn ra'
     case 'UPCOMING':
       return 'Sắp diễn ra'
-    case 'AUCTION_SUCCESS':
-      return 'Đấu giá thành công'
-    case 'AUCTION_FAILED':
-      return 'Đấu giá thất bại'
     default:
       return 'Đang đấu giá'
     }
@@ -64,7 +65,11 @@ function AuctionCard({ auction, type }) {
       const diffMs = start - now
       const days = Math.floor(diffMs / (1000 * 60 * 60 * 24))
       const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-      return days > 0 ? `${days} ngày nữa` : `${hours} giờ nữa`
+      const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60))
+
+      if (days > 0) return `${days} ngày nữa`
+      if (hours > 0) return `${hours} giờ nữa`
+      return `${minutes} phút nữa`
     }
 
     const diffMs = end - now
@@ -73,7 +78,10 @@ function AuctionCard({ auction, type }) {
     const days = Math.floor(diffMs / (1000 * 60 * 60 * 24))
     const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
     const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60))
-    return days > 0 ? `${days} ngày ${hours} giờ` : `${hours} giờ ${minutes} phút`
+
+    if (days > 0) return `${days} ngày ${hours} giờ`
+    if (hours > 0) return `${hours} giờ ${minutes} phút`
+    return `${minutes} phút`
   }
 
   const calculatePercentComplete = (startTime, endTime) => {
@@ -96,22 +104,23 @@ function AuctionCard({ auction, type }) {
   }
 
   const isUpcoming = type === 'upcoming' || new Date(auction.startTime) > new Date()
-  const isCompleted = auction.status === 'AUCTION_SUCCESS' || auction.status === 'AUCTION_FAILED'
-  const timeDisplay = isUpcoming ? calculateTimeLeft(auction.endTime, auction.startTime) : calculateTimeLeft(auction.endTime, auction.startTime)
+  const timeDisplay = isUpcoming
+    ? calculateTimeLeft(auction.endTime, auction.startTime)
+    : calculateTimeLeft(auction.endTime, auction.startTime)
   const percentComplete = isUpcoming ? 0 : calculatePercentComplete(auction.startTime, auction.endTime)
 
   return (
     <Card
       sx={{
         position: 'relative',
-        cursor: isCompleted ? 'default' : 'pointer',
+        cursor: 'pointer',
         transition: 'all 0.3s ease',
-        '&:hover': isCompleted ? {} : {
+        '&:hover': {
           transform: 'translateY(-8px)',
           boxShadow: 4
         },
         border: isUpcoming ? '1px solid #8b0000' : type === 'ongoing' ? '1px solid #FF9800' : 'none',
-        opacity: isCompleted ? 0.7 : 1
+        opacity: 1
       }}
     >
       {auction.status && (
@@ -131,9 +140,19 @@ function AuctionCard({ auction, type }) {
       )}
 
       <Chip
-        label={isUpcoming ? `${auction.auctionSessionInfo.totalBidder} đăng ký` : `${auction.auctionSessionInfo.totalAuctionHistory} lượt đấu`}
+        label={
+          isUpcoming
+            ? `${auction.auctionSessionInfo.totalRegistrations} đăng ký`
+            : `${auction.auctionSessionInfo.totalAuctionHistory} lượt đấu`
+        }
         size="small"
-        icon={isUpcoming ? <HowToReg sx={{ fontSize: 16, color: 'white !important' }} /> : <Gavel sx={{ fontSize: 16, color: 'white !important' }} />}
+        icon={
+          isUpcoming ? (
+            <HowToReg sx={{ fontSize: 16, color: 'white !important' }} />
+          ) : (
+            <Gavel sx={{ fontSize: 16, color: 'white !important' }} />
+          )
+        }
         sx={{
           position: 'absolute',
           top: 8,
@@ -155,10 +174,10 @@ function AuctionCard({ auction, type }) {
           transform: 'translate(-50%, -50%)',
           display: 'flex',
           gap: 1,
-          opacity: isCompleted ? 0 : 0,
+          opacity: 0,
           transition: 'opacity 0.3s ease',
           '.MuiCard-root:hover &': {
-            opacity: isCompleted ? 0 : 1
+            opacity: 1
           }
         }}
       >
@@ -195,7 +214,8 @@ function AuctionCard({ auction, type }) {
             display: '-webkit-box',
             WebkitLineClamp: 2,
             WebkitBoxOrient: 'vertical',
-            height: 48
+            minHeight: 56,
+            lineHeight: 1.4
           }}
         >
           {auction.name}
@@ -210,12 +230,18 @@ function AuctionCard({ auction, type }) {
           }}
         >
           <AccessTime sx={{ fontSize: 16, mr: 0.5 }} />
-          <Typography variant="body2" sx={{ fontWeight: isUpcoming || type === 'ongoing' ? 'bold' : 'normal', color: isUpcoming ? primaryColor : type === 'ongoing' ? '#FF9800' : '#757575' }}>
-            {isUpcoming ? `Bắt đầu: ${timeDisplay}` : `Còn lại: ${timeDisplay}`}
+          <Typography
+            variant="body2"
+            sx={{
+              fontWeight: isUpcoming || type === 'ongoing' ? 'bold' : 'normal',
+              color: isUpcoming ? primaryColor : type === 'ongoing' ? '#FF9800' : '#757575'
+            }}
+          >
+            {isUpcoming ? `Bắt đầu: ${timeDisplay}` : `Kết thúc sau: ${timeDisplay}`}
           </Typography>
         </Box>
 
-        {!isUpcoming && !isCompleted && (
+        {!isUpcoming && (
           <LinearProgress
             variant="determinate"
             value={percentComplete}
@@ -254,11 +280,11 @@ function AuctionCard({ auction, type }) {
         <Button
           fullWidth
           variant="contained"
-          disabled={isCompleted}
+          disabled={false}
           onClick={handleCardClick}
           sx={{
             bgcolor: isUpcoming ? primaryColor : type === 'ongoing' ? '#FF9800' : '#2E3A59',
-            '&:hover': isCompleted ? {} : { bgcolor: isUpcoming ? '#8b0000' : type === 'ongoing' ? '#F57C00' : '#1a2332' },
+            '&:hover': { bgcolor: isUpcoming ? '#8b0000' : type === 'ongoing' ? '#F57C00' : '#1a2332' },
             '&:disabled': { bgcolor: '#B0BEC5', color: 'white' }
           }}
           startIcon={isUpcoming ? <HowToReg /> : <Gavel />}
