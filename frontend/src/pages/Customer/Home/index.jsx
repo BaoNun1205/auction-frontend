@@ -1095,7 +1095,7 @@ function CustomerHomePage() {
       <Box>
         <Banner />
         {/* <HeroBanner currentSlide={currentSlide} setCurrentSlide={setCurrentSlide} /> */}
-        <AuctionCategories />
+        {/* <AuctionCategories /> */}
         <FeaturedAuctions />
         <OngoingAuctions />
         <UpcomingAuctions />
