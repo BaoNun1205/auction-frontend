@@ -42,6 +42,7 @@ import customTheme from './components/theme'
 import WinnerSection from './components/WinnerSection'
 import DescriptionSection from './components/DescriptionSection'
 import Breadcrumb from '~/components/Customer/BreadcrumbComponent'
+import AppModal from '~/components/Modal/Modal'
 
 const SessionDetail = ({ item, refresh }) => {
   const theme = useTheme()
@@ -69,22 +70,35 @@ const SessionDetail = ({ item, refresh }) => {
     refetch: refetchIsDeposit,
     error: depositError,
     isLoading: depositLoading
-  } = useCheckDeposit({ userId: auth.user.id, auctionSessionId: item.id })
+  } = useCheckDeposit({ 
+    userId: auth.user?.id, 
+    auctionSessionId: item.id 
+  }, {
+    enabled: !!auth.user?.id
+  })
   const {
     data: isAutoBid,
     refetch: refetchAutoBid,
     error: autoBidError,
     isLoading: autoBidLoading
-  } = useCheckAutoBid({ userId: auth.user.id, auctionSessionId: item.id })
+  } = useCheckAutoBid({ 
+    userId: auth.user?.id, 
+    auctionSessionId: item.id 
+  }, {
+    enabled: !!auth.user?.id
+  })
   const { data: autoBidData, refetch: refetchAutoBidData } = useGetAutoBid({
-    userId: auth.user.id,
+    userId: auth.user?.id,
     auctionSessionId: item.id
+  }, {
+    enabled: !!auth.user?.id
   })
 
   const { data, refetch: refreshHistory } = useGetAuctionHistoriesByAuctionSessionId(item.id)
   const auctionHistory = Array.isArray(data) ? data : []
 
-  const isVendor = item.asset.vendor.userId === auth.user.id
+  const isVendor = auth.user?.id && item.asset.vendor.userId === auth.user.id
+  const isTrueAutoBid = isAutoBid === 'true' || (autoBidData && autoBidData.status === 'ACTIVE')
 
   const handleThumbnailClick = (image) => {
     setMainImage(image)
@@ -123,9 +137,12 @@ const SessionDetail = ({ item, refresh }) => {
     navigate('/profile', { state: { tabSet: 6 } })
   }
 
+  const authModalRef = useRef(null)
+
   // Dialog handlers
   const handleOpenBidDepositDialog = () => {
-    if (!auth.isAuth) {
+    if (!auth.isAuth || !auth.user?.id) {
+      authModalRef.current?.click()
       return
     }
     setBidDepositDialogOpen(true)
@@ -137,7 +154,8 @@ const SessionDetail = ({ item, refresh }) => {
 
   // Handler cho setup auto bid mới (khi chưa có auto bid)
   const handleOpenAutoBidSetupDialog = () => {
-    if (!auth.isAuth) {
+    if (!auth.isAuth || !auth.user?.id) {
+      authModalRef.current?.click()
       return
     }
     setAutoBidSetupDialogOpen(true)
@@ -439,7 +457,7 @@ const SessionDetail = ({ item, refresh }) => {
                             {!isDeposit ? 'Đặt cọc' : 'Đặt giá'}
                           </Button>
 
-                          <Tooltip title={isAutoBid ? 'Chỉnh sửa đấu giá tự động' : 'Thiết lập đấu giá tự động'}>
+                          <Tooltip title={isTrueAutoBid ? 'Chỉnh sửa đấu giá tự động' : 'Thiết lập đấu giá tự động'}>
                             <Box
                               sx={{
                                 position: 'relative',
@@ -449,15 +467,15 @@ const SessionDetail = ({ item, refresh }) => {
                               }}
                             >
                               <IconButton
-                                onClick={isAutoBid ? handleOpenAutoBidDialog : handleOpenAutoBidSetupDialog}
+                                onClick={isTrueAutoBid? handleOpenAutoBidDialog : handleOpenAutoBidSetupDialog}
                                 sx={{
-                                  bgcolor: isAutoBid ? 'rgba(76, 175, 80, 0.1)' : 'rgba(233, 30, 99, 0.1)',
-                                  color: isAutoBid ? '#4caf50' : primaryColor,
-                                  border: `2px solid ${isAutoBid ? '#4caf50' : primaryColor}`,
+                                  bgcolor: isTrueAutoBid ? 'rgba(76, 175, 80, 0.1)' : 'rgba(233, 30, 99, 0.1)',
+                                  color: isTrueAutoBid ? '#4caf50' : primaryColor,
+                                  border: `2px solid ${isTrueAutoBid ? '#4caf50' : primaryColor}`,
                                   p: 1.5,
                                   transition: 'all 0.3s ease',
                                   '&:hover': {
-                                    bgcolor: isAutoBid ? 'rgba(76, 175, 80, 0.2)' : 'rgba(233, 30, 99, 0.2)',
+                                    bgcolor: isTrueAutoBid ? 'rgba(76, 175, 80, 0.2)' : 'rgba(233, 30, 99, 0.2)',
                                     transform: 'translateY(-2px)',
                                     boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
                                   }
@@ -466,7 +484,7 @@ const SessionDetail = ({ item, refresh }) => {
                                 <Typography sx={{ fontWeight: 'bold', fontSize: '14px' }}>AA</Typography>
                               </IconButton>
 
-                              {isAutoBid && (
+                              {isTrueAutoBid && (
                                 <Box
                                   sx={{
                                     position: 'absolute',
@@ -496,7 +514,7 @@ const SessionDetail = ({ item, refresh }) => {
                       )}
 
                       {/* AutoBidDialog - chỉ hiển thị khi đã có auto bid */}
-                      {autoBidData && (
+                      {auth.user.id && autoBidData && (
                         <AutoBidDialog
                           autoBid={autoBidData}
                           auctionData={item}
@@ -696,6 +714,20 @@ const SessionDetail = ({ item, refresh }) => {
                   </Button>
                 </DialogActions>
               </Dialog>
+
+              {/* Authentication Modal */}
+              <AppModal
+                trigger={
+                  <div ref={authModalRef} style={{ display: 'none' }}>
+                    Hidden Trigger
+                  </div>
+                }
+                maxWidth="500px"
+              >
+                <Box sx={{ pt: 2 }}>
+                  <Authentication />
+                </Box>
+              </AppModal>
 
               <Divider sx={{ my: 3 }} />
 

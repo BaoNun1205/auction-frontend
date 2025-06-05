@@ -383,11 +383,11 @@ const Header = () => {
             </IconButton>
           )}
 
-          <IconButtonWithBadge color="inherit" aria-label="favorites">
+          {/* <IconButtonWithBadge color="inherit" aria-label="favorites">
             <Badge badgeContent={4} color="error">
               <FavoriteIcon />
             </Badge>
-          </IconButtonWithBadge>
+          </IconButtonWithBadge> */}
 
           {auth.isAuth && user && (
             <>
