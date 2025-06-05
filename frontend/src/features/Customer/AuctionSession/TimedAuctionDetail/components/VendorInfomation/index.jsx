@@ -16,6 +16,8 @@ import { useFilterSessions } from '~/hooks/sessionHook'
 import { useFollowUser, useUnfollowUser, useIsFollowing, useCountFollowers } from '~/hooks/followHook'
 import ReviewFormDialog from './components/ReviewForm'
 import { useCountReviewsByUser } from '~/hooks/reviewHook'
+import Authentication from '~/features/Authentication'
+import AppModal from '~/components/Modal/Modal'
 
 const VendorInformation = ({ vendorId, isView = true }) => {
   const navigate = useNavigate()
@@ -25,8 +27,9 @@ const VendorInformation = ({ vendorId, isView = true }) => {
   const [imgError, setImgError] = useState(false)
   const { data, isError, refetch } = useFilterSessions({ userId: vendorId })
   const [showReviewDialog, setShowReviewDialog] = useState(false)
+  const [authModalRef, setAuthModalRef] = useState(null)
 
-  const currentUserId = auth.user.id
+  const currentUserId = auth.user?.id
   const isCurrentUserVendor = currentUserId === vendorId
 
   const { data: isFollowing, refetch: refetchIsFollowing } = useIsFollowing(currentUserId, vendorId)
@@ -37,6 +40,11 @@ const VendorInformation = ({ vendorId, isView = true }) => {
   const { mutate: unfollowVendor } = useUnfollowUser()
 
   const handleFollowClick = () => {
+    if (!auth.isAuth || !auth.user?.id) {
+      authModalRef?.click()
+      return
+    }
+    
     if (isFollowing) {
       unfollowVendor(
         { followerId: currentUserId, followeeId: vendorId },
@@ -61,6 +69,11 @@ const VendorInformation = ({ vendorId, isView = true }) => {
   }
 
   const handleOpenReviewDialog = () => {
+    if (!auth.isAuth || !auth.user?.id) {
+      authModalRef?.click()
+      return
+    }
+    
     setShowReviewDialog(true)
   }
 
@@ -78,6 +91,11 @@ const VendorInformation = ({ vendorId, isView = true }) => {
   const auctionSessions = Array.isArray(data?.data) ? data.data : []
 
   const handleChatClick = () => {
+    if (!auth.isAuth || !auth.user?.id) {
+      authModalRef?.click()
+      return
+    }
+    
     createConversation(
       { buyerId: auth.user.id, sellerId: vendorId },
       {
@@ -183,30 +201,28 @@ const VendorInformation = ({ vendorId, isView = true }) => {
                 )}
               </Typography>
               <Box display="flex" gap={2}>
-                {currentUserId !== vendorId && (
-                  <Button
-                    variant="contained"
-                    startIcon={<Message />}
-                    onClick={handleChatClick}
-                    disabled={isLoading}
-                    sx={{
-                      bgcolor: '#b41712',
-                      color: 'white',
-                      px: 3,
-                      py: 1,
-                      fontSize: '0.95rem',
-                      fontWeight: 500,
-                      '&:hover': {
-                        bgcolor: '#8B0000',
-                        transform: 'translateY(-1px)',
-                        boxShadow: '0 4px 8px rgba(0,0,0,0.12)'
-                      },
-                      transition: 'all 0.2s ease-in-out'
-                    }}
-                  >
-                  CHAT
-                  </Button>
-                )}
+                <Button
+                  variant="contained"
+                  startIcon={<Message />}
+                  onClick={handleChatClick}
+                  disabled={isLoading}
+                  sx={{
+                    bgcolor: '#b41712',
+                    color: 'white',
+                    px: 3,
+                    py: 1,
+                    fontSize: '0.95rem',
+                    fontWeight: 500,
+                    '&:hover': {
+                      bgcolor: '#8B0000',
+                      transform: 'translateY(-1px)',
+                      boxShadow: '0 4px 8px rgba(0,0,0,0.12)'
+                    },
+                    transition: 'all 0.2s ease-in-out'
+                  }}
+                >
+                CHAT
+                </Button>
 
                 {currentUserId !== vendorId && !isView && (
                   <Button
@@ -341,6 +357,22 @@ const VendorInformation = ({ vendorId, isView = true }) => {
 
 
       <ReviewFormDialog open={showReviewDialog} onClose={() => setShowReviewDialog(false)} vendorId={vendorId} />
+      {/* Authentication Modal */}
+      <AppModal
+        trigger={
+          <div ref={(ref) => setAuthModalRef(ref)} style={{ display: 'none' }}>
+            Hidden Trigger
+          </div>
+        }
+        maxWidth="500px"
+      >
+        <Box sx={{ pt: 2 }}>
+          <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#b41712', mb: 3 }}>
+            Đăng nhập để tiếp tục
+          </Typography>
+          <Authentication />
+        </Box>
+      </AppModal>
     </>
   )
 }

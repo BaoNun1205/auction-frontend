@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import {
   Box,
   Container,
@@ -31,6 +31,8 @@ import {
 import { useParams, useNavigate } from 'react-router-dom'
 import { useAppStore } from '~/store/appStore'
 import Breadcrumb from '~/components/Customer/BreadcrumbComponent'
+import Authentication from '~/features/Authentication'
+import AppModal from '~/components/Modal/Modal'
 
 const RegisterAuctionDetail = () => {
   const [selectedImage, setSelectedImage] = useState(0)
@@ -41,9 +43,10 @@ const RegisterAuctionDetail = () => {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const { auth } = useAppStore()
-  const currentUserId = auth.user.id
+  const currentUserId = auth.user?.id
   const { id } = useParams()
   const navigate = useNavigate() // Khởi tạo useNavigate
+  const authModalRef = useRef(null)
   const { data: session, refetch, isLoading, isError } = useGetSessionById(id)
   const { data: usersRegisted } = useGetUsersRegisted(id)
   const { mutate: registerSession } = useRegisterSession()
@@ -101,6 +104,11 @@ const RegisterAuctionDetail = () => {
   }
 
   const handleRegisterClick = () => {
+    if (!auth.isAuth || !auth.user?.id) {
+      authModalRef.current?.click()
+      return
+    }
+    
     setOptimisticUserCount((prev) => prev + 1)
     setOptimisticIsChecked(true)
     setSnackbar({ open: true, message: 'Đang xử lý đăng ký...', severity: 'info' })
@@ -219,7 +227,7 @@ const RegisterAuctionDetail = () => {
                   {session.name}
                 </Typography>
                 <Stack direction="row" spacing={1}>
-                  <Tooltip title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}>
+                  {/* <Tooltip title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}>
                     <IconButton
                       onClick={() => setIsFavorite(!isFavorite)}
                       sx={{ color: isFavorite ? '#B41712' : 'inherit' }}
@@ -227,7 +235,7 @@ const RegisterAuctionDetail = () => {
                     >
                       <FavoriteIcon />
                     </IconButton>
-                  </Tooltip>
+                  </Tooltip> */}
                   <Tooltip title="Share">
                     <IconButton aria-label="Share">
                       <ShareIcon />
@@ -293,7 +301,7 @@ const RegisterAuctionDetail = () => {
                   </Box>
                 </Stack>
 
-                {currentUserId !== session.asset.vendor.userId && (
+                {auth.user?.id && currentUserId !== session.asset.vendor.userId && (
                   <StyledButton
                     onClick={optimisticIsChecked ? handleUnregisterClick : handleRegisterClick}
                     sx={{ width: { xs: '100%', sm: 'auto' }, alignSelf: 'flex-start' }}
@@ -301,6 +309,29 @@ const RegisterAuctionDetail = () => {
                     {optimisticIsChecked ? 'Hủy đăng ký' : 'Đăng ký'}
                   </StyledButton>
                 )}
+
+                {!auth.user?.id && (
+                  <StyledButton
+                    onClick={handleRegisterClick}
+                    sx={{ width: { xs: '100%', sm: 'auto' }, alignSelf: 'flex-start' }}
+                  >
+                    Đăng ký
+                  </StyledButton>
+                )}
+
+                {/* Authentication Modal */}
+                <AppModal
+                  trigger={
+                    <div ref={authModalRef} style={{ display: 'none' }}>
+                      Hidden Trigger
+                    </div>
+                  }
+                  maxWidth="500px"
+                >
+                  <Box sx={{ pt: 2 }}>
+                    <Authentication />
+                  </Box>
+                </AppModal>
 
                 <Snackbar
                   open={snackbar.open}
