@@ -117,7 +117,15 @@ const MyWallet = () => {
         Lịch sử giao dịch
       </Typography>
 
-      <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: 3 }}>
+      <TableContainer
+        component={Paper}
+        sx={{
+          borderRadius: 2,
+          boxShadow: 3,
+          maxHeight: 400,
+          overflow: 'auto'
+        }}
+      >
         <Table>
           <TableHead>
             <TableRow sx={{ backgroundColor: '#b41712' }}>

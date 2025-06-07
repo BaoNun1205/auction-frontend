@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   Box, Container, Typography, Grid, Paper, List, ListItem, ListItemText,
   ListItemIcon, Button, styled, useTheme, useMediaQuery, IconButton, Drawer,
@@ -7,9 +7,10 @@ import {
 import {
   Person, EmojiEvents, Gavel, Store, ExitToApp, LocationOn, Menu as MenuIcon,
   ExpandLess, ExpandMore,
-  Wallet
+  Wallet,
+  Payments
 } from '@mui/icons-material'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useLogout } from '~/hooks/authHook'
 import CustomerInformation from './CustomerInfomation'
 import AddressesInfomation from './AddressInfomation/AddressInfomation'
@@ -17,6 +18,8 @@ import { ChevronRight } from 'lucide-react'
 import AuctionSessions from './AuctionSessions'
 import WonItems from './WonItems'
 import MyWallet from './MyWallet'
+import PaymentHistory from './PaymentHistory'
+import { useCustomNavigate } from '~/utils/navigate'
 
 const primaryColor = '#b41712'
 
@@ -56,12 +59,17 @@ const Profile = () => {
   const [sellerMenuOpen, setSellerMenuOpen] = useState(false)
   const navigate = useNavigate()
   const { mutate: logout, isLoading: isLoggingOut } = useLogout()
+  const location = useLocation()
+  const { handleNavigate } = useCustomNavigate()
+
+  useEffect(() => {
+    if (location.state?.tabSet) {
+      setTab(location.state.tabSet)
+    }
+  }, [location.state])
+
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
-
-  const handleNavigate = (path) => {
-    navigate(path)
-  }
 
   const handleLogout = () => {
     setLogoutDialogOpen(true)
@@ -94,11 +102,12 @@ const Profile = () => {
   const menuItems = [
     { text: 'Hồ sơ', icon: <Person />, value: 1 },
     { text: 'Địa chỉ', icon: <LocationOn />, value: 2 },
-    { text: 'Chiến lợi phẩm', icon: <EmojiEvents />, value: 3 },
+    { text: 'Vật phẩm đã thắng', icon: <EmojiEvents />, value: 3 },
     { text: 'Phiên đấu giá', icon: <Gavel />, value: 4 },
     { text: 'Bán đấu giá', icon: <Store />, value: 5 },
     { text: 'Ví của tôi', icon: <Wallet />, value: 6 },
-    { text: 'Đăng xuất', icon: <ExitToApp />, value: 7, onClick: handleLogout }
+    { text: 'Lịch sử thanh toán', icon: <Payments />, value: 7 },
+    { text: 'Đăng xuất', icon: <ExitToApp />, value: 8, onClick: handleLogout }
   ]
 
   const drawer = (
@@ -171,22 +180,23 @@ const Profile = () => {
               onClick={() => handleNavigate('/')}
               sx={{ cursor: 'pointer', textDecoration: 'underline' }}
             >
-              Trang chủ
+                Trang chủ
             </Typography>
             <Typography
               color="inherit"
               onClick={() => handleNavigate('/profile')}
               sx={{ cursor: 'pointer', textDecoration: 'underline' }}
             >
-              Thông tin tài khoản
+                Thông tin tài khoản
             </Typography>
             <Typography color="text.primary">
               {tab === 1 && 'Hồ sơ'}
               {tab === 2 && 'Địa chỉ'}
-              {tab === 3 && 'Chiến lợi phẩm'}
+              {tab === 3 && 'Vật phẩm đã thắng'}
               {tab === 4 && 'Phiên đấu giá'}
               {tab === 5 && 'Bán đấu giá'}
               {tab === 6 && 'Ví của tôi'}
+              {tab === 7 && 'Lịch sử thanh toán'}
             </Typography>
           </Breadcrumbs>
         </Box>
@@ -232,6 +242,7 @@ const Profile = () => {
                 {tab === 4 && <AuctionSessions />}
                 {tab === 5 && navigate('/vendor')}
                 {tab === 6 && <MyWallet />}
+                {tab === 7 && <PaymentHistory />}
               </StyledPaper>
             </Grid>
           </Grid>

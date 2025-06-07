@@ -248,17 +248,20 @@ export default function Authentication({ handleClose }) {
           onSubmit={(values, { setSubmitting, setErrors, setStatus }) => {
             register(values, {
               onSuccess: () => {
-                handleClose();
+                setStatus({ success: 'Vui lòng kiểm tra email để xác nhận tài khoản.' });
+                setTimeout(() => {
+                  handleClose();
+                }, 3000); // Đóng form sau 3 giây
               },
               onError: (error) => {
-                console.error('Error registering:', error);
-                setErrors({ submit: 'An error occurred. Please try again.' });
+                console.error('Lỗi đăng ký:', error);
+                setErrors({ submit: 'Đã xảy ra lỗi. Vui lòng thử lại.' });
                 setSubmitting(false);
               },
             });
           }}
         >
-          {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
+          {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values, status }) => (
             <form noValidate onSubmit={handleSubmit}>
               <StyledTextField
                 fullWidth
@@ -355,8 +358,16 @@ export default function Authentication({ handleClose }) {
                 }}
               />
 
+              {status?.success && (
+                <Box sx={{ mb: 2 }}>
+                  <Typography color="success.main" variant="body2">
+                    {status.success}
+                  </Typography>
+                </Box>
+              )}
+
               {errors.submit && (
-                <Box>
+                <Box sx={{ mb: 2 }}>
                   <Typography color="error" variant="body2">
                     {errors.submit}
                   </Typography>

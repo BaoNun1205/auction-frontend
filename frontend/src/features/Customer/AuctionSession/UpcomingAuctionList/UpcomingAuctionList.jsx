@@ -1,28 +1,44 @@
-import React from 'react';
-import { ImHammer2 } from 'react-icons/im';
-import { PiArrowRightFill } from 'react-icons/pi';
-import { Link, useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
-import { Box, Typography, Grid, Divider, Button } from '@mui/material';
-import UpcomingAuctionItem from '../components/UpcomingAuctionItem/UpcomingAuctionItem';
-import { useFilterSessions } from '~/hooks/sessionHook';
+import React from 'react'
+import { ImHammer2 } from 'react-icons/im'
+import { Box, Typography, Grid, Divider } from '@mui/material'
+import UpcomingAuctionItem from '../components/UpcomingAuctionItem/UpcomingAuctionItem'
+import { useRecommendByUser } from '~/hooks/recommendHook'
+import { useAppStore } from '~/store/appStore'
+import { useFilterSessions } from '~/hooks/sessionHook'
 
 function UpcomingAuctions() {
-  const [upcomingData, setUpcomingData] = useState([]);
-  const navigate = useNavigate();
+  const { auth } = useAppStore()
+  const userId = auth.user?.id
 
-  const { data, isLoading, isError } = useFilterSessions({ status: 'UPCOMING' });
-  console.log('Data:', data);
+  const {
+    data: recommendedData,
+    isLoading: isLoadingRecommend,
+    isError: isErrorRecommend
+  } = useRecommendByUser(userId, 'UPCOMING')
 
-  if (isLoading) {
-    return <Typography>Loading...</Typography>;
+  const {
+    data: filteredData,
+    isLoading: isLoadingFilter,
+    isError: isErrorFilter
+  } = useFilterSessions({ status: 'UPCOMING' })
+
+  // Xử lý loading và error
+  if (userId && isLoadingRecommend) {
+    return <Typography>Loading...</Typography>
+  }
+  if (!userId && isLoadingFilter) {
+    return <Typography>Loading...</Typography>
   }
 
-  if (isError) {
-    return <Typography>Error loading sessions</Typography>;
+  if (userId && isErrorRecommend) {
+    return <Typography>Error loading sessions</Typography>
+  }
+  if (!userId && isErrorFilter) {
+    return <Typography>Error loading sessions</Typography>
   }
 
-  const { data: items, total: totalPages } = data;
+  // Lấy dữ liệu hiển thị
+  const items = userId ? recommendedData : filteredData?.data || []
 
   return (
     <Box mx={5}>
@@ -41,13 +57,8 @@ function UpcomingAuctions() {
           </Grid>
         ))}
       </Grid>
-      <Box display="flex" justifyContent="center" my={3}>
-        <Button onClick={() => navigate('/search')} variant="contained" sx={{ bgcolor: '#b41712', '&:hover': { bgcolor: '#8B0000' } }} endIcon={<PiArrowRightFill />}>
-          Xem thêm
-        </Button>
-      </Box>
     </Box>
-  );
+  )
 }
 
-export default UpcomingAuctions;
+export default UpcomingAuctions

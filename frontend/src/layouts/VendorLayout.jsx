@@ -1,4 +1,5 @@
 import React from 'react'
+import Footer from '~/components/Customer/DefautComponent/FooterComponent/Footer'
 import Header from '~/components/Customer/DefautComponent/HeaderComponent/Header'
 
 function VendorLayout({ children, isCategory = true }) {
@@ -6,7 +7,7 @@ function VendorLayout({ children, isCategory = true }) {
     <>
       <Header />
       {children}
-      {/* <Footer/>  */}
+      <Footer/>
     </>
   )
 }

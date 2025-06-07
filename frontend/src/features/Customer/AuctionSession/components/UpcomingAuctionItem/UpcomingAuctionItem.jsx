@@ -27,11 +27,11 @@ const UpcomingAuctionItem = ({ item }) => {
       <StyledCardMedia
         component="img"
         image={item.asset.mainImage}
-        alt={`${item.asset.assetName} image`}
+        alt={`${item.name} image`}
       />
       <StyledCardContent>
         <Typography variant="subtitle1" color="textPrimary" fontWeight="bold" gutterBottom>
-          {item.asset.assetName}
+          {item.name}
         </Typography>
         <Typography variant="body2" color="textSecondary">
           Thời gian bắt đầu: {formattedDateTime}

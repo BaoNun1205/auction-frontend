@@ -1,10 +1,121 @@
-import React, { useState, useEffect } from 'react';
-import { Box, TextField, Typography, Grid, Modal, IconButton, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
-import { FiMaximize2, FiX } from 'react-icons/fi';
-import { StyledPaper, ImageContainer, StyledImage, ModalImage, DescriptionContainer } from './style';
+import React, { useState, useEffect } from 'react'
+import {
+  Box,
+  TextField,
+  Typography,
+  Grid,
+  Modal,
+  IconButton,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Paper,
+  Divider,
+  Button
+} from '@mui/material'
+import { styled } from '@mui/material/styles'
+import CloseIcon from '@mui/icons-material/Close'
+import ZoomInIcon from '@mui/icons-material/ZoomIn'
+import ImageIcon from '@mui/icons-material/Image'
+import DescriptionIcon from '@mui/icons-material/Description'
+import ArticleIcon from '@mui/icons-material/Article'
+
+const StyledPaper = styled(Paper)(({ theme }) => ({
+  backgroundColor: 'white',
+  borderRadius: '16px',
+  padding: '32px',
+  maxHeight: '90vh',
+  overflow: 'auto',
+  position: 'relative',
+  boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+}))
+
+const ImageContainer = styled(Box)({
+  position: 'relative',
+  cursor: 'pointer',
+  borderRadius: '12px',
+  overflow: 'hidden',
+  border: '2px solid #e0e0e0',
+  transition: 'all 0.3s ease',
+  '&:hover': {
+    borderColor: '#b41712',
+    transform: 'scale(1.02)',
+    '& .zoom-overlay': {
+      opacity: 1
+    }
+  }
+})
+
+const StyledImage = styled('img')({
+  width: '100%',
+  height: '140px',
+  objectFit: 'cover',
+  display: 'block'
+})
+
+const ZoomOverlay = styled(Box)({
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  backgroundColor: 'rgba(0, 0, 0, 0.6)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  opacity: 0,
+  transition: 'opacity 0.3s ease'
+})
+
+const ModalImage = styled('img')({
+  maxWidth: '90vw',
+  maxHeight: '90vh',
+  objectFit: 'contain',
+  borderRadius: '12px'
+})
+
+const DescriptionContainer = styled(Box)(({ theme }) => ({
+  border: `1px solid ${theme.palette.divider}`,
+  borderRadius: '12px',
+  padding: '20px',
+  backgroundColor: '#f8f9fa',
+  maxHeight: '200px',
+  overflow: 'auto',
+  '& p': {
+    margin: '8px 0',
+    lineHeight: 1.6
+  },
+  '& img': {
+    maxWidth: '100%',
+    height: 'auto',
+    borderRadius: '8px',
+    margin: '8px 0'
+  },
+  '& h1, & h2, & h3, & h4, & h5, & h6': {
+    margin: '16px 0 8px 0',
+    color: '#1a1a1a'
+  },
+  '& ul, & ol': {
+    paddingLeft: '20px',
+    margin: '8px 0'
+  },
+  '& li': {
+    margin: '4px 0'
+  }
+}))
+
+const SectionTitle = styled(Typography)({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '8px',
+  marginBottom: '16px',
+  fontWeight: '600',
+  color: '#1a1a1a'
+})
 
 const AssetDetailDialog = ({ open, onClose, asset }) => {
-  const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(null)
   const [initialValues, setInitialValues] = useState({
     assetName: 'Unknown Asset',
     startingPrice: 'N/A',
@@ -14,9 +125,9 @@ const AssetDetailDialog = ({ open, onClose, asset }) => {
     documents: [],
     type: {
       typeName: 'Unknown Type',
-      typeImage: '',
-    },
-  });
+      typeImage: ''
+    }
+  })
 
   useEffect(() => {
     if (asset) {
@@ -24,54 +135,76 @@ const AssetDetailDialog = ({ open, onClose, asset }) => {
         ...prevValues,
         assetName: asset.assetName || 'Unknown Asset',
         startingPrice: asset.assetPrice || 'N/A',
-        status: asset.status === '0' ? 'Inactive' : 'Active', // Assuming '0' means inactive
+        status: asset.status === '0' ? 'Inactive' : 'Active',
         description: asset.assetDescription || 'No description available',
-        images: asset.listImages.slice(0, 4).map((image) => image.imageAsset) || [], // Lấy 4 ảnh đầu tiên
-        documents: asset.listImages.slice(-2).map((image) => image.imageAsset) || [], // Lấy 2 ảnh cuối
+        images: asset.listImages?.slice(0, 4).map((image) => image.imageAsset) || [],
+        documents: asset.listImages?.slice(-2).map((image) => image.imageAsset) || [],
         type: {
           typeName: asset.type?.typeName || 'Unknown Type',
-          typeImage: asset.type?.image || '',
-        },
-      }));
+          typeImage: asset.type?.image || ''
+        }
+      }))
     }
-  }, [asset]); // This will run when the 'asset' prop changes
+  }, [asset])
 
   const handleImageClick = (imageUrl) => {
-    setSelectedImage(imageUrl);
-  };
+    setSelectedImage(imageUrl)
+  }
+
+  const handleCloseImageModal = () => {
+    setSelectedImage(null)
+  }
+
+  if (!asset) {
+    return null
+  }
 
   return (
     <Modal
       open={open}
       onClose={onClose}
-      aria-labelledby="image-modal"
-      sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', p: 2 }}
+      aria-labelledby="asset-detail-modal"
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        p: 2,
+        zIndex: 1300
+      }}
     >
-      <Box sx={{ maxWidth: '600px', width: '100%' }}>
-        <StyledPaper elevation={3}>
-          <Typography
-            variant="h5"
-            gutterBottom
-            sx={{
-              mb: 2,
-              padding: '8px 16px',      
-              borderRadius: '4px',       
-              textAlign: 'center',        
-              display: 'flex',      
-              justifyContent: 'center',  
-              alignItems: 'center',       
-            }}
-          >
-            Chi tiết vật phẩm
-          </Typography>
-          <Grid container spacing={2}>
+      <Box sx={{ maxWidth: '900px', width: '100%' }}>
+        <StyledPaper>
+          {/* Header */}
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+            <Typography variant="h4" fontWeight="bold" color="#b41712">
+              Chi tiết vật phẩm
+            </Typography>
+            <IconButton
+              onClick={onClose}
+              size="large"
+              sx={{
+                backgroundColor: '#f5f5f5',
+                '&:hover': { backgroundColor: '#e0e0e0' }
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </Box>
+
+          <Grid container spacing={3}>
+            {/* Basic Information */}
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
                 label="Tên vật phẩm"
                 value={initialValues.assetName}
                 InputProps={{ readOnly: true }}
-                aria-label="Tên vật phẩm"
+                variant="outlined"
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '12px'
+                  }
+                }}
               />
             </Grid>
 
@@ -79,17 +212,32 @@ const AssetDetailDialog = ({ open, onClose, asset }) => {
               <TextField
                 fullWidth
                 label="Giá khởi điểm"
-                type="number"
-                value={initialValues.startingPrice}
+                value={
+                  typeof initialValues.startingPrice === 'number'
+                    ? `${initialValues.startingPrice.toLocaleString('vi-VN')} VNĐ`
+                    : initialValues.startingPrice
+                }
                 InputProps={{ readOnly: true }}
-                aria-label="Giá khởi điểm"
+                variant="outlined"
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '12px'
+                  }
+                }}
               />
             </Grid>
 
             <Grid item xs={12} md={6}>
-              <FormControl fullWidth>
+              <FormControl
+                fullWidth
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '12px'
+                  }
+                }}
+              >
                 <InputLabel>Trạng thái</InputLabel>
-                <Select value={initialValues.status} label="Trạng thái" inputProps={{ readOnly: true }} aria-label="Trạng thái">
+                <Select value={initialValues.status} label="Trạng thái" inputProps={{ readOnly: true }}>
                   <MenuItem value="Active">Đang đấu giá</MenuItem>
                   <MenuItem value="Inactive">Chưa đấu giá</MenuItem>
                 </Select>
@@ -102,116 +250,189 @@ const AssetDetailDialog = ({ open, onClose, asset }) => {
                 label="Loại vật phẩm"
                 value={initialValues.type.typeName}
                 InputProps={{ readOnly: true }}
-                aria-label="Loại vật phẩm"
+                variant="outlined"
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '12px'
+                  }
+                }}
               />
             </Grid>
 
             <Grid item xs={12}>
-              {/* Render phần mô tả với HTML */}
+              <Divider sx={{ my: 2 }} />
+            </Grid>
+
+            {/* Description */}
+            <Grid item xs={12}>
+              <SectionTitle variant="h6">
+                <DescriptionIcon color="#b41712" />
+                Mô tả vật phẩm
+              </SectionTitle>
               <DescriptionContainer>
                 <div dangerouslySetInnerHTML={{ __html: initialValues.description }} />
               </DescriptionContainer>
             </Grid>
 
             <Grid item xs={12}>
-              <Typography variant="h6" gutterBottom>
-                Hình ảnh vật phẩm
-              </Typography>
-              <Grid container spacing={1}>
-                {initialValues.images.length > 0 ? initialValues.images.map((image, index) => (
-                  <Grid item xs={12} sm={6} md={3} key={index}>
-                    <ImageContainer onClick={() => handleImageClick(image)}>
-                      <StyledImage
-                        src={image}
-                        alt={`Asset ${index + 1}`}
-                        loading="lazy"
-                      />
-                      <IconButton
-                        sx={{
-                          position: 'absolute',
-                          right: 8,
-                          top: 8,
-                          backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                        }}
-                      >
-                        <FiMaximize2 />
-                      </IconButton>
-                    </ImageContainer>
-                  </Grid>
-                )) : (
-                  <Grid item xs={12}>Không có hình ảnh</Grid>
-                )}
-              </Grid>
+              <Divider sx={{ my: 2 }} />
             </Grid>
 
+            {/* Images */}
             <Grid item xs={12}>
-              <Typography variant="h6" gutterBottom>
-                Hình ảnh giấy tờ
-              </Typography>
-              <Grid container spacing={1}>
-                {initialValues.documents.length > 0 ? initialValues.documents.map((image, index) => (
-                  <Grid item xs={12} sm={6} key={index}>
-                    <ImageContainer onClick={() => handleImageClick(image)}>
-                      <StyledImage
-                        src={image}
-                        alt={`Document ${index + 1}`}
-                        loading="lazy"
-                      />
-                      <IconButton
-                        sx={{
-                          position: 'absolute',
-                          right: 8,
-                          top: 8,
-                          backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                        }}
-                      >
-                        <FiMaximize2 />
-                      </IconButton>
-                    </ImageContainer>
-                  </Grid>
-                )) : (
-                  <Grid item xs={12}>Không có tài liệu</Grid>
-                )}
-              </Grid>
+              <SectionTitle variant="h6">
+                <ImageIcon color="#b41712" />
+                Hình ảnh vật phẩm ({initialValues.images.length})
+              </SectionTitle>
+
+              {initialValues.images.length > 0 ? (
+                <Grid container spacing={2}>
+                  {initialValues.images.map((image, index) => (
+                    <Grid item xs={6} sm={4} md={3} key={index}>
+                      <ImageContainer onClick={() => handleImageClick(image)}>
+                        <StyledImage
+                          src={image || '/placeholder.svg?height=140&width=140'}
+                          alt={`${initialValues.assetName} - Hình ${index + 1}`}
+                          loading="lazy"
+                          onError={(e) => {
+                            e.target.src = '/placeholder.svg?height=140&width=140'
+                          }}
+                        />
+                        <ZoomOverlay className="zoom-overlay">
+                          <ZoomInIcon sx={{ color: 'white', fontSize: 32 }} />
+                        </ZoomOverlay>
+                      </ImageContainer>
+                    </Grid>
+                  ))}
+                </Grid>
+              ) : (
+                <Box
+                  sx={{
+                    textAlign: 'center',
+                    py: 4,
+                    border: '2px dashed',
+                    borderColor: 'divider',
+                    borderRadius: 2,
+                    bgcolor: 'grey.50'
+                  }}
+                >
+                  <ImageIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 1 }} />
+                  <Typography color="text.secondary">Không có hình ảnh vật phẩm</Typography>
+                </Box>
+              )}
+            </Grid>
+
+            {/* Documents */}
+            <Grid item xs={12}>
+              <SectionTitle variant="h6">
+                <ArticleIcon color="#b41712" />
+                Hình ảnh giấy tờ ({initialValues.documents.length})
+              </SectionTitle>
+
+              {initialValues.documents.length > 0 ? (
+                <Grid container spacing={2}>
+                  {initialValues.documents.map((image, index) => (
+                    <Grid item xs={6} sm={4} key={index}>
+                      <ImageContainer onClick={() => handleImageClick(image)}>
+                        <StyledImage
+                          src={image || '/placeholder.svg?height=140&width=140'}
+                          alt={`Tài liệu ${index + 1}`}
+                          loading="lazy"
+                          onError={(e) => {
+                            e.target.src = '/placeholder.svg?height=140&width=140'
+                          }}
+                        />
+                        <ZoomOverlay className="zoom-overlay">
+                          <ZoomInIcon sx={{ color: 'white', fontSize: 32 }} />
+                        </ZoomOverlay>
+                      </ImageContainer>
+                    </Grid>
+                  ))}
+                </Grid>
+              ) : (
+                <Box
+                  sx={{
+                    textAlign: 'center',
+                    py: 4,
+                    border: '2px dashed',
+                    borderColor: 'divider',
+                    borderRadius: 2,
+                    bgcolor: 'grey.50'
+                  }}
+                >
+                  <ArticleIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 1 }} />
+                  <Typography color="text.secondary">Không có tài liệu</Typography>
+                </Box>
+              )}
             </Grid>
           </Grid>
 
-          {/* Modal to show enlarged image */}
-          <Modal
-            open={!!selectedImage}
-            onClose={() => setSelectedImage(null)}
-            aria-labelledby="image-modal"
+          {/* Footer */}
+          <Box
             sx={{
               display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              p: 2,
+              justifyContent: 'flex-end',
+              mt: 4,
+              pt: 3,
+              borderTop: '1px solid',
+              borderColor: 'divider'
             }}
           >
-            <Box sx={{ position: 'relative' }}>
-              <IconButton
-                onClick={() => setSelectedImage(null)}
-                sx={{
-                  position: 'absolute',
-                  right: -20,
-                  top: -20,
-                  backgroundColor: 'white',
-                  '&:hover': { backgroundColor: '#f5f5f5' },
-                }}
-              >
-                <FiX />
-              </IconButton>
-              <ModalImage
-                src={selectedImage || ''}
-                alt="Xem phóng to"
-                loading="lazy"
-              />
-            </Box>
-          </Modal>
+            <Button
+              variant="outlined"
+              onClick={onClose}
+              size="large"
+              sx={{
+                borderRadius: '12px',
+                px: 4
+              }}
+            >
+              Đóng
+            </Button>
+          </Box>
         </StyledPaper>
+
+        {/* Image Modal */}
+        <Modal
+          open={!!selectedImage}
+          onClose={handleCloseImageModal}
+          aria-labelledby="image-modal"
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            p: 2,
+            zIndex: 1400
+          }}
+        >
+          <Box sx={{ position: 'relative' }}>
+            <IconButton
+              onClick={handleCloseImageModal}
+              sx={{
+                position: 'absolute',
+                right: -20,
+                top: -20,
+                backgroundColor: 'white',
+                boxShadow: 2,
+                '&:hover': { backgroundColor: 'grey.100' },
+                zIndex: 1
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+            <ModalImage
+              src={selectedImage || ''}
+              alt="Xem phóng to"
+              loading="lazy"
+              onError={(e) => {
+                e.target.src = '/placeholder.svg?height=400&width=400'
+              }}
+            />
+          </Box>
+        </Modal>
       </Box>
     </Modal>
-  );
-};
+  )
+}
 
-export default AssetDetailDialog;
+export default AssetDetailDialog

@@ -1,72 +1,70 @@
 import React, { useState, useMemo } from 'react'
-import {
-  Box,
-  Typography,
-  TextField,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Snackbar,
-  Alert,
-  Chip,
-  IconButton,
-  Menu,
-  MenuItem,
-  Paper,
-  InputAdornment,
-  Select,
-  Tabs,
-  Tab,
-  TablePagination
-} from '@mui/material'
+import { Box, Typography, Snackbar, Alert, Paper } from '@mui/material'
 import { styled } from '@mui/material/styles'
-import MoreVertIcon from '@mui/icons-material/MoreVert'
-import SearchIcon from '@mui/icons-material/Search'
-import FilterListIcon from '@mui/icons-material/FilterList'
-import { useFilterAssets } from '~/hooks/assetHook'
+import { useFilterAssets, useUpdateAssetStatus } from '~/hooks/assetHook'
 import { useAppStore } from '~/store/appStore'
-import { StyledSpan } from '~/features/style'
 import AuctionCreationDialog from './component/AuctionCreationDialog'
 import AssetDetailDialog from './component/AssetDetailDialog'
-import AssetTable from './component/AssetsTable'
 import AssetSuccessModal from './component/AssetSuccessModal'
+import StatusChips from './component/StatusChips.jsx'
+import Filters from './component/Filters'
+import AssetTable from './component/AssetTable'
+import ActionMenu from './component/ActionMenu'
+import DeliveryConfirmationDialog from './component/DeliveryConfirmationDialog'
+import ReceivedConfirmationDialog from './component/ReceivedConfirmationDialog'
+import DeliveryTrackingDialog from './component/DeliveryTrackingDialog'
 
 const StyledPaper = styled(Paper)({
   padding: '24px',
   marginBottom: '24px',
-  borderRadius: '4px',
-  boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)'
+  borderRadius: '12px',
+  boxShadow: '0 4px 20px rgba(180, 23, 18, 0.08)',
+  border: '1px solid rgba(180, 23, 18, 0.1)'
 })
 
 const MyAssets = () => {
   const [openDialog, setOpenDialog] = useState(false)
   const [isAuctionDialogOpen, setIsAuctionDialogOpen] = useState(false)
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success'
+  })
   const [anchorEl, setAnchorEl] = useState(null)
   const [selectedAsset, setSelectedAsset] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [priceFilter, setPriceFilter] = useState('')
   const [activeTab, setActiveTab] = useState(0)
   const { auth } = useAppStore()
-  const [isAuctionModalOpen, setAuctionModalOpen] = useState(false)
+  const [isAssetSuccessModalOpen, setAssetSuccessModalOpen] = useState(false)
+  const [selectedAssetForSuccess, setSelectedAssetForSuccess] = useState(null)
+  const [deliveryConfirmDialog, setDeliveryConfirmDialog] = useState(false)
+  const [receivedConfirmDialog, setReceivedConfirmDialog] = useState(false)
+  const [trackingDialog, setTrackingDialog] = useState(false)
+  const { mutate: updateAssetStatus } = useUpdateAssetStatus()
   const { data, refetch } = useFilterAssets({ vendorId: auth?.user?.id })
   const assets = Array.isArray(data?.data) ? data.data : []
 
   const handleViewDetails = (asset) => {
-    setSelectedAsset(asset);
-    if (asset.status === 'AUCTION_SUCCESS') {
-      setAuctionModalOpen(true);
+    console.log('handleViewDetails called with asset:', asset)
+    console.log('Asset status:', asset?.status)
+
+    setSelectedAsset(asset)
+
+    if (asset?.status === 'AUCTION_SUCCESS' || asset?.status === 'PAYMENT_SUCCESSFUL') {
+      console.log('Opening AssetSuccessModal')
+      setSelectedAssetForSuccess(asset)
+      setAssetSuccessModalOpen(true)
     } else {
-      setOpenDialog(true);
+      console.log('Opening AssetDetailDialog')
+      setOpenDialog(true)
     }
-    handleMenuClose();
+    handleMenuClose()
   }
 
   const handleCloseDialog = () => {
     setOpenDialog(false)
+    setSelectedAsset(null)
   }
 
   const handleOpenAuctionDialog = () => {
@@ -77,16 +75,90 @@ const MyAssets = () => {
     setIsAuctionDialogOpen(false)
   }
 
-  const handleCloseAuctionModal = () => {
-    setAuctionModalOpen(false)
-    setSelectedAsset(null)
+  const handleCloseAssetSuccessModal = () => {
+    console.log('Closing AssetSuccessModal')
+    setAssetSuccessModalOpen(false)
+    setSelectedAssetForSuccess(null)
   }
 
-  const handleCreateAuction = (auctionData) => {
-    // Handle the creation of the auction with the provided data
-    console.log('Creating auction:', auctionData)
-    // You would typically send this data to your backend API
-    setSnackbar({ open: true, message: 'Phiên đấu giá đã được tạo', severity: 'success' })
+  const handleConfirmDelivery = () => {
+    setDeliveryConfirmDialog(true)
+    handleMenuClose()
+  }
+
+  const handleCloseDeliveryDialog = () => {
+    setDeliveryConfirmDialog(false)
+  }
+
+  const handleConfirmReceived = () => {
+    setReceivedConfirmDialog(true)
+    handleMenuClose()
+  }
+
+  const handleCloseReceivedDialog = () => {
+    setReceivedConfirmDialog(false)
+  }
+
+  const handleTrackDelivery = () => {
+    setTrackingDialog(true)
+  }
+
+  const handleCloseTrackingDialog = () => {
+    setTrackingDialog(false)
+  }
+
+  const handleConfirmDeliveryAction = () => {
+    if (!selectedAsset) return
+
+    updateAssetStatus(
+      { assetId: selectedAsset.assetId, status: 'DELIVERING' },
+      {
+        onSuccess: () => {
+          setSnackbar({
+            open: true,
+            message: `Đã xác nhận giao hàng cho vật phẩm "${selectedAsset?.assetName}"`,
+            severity: 'success'
+          })
+          setDeliveryConfirmDialog(false)
+          setSelectedAsset(null)
+          refetch()
+        },
+        onError: () => {
+          setSnackbar({
+            open: true,
+            message: 'Có lỗi khi cập nhật trạng thái giao hàng!',
+            severity: 'error'
+          })
+        }
+      }
+    )
+  }
+
+  const handleConfirmReceivedAction = () => {
+    if (!selectedAsset) return
+
+    updateAssetStatus(
+      { assetId: selectedAsset.assetId, status: 'RECEIVED' },
+      {
+        onSuccess: () => {
+          setSnackbar({
+            open: true,
+            message: `Đã xác nhận giao hàng thành công vật phẩm "${selectedAsset?.assetName}"`,
+            severity: 'success'
+          })
+          setReceivedConfirmDialog(false)
+          setSelectedAsset(null)
+          refetch()
+        },
+        onError: () => {
+          setSnackbar({
+            open: true,
+            message: 'Có lỗi khi cập nhật trạng thái!',
+            severity: 'error'
+          })
+        }
+      }
+    )
   }
 
   const handleCloseSnackbar = (event, reason) => {
@@ -106,127 +178,93 @@ const MyAssets = () => {
     setAnchorEl(null)
   }
 
-  const getStatusLabel = (status) => {
-    switch (status) {
-    case 'NOT_AUCTIONED':
-      return 'Chưa đấu giá'
-    case 'ONGOING':
-      return 'Đang đấu giá'
-    case 'AUCTION_SUCCESS':
-      return 'Đã đấu giá thành công'
-    case 'AUCTION_FAILED':
-      return 'Đấu giá thất bại'
-    default:
-      return status
-    }
+  const getStatusCount = (status) => {
+    if (status === 'ALL') return assets.length
+    return assets.filter((asset) => asset.status === status).length
   }
 
   const filteredAssets = useMemo(() => {
-    return assets.filter(asset => {
-      const matchesTab = activeTab === 0 ||
-          (activeTab === 1 && asset.status === 'AUCTION_SUCCESS') ||
-          (activeTab === 2 && asset.status === 'ONGOING') ||
-          (activeTab === 3 && asset.status === 'NOT_AUCTIONED')
+    return assets.filter((asset) => {
+      const matchesTab =
+        activeTab === 0 ||
+        (activeTab === 1 && asset.status === 'NOT_AUCTIONED') ||
+        (activeTab === 2 && asset.status === 'ONGOING') ||
+        (activeTab === 3 && asset.status === 'AUCTION_SUCCESS') ||
+        (activeTab === 4 && asset.status === 'PAYMENT_SUCCESSFUL') ||
+        (activeTab === 5 && asset.status === 'DELIVERING') ||
+        (activeTab === 6 && asset.status === 'RECEIVED') ||
+        (activeTab === 7 && asset.status === 'COMPLETED') ||
+        (activeTab === 8 && asset.status === 'AUCTION_FAILED') ||
+        (activeTab === 9 && asset.status === 'CANCELED')
       const matchesSearch = asset.assetName.toLowerCase().includes(searchTerm.toLowerCase())
-      const matchesPrice = priceFilter === '' || asset.assetPrice <= parseInt(priceFilter)
+      const matchesPrice = priceFilter === '' || asset.assetPrice <= Number.parseInt(priceFilter)
       return matchesTab && matchesSearch && matchesPrice
     })
   }, [assets, activeTab, searchTerm, priceFilter])
 
   return (
-    <Box sx={{ maxWidth: 1200, margin: 'auto', padding: 3 }}>
-      <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
+    <Box sx={{ maxWidth: 1200, margin: 'auto', padding: 3, height: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
           Vật phẩm của tôi
-      </Typography>
-      <Typography variant="subtitle1" color="text.secondary" gutterBottom>
+        </Typography>
+        <Typography variant="subtitle1" color="text.secondary" gutterBottom>
           Quản lý thông tin vật phẩm của bạn
-      </Typography>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Tabs
-          value={activeTab}
-          onChange={(e, newValue) => setActiveTab(newValue)}
-          sx={{
-            '& .MuiTab-root': {
-              color: '#1a1a1a',
-              '&.Mui-selected': {
-                color: '#b41712'
-              }
-            },
-            '& .MuiTabs-indicator': {
-              backgroundColor: '#b41712'
-            }
-          }}
-        >
-          <Tab label="TẤT CẢ" />
-          <Tab label="ĐÃ ĐẤU GIÁ THÀNH CÔNG" />
-          <Tab label="ĐANG ĐẤU GIÁ" />
-          <Tab label="CHƯA ĐẤU GIÁ" />
-        </Tabs>
+        </Typography>
       </Box>
-      <StyledPaper>
-        <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
-          <TextField
-            fullWidth
-            placeholder="Tìm kiếm theo tên vật phẩm"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon />
-                </InputAdornment>
-              )
-            }}
-          />
-          <Select
-            value={priceFilter}
-            onChange={(e) => setPriceFilter(e.target.value)}
-            displayEmpty
-            variant="outlined"
-            startAdornment={
-              <InputAdornment position="start">
-                <FilterListIcon />
-              </InputAdornment>
-            }
-            sx={{ minWidth: 200 }}
-          >
-            <MenuItem value="">Tất cả giá</MenuItem>
-            <MenuItem value="1000000">Dưới 1.000.000₫</MenuItem>
-            <MenuItem value="5000000">Dưới 5.000.000₫</MenuItem>
-            <MenuItem value="10000000">Dưới 10.000.000₫</MenuItem>
-          </Select>
-        </Box>
+
+      <StatusChips activeTab={activeTab} setActiveTab={setActiveTab} getStatusCount={getStatusCount} />
+      <StyledPaper sx={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <Filters
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          priceFilter={priceFilter}
+          setPriceFilter={setPriceFilter}
+        />
         <AssetTable filteredAssets={filteredAssets} handleMenuOpen={handleMenuOpen} />
       </StyledPaper>
-
-      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-        <MenuItem onClick={() => handleViewDetails(selectedAsset)}>Xem chi tiết</MenuItem>
-        {selectedAsset?.status === 'NOT_AUCTIONED' && (
-          <MenuItem
-            onClick={() => {
-              handleOpenAuctionDialog();
-              handleMenuClose();
-            }}
-          >
-            Tạo phiên đấu giá
-          </MenuItem>
-        )}
-      </Menu>
-
-      <AuctionCreationDialog open={isAuctionDialogOpen} onClose={handleCloseAuctionDialog} asset={selectedAsset} refresh={refetch} />
-
+      <ActionMenu
+        anchorEl={anchorEl}
+        selectedAsset={selectedAsset}
+        handleMenuClose={handleMenuClose}
+        handleViewDetails={handleViewDetails}
+        handleOpenAuctionDialog={handleOpenAuctionDialog}
+        handleConfirmDelivery={handleConfirmDelivery}
+        handleConfirmReceived={handleConfirmReceived}
+        handleTrackDelivery={handleTrackDelivery}
+      />
+      <DeliveryConfirmationDialog
+        open={deliveryConfirmDialog}
+        selectedAsset={selectedAsset}
+        handleClose={handleCloseDeliveryDialog}
+        handleConfirm={handleConfirmDeliveryAction}
+      />
+      <ReceivedConfirmationDialog
+        open={receivedConfirmDialog}
+        selectedAsset={selectedAsset}
+        handleClose={handleCloseReceivedDialog}
+        handleConfirm={handleConfirmReceivedAction}
+      />
+      <AuctionCreationDialog
+        open={isAuctionDialogOpen}
+        onClose={handleCloseAuctionDialog}
+        asset={selectedAsset}
+        refresh={refetch}
+      />
       <AssetDetailDialog open={openDialog} onClose={handleCloseDialog} asset={selectedAsset} />
-
-      <AssetSuccessModal open={isAuctionModalOpen} handleClose={handleCloseAuctionModal} asset={selectedAsset} />
-
+      <AssetSuccessModal
+        open={isAssetSuccessModalOpen}
+        handleClose={handleCloseAssetSuccessModal}
+        asset={selectedAssetForSuccess}
+      />
       <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={handleCloseSnackbar}>
         <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
           {snackbar.message}
         </Alert>
       </Snackbar>
+      <DeliveryTrackingDialog open={trackingDialog} onClose={handleCloseTrackingDialog} asset={selectedAsset} />
     </Box>
   )
 }
 
 export default MyAssets
-

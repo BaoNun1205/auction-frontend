@@ -119,7 +119,7 @@ const CategoryBar = () => {
                     <StyledMenuItem
                       key={type.typeId}
                       component={Link}
-                      to={`/customer-asset/${category.categoryId}/${type.typeId}`}
+                      to={`/search?typeId=${type.typeId}`}
                       onClick={handleClose}
                     >
                       <Typography variant="body2" sx={{ fontWeight: 500 }}>
@@ -138,4 +138,3 @@ const CategoryBar = () => {
 };
 
 export default CategoryBar;
-

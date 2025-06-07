@@ -9,15 +9,12 @@ import {
 } from '@mui/material'
 import { Formik, Form, Field } from 'formik'
 import * as Yup from 'yup'
-import ImageUploadAndReview from './ImageUpload'
 import { StyledContainer, StyledHeaderBox, StyledInnerBox, StyledSubtitleBox, StyledTitleBox } from '~/features/style'
 import TextFieldComponent from '~/components/TextFieldComponent/TextFieldComponent'
-import Editor from '~/components/EditorComponent/Editor'
-import { useCreateRequirement, useGetRequirementById, useRejectedRequirement } from '~/hooks/requirementHook'
+import { useGetRequirementById, useRejectedRequirement } from '~/hooks/requirementHook'
 import StackSelectComponent from '~/components/StackSelectComponent/StackSelectComponent'
 import { useCreateAsset } from '~/hooks/assetHook'
 import { useNavigate } from 'react-router-dom'
-import { ASSET_PATH } from '~/api/assetApi'
 import { BASE_PATHS } from '~/routes/routes'
 import { useGetTypes } from '~/hooks/typeHook'
 import { useClassifyProduct } from '~/hooks/classifyHook'
@@ -35,6 +32,7 @@ const validationSchema = Yup.object().shape({
 
 const AddAsset = () => {
   const { id } = useParams()
+  const [isClassifying, setIsClassifying] = useState(false)
   const { data: requirement, error, isLoading } = useGetRequirementById(id)
   const { mutate: createAsset } = useCreateAsset()
   const { auth } = useAppStore()
@@ -82,19 +80,31 @@ const AddAsset = () => {
         type: ''
       })
 
-      // Gọi classify sau khi set xong initial
-      classifyProduct({ name, description, imageUrls }, {
-        onSuccess: (response) => {
-          console.log('Classified product type:', response)
-          setInitialValues(prev => ({
-            ...prev,
-            type: response.typeId
-          }))
-        },
-        onError: (err) => {
-          console.error('Failed to classify product type:', err)
-        }
-      })
+      const classifyUntilCertain = () => {
+        setIsClassifying(true)
+        classifyProduct({ name, description, imageUrls }, {
+          onSuccess: (response) => {
+            console.log('Classified product type:', response)
+            if (response.typeId === 'uncertain') {
+              console.warn('Classification uncertain, retrying...')
+              // Gọi lại sau một khoảng thời gian ngắn (ví dụ 1s)
+              setTimeout(classifyUntilCertain, 1000)
+            } else {
+              setInitialValues(prev => ({
+                ...prev,
+                type: response.typeId
+              }))
+              setIsClassifying(false)
+            }
+          },
+          onError: (err) => {
+            console.error('Failed to classify product type:', err)
+            setIsClassifying(false)
+          }
+        })
+      }
+
+      classifyUntilCertain()
     }
   }, [requirement])
 
@@ -170,9 +180,27 @@ const AddAsset = () => {
             color: theme.palette.primary.textMain, borderBottom: '1px solid',
             borderColor: theme.palette.primary.disable
           })}>
-            <Typography component="h6" variant='h6' sx={(theme) => ({ color: theme.palette.primary.textMain })}>
-              Chi tiết vật phẩm
-            </Typography>
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+              }}
+            >
+              <Typography component="h6" variant="h6">
+                Chi tiết vật phẩm
+              </Typography>
+
+              {isClassifying && (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <CircularProgress size={20} color="red" />
+                  <Typography variant="body2" sx={{ fontStyle: 'italic', color: 'text.secondary' }}>
+                    Đang phân loại vật phẩm
+                  </Typography>
+                </Box>
+              )}
+            </Box>
+
             <Typography sx={(theme) => ({ color: theme.palette.primary.disable })}>
               Tiêu đề, mô tả ngắn, hình ảnh...
             </Typography>
@@ -222,7 +250,6 @@ const AddAsset = () => {
                       error={touched.type && Boolean(errors.type)}
                       helperText={touched.type && errors.type}
                     />
-
                   </Stack>
                   <Stack spacing={2} direction="row" sx={{ my: 2 }}>
                     <Field

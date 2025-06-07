@@ -35,7 +35,8 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:8080',
+        // target: 'http://localhost:8080',
+        target: 'https://auctionsession-e9b7beg0gvf2dhax.southeastasia-01.azurewebsites.net',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },

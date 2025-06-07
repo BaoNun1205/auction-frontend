@@ -1,22 +1,44 @@
-import React from 'react';
-import { ImHammer2 } from 'react-icons/im';
-import { Box, Typography, Divider } from '@mui/material';
-import CurrentAuctionItem from '../components/CurrentAuctionItem/CurrentAuctionItem';
-import { useFilterSessions } from '~/hooks/sessionHook';
+import React from 'react'
+import { ImHammer2 } from 'react-icons/im'
+import { Box, Typography, Divider } from '@mui/material'
+import CurrentAuctionItem from '../components/CurrentAuctionItem/CurrentAuctionItem'
+import { useRecommendByUser } from '~/hooks/recommendHook'
+import { useAppStore } from '~/store/appStore'
+import { useFilterSessions } from '~/hooks/sessionHook'
 
 const CurrentAuctions = () => {
-  const { data, isLoading, isError } = useFilterSessions({ status: 'ONGOING' });
-  console.log('Data:', data);
+  const { auth } = useAppStore()
+  const userId = auth.user?.id
 
-  if (isLoading) {
-    return <Typography>Loading...</Typography>;
+  const {
+    data: recommendedData,
+    isLoading: isLoadingRecommend,
+    isError: isErrorRecommend
+  } = useRecommendByUser(userId, 'ONGOING')
+
+  const {
+    data: filteredData,
+    isLoading: isLoadingFilter,
+    isError: isErrorFilter
+  } = useFilterSessions({ status: 'ONGOING' })
+
+  // Xử lý loading và error
+  if (userId && isLoadingRecommend) {
+    return <Typography>Loading...</Typography>
+  }
+  if (!userId && isLoadingFilter) {
+    return <Typography>Loading...</Typography>
   }
 
-  if (isError) {
-    return <Typography>Error loading sessions</Typography>;
+  if (userId && isErrorRecommend) {
+    return <Typography>Error loading sessions</Typography>
+  }
+  if (!userId && isErrorFilter) {
+    return <Typography>Error loading sessions</Typography>
   }
 
-  const { data: items, total: totalPages } = data;
+  // Lấy dữ liệu hiển thị
+  const items = userId ? recommendedData : filteredData?.data || []
 
   return (
     <Box textAlign="center" my={4} mx={5}>
@@ -28,7 +50,7 @@ const CurrentAuctions = () => {
       </Box>
       <CurrentAuctionItem items={items} />
     </Box>
-  );
+  )
 }
 
-export default CurrentAuctions;
+export default CurrentAuctions
