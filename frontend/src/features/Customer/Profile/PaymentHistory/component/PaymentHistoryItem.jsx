@@ -7,7 +7,7 @@ const PaymentHistoryItem = ({ payment }) => {
   const navigate = useNavigate();
 
   const handleViewInvoice = () => {
-    navigate(`/invoice/${payment.billId}`);
+    navigate(`/invoice/${payment.auctionSessionId}`);
   };
 
   return (

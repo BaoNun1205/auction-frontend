@@ -40,7 +40,7 @@ import { useReactToPrint } from 'react-to-print'
 import { QRCodeSVG } from 'qrcode.react'
 import BackButton from '~/components/BackButton'
 import { useCustomNavigate } from '~/utils/navigate'
-import { useBillById } from '~/hooks/billHooks'
+import { useBillById, useBillBySessionId } from '~/hooks/billHooks'
 import { useGetAddressDefaultByUserId } from '~/hooks/addressHook'
 
 const Invoice = () => {
@@ -48,7 +48,8 @@ const Invoice = () => {
   const { state } = useLocation();
   const tabSet = state?.tabSet ?? 7;
 
-  const { data: bill, isLoading: isLoading, isError: isError } = useBillById(id)
+  const { data: bill, isLoading: isLoading, isError: isError } = useBillBySessionId(id)
+  // const { data: bill, isLoading: isLoading, isError: isError } = useBillById(id)
   const printRef = useRef()
   const [showPrintableVersion, setShowPrintableVersion] = useState(false)
   const { handleNavigate } = useCustomNavigate();

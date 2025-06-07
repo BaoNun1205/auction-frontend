@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { getBillsByUserId, getBillById } from '~/api/billApi'
+import { getBillsByUserId, getBillById, getBillBySessionId } from '~/api/billApi'
 
 // Lấy danh sách hóa đơn theo userId
 export const useBillsByUserId = (userId) => {
@@ -21,6 +21,18 @@ export const useBillById = (billId) => {
     enabled: !!billId,
     onError: (error) => {
       console.error('Error fetching bill by id:', error)
+    }
+  })
+}
+
+// Lấy chi tiết hóa đơn theo sessionId
+export const useBillBySessionId = (sessionId) => {
+  return useQuery({
+    queryKey: ['bill-by-session', sessionId],
+    queryFn: () => getBillBySessionId(sessionId),
+    enabled: !!sessionId,
+    onError: (error) => {
+      console.error('Error fetching bill by sessionId:', error)
     }
   })
 }

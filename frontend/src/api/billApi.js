@@ -26,3 +26,14 @@ export const getBillById = async (id) => {
     handleApiError(error)
   }
 }
+
+export const getBillBySessionId = async (sessionId) => {
+  try {
+    const response = await GET({
+      url: `${BILL_PATH}/session/${sessionId}`
+    })
+    return response.data.result
+  } catch (error) {
+    handleApiError(error)
+  }
+}
