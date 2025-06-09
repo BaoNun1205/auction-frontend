@@ -54,7 +54,7 @@ const ChatButton = () => {
           borderRadius: 2,
           display: isChatOpen ? 'flex' : 'none',
           flexDirection: 'column',
-          zIndex: 1000,
+          zIndex: 2000,
           overflow: 'hidden'
         }}
       >

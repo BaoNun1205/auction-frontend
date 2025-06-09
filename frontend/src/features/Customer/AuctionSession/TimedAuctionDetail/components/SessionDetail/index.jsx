@@ -380,7 +380,7 @@ const SessionDetail = ({ item, refresh }) => {
 
   const breadcrumbItems = [
     { label: 'Trang chủ', path: '/' },
-    { label: 'Phiên đấu đang sắp diễn ra', path: '/ongoing' },
+    { label: 'Phiên đấu giá đang diễn ra', path: '/ongoing' },
     { label: 'Chi tiết' }
   ]
 
