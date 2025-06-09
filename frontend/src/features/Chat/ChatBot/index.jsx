@@ -31,7 +31,7 @@ const ChatButton = () => {
           right: 16,
           bgcolor: '#b41712',
           color: 'white',
-          zIndex: 1000,
+          zIndex: 2000,
           borderRadius: '50%',
           '&:hover': {
             bgcolor: '#9c1410',

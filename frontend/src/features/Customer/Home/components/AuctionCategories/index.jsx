@@ -1,10 +1,12 @@
 import React, { useRef } from 'react';
 import { Box, Container, Typography, Card, CardMedia, CardContent, IconButton } from '@mui/material';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 import { useFilterCategories } from '~/hooks/categoryHook';
 
 function AuctionCategories() {
   const categoriesScrollRef = useRef(null);
+  const navigate = useNavigate();
   const { data, isLoading, isError } = useFilterCategories();
 
   if (isLoading) {
@@ -25,6 +27,10 @@ function AuctionCategories() {
         behavior: 'smooth',
       });
     }
+  };
+
+  const handleCategoryClick = (categoryId) => {
+    navigate(`/search?categoryId=${categoryId}`);
   };
 
   // Map the JSON data to the format expected by the component
@@ -83,6 +89,7 @@ function AuctionCategories() {
           {categories.map((category) => (
             <Card
               key={category.id}
+              onClick={() => handleCategoryClick(category.id)}
               sx={{
                 minWidth: 180,
                 textAlign: 'center',

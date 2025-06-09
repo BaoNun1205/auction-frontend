@@ -1,10 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import {
-  Box,
-  Typography,
-  Button,
-  Avatar
-} from '@mui/material'
+import { Box, Typography, Button, Avatar } from '@mui/material'
 import { Add, Message } from '@mui/icons-material'
 import { Store } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
@@ -44,7 +39,7 @@ const VendorInformation = ({ vendorId, isView = true }) => {
       authModalRef?.click()
       return
     }
-    
+
     if (isFollowing) {
       unfollowVendor(
         { followerId: currentUserId, followeeId: vendorId },
@@ -73,7 +68,7 @@ const VendorInformation = ({ vendorId, isView = true }) => {
       authModalRef?.click()
       return
     }
-    
+
     setShowReviewDialog(true)
   }
 
@@ -95,7 +90,7 @@ const VendorInformation = ({ vendorId, isView = true }) => {
       authModalRef?.click()
       return
     }
-    
+
     createConversation(
       { buyerId: auth.user.id, sellerId: vendorId },
       {
@@ -159,7 +154,16 @@ const VendorInformation = ({ vendorId, isView = true }) => {
         }}
       >
         <Box display="flex" flexDirection={{ xs: 'column', lg: 'row' }} gap={4}>
-          <Box display="flex" alignItems="flex-start" gap={3} minWidth={!isCurrentUserVendor ? 420 : 300}>
+          {/* Profile Section */}
+          <Box
+            display="flex"
+            alignItems="flex-start"
+            gap={3}
+            sx={{
+              minWidth: { xs: 'auto', lg: isCurrentUserVendor ? 300 : 420 },
+              width: { xs: '100%', lg: 'auto' }
+            }}
+          >
             <Box position="relative">
               <Avatar
                 alt={user?.username}
@@ -178,6 +182,7 @@ const VendorInformation = ({ vendorId, isView = true }) => {
                 {(!user?.avatar || imgError) && user?.username?.charAt(0).toUpperCase()}
               </Avatar>
             </Box>
+
             <Box flex={1}>
               <Typography
                 variant="h5"
@@ -185,46 +190,75 @@ const VendorInformation = ({ vendorId, isView = true }) => {
                 sx={{
                   fontWeight: 500,
                   fontSize: '1.5rem',
-                  lineHeight: 1.2
+                  lineHeight: 1.2,
+                  mb: 1
                 }}
               >
                 {user?.name || user?.username || 'Người Bán'}
               </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{
+                  mb: 2,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1
+                }}
+              >
                 {formatRelativeTime(user?.lastSeen) === '0 phút trước' ? (
                   <>
-                  Đang Online
+                    Đang Online
                     <Box sx={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: 'green' }} />
                   </>
                 ) : (
                   `Online ${formatRelativeTime(user?.lastSeen)}`
                 )}
               </Typography>
-              <Box display="flex" gap={2}>
-                <Button
-                  variant="contained"
-                  startIcon={<Message />}
-                  onClick={handleChatClick}
-                  disabled={isLoading}
-                  sx={{
-                    bgcolor: '#b41712',
-                    color: 'white',
-                    px: 3,
-                    py: 1,
-                    fontSize: '0.95rem',
-                    fontWeight: 500,
-                    '&:hover': {
-                      bgcolor: '#8B0000',
-                      transform: 'translateY(-1px)',
-                      boxShadow: '0 4px 8px rgba(0,0,0,0.12)'
-                    },
-                    transition: 'all 0.2s ease-in-out'
-                  }}
-                >
-                CHAT
-                </Button>
 
-                {currentUserId !== vendorId && !isView && (
+              {/* Action Buttons */}
+              <Box
+                display="flex"
+                gap={2}
+                sx={{
+                  flexWrap: { xs: 'wrap', sm: 'nowrap' },
+                  '& .MuiButton-root': {
+                    whiteSpace: 'nowrap',
+                    minWidth: 'auto',
+                    flexShrink: 0
+                  }
+                }}
+              >
+                {/* Chat Button - Only show if not current user */}
+                {!isCurrentUserVendor && (
+                  <Button
+                    variant="contained"
+                    startIcon={<Message />}
+                    onClick={handleChatClick}
+                    disabled={isLoading}
+                    sx={{
+                      bgcolor: '#b41712',
+                      color: 'white',
+                      px: 3,
+                      py: 1,
+                      fontSize: '0.95rem',
+                      fontWeight: 500,
+                      textTransform: 'none',
+                      '&:hover': {
+                        bgcolor: '#8B0000',
+                        transform: 'translateY(-1px)',
+                        boxShadow: '0 4px 8px rgba(0,0,0,0.12)'
+                      },
+                      transition: 'all 0.2s ease-in-out'
+                    }}
+                  >
+                    CHAT
+                  </Button>
+                )}
+
+                {/* Follow/Unfollow Button - Only show if not current user and not in view mode */}
+                {!isCurrentUserVendor && !isView && (
                   <Button
                     variant={isFollowing ? 'outlined' : 'contained'}
                     startIcon={!isFollowing && <Add />}
@@ -237,6 +271,7 @@ const VendorInformation = ({ vendorId, isView = true }) => {
                       py: 1,
                       fontSize: '0.95rem',
                       fontWeight: 500,
+                      textTransform: 'none',
                       '&:hover': {
                         borderColor: 'rgba(0,0,0,0.24)',
                         bgcolor: isFollowing ? 'rgba(0,0,0,0.04)' : '#8B0000',
@@ -250,6 +285,7 @@ const VendorInformation = ({ vendorId, isView = true }) => {
                   </Button>
                 )}
 
+                {/* View Store Button - Only show in view mode */}
                 {isView && (
                   <Button
                     variant="outlined"
@@ -262,6 +298,7 @@ const VendorInformation = ({ vendorId, isView = true }) => {
                       py: 1,
                       fontSize: '0.95rem',
                       fontWeight: 500,
+                      textTransform: 'none',
                       '&:hover': {
                         borderColor: 'rgba(0,0,0,0.24)',
                         bgcolor: 'rgba(0,0,0,0.04)',
@@ -271,31 +308,27 @@ const VendorInformation = ({ vendorId, isView = true }) => {
                       transition: 'all 0.2s ease-in-out'
                     }}
                   >
-                  XEM
+                    XEM
                   </Button>
                 )}
               </Box>
-
             </Box>
           </Box>
 
-          {/* Thống kê */}
+          {/* Statistics Section */}
           <Box
-            display="flex"
-            flexWrap="wrap"
+            display="grid"
+            gridTemplateColumns={{
+              xs: 'repeat(2, 1fr)',
+              sm: 'repeat(3, 1fr)',
+              lg: 'repeat(3, 1fr)'
+            }}
             gap={3}
             sx={{
+              flex: 1,
               '& > div': {
                 borderLeft: '1px solid',
-                borderColor: 'divider',
-                '&:nth-of-type(3n+1)': {
-                  borderLeft: 'none'
-                },
-                '@media (max-width: 600px)': {
-                  '&:nth-of-type(2n+1)': {
-                    borderLeft: 'none'
-                  }
-                }
+                borderColor: 'divider'
               }
             }}
           >
@@ -303,14 +336,22 @@ const VendorInformation = ({ vendorId, isView = true }) => {
               <Box
                 key={index}
                 sx={{
-                  flex: '1 1 calc(33.333% - 16px)',
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'flex-start',
-                  padding: 2
+                  padding: { xs: 1, sm: 2 },
+                  minHeight: 80
                 }}
               >
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{
+                    mb: 0.5,
+                    fontSize: '0.875rem',
+                    lineHeight: 1.2
+                  }}
+                >
                   {stat.label}
                 </Typography>
 
@@ -322,25 +363,26 @@ const VendorInformation = ({ vendorId, isView = true }) => {
                     fontSize: '1rem',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '4px'
+                    gap: '4px',
+                    lineHeight: 1.3,
+                    mb: stat.key === 'review' ? 0.5 : 0
                   }}
                 >
-                  {stat.key === 'review'
-                    ? `${stat.value} (${stat.rating.toFixed(1)} ★)`
-                    : stat.value}
+                  {stat.key === 'review' ? `${stat.value} (${stat.rating.toFixed(1)} ★)` : stat.value}
                 </Typography>
 
-                {stat.key === 'review' && (
+                {stat.key === 'review' && !isCurrentUserVendor && (
                   <Typography
                     variant="body2"
                     sx={{
-                      mt: 0,
                       cursor: 'pointer',
                       color: '#b41712',
+                      fontSize: '1rem',
                       '&:hover': {
                         textDecoration: 'underline'
                       },
-                      p: 0
+                      p: 0,
+                      m: 0
                     }}
                     onClick={handleOpenReviewDialog}
                   >
@@ -349,14 +391,12 @@ const VendorInformation = ({ vendorId, isView = true }) => {
                 )}
               </Box>
             ))}
-
-
           </Box>
         </Box>
       </Box>
 
-
       <ReviewFormDialog open={showReviewDialog} onClose={() => setShowReviewDialog(false)} vendorId={vendorId} />
+
       {/* Authentication Modal */}
       <AppModal
         trigger={

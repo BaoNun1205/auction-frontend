@@ -21,243 +21,366 @@
 
 // export default Banner
 
-import React from 'react'
-import { Box, Typography, Container, Grid, Chip } from '@mui/material'
-import { Gavel, TrendingUp, AccessTime } from '@mui/icons-material'
+import React, { useEffect, useState } from 'react'
+import { Box, Typography, Container, Grid, useTheme, useMediaQuery, Fade, Slide } from '@mui/material'
+import { Language, Phone } from '@mui/icons-material'
+import { keyframes } from '@mui/system'
+import { primaryColor } from '~/utils/config'
+import BannerImage from '~/assets/images/banner.jpg'
 
-const Banner = () => {
+// Custom animations
+const float = keyframes`
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+`
+
+const slideInLeft = keyframes`
+  0% {
+    transform: translateX(-100px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+`
+
+const slideInRight = keyframes`
+  0% {
+    transform: translateX(100px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+`
+
+const dotPattern = keyframes`
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+`
+
+const BidmasterBanner = () => {
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'))
+  const isTablet = useMediaQuery(theme.breakpoints.down('lg'))
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) return null
+
   return (
     <Box
       sx={{
+        minHeight: { xs: '400px', md: '500px', lg: '580px' },
+        background: 'linear-gradient(135deg, #fefefe 0%, #f8f9fa 50%, #ffffff 100%)',
         position: 'relative',
-        height: { xs: '400px', md: '600px' },
-        background: 'linear-gradient(135deg, #ffffff 0%, #fafafa 100%)',
-        display: 'flex',
-        alignItems: 'center',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        py: { xs: 4, md: 6, lg: 8 }
       }}
     >
-      {/* Decorative Elements */}
+      {/* Decorative background elements */}
       <Box
         sx={{
           position: 'absolute',
           top: '10%',
-          right: '10%',
-          width: 120,
-          height: 120,
+          left: '5%',
+          width: { xs: 50, md: 70, lg: 85 },
+          height: { xs: 50, md: 70, lg: 85 },
           borderRadius: '50%',
-          bgcolor: 'rgba(180, 23, 18, 0.08)',
-          animation: 'float 8s ease-in-out infinite'
+          background: `linear-gradient(45deg, ${primaryColor}1A, ${primaryColor}0D)`,
+          animation: `${float} 6s ease-in-out infinite`,
+          animationDelay: '0s'
         }}
       />
       <Box
         sx={{
           position: 'absolute',
           bottom: '15%',
-          left: '8%',
-          width: 80,
-          height: 80,
+          right: '8%',
+          width: { xs: 35, md: 50, lg: 65 },
+          height: { xs: 35, md: 50, lg: 65 },
           borderRadius: '50%',
-          bgcolor: 'rgba(180, 23, 18, 0.05)',
-          animation: 'float 6s ease-in-out infinite reverse'
-        }}
-      />
-      <Box
-        sx={{
-          position: 'absolute',
-          top: '60%',
-          right: '20%',
-          width: 40,
-          height: 40,
-          borderRadius: '50%',
-          bgcolor: 'rgba(180, 23, 18, 0.03)',
-          animation: 'float 10s ease-in-out infinite'
+          background: `linear-gradient(45deg, ${primaryColor}14, ${primaryColor}08)`,
+          animation: `${float} 8s ease-in-out infinite`,
+          animationDelay: '2s'
         }}
       />
 
-      <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 2 }}>
-        <Grid container spacing={4} alignItems="center">
-          <Grid item xs={12} md={8}>
-            <Box sx={{ color: '#333' }}>
-              <Chip
-                icon={<Gavel sx={{ color: 'white' }} />}
-                label="LIVE AUCTION"
-                sx={{
-                  bgcolor: '#b41712',
-                  color: 'white',
-                  fontWeight: '600',
-                  mb: 3,
-                  boxShadow: '0 4px 15px rgba(180, 23, 18, 0.3)',
-                  animation: 'glow 3s ease-in-out infinite alternate',
-                  '&:hover': {
-                    bgcolor: '#8B0000'
-                  }
-                }}
-              />
-              <Typography
-                variant="h2"
-                sx={{
-                  fontWeight: '700',
-                  mb: 2,
-                  fontSize: { xs: '2.2rem', md: '3.5rem' },
-                  textShadow: '0 2px 10px rgba(0,0,0,0.1)',
-                  lineHeight: 1.2,
-                  color: '#2c2c2c'
-                }}
-              >
-                Đấu Giá Trực Tuyến
-                <br />
-                <Box
-                  component="span"
-                  sx={{
-                    background: 'linear-gradient(45deg, #b41712 0%, #d32f2f 100%)',
-                    backgroundClip: 'text',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    display: 'inline-block'
-                  }}
-                >
-                  Uy Tín & Minh Bạch
-                </Box>
-              </Typography>
-              <Typography
-                variant="h6"
-                sx={{
-                  mb: 4,
-                  opacity: 0.8,
-                  maxWidth: '600px',
-                  fontWeight: '400',
-                  lineHeight: 1.6,
-                  color: '#555'
-                }}
-              >
-                Tham gia đấu giá các sản phẩm chất lượng cao với giá cả hợp lý. Hệ thống bảo mật tuyệt đối và giao dịch
-                minh bạch.
-              </Typography>
-
-              {/* Quick Stats */}
-              <Box sx={{ display: 'flex', gap: 4, mb: 3, flexWrap: 'wrap' }}>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 1.5,
-                    bgcolor: 'rgba(180, 23, 18, 0.05)',
-                    border: '1px solid rgba(180, 23, 18, 0.1)',
-                    px: 3,
-                    py: 1.5,
-                    borderRadius: 3,
-                    transition: 'all 0.3s ease',
-                    '&:hover': {
-                      bgcolor: 'rgba(180, 23, 18, 0.08)',
-                      transform: 'translateY(-2px)',
-                      boxShadow: '0 4px 15px rgba(180, 23, 18, 0.15)'
-                    }
-                  }}
-                >
-                  <TrendingUp sx={{ color: '#b41712', fontSize: 22 }} />
-                  <Typography variant="body2" sx={{ fontWeight: '600', color: '#333' }}>
-                    <strong style={{ color: '#b41712' }}>500+</strong> Đấu giá thành công
-                  </Typography>
-                </Box>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 1.5,
-                    bgcolor: 'rgba(180, 23, 18, 0.05)',
-                    border: '1px solid rgba(180, 23, 18, 0.1)',
-                    px: 3,
-                    py: 1.5,
-                    borderRadius: 3,
-                    transition: 'all 0.3s ease',
-                    '&:hover': {
-                      bgcolor: 'rgba(180, 23, 18, 0.08)',
-                      transform: 'translateY(-2px)',
-                      boxShadow: '0 4px 15px rgba(180, 23, 18, 0.15)'
-                    }
-                  }}
-                >
-                  <AccessTime sx={{ color: '#b41712', fontSize: 22 }} />
-                  <Typography variant="body2" sx={{ fontWeight: '600', color: '#333' }}>
-                    <strong style={{ color: '#b41712' }}>24/7</strong> Hỗ trợ khách hàng
-                  </Typography>
-                </Box>
-              </Box>
-            </Box>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <Box
-              sx={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center'
-              }}
-            >
+      <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 2, height: '100%' }}>
+        <Grid container spacing={{ xs: 2, md: 3, lg: 4 }} alignItems="center" sx={{ minHeight: '100%' }}>
+          {/* Left Content */}
+          <Grid item xs={12} md={7} lg={6}>
+            <Fade in={mounted} timeout={1000}>
               <Box
                 sx={{
-                  width: { xs: 280, md: 320 },
-                  height: { xs: 280, md: 320 },
-                  borderRadius: '50%',
-                  background: 'linear-gradient(45deg, rgba(180,23,18,0.05) 0%, rgba(180,23,18,0.1) 100%)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  border: '3px solid rgba(180,23,18,0.15)',
-                  animation: 'rotate 30s linear infinite',
-                  boxShadow: '0 10px 40px rgba(180,23,18,0.1)',
-                  position: 'relative',
-                  '&::before': {
-                    content: '""',
-                    position: 'absolute',
-                    inset: '-2px',
-                    borderRadius: '50%',
-                    background: 'linear-gradient(45deg, #b41712, #d32f2f, #b41712)',
-                    zIndex: -1,
-                    animation: 'rotate 20s linear infinite reverse'
-                  }
+                  animation: `${slideInLeft} 1s ease-out`,
+                  textAlign: { xs: 'center', md: 'left' }
                 }}
               >
-                <Gavel
+                {/* Main Title */}
+                <Box sx={{ mb: { xs: 3, md: 4, lg: 5 } }}>
+                  <Typography
+                    sx={{
+                      fontFamily: '"Playfair Display", serif',
+                      fontSize: { xs: '3rem', sm: '4rem', md: '5rem', lg: '6rem', xl: '7rem' },
+                      fontWeight: 700,
+                      color: primaryColor,
+                      lineHeight: 0.9,
+                      textShadow: 'none',
+                      mb: 1,
+                      fontStyle: 'italic'
+                    }}
+                  >
+                    Bidmaster
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontFamily: '"Playfair Display", serif',
+                      fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem', lg: '3.5rem', xl: '4rem' },
+                      fontWeight: 400,
+                      color: primaryColor,
+                      fontStyle: 'italic',
+                      textShadow: 'none'
+                    }}
+                  >
+                    Auctionage
+                  </Typography>
+                </Box>
+
+                {/* Description */}
+                <Typography
                   sx={{
-                    fontSize: { xs: 60, md: 80 },
-                    color: '#fff',
-                    filter: 'drop-shadow(0 4px 8px rgba(180,23,18,0.3))'
+                    fontSize: { xs: '1rem', sm: '1.1rem', md: '1.2rem', lg: '1.3rem' },
+                    lineHeight: 1.8,
+                    color: '#000000',
+                    fontWeight: 400,
+                    maxWidth: { xs: '100%', md: '500px', lg: '600px' },
+                    mb: { xs: 4, md: 5, lg: 6 },
+                    textAlign: 'justify',
+                    animation: `${slideInLeft} 1.2s ease-out`,
+                    '&::first-letter': {
+                      fontSize: '1.5em',
+                      fontWeight: 'bold',
+                      color: primaryColor
+                    }
+                  }}
+                >
+                  Khám phá những món đồ sưu tầm hiếm có tại phiên đấu giá của chúng tôi — nơi bạn có thể tìm thấy những
+                  vật phẩm độc đáo và đầy giá trị. Hãy tham gia để đấu giá các món hàng đặc biệt và làm phong phú thêm
+                  bộ sưu tập yêu thích của bạn.
+                </Typography>
+
+                {/* Contact Information */}
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: { xs: 'column', sm: 'row' },
+                    gap: { xs: 3, sm: 4, md: 6 },
+                    alignItems: { xs: 'center', md: 'flex-start' },
+                    animation: `${slideInLeft} 1.4s ease-out`
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 2,
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        transform: 'translateY(-2px)',
+                        '& .contact-icon': {
+                          transform: 'scale(1.1)',
+                          boxShadow: `0 4px 15px ${primaryColor}4D`
+                        }
+                      }
+                    }}
+                  >
+                    <Box
+                      className="contact-icon"
+                      sx={{
+                        width: { xs: 40, md: 45, lg: 50 },
+                        height: { xs: 40, md: 45, lg: 50 },
+                        borderRadius: '50%',
+                        bgcolor: primaryColor,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'all 0.3s ease',
+                        boxShadow: `0 2px 10px ${primaryColor}33`
+                      }}
+                    >
+                      <Language sx={{ color: 'white', fontSize: { xs: 20, md: 22, lg: 24 } }} />
+                    </Box>
+                    <Typography
+                      sx={{
+                        fontSize: { xs: '1rem', md: '1.1rem', lg: '1.2rem' },
+                        fontWeight: 500,
+                        color: '#000000'
+                      }}
+                    >
+                      www.bidmaster.com
+                    </Typography>
+                  </Box>
+
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 2,
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        transform: 'translateY(-2px)',
+                        '& .contact-icon': {
+                          transform: 'scale(1.1)',
+                          boxShadow: `0 4px 15px ${primaryColor}4D`
+                        }
+                      }
+                    }}
+                  >
+                    <Box
+                      className="contact-icon"
+                      sx={{
+                        width: { xs: 40, md: 45, lg: 50 },
+                        height: { xs: 40, md: 45, lg: 50 },
+                        borderRadius: '50%',
+                        bgcolor: primaryColor,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'all 0.3s ease',
+                        boxShadow: `0 2px 10px ${primaryColor}33`
+                      }}
+                    >
+                      <Phone sx={{ color: 'white', fontSize: { xs: 20, md: 22, lg: 24 } }} />
+                    </Box>
+                    <Typography
+                      sx={{
+                        fontSize: { xs: '1rem', md: '1.1rem', lg: '1.2rem' },
+                        fontWeight: 500,
+                        color: '#000000'
+                      }}
+                    >
+                      024. 3636 7979
+                    </Typography>
+                  </Box>
+                </Box>
+              </Box>
+            </Fade>
+          </Grid>
+
+          {/* Right Image Section */}
+          <Grid item xs={12} md={5} lg={6}>
+            <Slide direction="left" in={mounted} timeout={1200}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  position: 'relative',
+                  animation: `${slideInRight} 1s ease-out`
+                }}
+              >
+                {/* Decorative dots pattern */}
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    top: { xs: -20, md: -30, lg: -40 },
+                    right: { xs: -20, md: -30, lg: -40 },
+                    width: { xs: 60, md: 80, lg: 100 },
+                    height: { xs: 60, md: 80, lg: 100 },
+                    backgroundImage: `radial-gradient(circle, ${primaryColor} 2px, transparent 2px)`,
+                    backgroundSize: '15px 15px',
+                    opacity: 0.4,
+                    animation: `${dotPattern} 4s ease-in-out infinite`,
+                    animationDelay: '0s'
                   }}
                 />
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    bottom: { xs: -15, md: -25, lg: -35 },
+                    left: { xs: -15, md: -25, lg: -35 },
+                    width: { xs: 45, md: 65, lg: 80 },
+                    height: { xs: 45, md: 65, lg: 80 },
+                    backgroundImage: `radial-gradient(circle, ${primaryColor} 1.5px, transparent 1.5px)`,
+                    backgroundSize: '12px 12px',
+                    opacity: 0.3,
+                    animation: `${dotPattern} 5s ease-in-out infinite`,
+                    animationDelay: '1s'
+                  }}
+                />
+
+                {/* Main circular image */}
+                <Box
+                  sx={{
+                    width: { xs: 240, sm: 300, md: 340, lg: 380, xl: 420 },
+                    height: { xs: 240, sm: 300, md: 340, lg: 380, xl: 420 },
+                    borderRadius: '50%',
+                    overflow: 'hidden',
+                    position: 'relative',
+                    boxShadow: '0 20px 60px rgba(0, 0, 0, 0.15)',
+                    transition: 'all 0.5s ease',
+                    animation: `${float} 6s ease-in-out infinite`,
+                    '&:hover': {
+                      transform: 'scale(1.05)',
+                      boxShadow: '0 25px 80px rgba(0, 0, 0, 0.2)',
+                      '& img': {
+                        transform: 'scale(1.1)'
+                      }
+                    },
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      background: `linear-gradient(45deg, ${primaryColor}1A, transparent, ${primaryColor}0D)`,
+                      borderRadius: '50%',
+                      zIndex: 1,
+                      transition: 'opacity 0.3s ease'
+                    },
+                    '&:hover::before': {
+                      opacity: 0
+                    }
+                  }}
+                >
+                  <Box
+                    component="img"
+                    src={BannerImage}
+                    alt="Antique collectibles and vintage items"
+                    sx={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      transition: 'transform 0.5s ease'
+                    }}
+                  />
+                </Box>
               </Box>
-            </Box>
+            </Slide>
           </Grid>
         </Grid>
       </Container>
-
-      {/* CSS Animations */}
-      <style jsx>{`
-        @keyframes float {
-          0%, 100% { 
-            transform: translateY(0px) scale(1); 
-            opacity: 0.7;
-          }
-          50% { 
-            transform: translateY(-15px) scale(1.05); 
-            opacity: 1;
-          }
-        }
-        @keyframes glow {
-          0% { 
-            box-shadow: 0 4px 15px rgba(180, 23, 18, 0.3);
-          }
-          100% { 
-            box-shadow: 0 4px 25px rgba(180, 23, 18, 0.5);
-          }
-        }
-        @keyframes rotate {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
     </Box>
   )
 }
 
-export default Banner
+export default BidmasterBanner

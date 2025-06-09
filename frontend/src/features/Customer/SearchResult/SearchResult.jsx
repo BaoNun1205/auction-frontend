@@ -40,6 +40,7 @@ export default function SearchResults() {
   const searchKeyword = searchParams.get('keyword') || ''
   const urlStatus = searchParams.get('status')?.toUpperCase() || ''
   const urlTypeId = searchParams.get('typeId') || ''
+  const urlCategoryId = searchParams.get('categoryId') || ''
 
   // Initialize filters based on URL status
   const initialFilters = {
@@ -76,10 +77,28 @@ export default function SearchResults() {
   )
   const { data: categoryData, isLoading: isLoadingCategories, isError: isErrorCategories } = useFilterCategories()
 
-  // Set expanded category based on typeId from URL
+  // Set expanded category based on typeId from URL or categoryId parameter
   useEffect(() => {
     setKeyword(searchKeyword)
-    if (urlTypeId && categoryData?.data) {
+    
+    if (urlCategoryId && categoryData?.data) {
+      // Find category by ID and expand it
+      const category = categoryData.data.find((cat) => 
+        cat.categoryId === urlCategoryId
+      )
+      if (category) {
+        setExpandedCategory(category.categoryName)
+        // Auto-select first type in the category if no typeId is specified
+        if (!urlTypeId && category.types.length > 0) {
+          const firstType = category.types[0]
+          setTypeId(firstType.typeId)
+          // Update URL with the first type
+          const newSearchParams = new URLSearchParams(location.search)
+          newSearchParams.set('typeId', firstType.typeId)
+          navigate(`?${newSearchParams.toString()}`, { replace: true })
+        }
+      }
+    } else if (urlTypeId && categoryData?.data) {
       const category = categoryData.data.find((cat) =>
         cat.types.some((type) => type.typeId === urlTypeId)
       )
@@ -87,7 +106,7 @@ export default function SearchResults() {
         setExpandedCategory(category.categoryName)
       }
     }
-  }, [searchKeyword, urlTypeId, categoryData])
+  }, [searchKeyword, urlTypeId, urlCategoryId, categoryData, location.search, navigate])
 
   if (isLoadingCategories || isLoadingSessions) {
     return <Typography>Loading...</Typography>
@@ -166,8 +185,12 @@ export default function SearchResults() {
     })
     setExpandedCategory('')
     setPage(0) // Reset page to 0
-    // Update URL to remove typeId and status, keep keyword if present
-    navigate(`?${keyword ? `keyword=${keyword}` : ''}`)
+    // Update URL to remove typeId, status, and categoryId, keep keyword if present
+    const newSearchParams = new URLSearchParams()
+    if (keyword) {
+      newSearchParams.set('keyword', keyword)
+    }
+    navigate(`?${newSearchParams.toString()}`)
   }
 
   const handlePageChange = (event, newPage) => {
