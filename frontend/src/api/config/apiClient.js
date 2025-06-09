@@ -3,7 +3,8 @@ import { useAppStore } from '~/store/appStore';
 
 const apiClient = axios.create({
   // baseURL: 'http://localhost:8080',
-  baseURL: 'https://auctionsession-e9b7beg0gvf2dhax.southeastasia-01.azurewebsites.net',
+  // baseURL: 'https://auctionsession-e9b7beg0gvf2dhax.southeastasia-01.azurewebsites.net',
+  baseURL: 'https://onlineauctionweb-fud5a8hnd4cbckgf.southeastasia-01.azurewebsites.net/',
   headers: {
     'Content-Type': 'application/json',
   },

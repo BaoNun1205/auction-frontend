@@ -6,6 +6,7 @@ import { useRecommendByUser } from '~/hooks/recommendHook'
 import { useFilterSessions } from '~/hooks/sessionHook'
 import { useNavigate } from 'react-router-dom'
 import AuctionCard from '../OngoingAuctionCard'
+import UpcomingAuctionsSkeleton from '../Skeletons/UpcomingAuctionsSkeleton'
 
 const primaryColor = '#B71C1C'
 
@@ -77,140 +78,150 @@ function UpcomingAuctions() {
     return () => window.removeEventListener('resize', handleResize)
   }, [items])
 
+  // Show skeleton while loading
+  if (isLoading) {
+    return <UpcomingAuctionsSkeleton />
+  }
+
+  // Show error state
+  if (isError) {
+    return (
+      <Box sx={{ py: 6, bgcolor: '#fef7f7' }}>
+        <Container maxWidth="lg">
+          <Typography variant="h6" color="error" sx={{ textAlign: 'center' }}>
+            Có lỗi xảy ra khi tải dữ liệu. Vui lòng thử lại sau.
+          </Typography>
+        </Container>
+      </Box>
+    )
+  }
+
   return (
     <Box sx={{ py: 6, bgcolor: '#fef7f7' }}>
       <Container maxWidth="lg">
-        {isLoading ? (
-          <Typography>Loading...</Typography>
-        ) : isError ? (
-          <Typography>Error loading sessions</Typography>
-        ) : (
-          <>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Typography variant="h4" sx={{ fontWeight: 'bold', mr: 2 }}>
-                  Sắp diễn ra
-                </Typography>
-                <Chip
-                  label="Đăng ký sớm"
-                  size="small"
-                  sx={{
-                    bgcolor: primaryColor,
-                    color: 'white'
-                  }}
-                  icon={<HowToReg sx={{ fontSize: 16, color: 'white !important' }} />}
-                />
-              </Box>
-              <Button onClick={handleViewAll} endIcon={<ArrowForward />}>
-                Xem tất cả
-              </Button>
-            </Box>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Typography variant="h4" sx={{ fontWeight: 'bold', mr: 2 }}>
+              Sắp diễn ra
+            </Typography>
+            <Chip
+              label="Đăng ký sớm"
+              size="small"
+              sx={{
+                bgcolor: primaryColor,
+                color: 'white'
+              }}
+              icon={<HowToReg sx={{ fontSize: 16, color: 'white !important' }} />}
+            />
+          </Box>
+          <Button onClick={handleViewAll} endIcon={<ArrowForward />}>
+            Xem tất cả
+          </Button>
+        </Box>
 
-            {items.length > 0 ? (
-              <Box sx={{ position: 'relative' }}>
-                {/* Left Navigation Button */}
-                {canScrollLeft && (
-                  <IconButton
-                    onClick={scrollLeft}
-                    sx={{
-                      position: 'absolute',
-                      left: -20,
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      zIndex: 2,
-                      bgcolor: 'white',
-                      boxShadow: 2,
-                      width: 48,
-                      height: 48,
-                      '&:hover': {
-                        bgcolor: '#f5f5f5',
-                        boxShadow: 3
-                      }
-                    }}
-                  >
-                    <ChevronLeft sx={{ fontSize: 28 }} />
-                  </IconButton>
-                )}
-
-                {/* Right Navigation Button */}
-                {canScrollRight && (
-                  <IconButton
-                    onClick={scrollRight}
-                    sx={{
-                      position: 'absolute',
-                      right: -20,
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      zIndex: 2,
-                      bgcolor: 'white',
-                      boxShadow: 2,
-                      width: 48,
-                      height: 48,
-                      '&:hover': {
-                        bgcolor: '#f5f5f5',
-                        boxShadow: 3
-                      }
-                    }}
-                  >
-                    <ChevronRight sx={{ fontSize: 28 }} />
-                  </IconButton>
-                )}
-
-                {/* Scrollable Cards Container */}
-                <Box
-                  ref={scrollContainerRef}
-                  onScroll={checkScrollButtons}
-                  sx={{
-                    display: 'flex',
-                    gap: 3,
-                    overflowX: 'auto',
-                    overflowY: 'hidden',
-                    scrollBehavior: 'smooth',
-                    pb: 2,
-                    '&::-webkit-scrollbar': {
-                      display: 'none'
-                    },
-                    '-ms-overflow-style': 'none',
-                    'scrollbar-width': 'none',
-                    mx: 2
-                  }}
-                >
-                  {items.map((auction) => (
-                    <Box
-                      key={auction.id}
-                      sx={{
-                        minWidth: 300,
-                        maxWidth: 300,
-                        flexShrink: 0
-                      }}
-                    >
-                      <AuctionCard auction={auction} type="upcoming" />
-                    </Box>
-                  ))}
-                </Box>
-              </Box>
-            ) : (
-              <Typography variant="body1" sx={{ textAlign: 'center' }}>
-                Không có phiên đấu giá sắp diễn ra.
-              </Typography>
-            )}
-
-            {/* Mobile Touch Scroll Indicator */}
-            {items.length > 0 && (
-              <Box
+        {items.length > 0 ? (
+          <Box sx={{ position: 'relative' }}>
+            {/* Left Navigation Button */}
+            {canScrollLeft && (
+              <IconButton
+                onClick={scrollLeft}
                 sx={{
-                  display: { xs: 'flex', md: 'none' },
-                  justifyContent: 'center',
-                  mt: 2,
-                  gap: 1
+                  position: 'absolute',
+                  left: -20,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  zIndex: 2,
+                  bgcolor: 'white',
+                  boxShadow: 2,
+                  width: 48,
+                  height: 48,
+                  '&:hover': {
+                    bgcolor: '#f5f5f5',
+                    boxShadow: 3
+                  }
                 }}
               >
-                <Typography variant="caption" color="text.secondary">
-                  ← Vuốt để xem thêm →
-                </Typography>
-              </Box>
+                <ChevronLeft sx={{ fontSize: 28 }} />
+              </IconButton>
             )}
-          </>
+
+            {/* Right Navigation Button */}
+            {canScrollRight && (
+              <IconButton
+                onClick={scrollRight}
+                sx={{
+                  position: 'absolute',
+                  right: -20,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  zIndex: 2,
+                  bgcolor: 'white',
+                  boxShadow: 2,
+                  width: 48,
+                  height: 48,
+                  '&:hover': {
+                    bgcolor: '#f5f5f5',
+                    boxShadow: 3
+                  }
+                }}
+              >
+                <ChevronRight sx={{ fontSize: 28 }} />
+              </IconButton>
+            )}
+
+            {/* Scrollable Cards Container */}
+            <Box
+              ref={scrollContainerRef}
+              onScroll={checkScrollButtons}
+              sx={{
+                display: 'flex',
+                gap: 3,
+                overflowX: 'auto',
+                overflowY: 'hidden',
+                scrollBehavior: 'smooth',
+                pb: 2,
+                '&::-webkit-scrollbar': {
+                  display: 'none'
+                },
+                '-ms-overflow-style': 'none',
+                'scrollbar-width': 'none',
+                mx: 2
+              }}
+            >
+              {items.map((auction) => (
+                <Box
+                  key={auction.id}
+                  sx={{
+                    minWidth: 300,
+                    maxWidth: 300,
+                    flexShrink: 0
+                  }}
+                >
+                  <AuctionCard auction={auction} type="upcoming" />
+                </Box>
+              ))}
+            </Box>
+          </Box>
+        ) : (
+          <Typography variant="body1" sx={{ textAlign: 'center' }}>
+            Không có phiên đấu giá sắp diễn ra.
+          </Typography>
+        )}
+
+        {/* Mobile Touch Scroll Indicator */}
+        {items.length > 0 && (
+          <Box
+            sx={{
+              display: { xs: 'flex', md: 'none' },
+              justifyContent: 'center',
+              mt: 2,
+              gap: 1
+            }}
+          >
+            <Typography variant="caption" color="text.secondary">
+              ← Vuốt để xem thêm →
+            </Typography>
+          </Box>
         )}
       </Container>
     </Box>
