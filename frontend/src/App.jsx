@@ -7,6 +7,7 @@ import { useAppStore } from './store/appStore'
 import { introspect } from './api/authApi'
 import { useLogout, useRefreshToken } from './hooks/authHook'
 import ChatButton from './features/Chat/ChatBot'
+import { ToastProvider } from './utils/ToastContext'
 
 function App() {
   const [routes, setRoutes] = useState([...privateRoutes, ...publicRoutes])
@@ -74,24 +75,26 @@ function App() {
   }
 
   return (
-    <Router>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route element={<RequireAuth isValid={isValid} />}>
-          {routes.map((route) => {
-            const Page = route.page
-            return (
-              <Route
-                key={route.path}
-                path={route.path}
-                element={<Page />}
-              />
-            )
-          })}
-        </Route>
-      </Routes>
-      <ChatButton />
-    </Router>
+    <ToastProvider>
+      <Router>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route element={<RequireAuth isValid={isValid} />}>
+            {routes.map((route) => {
+              const Page = route.page
+              return (
+                <Route
+                  key={route.path}
+                  path={route.path}
+                  element={<Page />}
+                />
+              )
+            })}
+          </Route>
+        </Routes>
+        <ChatButton />
+      </Router>
+    </ToastProvider>
   )
 }
 

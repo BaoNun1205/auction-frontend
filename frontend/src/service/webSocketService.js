@@ -31,9 +31,9 @@ export const connectWebSocket = (authToken, destinations, onMessage) => {
 
     // Nếu chưa kết nối
     stompClient = new Client({
-      brokerURL: 'wss://onlineauctionweb-fud5a8hnd4cbckgf.southeastasia-01.azurewebsites.net/',
+      // brokerURL: 'wss://onlineauctionweb-fud5a8hnd4cbckgf.southeastasia-01.azurewebsites.net/',
       // brokerURL: 'wss://auctionsession-e9b7beg0gvf2dhax.southeastasia-01.azurewebsites.net/rt-auction',
-      // brokerURL: 'ws://localhost:8080/rt-auction',
+      brokerURL: 'ws://localhost:8080/rt-auction',
       connectHeaders: {
         Authorization: `Bearer ${authToken}`
       },

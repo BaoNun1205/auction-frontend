@@ -66,10 +66,11 @@ import { useRecentKeywords, useRecordSearch } from '~/hooks/searchHistoryHook'
 import { useCustomNavigate } from '~/utils/navigate'
 import { useLogout } from '~/hooks/authHook'
 import { primaryColor } from '~/utils/config'
+import HeaderSkeleton from './skeletons/HeaderSkeleton'
 
 const Header = () => {
   const theme = useTheme()
-  const { auth } = useAppStore() // Lấy thông tin auth từ store
+  const { auth } = useAppStore()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
   const [navMenuAnchor, setNavMenuAnchor] = useState(null)
   const [profileMenuAnchor, setProfileMenuAnchor] = useState(null)
@@ -78,17 +79,27 @@ const Header = () => {
   const [searchKeyword, setSearchKeyword] = useState('')
   const navigate = useNavigate()
   const location = useLocation()
-  const { data: user, refetch: refetchUser } = useGetUserById(auth?.user?.id)
+  const { data: user, isLoading: isLoadingUser } = useGetUserById(auth?.user?.id)
   const [showSuggestions, setShowSuggestions] = useState(false)
   const { handleNavigate } = useCustomNavigate()
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false)
   const { mutate: logout, isLoading: isLoggingOut } = useLogout()
 
   const currentUserId = auth?.user?.id
-
-  const { data: notifications = [], isLoading } = useGetNotificationsByReceiverId(currentUserId)
+  const { data: notifications = [], isLoading: isLoadingNoti } = useGetNotificationsByReceiverId(currentUserId)
   const { data: recentKeywords = [] } = useRecentKeywords(currentUserId)
   const { mutate: recordSearch } = useRecordSearch()
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search)
+    const keyword = searchParams.get('keyword') || ''
+    setSearchKeyword(keyword)
+  }, [location.search])
+
+  if (isLoadingUser || isLoadingNoti) {
+    const isAuth = Boolean(auth?.user?.id);
+    return <HeaderSkeleton isAuth={isAuth} />;
+  }
 
   const handleLogout = () => {
     setLogoutDialogOpen(true)
@@ -127,12 +138,6 @@ const Header = () => {
     { text: 'Lịch sử thanh toán', icon: <Payments />, value: 7, onClick: () => handleNavigate('/profile', { tabSet: 7 }) },
     { text: 'Đăng xuất', icon: <ExitToApp />, value: 8, onClick: handleLogout }
   ]
-
-  useEffect(() => {
-    const searchParams = new URLSearchParams(location.search)
-    const keyword = searchParams.get('keyword') || ''
-    setSearchKeyword(keyword)
-  }, [location.search])
 
   const handleNavMenuOpen = (event) => setNavMenuAnchor(event.currentTarget)
   const handleNavMenuClose = () => setNavMenuAnchor(null)
@@ -382,12 +387,6 @@ const Header = () => {
               {searchOpen ? <CloseIcon /> : <SearchIcon />}
             </IconButton>
           )}
-
-          {/* <IconButtonWithBadge color="inherit" aria-label="favorites">
-            <Badge badgeContent={4} color="error">
-              <FavoriteIcon />
-            </Badge>
-          </IconButtonWithBadge> */}
 
           {auth.isAuth && user && (
             <>
