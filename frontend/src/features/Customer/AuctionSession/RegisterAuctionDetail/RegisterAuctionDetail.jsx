@@ -14,7 +14,6 @@ import {
   Snackbar,
   Alert
 } from '@mui/material'
-import FavoriteIcon from '@mui/icons-material/Favorite'
 import ShareIcon from '@mui/icons-material/Share'
 import AccessTimeIcon from '@mui/icons-material/AccessTime'
 import PersonIcon from '@mui/icons-material/Person'
@@ -33,11 +32,13 @@ import { useAppStore } from '~/store/appStore'
 import Breadcrumb from '~/components/Customer/BreadcrumbComponent'
 import Authentication from '~/features/Authentication'
 import AppModal from '~/components/Modal/Modal'
+import RegisterAuctionDetailSkeleton from './RegisterAuctionDetailSkeleton'
+import { useToast } from '~/utils/ToastContext';
 
 const RegisterAuctionDetail = () => {
+  const { showToast } = useToast();
   const [selectedImage, setSelectedImage] = useState(0)
   const [isFavorite, setIsFavorite] = useState(false)
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
   const [optimisticUserCount, setOptimisticUserCount] = useState(0)
   const [optimisticIsChecked, setOptimisticIsChecked] = useState(false)
   const theme = useTheme()
@@ -45,7 +46,7 @@ const RegisterAuctionDetail = () => {
   const { auth } = useAppStore()
   const currentUserId = auth.user?.id
   const { id } = useParams()
-  const navigate = useNavigate() // Khởi tạo useNavigate
+  const navigate = useNavigate()
   const authModalRef = useRef(null)
   const { data: session, refetch, isLoading, isError } = useGetSessionById(id)
   const { data: usersRegisted } = useGetUsersRegisted(id)
@@ -65,12 +66,28 @@ const RegisterAuctionDetail = () => {
     setOptimisticIsChecked(!!isChecked)
   }, [isChecked])
 
+  // Show skeleton while loading
   if (isLoading) {
-    return <Typography>Loading...</Typography>
+    return <RegisterAuctionDetailSkeleton />
   }
 
   if (isError) {
-    return <Typography>Error loading session</Typography>
+    return (
+      <Container maxWidth="lg" sx={{ pt: 8, pb: 6, textAlign: 'center' }}>
+        <Typography variant="h5" color="error" gutterBottom>
+          Lỗi khi tải thông tin phiên đấu giá
+        </Typography>
+        <Typography variant="body1" color="text.secondary" paragraph>
+          Không thể tải thông tin phiên đấu giá. Vui lòng thử lại sau.
+        </Typography>
+        <StyledButton onClick={() => window.location.reload()}>Thử lại</StyledButton>
+      </Container>
+    )
+  }
+
+  // Safety check for session data
+  if (!session || !session.asset) {
+    return <RegisterAuctionDetailSkeleton />
   }
 
   const listUser = Array.isArray(usersRegisted) ? usersRegisted : []
@@ -81,26 +98,24 @@ const RegisterAuctionDetail = () => {
   }
 
   const handlePrevClick = () => {
-    setSelectedImage((prevSelected) =>
-      prevSelected > 0 ? prevSelected - 1 : listImages.length - 1
-    )
+    setSelectedImage((prevSelected) => (prevSelected > 0 ? prevSelected - 1 : listImages.length - 1))
   }
 
   const handleNextClick = () => {
-    setSelectedImage((prevSelected) =>
-      prevSelected < listImages.length - 1 ? prevSelected + 1 : 0
-    )
+    setSelectedImage((prevSelected) => (prevSelected < listImages.length - 1 ? prevSelected + 1 : 0))
   }
 
   const formatDateTime = (dateTimeString) => {
     const date = new Date(dateTimeString)
-    return date.toLocaleString('vi-VN', {
-      hour: '2-digit',
-      minute: '2-digit',
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    }).replace(',', '')
+    return date
+      .toLocaleString('vi-VN', {
+        hour: '2-digit',
+        minute: '2-digit',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      })
+      .replace(',', '')
   }
 
   const handleRegisterClick = () => {
@@ -108,23 +123,21 @@ const RegisterAuctionDetail = () => {
       authModalRef.current?.click()
       return
     }
-    
+
     setOptimisticUserCount((prev) => prev + 1)
     setOptimisticIsChecked(true)
-    setSnackbar({ open: true, message: 'Đang xử lý đăng ký...', severity: 'info' })
 
     registerSession(
       { userId: currentUserId, auctionSessionId: session.id },
       {
         onSuccess: () => {
           refetch()
-          setSnackbar({ open: true, message: 'Đăng ký phiên đấu giá thành công', severity: 'success' })
+          showToast('success', 'Đăng ký phiên đấu giá thành công')
         },
         onError: (error) => {
           setOptimisticUserCount((prev) => prev - 1)
           setOptimisticIsChecked(false)
-          console.error('Error registering session:', error)
-          setSnackbar({ open: true, message: 'Đăng ký phiên đấu giá thất bại', severity: 'error' })
+          showToast('error', 'Đăng ký phiên đấu giá thất bại')
         }
       }
     )
@@ -133,30 +146,21 @@ const RegisterAuctionDetail = () => {
   const handleUnregisterClick = () => {
     setOptimisticUserCount((prev) => Math.max(0, prev - 1))
     setOptimisticIsChecked(false)
-    setSnackbar({ open: true, message: 'Đang xử lý hủy đăng ký...', severity: 'info' })
 
     unregisterSession(
       { userId: currentUserId, auctionSessionId: session.id },
       {
         onSuccess: () => {
           refetch()
-          setSnackbar({ open: true, message: 'Hủy đăng ký phiên đấu giá thành công', severity: 'success' })
+          showToast('success', 'Hủy đăng ký phiên đấu giá thành công')
         },
         onError: (error) => {
           setOptimisticUserCount((prev) => prev + 1)
           setOptimisticIsChecked(true)
-          console.error('Error unregistering session:', error)
-          setSnackbar({ open: true, message: 'Hủy đăng ký phiên đấu giá thất bại', severity: 'error' })
+          showToast('error', 'Hủy đăng ký phiên đấu giá thất bại')
         }
       }
     )
-  }
-
-  const handleCloseSnackbar = (event, reason) => {
-    if (reason === 'clickaway') {
-      return
-    }
-    setSnackbar({ ...snackbar, open: false })
   }
 
   const breadcrumbItems = [
@@ -178,7 +182,7 @@ const RegisterAuctionDetail = () => {
             <StyledCard>
               <Box
                 component="img"
-                src={session.asset.listImages[selectedImage].imageAsset}
+                src={listImages[selectedImage]?.imageAsset}
                 alt={`${session.name} - Image ${selectedImage + 1}`}
                 sx={{
                   width: '100%',
@@ -199,7 +203,7 @@ const RegisterAuctionDetail = () => {
               <StyledIconButton onClick={handlePrevClick} aria-label="Previous image">
                 <ArrowBackIosNewIcon />
               </StyledIconButton>
-              {session.asset.listImages.map((image, index) => (
+              {listImages.map((image, index) => (
                 <ThumbnailImage
                   key={index}
                   src={image.imageAsset}
@@ -227,15 +231,6 @@ const RegisterAuctionDetail = () => {
                   {session.name}
                 </Typography>
                 <Stack direction="row" spacing={1}>
-                  {/* <Tooltip title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}>
-                    <IconButton
-                      onClick={() => setIsFavorite(!isFavorite)}
-                      sx={{ color: isFavorite ? '#B41712' : 'inherit' }}
-                      aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-                    >
-                      <FavoriteIcon />
-                    </IconButton>
-                  </Tooltip> */}
                   <Tooltip title="Share">
                     <IconButton aria-label="Share">
                       <ShareIcon />
@@ -247,8 +242,8 @@ const RegisterAuctionDetail = () => {
               <Stack direction="row" alignItems="center" spacing={2} mb={3}>
                 <Box
                   component="img"
-                  src={session.asset.vendor.avatar || '/placeholder-avatar.jpg'}
-                  alt={session.asset.vendor.username}
+                  src={session.asset.vendor?.avatar || '/placeholder-avatar.jpg'}
+                  alt={session.asset.vendor?.username}
                   sx={{
                     width: 40,
                     height: 40,
@@ -257,7 +252,7 @@ const RegisterAuctionDetail = () => {
                   }}
                 />
                 <Typography variant="h6" color="text.secondary">
-                  {session.asset.vendor.username}
+                  {session.asset.vendor?.username}
                 </Typography>
                 <Chip label="Đã kiểm duyệt" sx={{ backgroundColor: '#B41712', color: 'white' }} size="small" />
               </Stack>
@@ -274,19 +269,19 @@ const RegisterAuctionDetail = () => {
               <Stack spacing={3}>
                 <Box>
                   <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-                  Giá cọc
+                    Giá cọc
                   </Typography>
                   <Typography variant="h5" fontWeight="medium">
-                    {session.depositAmount.toLocaleString('vi-VN')} ₫
+                    {session.depositAmount?.toLocaleString('vi-VN')} ₫
                   </Typography>
                 </Box>
 
                 <Box>
                   <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-                  Giá khởi điểm
+                    Giá khởi điểm
                   </Typography>
                   <Typography variant="h4" sx={{ color: '#B41712' }} fontWeight="bold">
-                    {session.startingBids.toLocaleString('vi-VN')} ₫
+                    {session.startingBids?.toLocaleString('vi-VN')} ₫
                   </Typography>
                 </Box>
 
@@ -301,7 +296,7 @@ const RegisterAuctionDetail = () => {
                   </Box>
                 </Stack>
 
-                {auth.user?.id && currentUserId !== session.asset.vendor.userId && (
+                {auth.user?.id && currentUserId !== session.asset.vendor?.userId && (
                   <StyledButton
                     onClick={optimisticIsChecked ? handleUnregisterClick : handleRegisterClick}
                     sx={{ width: { xs: '100%', sm: 'auto' }, alignSelf: 'flex-start' }}
@@ -332,17 +327,6 @@ const RegisterAuctionDetail = () => {
                     <Authentication />
                   </Box>
                 </AppModal>
-
-                <Snackbar
-                  open={snackbar.open}
-                  autoHideDuration={6000}
-                  onClose={handleCloseSnackbar}
-                  anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                >
-                  <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
-                    {snackbar.message}
-                  </Alert>
-                </Snackbar>
               </Stack>
             </Box>
           </Grid>

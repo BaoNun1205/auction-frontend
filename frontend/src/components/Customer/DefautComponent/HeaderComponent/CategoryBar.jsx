@@ -1,24 +1,15 @@
-import React, { useState } from 'react';
-import { 
-  AppBar, 
-  Toolbar, 
-  Button, 
-  Menu, 
-  MenuItem, 
-  Container, 
-  Box, 
-  Typography,
-  styled
-} from '@mui/material';
-import { Link } from 'react-router-dom';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import { useFilterCategories } from '~/hooks/categoryHook';
+import React, { useState } from 'react'
+import { AppBar, Toolbar, Button, Menu, MenuItem, Container, Box, Typography, styled } from '@mui/material'
+import { Link } from 'react-router-dom'
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
+import { useFilterCategories } from '~/hooks/categoryHook'
+import CategoryBarSkeleton from './skeletons/CategoryBarSkeleton'
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   backgroundColor: '#ffffff',
   boxShadow: 'none',
-  borderBottom: '1px solid #e0e0e0',
-}));
+  borderBottom: '1px solid #e0e0e0'
+}))
 
 const StyledButton = styled(Button)(({ theme }) => ({
   color: '#000000',
@@ -28,65 +19,74 @@ const StyledButton = styled(Button)(({ theme }) => ({
   borderBottom: '3px solid transparent',
   '&:hover': {
     backgroundColor: 'transparent',
-    borderBottom: `3px solid #b41712`,
+    borderBottom: '3px solid #b41712'
   },
   '&:focus': {
-    backgroundColor: 'rgba(180, 23, 18, 0.1)',
+    backgroundColor: 'rgba(180, 23, 18, 0.1)'
   },
-  transition: 'all 0.3s',
-}));
+  transition: 'all 0.3s'
+}))
 
 const StyledMenuItem = styled(MenuItem)(({ theme }) => ({
   padding: theme.spacing(1, 2),
   '&:hover': {
-    backgroundColor: 'rgba(180, 23, 18, 0.1)',
+    backgroundColor: 'rgba(180, 23, 18, 0.1)'
   },
   '&:focus': {
-    backgroundColor: 'rgba(180, 23, 18, 0.2)',
+    backgroundColor: 'rgba(180, 23, 18, 0.2)'
   },
-  transition: 'all 0.2s',
-}));
+  transition: 'all 0.2s'
+}))
 
 const CategoryBar = () => {
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const { data, isLoading, isError } = useFilterCategories();
+  const [anchorEl, setAnchorEl] = useState(null)
+  const [selectedCategory, setSelectedCategory] = useState(null)
+  const { data, isLoading, isError } = useFilterCategories()
 
+  // Show skeleton while loading
   if (isLoading) {
-    return <Typography align="center" py={2}>Loading...</Typography>;
+    return <CategoryBarSkeleton itemCount={6} />
   }
 
+  // Show error state
   if (isError) {
-    return <Typography align="center" py={2} color="error">Error loading categories</Typography>;
+    return (
+      <StyledAppBar position="static">
+        <Container maxWidth="lg">
+          <Toolbar disableGutters>
+            <Typography align="center" py={2} color="error" width="100%">
+              Error loading categories
+            </Typography>
+          </Toolbar>
+        </Container>
+      </StyledAppBar>
+    )
   }
 
-  const { data: categories } = data;
+  const { data: categories } = data
 
   const handleClick = (event, category) => {
-    setAnchorEl(event.currentTarget);
-    setSelectedCategory(category);
-  };
+    setAnchorEl(event.currentTarget)
+    setSelectedCategory(category)
+  }
 
   const handleClose = () => {
-    setAnchorEl(null);
-  };
+    setAnchorEl(null)
+  }
 
   return (
     <StyledAppBar position="static">
       <Container maxWidth="lg">
         <Toolbar disableGutters>
-          <Box 
-            display="flex" 
-            justifyContent="space-between" 
-            width="100%" 
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            width="100%"
             sx={{ overflowX: 'auto', flexWrap: 'nowrap' }}
           >
             {categories.map((category) => (
               <Box key={category.categoryId} sx={{ minWidth: 'max-content' }}>
-                <StyledButton
-                  onClick={(event) => handleClick(event, category)}
-                  endIcon={<KeyboardArrowDownIcon />}
-                >
+                <StyledButton onClick={(event) => handleClick(event, category)} endIcon={<KeyboardArrowDownIcon />}>
                   {category.categoryName}
                 </StyledButton>
                 <Menu
@@ -95,11 +95,11 @@ const CategoryBar = () => {
                   onClose={handleClose}
                   anchorOrigin={{
                     vertical: 'bottom',
-                    horizontal: 'center',
+                    horizontal: 'center'
                   }}
                   transformOrigin={{
                     vertical: 'top',
-                    horizontal: 'center',
+                    horizontal: 'center'
                   }}
                   PaperProps={{
                     elevation: 3,
@@ -110,9 +110,9 @@ const CategoryBar = () => {
                       border: '1px solid rgba(180, 23, 18, 0.1)',
                       '& .MuiList-root': {
                         paddingTop: 1,
-                        paddingBottom: 1,
-                      },
-                    },
+                        paddingBottom: 1
+                      }
+                    }
                   }}
                 >
                   {category.types.map((type) => (
@@ -134,7 +134,7 @@ const CategoryBar = () => {
         </Toolbar>
       </Container>
     </StyledAppBar>
-  );
-};
+  )
+}
 
-export default CategoryBar;
+export default CategoryBar

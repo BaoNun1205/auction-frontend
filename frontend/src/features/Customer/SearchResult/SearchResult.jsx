@@ -31,6 +31,7 @@ import { StyledCard, StyledCardMedia, AnimatedButton } from './style'
 import { useFilterCategories } from '~/hooks/categoryHook'
 import { useFilterSessions } from '~/hooks/sessionHook'
 import { useLocation, useNavigate } from 'react-router-dom'
+import SearchResultsSkeleton from './component/SearchResultsSkeleton'
 
 export default function SearchResults() {
   const location = useLocation()
@@ -60,7 +61,11 @@ export default function SearchResults() {
   const [rowsPerPage, setRowsPerPage] = useState(6)
   const [priceFilter, setPriceFilter] = useState('all')
 
-  const { data: sessionData, isLoading: isLoadingSessions, isError: isErrorSessions } = useFilterSessions(
+  const {
+    data: sessionData,
+    isLoading: isLoadingSessions,
+    isError: isErrorSessions
+  } = useFilterSessions(
     useMemo(
       () => ({
         status,
@@ -69,23 +74,22 @@ export default function SearchResults() {
         page,
         size: rowsPerPage,
         isInCrease: sortOrder === 'new' || sortOrder === 'price_high',
-        minPrice: priceFilter === 'all' ? 0 : parseInt(priceFilter.split('-')[0]),
-        maxPrice: priceFilter === 'all' ? Number.MAX_SAFE_INTEGER : parseInt(priceFilter.split('-')[1])
+        minPrice: priceFilter === 'all' ? 0 : Number.parseInt(priceFilter.split('-')[0]),
+        maxPrice: priceFilter === 'all' ? Number.MAX_SAFE_INTEGER : Number.parseInt(priceFilter.split('-')[1])
       }),
       [status, typeId, keyword, page, rowsPerPage, sortOrder, priceFilter]
     )
   )
+
   const { data: categoryData, isLoading: isLoadingCategories, isError: isErrorCategories } = useFilterCategories()
 
   // Set expanded category based on typeId from URL or categoryId parameter
   useEffect(() => {
     setKeyword(searchKeyword)
-    
+
     if (urlCategoryId && categoryData?.data) {
       // Find category by ID and expand it
-      const category = categoryData.data.find((cat) => 
-        cat.categoryId === urlCategoryId
-      )
+      const category = categoryData.data.find((cat) => cat.categoryId === urlCategoryId)
       if (category) {
         setExpandedCategory(category.categoryName)
         // Auto-select first type in the category if no typeId is specified
@@ -99,21 +103,27 @@ export default function SearchResults() {
         }
       }
     } else if (urlTypeId && categoryData?.data) {
-      const category = categoryData.data.find((cat) =>
-        cat.types.some((type) => type.typeId === urlTypeId)
-      )
+      const category = categoryData.data.find((cat) => cat.types.some((type) => type.typeId === urlTypeId))
       if (category) {
         setExpandedCategory(category.categoryName)
       }
     }
   }, [searchKeyword, urlTypeId, urlCategoryId, categoryData, location.search, navigate])
 
+  // Show skeleton while loading
   if (isLoadingCategories || isLoadingSessions) {
-    return <Typography>Loading...</Typography>
+    return <SearchResultsSkeleton />
   }
 
+  // Show error state
   if (isErrorCategories || isErrorSessions) {
-    return <Typography>Error loading data</Typography>
+    return (
+      <Box sx={{ p: 3, maxWidth: 1200, mx: 'auto' }}>
+        <Typography variant="h6" color="error" sx={{ textAlign: 'center', my: 4 }}>
+          Có lỗi xảy ra khi tải dữ liệu. Vui lòng thử lại sau.
+        </Typography>
+      </Box>
+    )
   }
 
   const categories = categoryData.data
@@ -207,14 +217,16 @@ export default function SearchResults() {
 
   const formatDate = (dateString) => {
     const date = new Date(dateString)
-    return date.toLocaleString('vi-VN', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    }).replace(',', '')
+    return date
+      .toLocaleString('vi-VN', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      })
+      .replace(',', '')
   }
 
   const handleCardClick = (session) => {
@@ -275,7 +287,7 @@ export default function SearchResults() {
                 width: 'fit-content'
               }}
             >
-                Danh mục
+              Danh mục
             </Typography>
 
             {(typeId || status) && (
@@ -292,7 +304,7 @@ export default function SearchResults() {
                   }
                 }}
               >
-                  Xóa bộ lọc
+                Xóa bộ lọc
               </Button>
             )}
           </Box>

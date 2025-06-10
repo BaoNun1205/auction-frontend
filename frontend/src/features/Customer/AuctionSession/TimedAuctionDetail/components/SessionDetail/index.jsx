@@ -43,8 +43,10 @@ import WinnerSection from './components/WinnerSection'
 import DescriptionSection from './components/DescriptionSection'
 import Breadcrumb from '~/components/Customer/BreadcrumbComponent'
 import AppModal from '~/components/Modal/Modal'
+import { useToast } from '~/utils/ToastContext'
 
 const SessionDetail = ({ item, refresh }) => {
+  const { showToast } = useToast();
   const theme = useTheme()
   const { auth } = useAppStore()
   const navigate = useNavigate()
@@ -238,11 +240,7 @@ const SessionDetail = ({ item, refresh }) => {
     createAuctionHistory(auctionHistory, {
       onSuccess: (data) => {
         if (data?.code === 400) {
-          setSnackbar({
-            open: true,
-            message: data.message,
-            severity: 'error'
-          })
+          showToast('error', data.message)
           return
         }
 
@@ -252,11 +250,7 @@ const SessionDetail = ({ item, refresh }) => {
         handleCloseBidDepositDialog()
       },
       onError: (error) => {
-        setSnackbar({
-          open: true,
-          message: error.message,
-          severity: 'error'
-        })
+        showToast('error', data.message)
       }
     })
   }
@@ -273,28 +267,20 @@ const SessionDetail = ({ item, refresh }) => {
         handleCloseBidDepositDialog()
         handleCloseAutoBidSetupDialog() // Đóng cả dialog setup auto bid nếu đang mở
         refetchIsDeposit()
-        setSnackbar({
-          open: true,
-          message: 'Đặt cọc thành công!',
-          severity: 'success'
-        })
+        showToast('success', 'Đặt cọc thành công!')
       },
       onError: (error) => {
         // Đóng tất cả dialog trước khi hiển thị dialog lỗi
         handleCloseBidDepositDialog()
         handleCloseAutoBidSetupDialog()
 
-        if (error?.response?.data?.code === 1043 && error?.response?.data?.message === 'Balance not enough') {
+        if (error?.response?.data?.code === 1043) {
           // Delay một chút để đảm bảo dialog cũ đã đóng hoàn toàn
           setTimeout(() => {
             setInsufficientBalanceDialog(true)
           }, 100)
         } else {
-          setSnackbar({
-            open: true,
-            message: 'Đã xảy ra lỗi khi đặt cọc. Vui lòng thử lại.',
-            severity: 'error'
-          })
+          showToast('error', 'Đã xảy ra lỗi khi đặt cọc. Vui lòng thử lại.')
         }
       }
     })
@@ -329,21 +315,13 @@ const SessionDetail = ({ item, refresh }) => {
     }
     createAutoBid(autoBid, {
       onSuccess: () => {
-        setSnackbar({
-          open: true,
-          message: 'Tạo đấu giá tự động thành công.',
-          severity: 'success'
-        })
+        showToast('success', 'Tạo đấu giá tự động thành công.')
         handleCloseAutoBidSetupDialog()
         refetchAutoBid()
         refetchAutoBidData()
       },
       onError: (error) => {
-        setSnackbar({
-          open: true,
-          message: 'Lỗi tạo đấu giá tự động. Vui lòng thử lại.',
-          severity: 'error'
-        })
+        showToast('error', 'Lỗi tạo đấu giá tự động. Vui lòng thử lại.')
       }
     })
   }
@@ -358,21 +336,13 @@ const SessionDetail = ({ item, refresh }) => {
       { id: autoBidData.autoBidId, payload: autoBid },
       {
         onSuccess: () => {
-          setSnackbar({
-            open: true,
-            message: 'Cập nhật đấu giá tự động thành công.',
-            severity: 'info'
-          })
+          showToast('success', 'Cập nhật đấu giá tự động thành công.')
           // AutoBidDialog sẽ tự đóng thông qua logic bên trong component
           refetchAutoBid()
           refetchAutoBidData()
         },
         onError: (error) => {
-          setSnackbar({
-            open: true,
-            message: 'Lỗi cập nhật đấu giá tự động. Vui lòng thử lại.',
-            severity: 'error'
-          })
+          showToast('error', 'Lỗi cập nhật đấu giá tự động. Vui lòng thử lại.')
         }
       }
     )

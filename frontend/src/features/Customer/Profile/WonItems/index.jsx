@@ -24,6 +24,8 @@ import { useAppStore } from '~/store/appStore'
 import { useNavigate } from 'react-router-dom'
 import { useCompletedPaymentSession } from '~/hooks/balanceHistoryHook'
 import DeliveryTrackingDialog from '~/features/Vendor/components/MyAssets/component/DeliveryTrackingDialog'
+import { useToast } from '~/utils/ToastContext'
+import WonItemsSkeleton from './component/WonItemsSkeleton'
 
 const StyledCard = styled(Paper)({
   display: 'flex',
@@ -56,6 +58,7 @@ const AnimatedButton = styled(Button)({
 })
 
 const WonItems = () => {
+  const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState(0)
   const [receivedConfirmDialog, setReceivedConfirmDialog] = useState(false)
   const [selectedItem, setSelectedItem] = useState(null)
@@ -70,9 +73,19 @@ const WonItems = () => {
 
   const navigate = useNavigate()
   const { auth } = useAppStore()
-  const { data, refetch } = useGetWinSessionsByUserId(auth.user.id)
+  const { data, refetch, isLoading } = useGetWinSessionsByUserId(auth.user.id)
   const { mutate: updateStatus, isLoading: isUpdating } = useUpdateSessionWinnerStatus()
   const wonItems = Array.isArray(data) ? data : []
+
+  const filteredData = useMemo(() => {
+    if (activeTab === 0) return wonItems
+    const statusKeys = ['PENDING_PAYMENT', 'PAYMENT_SUCCESSFUL', 'DELIVERING', 'RECEIVED', 'CANCELED']
+    return wonItems.filter((item) => item.status === statusKeys[activeTab - 1])
+  }, [activeTab, wonItems])
+
+  if (isLoading) {
+    return <WonItemsSkeleton />
+  }
 
   const getStatusCount = (status) => {
     if (status === 'ALL') return wonItems.length
@@ -116,11 +129,7 @@ const WonItems = () => {
     const sessionId = auctionSession?.auctionSessionId
 
     if (!buyerId || !sellerId || !sessionId) {
-      setSnackbar({
-        open: true,
-        message: 'Không đủ thông tin để xác nhận nhận hàng!',
-        severity: 'error'
-      })
+      showToast('error', 'Không đủ thông tin để xác nhận nhận hàng!')
       return
     }
 
@@ -128,22 +137,13 @@ const WonItems = () => {
       { buyerId, sellerId, sessionId },
       {
         onSuccess: () => {
-          setSnackbar({
-            open: true,
-            message: `Đã xác nhận nhận hàng và hoàn tất thanh toán cho "${selectedItem.auctionSession.asset.assetName}"`,
-            severity: 'success'
-          })
+          showToast('success', `Đã xác nhận nhận hàng và hoàn tất thanh toán cho "${selectedItem.auctionSession.asset.assetName}"`)
           setReceivedConfirmDialog(false)
           setSelectedItem(null)
           refetch()
         },
         onError: (error) => {
-          setSnackbar({
-            open: true,
-            message: 'Có lỗi khi xác nhận nhận hàng và hoàn tất thanh toán!',
-            severity: 'error'
-          })
-          console.error('Error completing payment session:', error)
+          showToast('error', 'Có lỗi khi xác nhận nhận hàng và hoàn tất thanh toán!')
         }
       }
     )
@@ -186,12 +186,6 @@ const WonItems = () => {
       return 'Xem chi tiết'
     }
   }
-
-  const filteredData = useMemo(() => {
-    if (activeTab === 0) return wonItems // Tab "Tất cả"
-    const statusKeys = ['PENDING_PAYMENT', 'PAYMENT_SUCCESSFUL', 'DELIVERING', 'RECEIVED', 'CANCELED']
-    return wonItems.filter((item) => item.status === statusKeys[activeTab - 1])
-  }, [activeTab, wonItems])
 
   return (
     <Container maxWidth="lg">
