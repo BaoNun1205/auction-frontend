@@ -35,7 +35,10 @@ function OngoingAuctions() {
 
   // Memoize items to ensure stability
   const items = useMemo(() => {
-    return userId ? recommendedData || [] : filteredData?.data || []
+    if (userId) {
+      return recommendedData && recommendedData.length > 0 ? recommendedData : filteredData?.data || []
+    }
+    return filteredData?.data || []
   }, [userId, recommendedData, filteredData])
 
   const checkScrollButtons = () => {
