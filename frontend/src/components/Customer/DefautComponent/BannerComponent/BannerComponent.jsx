@@ -158,7 +158,7 @@ const BidmasterBanner = () => {
                       textShadow: 'none'
                     }}
                   >
-                    Auctionage
+                    Auction
                   </Typography>
                 </Box>
 

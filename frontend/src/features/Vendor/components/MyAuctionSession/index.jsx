@@ -35,6 +35,7 @@ import { useAppStore } from '~/store/appStore'
 import Reauction from './component/Reauction'
 import AuctionModal from './component/AuctionModal'
 import { useNavigate } from 'react-router-dom'
+import AuctionSessionsSkeleton from './component/AuctionSessionsSkeleton'
 
 const StyledPaper = styled(Paper)({
   padding: '24px',
@@ -241,9 +242,16 @@ const AuctionSessions = () => {
   }
 
   if (isLoading) {
+    return <AuctionSessionsSkeleton />
+  }
+
+  // Show error state
+  if (isError) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
-        <CircularProgress sx={{ color: '#b41712' }} />
+      <Box sx={{ maxWidth: 1200, margin: "auto", padding: 3, textAlign: "center" }}>
+        <Typography variant="h5" color="error" sx={{ mt: 4 }}>
+          Có lỗi xảy ra khi tải dữ liệu. Vui lòng thử lại sau.
+        </Typography>
       </Box>
     )
   }

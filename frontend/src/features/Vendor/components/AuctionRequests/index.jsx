@@ -43,6 +43,7 @@ import {
 } from '~/hooks/requirementHook'
 import { useAppStore } from '~/store/appStore'
 import RequirementFormContent from './RequirementFormContent'
+import AuctionRequestSkeleton from './component/AuctionRequestTableRowSkeleton'
 
 const StyledPaper = styled(Paper)({
   padding: '24px',
@@ -93,8 +94,7 @@ const AuctionRequest = () => {
   const { mutate: createRequirement, isPending: isPendingCreate } = useCreateRequirement()
   const { mutate: updateRequirement, isPending: isPendingUpdate } = useupdateRequirement()
   const { auth } = useAppStore()
-  const { data, refetch } = useRequirementsByVendorId(auth.user.id)
-  const requirements = Array.isArray(data) ? data : []
+  const { data, isLoading, isError, refetch } = useRequirementsByVendorId(auth.user.id)
 
   const [formData, setFormData] = useState({
     name: '',
@@ -104,6 +104,36 @@ const AuctionRequest = () => {
     documentImages: ['', ''],
     status: '0'
   })
+
+  const requirements = Array.isArray(data) ? data : []
+
+  const filteredRequirements = useMemo(() => {
+    return requirements.filter((req) => {
+      const matchesTab =
+        activeTab === 0 ||
+        (activeTab === 1 && req.status === '1') ||
+        (activeTab === 2 && req.status === '0') ||
+        (activeTab === 3 && req.status === '2')
+      const matchesSearch = req.assetName.toLowerCase().includes(searchTerm.toLowerCase())
+      const matchesPrice = priceFilter === '' || req.assetPrice <= Number.parseInt(priceFilter)
+      return matchesTab && matchesSearch && matchesPrice
+    })
+  }, [requirements, activeTab, searchTerm, priceFilter])
+
+  if (isLoading) {
+    return <AuctionRequestSkeleton />
+  }
+
+  // Show error state
+  if (isError) {
+    return (
+      <Box sx={{ maxWidth: 1200, margin: 'auto', padding: 3, textAlign: 'center' }}>
+        <Typography variant="h5" color="error" sx={{ mt: 4 }}>
+          Có lỗi xảy ra khi tải dữ liệu. Vui lòng thử lại sau.
+        </Typography>
+      </Box>
+    )
+  }
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -277,19 +307,6 @@ const AuctionRequest = () => {
     if (status === 'ALL') return requirements.length
     return requirements.filter((req) => req.status === status).length
   }
-
-  const filteredRequirements = useMemo(() => {
-    return requirements.filter((req) => {
-      const matchesTab =
-        activeTab === 0 ||
-        (activeTab === 1 && req.status === '1') ||
-        (activeTab === 2 && req.status === '0') ||
-        (activeTab === 3 && req.status === '2')
-      const matchesSearch = req.assetName.toLowerCase().includes(searchTerm.toLowerCase())
-      const matchesPrice = priceFilter === '' || req.assetPrice <= Number.parseInt(priceFilter)
-      return matchesTab && matchesSearch && matchesPrice
-    })
-  }, [requirements, activeTab, searchTerm, priceFilter])
 
   return (
     <Box sx={{ maxWidth: 1200, margin: 'auto', padding: 3, height: '100vh', display: 'flex', flexDirection: 'column' }}>

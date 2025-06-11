@@ -31,7 +31,7 @@ const ChatButton = () => {
           right: 16,
           bgcolor: '#b41712',
           color: 'white',
-          zIndex: 2000,
+          zIndex: 1001,
           borderRadius: '50%',
           '&:hover': {
             bgcolor: '#9c1410',
@@ -57,7 +57,7 @@ const ChatButton = () => {
           borderRadius: 2,
           display: isChatBotOpen ? 'flex' : 'none',
           flexDirection: 'column',
-          zIndex: 1000,
+          zIndex: 1002,
           overflow: 'hidden'
         }}
       >

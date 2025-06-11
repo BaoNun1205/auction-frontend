@@ -13,6 +13,7 @@ import ActionMenu from './component/ActionMenu'
 import DeliveryConfirmationDialog from './component/DeliveryConfirmationDialog'
 import ReceivedConfirmationDialog from './component/ReceivedConfirmationDialog'
 import DeliveryTrackingDialog from './component/DeliveryTrackingDialog'
+import MyAssetsSkeleton from './component/MyAssetsSkeleton'
 
 const StyledPaper = styled(Paper)({
   padding: '24px',
@@ -42,7 +43,7 @@ const MyAssets = () => {
   const [receivedConfirmDialog, setReceivedConfirmDialog] = useState(false)
   const [trackingDialog, setTrackingDialog] = useState(false)
   const { mutate: updateAssetStatus } = useUpdateAssetStatus()
-  const { data, refetch } = useFilterAssets({ vendorId: auth?.user?.id })
+  const { data, refetch, isLoading, isError } = useFilterAssets({ vendorId: auth?.user?.id })
   const assets = Array.isArray(data?.data) ? data.data : []
 
   const handleViewDetails = (asset) => {
@@ -201,6 +202,21 @@ const MyAssets = () => {
       return matchesTab && matchesSearch && matchesPrice
     })
   }, [assets, activeTab, searchTerm, priceFilter])
+
+  if (isLoading) {
+    return <MyAssetsSkeleton />
+  }
+
+  // Show error state
+  if (isError) {
+    return (
+      <Box sx={{ maxWidth: 1200, margin: "auto", padding: 3, textAlign: "center" }}>
+        <Typography variant="h5" color="error" sx={{ mt: 4 }}>
+          Có lỗi xảy ra khi tải dữ liệu vật phẩm. Vui lòng thử lại sau.
+        </Typography>
+      </Box>
+    )
+  }
 
   return (
     <Box sx={{ maxWidth: 1200, margin: 'auto', padding: 3, height: '100vh', display: 'flex', flexDirection: 'column' }}>

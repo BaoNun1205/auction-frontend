@@ -8,6 +8,8 @@ import { introspect } from './api/authApi'
 import { useLogout, useRefreshToken } from './hooks/authHook'
 import ChatButton from './features/Chat/ChatBot'
 import { ToastProvider } from './utils/ToastContext'
+import AppLoadingScreen from './components/AppLoadingScreen'
+import NotFoundPage from './pages/Customer/NotFoundPage'
 
 function App() {
   const [routes, setRoutes] = useState([...privateRoutes, ...publicRoutes])
@@ -71,7 +73,7 @@ function App() {
   }, [getRole()])
 
   if (isLoading) {
-    return <div>Loading...</div>
+    return <AppLoadingScreen />
   }
 
   return (
@@ -91,6 +93,8 @@ function App() {
               )
             })}
           </Route>
+          {/* Catch-all route for 404 - must be last */}
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
         <ChatButton />
       </Router>

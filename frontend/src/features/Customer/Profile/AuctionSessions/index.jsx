@@ -1,176 +1,54 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'
 import {
   Box,
   Typography,
   Tabs,
-  Tab,
-  Card,
-  CardMedia,
-  CardContent,
-  Button,
-  Container,
-  Grid,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Tooltip,
-  IconButton,
-  Snackbar,
-  Alert
-} from '@mui/material';
-import {
-  AccessTime,
-  People,
-  MonetizationOn,
-  Gavel,
-  CalendarToday,
-  HourglassEmpty,
-  Info
-} from '@mui/icons-material';
-import { useAppStore } from '~/store/appStore';
-import { StyledTab, StyledCard, InfoChip, ActionButton } from './style';
-import { useGetRegistedSessionByUserId, useUnregisterSession } from '~/hooks/sessionHook';
-import { useGetJoinedSessions } from '~/hooks/depositHook';
-import { useNavigate } from 'react-router-dom';
-
-const AuctionRegisteredItem = ({ id, auctionName, imgSrc, startTime, endTime, startingPrice, registrants }) => {
-  const navigate = useNavigate();
-  const { mutate: unregisterSession } = useUnregisterSession();
-  const { auth } = useAppStore();
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
-
-  const handleUnregisterClick = () => {
-    unregisterSession(
-      { userId: auth.user.id, auctionSessionId: id },
-      {
-        onSuccess: () => {
-          setSnackbar({ open: true, message: 'Hủy đăng ký phiên đấu giá thành công', severity: 'success' });
-        },
-        onError: (error) => {
-          console.error('Error unregistering session:', error);
-          setSnackbar({ open: true, message: 'Hủy đăng ký phiên đấu giá thất bại', severity: 'error' });
-        },
-      }
-    );
-  };
-
-  const handleCloseSnackbar = (event, reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-    setSnackbar({ ...snackbar, open: false });
-  };
-
-  return (
-    <StyledCard>
-      <CardMedia
-        component="img"
-        sx={{ width: { xs: '100%', sm: 300 }, height: { xs: 200, sm: 'auto' } }}
-        image={imgSrc || '/placeholder.svg?height=200&width=200'}
-        alt={auctionName}
-      />
-      <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, p: 3 }}>
-        <CardContent sx={{ flex: '1 0 auto', p: 0 }}>
-          <Typography variant="h5" component="h2" sx={{ color: '#B7201B', fontWeight: 'bold', mb: 2 }}>
-            {auctionName}
-          </Typography>
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', mb: 2 }}>
-            <InfoChip icon={<CalendarToday />} label={`Bắt đầu: ${new Date(startTime).toLocaleString('vi-VN')}`} />
-            <InfoChip icon={<HourglassEmpty />} label={`Kết thúc: ${new Date(endTime).toLocaleString('vi-VN')}`} />
-            <InfoChip icon={<People />} label={`Số người đăng ký: ${registrants}`} />
-            <InfoChip icon={<MonetizationOn />} label={`Giá khởi điểm: ${startingPrice.toLocaleString('vi-VN')} ₫`} color="primary" />
-          </Box>
-        </CardContent>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
-          <Tooltip title="Xem thông tin chi tiết về phiên đấu giá" onClick={() => navigate(`/session/${id}`)}>
-            <IconButton color="primary">
-              <Info />
-            </IconButton>
-          </Tooltip>
-          <ActionButton variant="contained" onClick={handleUnregisterClick}>
-            Hủy đăng ký
-          </ActionButton>
-        </Box>
-      </Box>
-      <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={handleCloseSnackbar}>
-        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-    </StyledCard>
-  );
-};
-
-const AuctionParticipatedItem = ({ id, productName, imgSrc, auctionStartTime, auctionEndTime, participants, startingPrice, winningPrice }) => {
-  const [open, setOpen] = useState(false);
-  const navigate = useNavigate();
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  return (
-    <StyledCard>
-      <CardMedia
-        component="img"
-        sx={{ width: { xs: '100%', sm: 300 }, height: { xs: 200, sm: 'auto' } }}
-        image={imgSrc || '/placeholder.svg?height=200&width=200'}
-        alt={productName}
-      />
-      <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, p: 3 }}>
-        <CardContent sx={{ flex: '1 0 auto', p: 0 }}>
-          <Typography variant="h5" component="h2" sx={{ color: '#B7201B', fontWeight: 'bold', mb: 2 }}>
-            {productName}
-          </Typography>
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', mb: 2 }}>
-            <InfoChip icon={<CalendarToday />} label={`Bắt đầu: ${new Date(auctionStartTime).toLocaleString('vi-VN')}`} />
-            <InfoChip icon={<HourglassEmpty />} label={`Kết thúc: ${new Date(auctionEndTime).toLocaleString('vi-VN')}`} />
-            <InfoChip icon={<People />} label={`Số người tham gia: ${participants}`} />
-            <InfoChip icon={<MonetizationOn />} label={`Giá khởi điểm: ${startingPrice.toLocaleString('vi-VN')} ₫`} color="primary" />
-            <InfoChip icon={<Gavel />} label={`Giá đấu thắng: ${winningPrice.toLocaleString('vi-VN')} ₫`} color="success" />
-          </Box>
-        </CardContent>
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-          <ActionButton onClick={() => navigate(`/session/${id}`)}>
-            Xem chi tiết
-          </ActionButton>
-        </Box>
-      </Box>
-    </StyledCard>
-  );
-};
+  Container
+} from '@mui/material'
+import { useAppStore } from '~/store/appStore'
+import { StyledTab } from './style'
+import { useGetRegistedSessionByUserId } from '~/hooks/sessionHook'
+import { useGetJoinedSessions } from '~/hooks/depositHook'
+import { AuctionRegisteredItem } from './component/AuctionRegisteredItem'
+import { AuctionParticipatedItem } from './component/AuctionParticipatedItem'
+import AuctionSessionsSkeleton from './component/AuctionItemSkeleton'
 
 const AuctionSessions = () => {
-  const [tab, setTab] = useState(0);
-  const { auth } = useAppStore();
-  const { data: registedSessions, isLoading, isError } = useGetRegistedSessionByUserId(auth.user.id);
-  const { data: joinedSessions } = useGetJoinedSessions(auth.user.id);
+  const [tab, setTab] = useState(0)
+  const { auth } = useAppStore()
+  const {
+    data: registedSessions,
+    isLoading: isLoadingRegistered,
+    isError: isErrorRegistered
+  } = useGetRegistedSessionByUserId(auth.user.id)
+  const {
+    data: joinedSessions,
+    isLoading: isLoadingJoined,
+    isError: isErrorJoined
+  } = useGetJoinedSessions(auth.user.id)
 
   const handleChange = (event, newValue) => {
-    setTab(newValue);
-  };
-
-  if (isLoading) {
-    return <Typography>Loading...</Typography>;
+    setTab(newValue)
   }
 
-  if (isError) {
-    return <Typography>Error loading sessions</Typography>;
+  // Show skeleton while loading
+  if (isLoadingRegistered || isLoadingJoined) {
+    return <AuctionSessionsSkeleton />
   }
 
-  const upcomingSessions = registedSessions.filter(session => session.auctionSession.status === 'UPCOMING');
+  if (isErrorRegistered || isErrorJoined) {
+    return (
+      <Container maxWidth="lg">
+        <Box sx={{ py: 4, textAlign: 'center' }}>
+          <Typography variant="h5" color="error">
+            Có lỗi xảy ra khi tải dữ liệu. Vui lòng thử lại sau.
+          </Typography>
+        </Box>
+      </Container>
+    )
+  }
+
+  const upcomingSessions = registedSessions.filter(session => session.auctionSession.status === 'UPCOMING')
 
   return (
     <Container maxWidth="lg">
@@ -246,7 +124,7 @@ const AuctionSessions = () => {
         </Box>
       </Box>
     </Container>
-  );
-};
+  )
+}
 
-export default AuctionSessions;
+export default AuctionSessions
