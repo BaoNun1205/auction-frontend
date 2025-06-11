@@ -6,7 +6,6 @@ import EditIcon from '@mui/icons-material/Edit'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import WarningIcon from '@mui/icons-material/Warning'
 import GavelIcon from '@mui/icons-material/Gavel'
-import { useTranslation } from 'react-i18next'
 
 const ActionMenu = ({
   selectedAsset,
@@ -18,7 +17,6 @@ const ActionMenu = ({
 }) => {
   const [anchorEl, setAnchorEl] = React.useState(null)
   const open = Boolean(anchorEl)
-  const { t } = useTranslation()
 
   const handleMenuClick = (event) => {
     setAnchorEl(event.currentTarget)
