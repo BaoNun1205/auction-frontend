@@ -1,8 +1,10 @@
 import React from 'react'
 import { Card, CardContent, CardMedia, Typography, Button, Box, Divider } from '@mui/material'
 import { AccessTime, Gavel } from '@mui/icons-material'
+import { useNavigate } from 'react-router-dom'
 
 const EnhancedAuctionCard = ({ session }) => {
+  const navigate = useNavigate()
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount)
   }
@@ -15,6 +17,14 @@ const EnhancedAuctionCard = ({ session }) => {
       hour: '2-digit',
       minute: '2-digit'
     })
+  }
+
+  const handleClick = () => {
+    if (session.status === 'UPCOMING') {
+      navigate(`/session/register/${session.auctionSessionId}`)
+    } else {
+      navigate(`/session/${session.auctionSessionId}`)
+    }
   }
 
   // Kiểm tra nếu không có session
@@ -98,6 +108,7 @@ const EnhancedAuctionCard = ({ session }) => {
         <Button
           variant="contained"
           fullWidth
+          onClick={handleClick}
           startIcon={<Gavel />}
           disabled={session.status !== 'ONGOING'}
           sx={{
