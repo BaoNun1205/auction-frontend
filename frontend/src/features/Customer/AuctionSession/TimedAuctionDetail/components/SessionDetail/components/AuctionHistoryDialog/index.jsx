@@ -25,6 +25,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import PersonIcon from '@mui/icons-material/Person';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
+import { useNavigate } from 'react-router-dom';
 
 const StyledDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialog-paper': {
@@ -79,9 +80,14 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
 }));
 
 const AuctionHistoryDialog = ({ auctionHistory, open, onClose }) => {
+  const navigate = useNavigate();
   console.log('AuctionHistoryDialog', auctionHistory, open, onClose);
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+
+  const handleUserClick = (userId) => {
+    navigate(`/store/${userId}`)
+  }
 
   return (
     <StyledDialog
@@ -138,7 +144,7 @@ const AuctionHistoryDialog = ({ auctionHistory, open, onClose }) => {
                       <StyledTableCell>
                         {new Date(history.bidTime).toLocaleString('vi-VN')}
                       </StyledTableCell>
-                      <StyledTableCell>
+                      <StyledTableCell onClick={() => handleUserClick(history.user.userId)} sx={{ cursor: 'pointer' }}>
                         <Box display="flex" alignItems="center">
                           <Avatar src={history.user.avatar} alt={history.user.username} sx={{ mr: 2 }} />
                           <Typography>{history.user.username}</Typography>

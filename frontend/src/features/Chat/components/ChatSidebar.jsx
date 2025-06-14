@@ -18,17 +18,42 @@ export default function ChatSidebar({
   isLoadingConversations,
   currentUserId,
   selectedConversation,
-  setSelectedConversation
+  setSelectedConversation,
+  setChatVendorId
 }) {
+
+  const handleItemClick = (conversation) => {
+    setSelectedConversation(conversation.conversationId)
+    const chatTargetUser = conversation.seller.userId === currentUserId ? conversation.buyer : conversation.seller
+    setChatVendorId(chatTargetUser.userId)
+  }
 
   const [searchText, setSearchText] = useState('')
 
+  // const filteredConversations = useMemo(() => {
+  //   return conversations
+  //     .filter((chat) => {
+  //       const chatTargetUser = chat.seller.userId === currentUserId ? chat.buyer : chat.seller
+  //       const targetName = chatTargetUser.name || chatTargetUser.username || ''
+  //       return targetName.toLowerCase().includes(searchText.toLowerCase())
+  //     })
+  //     .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+  // }, [conversations, currentUserId, searchText])
+
   const filteredConversations = useMemo(() => {
-    return conversations.filter((chat) => {
-      const chatTargetUser = chat.seller.userId === currentUserId ? chat.buyer : chat.seller
-      const targetName = chatTargetUser.name || chatTargetUser.username || ''
-      return targetName.toLowerCase().includes(searchText.toLowerCase())
-    })
+    return conversations
+      .filter((chat) => {
+        const chatTargetUser = chat.seller.userId === currentUserId ? chat.buyer : chat.seller
+        const targetName = chatTargetUser.name || chatTargetUser.username || ''
+        return targetName.toLowerCase().includes(searchText.toLowerCase())
+      })
+      .sort((a, b) => {
+        const aTarget = a.seller.userId === currentUserId ? a.buyer : a.seller
+        const bTarget = b.seller.userId === currentUserId ? b.buyer : b.seller
+        if (aTarget.username === 'admin') return -1
+        if (bTarget.username === 'admin') return 1
+        return new Date(b.updatedAt) - new Date(a.updatedAt)
+      })
   }, [conversations, currentUserId, searchText])
 
   return (
@@ -82,24 +107,25 @@ export default function ChatSidebar({
         ) : filteredConversations.length === 0 ? (
           <Box sx={{ textAlign: 'center', p: 2 }}>
             <Typography variant="body2" color="textSecondary">
-      Không có cuộc trò chuyện nào
+            Không có cuộc trò chuyện nào
             </Typography>
           </Box>
         ) : (
           <List disablePadding>
             {filteredConversations.map((chat) => {
               const chatTargetUser = chat.seller.userId === currentUserId ? chat.buyer : chat.seller
+              const displayName = chatTargetUser?.name || chatTargetUser.username
               return (
                 <ListItem
                   key={chat.conversationId}
                   button
-                  onClick={() => setSelectedConversation(chat.conversationId)}
+                  onClick={() => handleItemClick(chat)}
                   sx={{ '&:hover': { bgcolor: '#f5f5f5' }, py: 1, display: 'flex', alignItems: 'center', gap: 2 }}
                 >
                   <Avatar src={chatTargetUser.avatar} />
                   <Box sx={{ flex: 1, overflow: 'hidden' }}>
                     <Typography variant="body2" fontWeight={500} noWrap>
-                      {chatTargetUser?.name || chatTargetUser.username}
+                      {displayName}
                     </Typography>
                     <Typography variant="body2" color="textSecondary" noWrap>
                       {chat.lastMessage}

@@ -26,6 +26,7 @@ import CustomerHomePage from '~/pages/Customer/Home'
 import UpcomingRedirect from '~/pages/Customer/Home/component/UpcomingRedirect'
 import OngoingRedirect from '~/pages/Customer/Home/component/OngoingRedirect'
 import ConfirmAccount from '~/pages/Authentication/comfirm'
+import SupportPage from '~/pages/Support'
 
 export const BASE_PATHS = {
   HOME: '/',
@@ -46,7 +47,8 @@ export const BASE_PATHS = {
   CHECKOUT: '/checkout',
   PAYMENT_SUCCESS: '/payment-success',
   PAYMENT_HISTORY: '/payment-history',
-  INVOICE: '/invoice'
+  INVOICE: '/invoice',
+  SUPPORT: '/support'
 }
 
 export const publicRoutes = [
@@ -168,4 +170,8 @@ export const adminRoutes = [
     path: `${BASE_PATHS.ASSET}/create/:id`,
     page: AddAssetPage
   },
+  {
+    path: `${BASE_PATHS.SUPPORT}`,
+    page: SupportPage
+  }
 ]

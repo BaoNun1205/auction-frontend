@@ -1,6 +1,6 @@
 import React from 'react'
 import { Paper, Stack, IconButton, TextField } from '@mui/material'
-import { InsertEmoticon, Image, AttachFile, NoteAdd, Send } from '@mui/icons-material'
+import { InsertEmoticon, Send } from '@mui/icons-material'
 
 export default function ChatInput({ newMessage, setNewMessage, handleSendMessage, selectedConversation }) {
   return (
@@ -8,15 +8,6 @@ export default function ChatInput({ newMessage, setNewMessage, handleSendMessage
       <Stack direction="row" spacing={0.5} alignItems="center">
         <IconButton size="small">
           <InsertEmoticon fontSize="small" />
-        </IconButton>
-        <IconButton size="small">
-          <Image fontSize="small" />
-        </IconButton>
-        <IconButton size="small">
-          <AttachFile fontSize="small" />
-        </IconButton>
-        <IconButton size="small">
-          <NoteAdd fontSize="small" />
         </IconButton>
         <TextField
           fullWidth

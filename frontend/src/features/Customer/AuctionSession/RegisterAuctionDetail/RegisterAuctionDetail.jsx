@@ -33,10 +33,10 @@ import Breadcrumb from '~/components/Customer/BreadcrumbComponent'
 import Authentication from '~/features/Authentication'
 import AppModal from '~/components/Modal/Modal'
 import RegisterAuctionDetailSkeleton from './RegisterAuctionDetailSkeleton'
-import { useToast } from '~/utils/ToastContext';
+import { useToast } from '~/utils/ToastContext'
 
 const RegisterAuctionDetail = () => {
-  const { showToast } = useToast();
+  const { showToast } = useToast()
   const [selectedImage, setSelectedImage] = useState(0)
   const [isFavorite, setIsFavorite] = useState(false)
   const [optimisticUserCount, setOptimisticUserCount] = useState(0)
@@ -143,6 +143,10 @@ const RegisterAuctionDetail = () => {
     )
   }
 
+  const handleUserClick = (userId) => {
+    navigate(`/store/${userId}`)
+  }
+
   const handleUnregisterClick = () => {
     setOptimisticUserCount((prev) => Math.max(0, prev - 1))
     setOptimisticIsChecked(false)
@@ -241,6 +245,7 @@ const RegisterAuctionDetail = () => {
 
               <Stack direction="row" alignItems="center" spacing={2} mb={3}>
                 <Box
+                  onClick={() => handleUserClick(session.asset.vendor?.userId)}
                   component="img"
                   src={session.asset.vendor?.avatar || '/placeholder-avatar.jpg'}
                   alt={session.asset.vendor?.username}
@@ -248,10 +253,16 @@ const RegisterAuctionDetail = () => {
                     width: 40,
                     height: 40,
                     borderRadius: '50%',
-                    objectFit: 'cover'
+                    objectFit: 'cover',
+                    cursor: 'pointer'
                   }}
                 />
-                <Typography variant="h6" color="text.secondary">
+                <Typography
+                  variant="h6"
+                  color="text.secondary"
+                  onClick={() => handleUserClick(session.asset.vendor?.userId)}
+                  sx={{ cursor: 'pointer' }}
+                >
                   {session.asset.vendor?.username}
                 </Typography>
                 <Chip label="Đã kiểm duyệt" sx={{ backgroundColor: '#B41712', color: 'white' }} size="small" />

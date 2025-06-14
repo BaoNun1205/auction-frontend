@@ -8,6 +8,7 @@ import WelcomeScreen from '../components/WelcomeScreen'
 import ChatHeader from '../components/ChatHeader'
 import ChatMessages from '../components/ChatMessages'
 import ChatInput from '../components/ChatInput'
+import { useQueryClient } from '@tanstack/react-query'
 
 export default function Chat({ vendorId }) {
   const [selectedConversation, setSelectedConversation] = useState(null)
@@ -18,12 +19,14 @@ export default function Chat({ vendorId }) {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true)
   const [localConversations, setLocalConversations] = useState([])
   const messagesEndRef = useRef(null)
+  const queryClient = useQueryClient()
   const {
     auth,
     conversationCount,
     setConversationCount,
     unreadConversationCount,
     setUnreadConversationCount,
+    setChatVendorId,
     isChatOpen,
     isSidebarVisible
   } = useAppStore()
@@ -38,22 +41,6 @@ export default function Chat({ vendorId }) {
   const currentUserId = user.id
   const token = auth.token
   const { data: conversations = [], isLoading: isLoadingConversations } = useGetConversations(currentUserId)
-
-  // Auto select conversation nếu truyền vào vendorId
-  useEffect(() => {
-    if (!vendorId || !conversations.length) return
-
-    const matchedConversation = conversations.find((conv) => {
-      return (
-        (conv.buyer.userId === vendorId || conv.seller.userId === vendorId) &&
-      (conv.buyer.userId === currentUserId || conv.seller.userId === currentUserId)
-      )
-    })
-
-    if (matchedConversation) {
-      setSelectedConversation(matchedConversation.conversationId)
-    }
-  }, [vendorId, conversations, currentUserId])
 
   useEffect(() => {
     if (conversationCount !== conversations.length) {
@@ -114,20 +101,36 @@ export default function Chat({ vendorId }) {
             }
           }
 
+          // setLocalConversations((prevConversations) => {
+          //   const existingConv = prevConversations.find(conv => conv.conversationId === messageData.conversationId)
+          //   if (existingConv) {
+          //     return prevConversations.map((conv) =>
+          //       conv.conversationId === messageData.conversationId
+          //         ? {
+          //           ...conv,
+          //           lastMessage: messageData.content,
+          //           time: messageData.timestamp,
+          //           unread: !isMine && conv.conversationId !== selectedConversation
+          //             ? (conv.unread || 0) + 1 : conv.unread
+          //         }
+          //         : conv
+          //     )
+          //   }
+          //   return prevConversations
+          // })
+
           setLocalConversations((prevConversations) => {
-            const existingConv = prevConversations.find(conv => conv.conversationId === messageData.conversationId)
-            if (existingConv) {
-              return prevConversations.map((conv) =>
-                conv.conversationId === messageData.conversationId
-                  ? {
-                    ...conv,
-                    lastMessage: messageData.content,
-                    time: messageData.timestamp,
-                    unread: !isMine && conv.conversationId !== selectedConversation
-                      ? (conv.unread || 0) + 1 : conv.unread
-                  }
-                  : conv
-              )
+            const idx = prevConversations.findIndex(conv => conv.conversationId === messageData.conversationId)
+            if (idx !== -1) {
+              const updatedConv = {
+                ...prevConversations[idx],
+                lastMessage: messageData.content,
+                time: messageData.timestamp,
+                updatedAt: messageData.timestamp,
+                unread: !isMine && prevConversations[idx].conversationId !== selectedConversation
+                  ? (prevConversations[idx].unread || 0) + 1 : prevConversations[idx].unread
+              }
+              return [updatedConv, ...prevConversations.filter((_, i) => i !== idx)]
             }
             return prevConversations
           })
@@ -142,6 +145,7 @@ export default function Chat({ vendorId }) {
           setTimeout(() => setIsTyping(false), 5000)
         }
       }
+      queryClient.invalidateQueries(['conversations', currentUserId])
     },
     [currentUserId, selectedConversation, messages, liveMessages]
   )
@@ -207,14 +211,29 @@ export default function Chat({ vendorId }) {
       if (isDuplicate) return prev
       return [...prev, messageData]
     })
-    setLocalConversations((prevConversations) =>
-      prevConversations.map((conv) =>
-        conv.conversationId === selectedConversation
-          ? { ...conv, lastMessage: messageData.content, time: messageData.timestamp, unread: 0 }
-          : conv
-      )
-    )
+    // setLocalConversations((prevConversations) =>
+    //   prevConversations.map((conv) =>
+    //     conv.conversationId === selectedConversation
+    //       ? { ...conv, lastMessage: messageData.content, time: messageData.timestamp, unread: 0 }
+    //       : conv
+    //   )
+    // )
+    setLocalConversations((prevConversations) => {
+      const idx = prevConversations.findIndex(conv => conv.conversationId === selectedConversation)
+      if (idx !== -1) {
+        const updatedConv = {
+          ...prevConversations[idx],
+          lastMessage: messageData.content,
+          time: messageData.timestamp,
+          updatedAt: messageData.timestamp,
+          unread: 0
+        }
+        return [updatedConv, ...prevConversations.filter((_, i) => i !== idx)]
+      }
+      return prevConversations
+    })
     setNewMessage('')
+    queryClient.invalidateQueries(['conversations', currentUserId])
   }
 
   return (
@@ -226,6 +245,7 @@ export default function Chat({ vendorId }) {
           currentUserId={currentUserId}
           selectedConversation={selectedConversation}
           setSelectedConversation={setSelectedConversation}
+          setChatVendorId={setChatVendorId}
         />
       )}
       <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>

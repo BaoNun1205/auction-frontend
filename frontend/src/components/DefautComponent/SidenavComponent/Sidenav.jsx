@@ -1,20 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { Box, List, ListItem, ListItemIcon, ListItemText, Typography, Divider, IconButton, Button } from '@mui/material';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import { useAppStore } from '~/store/appStore'; // Đảm bảo store này có logic đúng
-import { styled } from '@mui/material/styles';
-import { Home, Folder, ShoppingBag, FileText, Calendar } from 'react-feather';
-import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'; // Nhập các icon để chuyển đổi
-import { useNavigate } from 'react-router-dom'; // Nhập useNavigate từ react-router-dom
-import { useLogout } from '~/hooks/authHook'; // Hook logout
-import { LogOut } from 'react-feather';
+import React, { useState, useEffect } from 'react'
+import { Box, List, ListItem, ListItemIcon, ListItemText, Typography, Divider, IconButton, Button, Badge } from '@mui/material'
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
+import { useAppStore } from '~/store/appStore'
+import { styled } from '@mui/material/styles'
+import { Home, Folder, ShoppingBag, FileText, Calendar, MessageCircle } from 'react-feather'
+import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
+import { useNavigate } from 'react-router-dom'
+import { useLogout } from '~/hooks/authHook'
+import { LogOut } from 'react-feather'
 
 // Độ rộng của Drawer
-const drawerWidth = 200;
-const drawerCollapsedWidth = 56;
+const drawerWidth = 200
+const drawerCollapsedWidth = 56
 
 // Định nghĩa các mục
-const HomeItem = { icon: <Home />, name: 'Trang Chủ', path: '/' };
+const HomeItem = { icon: <Home />, name: 'Trang Chủ', path: '/' }
 const CategoryItem = {
   icon: <Folder />,
   name: 'Danh Mục',
@@ -22,21 +22,26 @@ const CategoryItem = {
     { name: 'Danh Mục', path: '/category' },
     { name: 'Loại', path: '/category/type' }
   ]
-};
-const AssetItem = { icon: <ShoppingBag />, name: 'Vật phẩm', path: '/asset' };
+}
+const AssetItem = { icon: <ShoppingBag />, name: 'Vật phẩm', path: '/asset' }
 const RequirementItem = {
   icon: <FileText />,
   name: 'Yêu Cầu',
   path: '/requirement'
-
-};
+}
 const SessionItem = {
   icon: <Calendar />,
   name: 'Phiên',
-  path: '/session',
-};
+  path: '/session'
+}
+const SupportItem = {
+  icon: <MessageCircle />,
+  name: 'Hỗ trợ',
+  path: '/support',
+  showBadge: true
+}
 
-const menuItems = [HomeItem, CategoryItem, AssetItem, RequirementItem, SessionItem];
+const menuItems = [HomeItem, CategoryItem, AssetItem, RequirementItem, SessionItem, SupportItem]
 
 const StyledDrawer = styled('div')(({ open }) => ({
   width: open ? drawerWidth : drawerCollapsedWidth,
@@ -49,98 +54,90 @@ const StyledDrawer = styled('div')(({ open }) => ({
   borderRight: '1px solid #ccc',
   backgroundColor: '#fff',
   boxShadow: '2px 0 5px rgba(0, 0, 0, 0.1)',
-  transition: 'width 0.4s ease',  
-}));
+  transition: 'width 0.4s ease'
+}))
 
 const ListItemStyled = styled(ListItem)(({ open }) => ({
   '&:hover': { backgroundColor: '#e0e0e0' },
   borderRadius: '8px',
-  transition: 'all 0.3s ease',  
+  transition: 'all 0.3s ease',
   padding: open ? '8px 12px' : '12px 0',
-  marginBottom: '8px',
-}));
-
+  marginBottom: '8px'
+}))
 
 const Sidenav = ({ children }) => {
-  const open = useAppStore((state) => state.dopen); 
-  const setDopen = useAppStore((state) => state.updateOpen); 
-  const [activeSubItem, setActiveSubItem] = useState(''); 
-  const [expandedItems, setExpandedItems] = useState({}); 
-  const navigate = useNavigate();
+  const open = useAppStore((state) => state.dopen)
+  const setDopen = useAppStore((state) => state.updateOpen)
+  const { unreadConversationCount } = useAppStore()
+  const [activeSubItem, setActiveSubItem] = useState('')
+  const [expandedItems, setExpandedItems] = useState({})
+  const navigate = useNavigate()
 
-  const { mutate: logout, isLoading: isLoggingOut } = useLogout(); 
-
-
-  const [loading, setLoading] = useState(true);
-
+  const { mutate: logout, isLoading: isLoggingOut } = useLogout()
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const savedExpandedItems = JSON.parse(localStorage.getItem('expandedItems')) || {};
-    const savedActiveSubItem = localStorage.getItem('activeSubItem') || '';
-    setExpandedItems(savedExpandedItems);
-    setActiveSubItem(savedActiveSubItem);
-    setLoading(false); 
-  }, []);
-
+    const savedExpandedItems = JSON.parse(localStorage.getItem('expandedItems')) || {}
+    const savedActiveSubItem = localStorage.getItem('activeSubItem') || ''
+    setExpandedItems(savedExpandedItems)
+    setActiveSubItem(savedActiveSubItem)
+    setLoading(false)
+  }, [])
 
   const updateLocalStorage = (newExpandedItems, newActiveSubItem) => {
-    localStorage.setItem('expandedItems', JSON.stringify(newExpandedItems));
-    localStorage.setItem('activeSubItem', newActiveSubItem); 
-  };
-
+    localStorage.setItem('expandedItems', JSON.stringify(newExpandedItems))
+    localStorage.setItem('activeSubItem', newActiveSubItem)
+  }
 
   const handleItemClick = (itemId, path) => {
-    const item = menuItems.find((item) => item.name === itemId);
+    const item = menuItems.find((item) => item.name === itemId)
 
     if (item?.subItems) {
       setExpandedItems((prevExpandedItems) => {
         const updatedExpandedItems = {
           ...prevExpandedItems,
-          [itemId]: !prevExpandedItems[itemId], 
-        };
-        updateLocalStorage(updatedExpandedItems, activeSubItem); 
-        return updatedExpandedItems;
-      });
+          [itemId]: !prevExpandedItems[itemId]
+        }
+        updateLocalStorage(updatedExpandedItems, activeSubItem)
+        return updatedExpandedItems
+      })
     }
 
-    navigate(path); 
-  };
+    navigate(path)
+  }
 
   const handleSubItemClick = (subItemId, path, parentItemId) => {
-    const newActiveSubItem = `${parentItemId}-${subItemId}`;
-    setActiveSubItem(newActiveSubItem);
+    const newActiveSubItem = `${parentItemId}-${subItemId}`
+    setActiveSubItem(newActiveSubItem)
 
     setExpandedItems((prevExpandedItems) => ({
       ...prevExpandedItems,
-      [parentItemId]: true, 
-    }));
+      [parentItemId]: true
+    }))
 
-    updateLocalStorage(expandedItems, newActiveSubItem); 
-
-    navigate(path); 
-  };
+    updateLocalStorage(expandedItems, newActiveSubItem)
+    navigate(path)
+  }
 
   const handleDrawerToggle = () => {
-    setDopen(!open);
-  };
+    setDopen(!open)
+  }
 
   const handleDragEnd = (result) => {
-    if (!result.destination) return;
+    if (!result.destination) return
 
-    const newItems = Array.from(menuItems);
-    const [reorderedItem] = newItems.splice(result.source.index, 1);
-    newItems.splice(result.destination.index, 0, reorderedItem);
-  };
+    const newItems = Array.from(menuItems)
+    const [reorderedItem] = newItems.splice(result.source.index, 1)
+    newItems.splice(result.destination.index, 0, reorderedItem)
+  }
 
   const handleLogout = () => {
-    logout();
-
-    navigate('/'); 
-
-  };
+    logout()
+    navigate('/')
+  }
 
   if (loading) {
-    return null; 
+    return null
   }
 
   return (
@@ -155,7 +152,7 @@ const Sidenav = ({ children }) => {
             <Box sx={{ width: '100%' }} />
           )}
           <IconButton onClick={handleDrawerToggle} sx={{ padding: 0, display: 'flex', justifyContent: 'center' }}>
-            {open ? <FiChevronLeft /> : <FiChevronRight />} 
+            {open ? <FiChevronLeft /> : <FiChevronRight />}
           </IconButton>
         </Box>
 
@@ -175,7 +172,23 @@ const Sidenav = ({ children }) => {
                           open={open}
                         >
                           <ListItemIcon sx={{ minWidth: '32px', marginRight: '4px' }}>
-                            {item.icon}
+                            {item.name === 'Hỗ trợ' && unreadConversationCount > 0 ? (
+                              <Badge
+                                badgeContent={unreadConversationCount}
+                                color="error"
+                                sx={{
+                                  '& .MuiBadge-badge': {
+                                    fontSize: '0.75rem',
+                                    minWidth: '18px',
+                                    height: '18px'
+                                  }
+                                }}
+                              >
+                                {item.icon}
+                              </Badge>
+                            ) : (
+                              item.icon
+                            )}
                           </ListItemIcon>
                           {open && <ListItemText primary={item.name} />}
                         </ListItemStyled>
@@ -184,8 +197,8 @@ const Sidenav = ({ children }) => {
                           <ListItemStyled
                             key={subItem.name}
                             button
-                            onClick={() => handleSubItemClick(subItem.name, subItem.path, item.name)} // Xử lý click vào sub-item
-                            isActive={activeSubItem === `${item.name}-${subItem.name}`} // So sánh bằng khóa parentName-subItemName
+                            onClick={() => handleSubItemClick(subItem.name, subItem.path, item.name)}
+                            isActive={activeSubItem === `${item.name}-${subItem.name}`}
                             sx={{ pl: 4 }}
                           >
                             <ListItemText primary={subItem.name} />
@@ -200,60 +213,57 @@ const Sidenav = ({ children }) => {
           </Droppable>
         </DragDropContext>
 
-        {/* Nút Logout */}
         <Box
-  sx={{
-    padding: open ? '8px 16px' : '0', 
-    position: 'absolute',
-    bottom: '16px',
-    width: '100%',
-    display: 'flex',
-    justifyContent: 'center', // Căn giữa khi thu nhỏ
-  }}
->
-  <Button
-    fullWidth={open}
-    onClick={handleLogout}
-    sx={{
-      borderRadius: open ? '8px' : '50%',
-      textTransform: 'none',
-      backgroundColor: open ? '#000' : 'transparent', 
-      color: open ? '#fff' : '#000', 
-      padding: open ? '8px 36px' : '12px', 
-      minHeight: '48px', 
-      width: open ? 'auto' : '48px', 
-      display: 'flex',
-      justifyContent: 'center', 
-      alignItems: 'center', 
-      boxShadow: 'none', 
-      transition: 'all 0.3s ease', 
-      '&:hover': {
-        backgroundColor: open ? '#333' : '#f0f0f0', 
-      },
-    }}
-  >
-    {open ? (
-      'Đăng Xuất'
-    ) : (
-      <LogOut size={20} /> 
-    )}
-  </Button>
-</Box>
-
-
+          sx={{
+            padding: open ? '8px 16px' : '0',
+            position: 'absolute',
+            bottom: '16px',
+            width: '100%',
+            display: 'flex',
+            justifyContent: 'center'
+          }}
+        >
+          <Button
+            fullWidth={open}
+            onClick={handleLogout}
+            sx={{
+              borderRadius: open ? '8px' : '50%',
+              textTransform: 'none',
+              backgroundColor: open ? '#000' : 'transparent',
+              color: open ? '#fff' : '#000',
+              padding: open ? '8px 36px' : '12px',
+              minHeight: '48px',
+              width: open ? 'auto' : '48px',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              boxShadow: 'none',
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                backgroundColor: open ? '#333' : '#f0f0f0'
+              }
+            }}
+          >
+            {open ? (
+              'Đăng Xuất'
+            ) : (
+              <LogOut size={20} />
+            )}
+          </Button>
+        </Box>
       </StyledDrawer>
 
       <Box
         sx={{
           flexGrow: 1,
-          marginLeft: open ? `${drawerWidth}px` : `${drawerWidth}px`, 
-          transition: 'margin-left 0.4s ease', 
+          marginLeft: open ? `${drawerWidth}px` : `${drawerCollapsedWidth}px`,
+          transition: 'margin-left 0.4s ease'
         }}
       >
         {children}
       </Box>
     </Box>
-  );
-};
+  )
+}
 
-export default Sidenav;
+export default Sidenav

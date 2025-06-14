@@ -96,7 +96,9 @@ function App() {
           {/* Catch-all route for 404 - must be last */}
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
-        <ChatButton />
+        {getRole() === 'ROLE_USER' && (
+          <ChatButton />
+        )}
       </Router>
     </ToastProvider>
   )

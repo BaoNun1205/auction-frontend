@@ -141,9 +141,11 @@ const AuctionModal = ({ open, handleClose, item }) => {
                   Người thắng cuộc
                 </Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <Avatar sx={{ bgcolor: 'primary.main', mr: 2 }}>
-                    <Person />
-                  </Avatar>
+                  <Avatar
+                    sx={{ bgcolor: 'primary.main', mr: 2 }}
+                    src={item.auctionSessionInfo.user.avatar || item.auctionSessionInfo.user.username.charAt(0).toUpperCase()}
+                    alt={item.auctionSessionInfo.user.username}
+                  />
                   <Box>
                     <Typography variant="subtitle1" fontWeight="bold">
                       {item.auctionSessionInfo.user.name || item.auctionSessionInfo.user.username}
@@ -171,7 +173,7 @@ const AuctionModal = ({ open, handleClose, item }) => {
                       <ListItem alignItems="flex-start" disableGutters>
                         <ListItemAvatar>
                           <Avatar sx={{ bgcolor: index === 0 ? 'primary.main' : 'grey.400' }}>
-                            {bid.user.name?.charAt(0) || bid.user.username[0]}
+                            {bid.user?.avatar || bid.user.username.charAt(0).toUpperCase()}
                           </Avatar>
                         </ListItemAvatar>
                         <ListItemText

@@ -16,6 +16,7 @@ import {
 import { Timer, Gavel, Close, Person, Home, Phone } from '@mui/icons-material'
 import { useGetSessionByAssetId } from '~/hooks/sessionHook'
 import { useGetAddressDefaultByUserId } from '~/hooks/addressHook'
+import { useNavigate } from 'react-router-dom'
 
 // InfoChip component nếu không có trong style
 const InfoChip = ({ icon, label, color, sx }) => (
@@ -25,6 +26,7 @@ const InfoChip = ({ icon, label, color, sx }) => (
 const AssetSuccessModal = ({ open, handleClose, asset }) => {
   const theme = useTheme()
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'))
+  const navigate = useNavigate();
 
   console.log('AssetSuccessModal props:', { open, asset })
 
@@ -50,10 +52,13 @@ const AssetSuccessModal = ({ open, handleClose, asset }) => {
     }
   }, [open, userId, refetchAddress])
 
-  // Đơn giản hóa điều kiện render
   if (!open || !asset) {
     console.log('Modal not rendering - open:', open, 'asset:', asset)
     return null
+  }
+
+  const handleUserClick = (userId) => {
+    navigate(`/store/${userId}`)
   }
 
   return (
@@ -124,7 +129,10 @@ const AssetSuccessModal = ({ open, handleClose, asset }) => {
                 <Typography variant="h6" gutterBottom fontWeight="bold">
                   Thông tin người nhận
                 </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <Box
+                  onClick={() => handleUserClick(session.auctionSessionInfo.user.userId)}
+                  sx={{ display: 'flex', alignItems: 'center', mb: 2, cursor: 'pointer' }}
+                >
                   <Avatar src={session.auctionSessionInfo.user.avatar} sx={{ width: 60, height: 60, mr: 2 }} />
                   <Box>
                     <Typography variant="subtitle1" fontWeight="bold">
