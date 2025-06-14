@@ -263,10 +263,10 @@ const AssetList = () => {
                             </StyledStatusBox>
                           </TableCell>
                           <TableCell>
-                            <StyledSpan>{asset.vendor.username || 'N/A'}</StyledSpan>
+                            <StyledSpan>{asset?.vendor?.username || 'N/A'}</StyledSpan>
                           </TableCell>
                           <TableCell>
-                            <StyledSpan>{asset.inspector.user.username || 'N/A'}</StyledSpan>
+                            <StyledSpan>Manager</StyledSpan>
                           </TableCell>
                         </StyledTableRow>
                       )
