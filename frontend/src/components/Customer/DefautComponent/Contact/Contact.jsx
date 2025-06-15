@@ -172,7 +172,7 @@ const Contact = () => {
   const { auth, setChatOpen, setChatVendorId } = useAppStore()
   const [authModalRef, setAuthModalRef] = useState(null)
   const { mutate: createConversation } = useCreateConversation()
-  const { data: adminUser } = useGetUserByUsername('admin')
+  const { data: manager } = useGetUserByUsername('manager')
 
   const [formData, setFormData] = useState({
     name: '',
@@ -296,12 +296,12 @@ const Contact = () => {
       authModalRef?.click()
       return
     }
-    // Giả sử adminUser?.id là userId của admin
+    // Giả sử manager?.id là userId của admin
     createConversation(
-      { buyerId: auth.user.id, sellerId: adminUser?.userId },
+      { buyerId: auth.user.id, sellerId: manager?.userId },
       {
         onSuccess: () => {
-          setChatVendorId(adminUser?.userId)
+          setChatVendorId(manager?.userId)
           setChatOpen(true)
         }
       }
