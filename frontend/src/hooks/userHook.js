@@ -1,10 +1,17 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getUserById, updateAvatar, updateUnreadNotificationCount, updateUser } from '~/api/user'
+import { getUserById, getUserByUsername, updateAvatar, updateUnreadNotificationCount, updateUser } from '~/api/user'
 
 export const useGetUserById = (id) => {
   return useQuery({
     queryKey: ['user', id],
     queryFn: () => getUserById(id),
+  });
+}
+
+export const useGetUserByUsername = (username) => {
+  return useQuery({
+    queryKey: ['userByUsername', username],
+    queryFn: () => getUserByUsername(username),
   });
 }
 

@@ -43,6 +43,17 @@ export default function Chat({ vendorId }) {
   const { data: conversations = [], isLoading: isLoadingConversations } = useGetConversations(currentUserId)
 
   useEffect(() => {
+    if (!vendorId || !conversations.length) return
+    const matched = conversations.find(
+      (conv) =>
+        (conv.seller.userId === vendorId || conv.buyer.userId === vendorId)
+    )
+    if (matched) {
+      setSelectedConversation(matched.conversationId)
+    }
+  }, [vendorId, conversations, currentUserId, setChatVendorId])
+
+  useEffect(() => {
     if (conversationCount !== conversations.length) {
       setConversationCount(conversations.length)
     }

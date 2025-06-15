@@ -1,21 +1,20 @@
 import React from 'react';
 import { Box } from '@mui/material';
 import Sidenav from '~/components/DefautComponent/SidenavComponent/Sidenav';
-import { useAppStore } from '~/store/appStore'; // Truyền trạng thái mở/đóng vào
+import { useAppStore } from '~/store/appStore';
 import Header from '~/components/Customer/DefautComponent/HeaderComponent/Header';
 function Dashboard({ children }) {
-  const open = useAppStore((state) => state.dopen); // Truyền giá trị open từ Zustand để kiểm soát sidebar
+  const open = useAppStore((state) => state.dopen);
 
   return (
     <Box>
       <Sidenav />
       <Box
-      
         sx={{
-          flexGrow: 1,
           padding: '24px',
-          marginLeft: open ? '200px' : '56px', // Khi sidebar mở hoặc đóng, content sẽ shift ra ngoài hoặc thu vào
-          transition: 'margin-left 0.4s ease', // Cải thiện hiệu ứng di chuyển khi mở/đóng sidebar
+          flexGrow: 1,
+          marginLeft: open ? '200px' : '56px',
+          transition: 'margin-left 0.4s ease'
         }}
       >
         {children}

@@ -12,6 +12,15 @@ export const getUserById = async (id) => {
   }
 };
 
+export const getUserByUsername = async (username) => {
+  try {
+    const response = await GET({ url: `${USER_PATH}/username/${username}` });
+    return response.data.result;
+  } catch (error) {
+    handleApiError(error);
+  }
+};
+
 export const updateUser = async (userId, payload) => {
   try {
     const response = await PUT({
