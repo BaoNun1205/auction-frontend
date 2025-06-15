@@ -39,7 +39,7 @@ import {
 } from '@mui/icons-material'
 import { FaFax } from 'react-icons/fa'
 import { useAppStore } from '~/store/appStore'
-import { useCreateConversation } from '~/hooks/chatBotHook'
+import { useCreateConversation } from '~/hooks/chatHook'
 import { useGetUserByUsername } from '~/hooks/userHook'
 import AppModal from '~/components/Modal/Modal'
 import Authentication from '~/features/Authentication'
