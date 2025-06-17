@@ -46,6 +46,8 @@ import {
   Area,
   Legend
 } from 'recharts'
+import { useCountActiveUsers } from '~/hooks/userHook'
+import { useCountActiveAuctionSessions } from '~/hooks/sessionHook'
 
 // Dữ liệu mẫu cho biểu đồ
 const visitorDataMonth = [
@@ -81,38 +83,6 @@ const incomeData = [
   { day: 'T6', soTien: 800 },
   { day: 'T7', soTien: 680 },
   { day: 'CN', soTien: 950 }
-]
-
-// Dữ liệu thẻ chỉ số
-const metricCards = [
-  {
-    title: 'Tổng Lượt Truy Cập',
-    value: '4,42,236',
-    change: '59.3%',
-    isPositive: true,
-    extra: '35,000'
-  },
-  {
-    title: 'Tổng Người Dùng',
-    value: '78,250',
-    change: '70.5%',
-    isPositive: true,
-    extra: '8,900'
-  },
-  {
-    title: 'Tổng Đơn Hàng',
-    value: '18,800',
-    change: '27.4%',
-    isPositive: false,
-    extra: '1,943'
-  },
-  {
-    title: 'Tổng Doanh Thu',
-    value: '35.000.000 VNĐ',
-    change: '27.4%',
-    isPositive: false,
-    extra: '20,395'
-  }
 ]
 
 // Dữ liệu mẫu cho biểu đồ
@@ -194,6 +164,47 @@ const Dashboard = () => {
   const visitorData = timeView === 'thang' ? visitorDataMonth : visitorDataWeek
   const [showIncome, setShowIncome] = useState(true)
   const [showCost, setShowCost] = useState(true)
+  const { data: countActiveUsers, isLoading: isLoadingActiveUser } = useCountActiveUsers()
+  const { data: countActiveSession, isLoading: isLoadingActiveSession } = useCountActiveAuctionSessions()
+
+  const metricCards = [
+    {
+      title: 'Tổng Lượt Truy Cập',
+      value: '442,236',
+      change: '59.3%',
+      isPositive: true,
+      extra: '35,000'
+    },
+    {
+      title: 'Tổng Người Dùng',
+      value: isLoadingActiveUser ? 'Đang tải...' : countActiveUsers.totalCount.toLocaleString(),
+      change: isLoadingActiveUser
+        ? 'Đang tải...'
+        : `${Math.abs(countActiveUsers.growthRate).toLocaleString()}%`,
+      isPositive: isLoadingActiveUser
+        ? true
+        : (countActiveUsers.growthRate ?? 0) >= 0,
+      extra: isLoadingActiveUser ? 'Đang tải...' : countActiveUsers.countOfYear.toLocaleString()
+    },
+    {
+      title: 'Tổng phiên đấu giá',
+      value: isLoadingActiveSession ? 'Đang tải...' : countActiveSession?.totalCount?.toLocaleString(),
+      change: isLoadingActiveSession
+        ? 'Đang tải...'
+        : `${Math.abs(countActiveSession?.growthRate ?? 0).toLocaleString()}%`,
+      isPositive: isLoadingActiveSession
+        ? false
+        : (countActiveSession?.growthRate ?? 0) >= 0,
+      extra: isLoadingActiveSession ? 'Đang tải...' : countActiveSession?.countOfYear?.toLocaleString()
+    },
+    {
+      title: 'Tổng Doanh Thu',
+      value: '35.000.000 VNĐ',
+      change: '27.4%',
+      isPositive: false,
+      extra: '20,395'
+    }
+  ]
 
   // Các style được tái sử dụng
   const paperStyle = {

@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getUserById, getUserByUsername, updateAvatar, updateUnreadNotificationCount, updateUser } from '~/api/user'
+import { countActiveUsers, getUserById, getUserByUsername, updateAvatar, updateUnreadNotificationCount, updateUser } from '~/api/user'
 
 export const useGetUserById = (id) => {
   return useQuery({
@@ -59,5 +59,12 @@ export const useUpdateUnreadNotificationCount = () => {
     onError: (error) => {
       console.error('Error updating unread notification count:', error);
     }
+  });
+};
+
+export const useCountActiveUsers = () => {
+  return useQuery({
+    queryKey: ['activeUserCount'],
+    queryFn: countActiveUsers,
   });
 };

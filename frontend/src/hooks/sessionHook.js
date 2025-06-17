@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { createSesion, getSessionById, filterSessions, getRelatedSessions, updateSesion, registerSesion, getRegistedSession, checkRegisted, getUsersRegisted, getWinSessionsByUserId, getSessionByAssetId, unRegisterSesion, updateSessionWinnerStatus } from '~/api/sessionApi'
+import { createSesion, getSessionById, filterSessions, getRelatedSessions, updateSesion, registerSesion, getRegistedSession, checkRegisted, getUsersRegisted, getWinSessionsByUserId, getSessionByAssetId, unRegisterSesion, updateSessionWinnerStatus, countActiveAuctionSessions } from '~/api/sessionApi'
 
 export const useCreateSession = () => {
   const queryClient = useQueryClient()
@@ -149,5 +149,12 @@ export const useUpdateSessionWinnerStatus = () => {
     onError: (error) => {
       console.error('Error updating session winner status:', error);
     },
+  });
+};
+
+export const useCountActiveAuctionSessions = () => {
+  return useQuery({
+    queryKey: ['activeAuctionSessionCount'],
+    queryFn: countActiveAuctionSessions,
   });
 };

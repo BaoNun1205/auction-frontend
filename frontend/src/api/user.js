@@ -62,3 +62,14 @@ export const updateUnreadNotificationCount = async (userId, count) => {
     handleApiError(error);
   }
 };
+
+export const countActiveUsers = async () => {
+  try {
+    const response = await GET({
+      url: `${USER_PATH}/active/count`
+    });
+    return response.data.result;
+  } catch (error) {
+    handleApiError(error);
+  }
+};

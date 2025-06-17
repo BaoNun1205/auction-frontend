@@ -139,3 +139,14 @@ export const updateSessionWinnerStatus = async (sessionWinnerId, status) => {
     handleApiError(error)
   }
 }
+
+export const countActiveAuctionSessions = async () => {
+  try {
+    const response = await GET({
+      url: `${SESSION_PATH}/active/count`
+    })
+    return response.data.result
+  } catch (error) {
+    handleApiError(error)
+  }
+}
