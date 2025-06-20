@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { cancelPaymentSession, completedPaymentSession, getBalanceHistoryByUserId, paymentSession } from '~/api/balanceHistoryApi'
+import { cancelPaymentSession, completedPaymentSession, getBalanceHistoryByUserId, getTotalRevenueByManager, paymentSession } from '~/api/balanceHistoryApi'
 
 export const UseGetBalanceHistory = (id) => {
   return useQuery({
@@ -58,3 +58,10 @@ export const useCancelPaymentSession = () => {
     }
   })
 }
+
+export const useGetTotalRevenueByManager = () => {
+  return useQuery({
+    queryKey: ['totalRevenueByManager'],
+    queryFn: getTotalRevenueByManager,
+  });
+};

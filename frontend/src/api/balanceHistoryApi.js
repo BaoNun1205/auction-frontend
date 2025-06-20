@@ -55,3 +55,14 @@ export const cancelPaymentSession = async ({ sellerId, sessionId }) => {
     handleApiError(error)
   }
 }
+
+export const getTotalRevenueByManager = async () => {
+  try {
+    const response = await GET({
+      url: `${BALANCE_HISTORY_PATH}/manager/total-revenue`
+    })
+    return response.data.result
+  } catch (error) {
+    handleApiError(error)
+  }
+}

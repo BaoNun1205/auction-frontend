@@ -48,6 +48,7 @@ import {
 } from 'recharts'
 import { useCountActiveUsers } from '~/hooks/userHook'
 import { useCountActiveAuctionSessions } from '~/hooks/sessionHook'
+import { useGetTotalRevenueByManager } from '~/hooks/balanceHistoryHook'
 
 // Dữ liệu mẫu cho biểu đồ
 const visitorDataMonth = [
@@ -166,6 +167,7 @@ const Dashboard = () => {
   const [showCost, setShowCost] = useState(true)
   const { data: countActiveUsers, isLoading: isLoadingActiveUser } = useCountActiveUsers()
   const { data: countActiveSession, isLoading: isLoadingActiveSession } = useCountActiveAuctionSessions()
+  const { data: totalRevenue, isLoading: isLoadingTotalRevenue } = useGetTotalRevenueByManager()
 
   const metricCards = [
     {
@@ -184,7 +186,11 @@ const Dashboard = () => {
       isPositive: isLoadingActiveUser
         ? true
         : (countActiveUsers.growthRate ?? 0) >= 0,
-      extra: isLoadingActiveUser ? 'Đang tải...' : countActiveUsers.countOfYear.toLocaleString()
+      extra: isLoadingActiveUser
+        ? 'Đang tải...'
+        : countActiveUsers.countOfYear
+          ? `${countActiveUsers.countOfYear.toLocaleString()} người dùng`
+          : '0 người dùng'
     },
     {
       title: 'Tổng phiên đấu giá',
@@ -195,14 +201,30 @@ const Dashboard = () => {
       isPositive: isLoadingActiveSession
         ? false
         : (countActiveSession?.growthRate ?? 0) >= 0,
-      extra: isLoadingActiveSession ? 'Đang tải...' : countActiveSession?.countOfYear?.toLocaleString()
+      extra: isLoadingActiveSession
+        ? 'Đang tải...'
+        : countActiveSession?.countOfYear
+          ? `${countActiveSession.countOfYear.toLocaleString()} phiên`
+          : '0 phiên'
     },
     {
       title: 'Tổng Doanh Thu',
-      value: '35.000.000 VNĐ',
-      change: '27.4%',
-      isPositive: false,
-      extra: '20,395'
+      value: isLoadingTotalRevenue
+        ? 'Đang tải...'
+        : totalRevenue?.totalRevenue
+          ? `${Number(totalRevenue.totalRevenue).toLocaleString()}`
+          : '0 VNĐ',
+      change: isLoadingTotalRevenue
+        ? 'Đang tải...'
+        : `${Math.abs(totalRevenue?.growthRate ?? 0).toLocaleString()}%`,
+      isPositive: isLoadingTotalRevenue
+        ? false
+        : (totalRevenue?.growthRate ?? 0) >= 0,
+      extra: isLoadingTotalRevenue
+        ? 'Đang tải...'
+        : totalRevenue?.revenueOfYear
+          ? `${Number(totalRevenue.revenueOfYear).toLocaleString()} VNĐ`
+          : '0 VNĐ'
     }
   ]
 
